@@ -1,0 +1,13 @@
+﻿La génération a démarré 2/3/2018 3:14:57 PM.
+     1>Projet "C:\Users\Aissa\Documents\Visual Studio 2013\PROJECTS\PFE_PROJECT\SOURCE_CODE\FeaturePointsComparison.vcxproj" sur le nœud 2 (Rebuild cible(s)).
+     1>CustomBuild:
+         Moc'ing mainwindow.h...
+         The system cannot find the path specified.
+         Uic'ing mainwindow.ui...
+         The system cannot find the path specified.
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppCommon.targets(170,5): error MSB6006: Arrêt de "cmd.exe" avec le code 3.
+     1>Génération du projet "C:\Users\Aissa\Documents\Visual Studio 2013\PROJECTS\PFE_PROJECT\SOURCE_CODE\FeaturePointsComparison.vcxproj" terminée (Rebuild cible(s)) -- ÉCHEC.
+
+ÉCHEC de la build.
+
+Temps écoulé 00:00:00.12
