@@ -146,7 +146,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mainwindow.h;%(AdditionalInputs)</AdditionalInputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
 if errorlevel 1 goto VCEnd
-$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_NO_WARNING_OUTPUT -DQT_NO_DEBUG_OUTPUT -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -D_MSC_VER=1800 -D_WIN32 -IC:/QT/QT5.4.1/5.4/MSVC2013/mkspecs/win32-msvc2013 -I"C:/Users/Aissa/Documents/Visual Studio 2013/Projects/fpc/fpc_source" -I"C:/Program Files/opencv/build/include" -IC:/QT/QT5.4.1/5.4/MSVC2013/include -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtWidgets -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtGui -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtANGLE -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtCore mainwindow.h -o release\moc_mainwindow.cpp
+$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_NO_WARNING_OUTPUT -DQT_NO_DEBUG_OUTPUT -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -D_MSC_VER=1800 -D_WIN32 -IC:/QT/QT5.4.1/5.4/MSVC2013/mkspecs/win32-msvc2013 -I"C:/Users/Aissa/Documents/Visual Studio 2013/Projects/fpc/source_code" -I"C:/Program Files/opencv/build/include" -IC:/QT/QT5.4.1/5.4/MSVC2013/include -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtWidgets -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtGui -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtANGLE -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtCore mainwindow.h -o release\moc_mainwindow.cpp
 if errorlevel 1 goto VCEnd
 endlocal</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MOC mainwindow.h</Message>
@@ -154,7 +154,7 @@ endlocal</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mainwindow.h;%(AdditionalInputs)</AdditionalInputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
 if errorlevel 1 goto VCEnd
-$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -D_MSC_VER=1800 -D_WIN32 -IC:/QT/QT5.4.1/5.4/MSVC2013/mkspecs/win32-msvc2013 -I"C:/Users/Aissa/Documents/Visual Studio 2013/Projects/fpc/fpc_source" -I"C:/Program Files/opencv/build/include" -IC:/QT/QT5.4.1/5.4/MSVC2013/include -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtWidgets -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtGui -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtANGLE -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtCore mainwindow.h -o debug\moc_mainwindow.cpp
+$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -D_MSC_VER=1800 -D_WIN32 -IC:/QT/QT5.4.1/5.4/MSVC2013/mkspecs/win32-msvc2013 -I"C:/Users/Aissa/Documents/Visual Studio 2013/Projects/fpc/source_code" -I"C:/Program Files/opencv/build/include" -IC:/QT/QT5.4.1/5.4/MSVC2013/include -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtWidgets -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtGui -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtANGLE -IC:/QT/QT5.4.1/5.4/MSVC2013/include/QtCore mainwindow.h -o debug\moc_mainwindow.cpp
 if errorlevel 1 goto VCEnd
 endlocal</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MOC mainwindow.h</Message>
