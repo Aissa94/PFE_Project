@@ -42,3 +42,26 @@
 *.svg
 *.ico
 *.psd
+
+# Others
+*.sdf
+*.sln
+*.vcxproj
+*.user
+*.suo
+*.filters
+*.aps
+*.ilk
+*.log
+*.pdb
+*.res
+*.tlog
+*.lastbuildstate
+*.pro
+*.rc
+
+# Folders
+GeneratedFiles/
+debug/
+Release/
+Win32/
