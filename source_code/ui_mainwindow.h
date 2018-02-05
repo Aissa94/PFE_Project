@@ -25,6 +25,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
 #include <QtWidgets/QTabWidget>
+#include <QtWidgets/QTableView>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -136,15 +137,16 @@ public:
     QLineEdit *orbNumFeatText;
     QLineEdit *orbWTAKText;
     QLineEdit *orbPatchSizeText;
-    QWidget *tab_8;
+    QWidget *tab_6;
     QWidget *layoutWidget;
     QGridLayout *gridLayout_20;
     QLabel *label_38;
-    QLabel *label_39;
+    QLineEdit *briskPatternScaleText;
+    QLineEdit *briskOctavesText;
     QLabel *label_44;
     QLineEdit *briskThreshText;
-    QLineEdit *briskOctavesText;
-    QLineEdit *briskPatternScaleText;
+    QLabel *label_39;
+    QTableView *tableView;
     QMenuBar *menuBar;
     QMenu *menuWindows;
     QMenu *menuFile;
@@ -154,7 +156,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(615, 657);
+        MainWindow->resize(815, 658);
         actionDestroy_All_Windows = new QAction(MainWindow);
         actionDestroy_All_Windows->setObjectName(QStringLiteral("actionDestroy_All_Windows"));
         actionRun = new QAction(MainWindow);
@@ -248,6 +250,7 @@ public:
 
         tabWidget = new QTabWidget(centralWidget);
         tabWidget->setObjectName(QStringLiteral("tabWidget"));
+        tabWidget->setEnabled(true);
         tabWidget->setAcceptDrops(false);
         tab = new QWidget();
         tab->setObjectName(QStringLiteral("tab"));
@@ -671,11 +674,11 @@ public:
         gridLayout_13->addLayout(gridLayout_12, 0, 0, 1, 1);
 
         tabWidget->addTab(tab_4, QString());
-        tab_8 = new QWidget();
-        tab_8->setObjectName(QStringLiteral("tab_8"));
-        layoutWidget = new QWidget(tab_8);
+        tab_6 = new QWidget();
+        tab_6->setObjectName(QStringLiteral("tab_6"));
+        layoutWidget = new QWidget(tab_6);
         layoutWidget->setObjectName(QStringLiteral("layoutWidget"));
-        layoutWidget->setGeometry(QRect(10, 0, 571, 241));
+        layoutWidget->setGeometry(QRect(10, 0, 381, 251));
         gridLayout_20 = new QGridLayout(layoutWidget);
         gridLayout_20->setSpacing(6);
         gridLayout_20->setContentsMargins(11, 11, 11, 11);
@@ -687,11 +690,15 @@ public:
 
         gridLayout_20->addWidget(label_38, 0, 0, 1, 1);
 
-        label_39 = new QLabel(layoutWidget);
-        label_39->setObjectName(QStringLiteral("label_39"));
-        label_39->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        briskPatternScaleText = new QLineEdit(layoutWidget);
+        briskPatternScaleText->setObjectName(QStringLiteral("briskPatternScaleText"));
 
-        gridLayout_20->addWidget(label_39, 1, 0, 1, 1);
+        gridLayout_20->addWidget(briskPatternScaleText, 0, 1, 1, 2);
+
+        briskOctavesText = new QLineEdit(layoutWidget);
+        briskOctavesText->setObjectName(QStringLiteral("briskOctavesText"));
+
+        gridLayout_20->addWidget(briskOctavesText, 1, 1, 1, 2);
 
         label_44 = new QLabel(layoutWidget);
         label_44->setObjectName(QStringLiteral("label_44"));
@@ -704,24 +711,25 @@ public:
 
         gridLayout_20->addWidget(briskThreshText, 2, 1, 1, 2);
 
-        briskOctavesText = new QLineEdit(layoutWidget);
-        briskOctavesText->setObjectName(QStringLiteral("briskOctavesText"));
+        label_39 = new QLabel(layoutWidget);
+        label_39->setObjectName(QStringLiteral("label_39"));
+        label_39->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        gridLayout_20->addWidget(briskOctavesText, 1, 1, 1, 2);
+        gridLayout_20->addWidget(label_39, 1, 0, 1, 1);
 
-        briskPatternScaleText = new QLineEdit(layoutWidget);
-        briskPatternScaleText->setObjectName(QStringLiteral("briskPatternScaleText"));
-
-        gridLayout_20->addWidget(briskPatternScaleText, 0, 1, 1, 2);
-
-        tabWidget->addTab(tab_8, QString());
+        tabWidget->addTab(tab_6, QString());
 
         gridLayout_6->addWidget(tabWidget, 2, 0, 1, 1);
+
+        tableView = new QTableView(centralWidget);
+        tableView->setObjectName(QStringLiteral("tableView"));
+
+        gridLayout_6->addWidget(tableView, 0, 1, 4, 1);
 
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 615, 21));
+        menuBar->setGeometry(QRect(0, 0, 815, 21));
         menuWindows = new QMenu(menuBar);
         menuWindows->setObjectName(QStringLiteral("menuWindows"));
         menuFile = new QMenu(menuBar);
@@ -744,8 +752,8 @@ public:
         retranslateUi(MainWindow);
 
         tabWidget_2->setCurrentIndex(0);
-        tabWidget->setCurrentIndex(2);
-        tabWidget_3->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(4);
+        tabWidget_3->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -843,12 +851,12 @@ public:
         orbPatchSizeText->setText(QApplication::translate("MainWindow", "31", 0));
         tabWidget->setTabText(tabWidget->indexOf(tab_4), QApplication::translate("MainWindow", "ORB", 0));
         label_38->setText(QApplication::translate("MainWindow", "Pattern Scale :", 0));
-        label_39->setText(QApplication::translate("MainWindow", "Number of Octaves :", 0));
+        briskPatternScaleText->setText(QApplication::translate("MainWindow", "1.0", 0));
+        briskOctavesText->setText(QApplication::translate("MainWindow", "3", 0));
         label_44->setText(QApplication::translate("MainWindow", "Threshold Score :", 0));
         briskThreshText->setText(QApplication::translate("MainWindow", "30", 0));
-        briskOctavesText->setText(QApplication::translate("MainWindow", "3", 0));
-        briskPatternScaleText->setText(QApplication::translate("MainWindow", "1.0", 0));
-        tabWidget->setTabText(tabWidget->indexOf(tab_8), QApplication::translate("MainWindow", "BRISK", 0));
+        label_39->setText(QApplication::translate("MainWindow", "Number of Octaves :", 0));
+        tabWidget->setTabText(tabWidget->indexOf(tab_6), QApplication::translate("MainWindow", "BRISK", 0));
         menuWindows->setTitle(QApplication::translate("MainWindow", "Windows", 0));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0));
         menuHelp->setTitle(QApplication::translate("MainWindow", "Help", 0));
