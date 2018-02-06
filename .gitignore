@@ -44,6 +44,9 @@
 *.psd
 
 # Others
+*.opensdf
+*.autosave
+*.user.*
 *.sdf
 *.sln
 *.vcxproj

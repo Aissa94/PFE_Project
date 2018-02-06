@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>615</width>
-    <height>657</height>
+    <width>1125</width>
+    <height>658</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,13 +30,6 @@
           <string>Image &amp;&amp; Image</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_9">
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="firstImgText">
-            <property name="text">
-             <string>C:/Users/Aissa/Documents/Visual Studio 2013/Projects/PFE_Project/source_code/images/box1.png</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_3">
             <property name="text">
@@ -47,15 +40,15 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QPushButton" name="firstImgBtn">
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="firstImgText">
             <property name="text">
-             <string>Browse</string>
+             <string>C:/Users/Aissa/Documents/Visual Studio 2013/Projects/PFE_Project/source_code/images/box1.png</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="secondImgBtn">
+          <item row="0" column="2">
+           <widget class="QPushButton" name="firstImgBtn">
             <property name="text">
              <string>Browse</string>
             </property>
@@ -68,6 +61,13 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QPushButton" name="secondImgBtn">
+            <property name="text">
+             <string>Browse</string>
             </property>
            </widget>
           </item>
@@ -111,6 +111,9 @@
     </item>
     <item row="2" column="0">
      <widget class="QTabWidget" name="tabWidget">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="acceptDrops">
        <bool>false</bool>
       </property>
@@ -118,7 +121,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -336,7 +339,7 @@
           <item row="1" column="0">
            <widget class="QTabWidget" name="tabWidget_3">
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="tab_10">
              <attribute name="title">
@@ -714,74 +717,71 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_8">
+      <widget class="QWidget" name="tab_6">
        <attribute name="title">
         <string>BRISK</string>
        </attribute>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>0</y>
-          <width>571</width>
-          <height>241</height>
-         </rect>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_20">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_38">
-           <property name="text">
-            <string>Pattern Scale :</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_39">
-           <property name="text">
-            <string>Number of Octaves :</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_44">
-           <property name="text">
-            <string>Threshold Score :</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1" colspan="2">
-          <widget class="QLineEdit" name="briskThreshText">
-           <property name="text">
-            <string>30</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1" colspan="2">
-          <widget class="QLineEdit" name="briskOctavesText">
-           <property name="text">
-            <string>3</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1" colspan="2">
-          <widget class="QLineEdit" name="briskPatternScaleText">
-           <property name="text">
-            <string>1.0</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
+       <layout class="QGridLayout" name="gridLayout_20">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_38">
+          <property name="text">
+           <string>Pattern Scale :</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_39">
+          <property name="text">
+           <string>Number of Octaves :</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" colspan="2">
+         <widget class="QLineEdit" name="briskThreshText">
+          <property name="text">
+           <string>30</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_44">
+          <property name="text">
+           <string>Threshold Score :</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" colspan="2">
+         <widget class="QLineEdit" name="briskPatternScaleText">
+          <property name="text">
+           <string>1.0</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" colspan="2">
+         <widget class="QLineEdit" name="briskOctavesText">
+          <property name="text">
+           <string>3</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
+     </widget>
+    </item>
+    <item row="0" column="1" rowspan="4">
+     <widget class="QTableView" name="tableView">
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
    </layout>
@@ -791,7 +791,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>615</width>
+     <width>1125</width>
      <height>21</height>
     </rect>
    </property>
