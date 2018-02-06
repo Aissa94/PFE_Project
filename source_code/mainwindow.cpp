@@ -12,10 +12,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
 }
 
+
 MainWindow::~MainWindow()
 {
     delete ui;
 }
+
 
 void MainWindow::on_firstImgBtn_pressed()
 {
@@ -33,7 +35,7 @@ void MainWindow::on_secondImgBtn_pressed()
 
 void MainWindow::on_pushButton_pressed()
 {
-    int selectedAlgorithm = ui->tabWidget->currentIndex();
+	int selectedAlgorithm = ui->tabWidget->currentIndex();
     switch(selectedAlgorithm)
     {
     case 0:
@@ -663,6 +665,13 @@ void MainWindow::runBRISK()
 	//ui->logPlainText->appendPlainText("\nStarting BRISK object detection!");
 	ui->logPlainText->appendHtml("<b>Staring BRISK object detection!</b>");
 
+	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 3 Columns
+	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
+	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
+	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
+	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
+	model->setHorizontalHeaderItem(4, new QStandardItem(QString("ERR")));
+
 	// Read Parameters ...
 	float patternScale = ui->briskPatternScaleText->text().toFloat();
 	int octaves = ui->briskOctavesText->text().toInt();
@@ -759,6 +768,15 @@ void MainWindow::runBRISK()
 
 		if (foundInReverse)
 		{
+			QStandardItem *x1 = new QStandardItem(QString::number(matchedPt1.x));
+			model->setItem(bestMatchesCount, 0, x1);
+			QStandardItem *y1 = new QStandardItem(QString::number(matchedPt1.y));
+			model->setItem(bestMatchesCount, 1, y1);
+			QStandardItem *x2 = new QStandardItem(QString::number(matchedPt2.x));
+			model->setItem(bestMatchesCount, 2, x2);
+			QStandardItem *y2 = new QStandardItem(QString::number(matchedPt2.y));
+			model->setItem(bestMatchesCount, 3, y2);
+			ui->tableView->setModel(model);
 			bestMatches.push_back(firstMatches[i]);
 			bestMatchesCount++;
 		}
@@ -812,6 +830,11 @@ void MainWindow::on_actionRun_triggered()
         // ORB
         runORB();
         break;
+
+	case 4:
+		// BRISK
+		runBRISK();
+		break;
     }
 }
 
@@ -828,12 +851,11 @@ void MainWindow::on_actionAbout_Qt_triggered()
 void MainWindow::on_actionAbout_Me_triggered()
 {
     QMessageBox::about(this,
-                       "About Me",
+                       "About Us",
                        "<b>OpenCV Feature Detectors Comparison</b>"
                        "<br><br>This program uses OpenCV and Qt, and is provided as is, for educational purposes such as benchmarking of algorithms.<br>"
-                       "<br>You may contact me for the source code of this program at <a href=\"http://amin-ahmadi.com/contact-me/\">http://amin-ahmadi.com/contact-me/</a>"
-                       "<br><br>For other tutorials, source codes and examples please visit my website."
+                       "<br>You may contact me for the source code of this program at <a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>"
                        "<br><br>Thanks"
-                       "<br><br>Amin Ahmadi"
-                       "<br><br><a href=\"http://www.amin-ahmadi.com/\">http://www.amin-ahmadi.com/</a>");
+                       "<br><br>GHOUILA Nabil & BELKAID Aïssa"
+					   "<br><br><a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>");
 }
