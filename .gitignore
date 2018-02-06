@@ -1,5 +1,3 @@
-/build-FeaturePointsComparison-Desktop_Qt_5_4_1_MSVC2013_32bit-Debug/*
-
 # Prerequisites
 *.d
 
@@ -68,3 +66,5 @@ GeneratedFiles/
 debug/
 Release/
 Win32/
+build-FeaturePointsComparison-Desktop_Qt_5_4_1_MSVC2013_32bit-Debug/
+build-FeaturePointsComparison-Desktop_Qt_5_10_1_MSVC2013_32bit-Debug/
