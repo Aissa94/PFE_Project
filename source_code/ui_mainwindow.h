@@ -767,11 +767,11 @@ public:
         actionAbout_Qt->setText(QApplication::translate("MainWindow", "About Qt", 0));
         actionAbout_Me->setText(QApplication::translate("MainWindow", "About Me", 0));
         label_3->setText(QApplication::translate("MainWindow", "First Image :", 0));
-        firstImgText->setText(QApplication::translate("MainWindow", "C:/Users/Aissa/Documents/Visual Studio 2013/Projects/PFE_Project/source_code/images/box1.png", 0));
+        firstImgText->setText(QApplication::translate("MainWindow", "C:/Users/Nabil/Desktop/images/box1.png", 0));
         firstImgBtn->setText(QApplication::translate("MainWindow", "Browse", 0));
         label_4->setText(QApplication::translate("MainWindow", "Second Image :", 0));
         secondImgBtn->setText(QApplication::translate("MainWindow", "Browse", 0));
-        secondImgText->setText(QApplication::translate("MainWindow", "C:/Users/Aissa/Documents/Visual Studio 2013/Projects//PFE_Project/source_code/images/box2.png", 0));
+        secondImgText->setText(QApplication::translate("MainWindow", "C:/Users/Nabil/Desktop/images/box2.png", 0));
         tabWidget_2->setTabText(tabWidget_2->indexOf(tab_5), QApplication::translate("MainWindow", "Image && Image", 0));
         pushButton->setText(QApplication::translate("MainWindow", "Run", 0));
         label_6->setText(QApplication::translate("MainWindow", "Log :", 0));
