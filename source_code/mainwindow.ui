@@ -15,6 +15,107 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_6">
+    <item row="0" column="1" rowspan="4">
+     <widget class="QTableView" name="tableView">
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QTabWidget" name="tabWidget_2">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="tab_0">
+         <attribute name="title">
+          <string>Image &amp;&amp; Image</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_9">
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="firstImgText">
+            <property name="text">
+             <string>C:\Users\Nabil\Desktop\images\box1.png</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>First Image :</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="firstImgBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="secondImgText">
+            <property name="text">
+             <string>C:\Users\Nabil\Desktop\images\box2.png</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QPushButton" name="secondImgBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Second Image :</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>Run</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="3" column="0">
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="1" column="0">
+       <widget class="QPlainTextEdit" name="logPlainText">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Log :</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
     <item row="2" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="enabled">
@@ -27,7 +128,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabSIFT">
        <attribute name="title">
@@ -125,8 +226,17 @@
         </item>
         <item row="1" column="0">
          <widget class="QCheckBox" name="siftBruteForceCheck">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
           <property name="text">
            <string>Use Brute Force Matching</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -429,21 +539,21 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1" colspan="2">
+          <item row="0" column="1">
            <widget class="QLineEdit" name="briskPatternScaleText">
             <property name="text">
              <string>1.0</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1" colspan="2">
+          <item row="1" column="1">
            <widget class="QLineEdit" name="briskOctavesText">
             <property name="text">
              <string>3</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1" colspan="2">
+          <item row="2" column="1">
            <widget class="QLineEdit" name="briskThreshText">
             <property name="text">
              <string>30</string>
@@ -695,7 +805,7 @@
           <item row="0" column="0">
            <widget class="QTabWidget" name="customTabs">
             <property name="currentIndex">
-             <number>0</number>
+             <number>3</number>
             </property>
             <widget class="QWidget" name="tabSegmentation">
              <attribute name="title">
@@ -705,7 +815,7 @@
               <item row="0" column="0">
                <widget class="QTabWidget" name="segmentationTabs">
                 <property name="currentIndex">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="tabSegmentationMethod1">
                  <attribute name="title">
@@ -744,21 +854,21 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="1" colspan="2">
+                    <item row="0" column="1">
                      <widget class="QLineEdit" name="segmentationMethod1Param1Text">
                       <property name="text">
                        <string>10</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="1" colspan="2">
+                    <item row="1" column="1">
                      <widget class="QLineEdit" name="segmentationMethod1Param2Text">
                       <property name="text">
                        <string>20</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="1" colspan="2">
+                    <item row="2" column="1">
                      <widget class="QLineEdit" name="segmentationMethod1Param3Text">
                       <property name="text">
                        <string>30</string>
@@ -806,21 +916,21 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="1" colspan="2">
+                    <item row="0" column="1">
                      <widget class="QLineEdit" name="segmentationMethod2Param1Text">
                       <property name="text">
                        <string>10</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="1" colspan="2">
+                    <item row="1" column="1">
                      <widget class="QLineEdit" name="segmentationMethod2Param2Text">
                       <property name="text">
                        <string>20</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="1" colspan="2">
+                    <item row="2" column="1">
                      <widget class="QLineEdit" name="segmentationMethod2Param3Text">
                       <property name="text">
                        <string>30</string>
@@ -845,17 +955,196 @@
                 <item row="0" column="0">
                  <widget class="QTabWidget" name="tabWidget_3">
                   <property name="currentIndex">
-                   <number>0</number>
+                   <number>3</number>
                   </property>
-                  <widget class="QWidget" name="tab_10">
+                  <widget class="QWidget" name="tabDetectorStar">
+                   <attribute name="title">
+                    <string>Star</string>
+                   </attribute>
+                   <layout class="QGridLayout" name="gridLayout_13">
+                    <item row="0" column="0">
+                     <layout class="QGridLayout" name="detectorStarParams">
+                      <item row="0" column="0">
+                       <widget class="QLabel" name="detectorStarMaxSizeLabel">
+                        <property name="text">
+                         <string>Max Size :</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="detectorStarResponseThresholdLabel">
+                        <property name="text">
+                         <string>Response Threshold :</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="0">
+                       <widget class="QLabel" name="detectorStarLineThresholdProjected Label">
+                        <property name="text">
+                         <string>Line Threshold Projected  :</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="0">
+                       <widget class="QLabel" name="detectorStarLineThresholdBinarizedLabel">
+                        <property name="text">
+                         <string>Line Threshold Binarized :</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="4" column="0">
+                       <widget class="QLabel" name="detectorStarSuppressNonmaxSizeLabel">
+                        <property name="text">
+                         <string>Non-maximum Suppression Size :</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="1">
+                       <widget class="QLineEdit" name="detectorStarMaxSizeText">
+                        <property name="text">
+                         <string>16</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="QLineEdit" name="detectorStarResponseThresholdText">
+                        <property name="text">
+                         <string>30</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="1">
+                       <widget class="QLineEdit" name="detectorStarLineThresholdProjected Text">
+                        <property name="text">
+                         <string>10</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="1">
+                       <widget class="QLineEdit" name="detectorStarLineThresholdBinarizedText">
+                        <property name="text">
+                         <string>8</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="4" column="1">
+                       <widget class="QLineEdit" name="detectorStarSuppressNonmaxSizeText">
+                        <property name="text">
+                         <string>5</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </widget>
+                  <widget class="QWidget" name="tabDetectorFast">
+                   <attribute name="title">
+                    <string>Fast</string>
+                   </attribute>
+                   <layout class="QGridLayout" name="gridLayout_13">
+                    <item row="0" column="0">
+                     <layout class="QGridLayout" name="detectorFastParams">
+                      <item row="0" column="0">
+                       <widget class="QLabel" name="detectorFastThresholdLabel">
+                        <property name="text">
+                         <string>Threshold :</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="detectorFastNonmaxSuppressionLabel">
+                        <property name="text">
+                         <string>Non-maximum Suppression :</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="0">
+                       <widget class="QLabel" name="detectorFastTypeLabel">
+                        <property name="text">
+                         <string>Type :</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="1">
+                       <widget class="QLineEdit" name="detectorFastThresholdText">
+                        <property name="text">
+                         <string>1</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="QCheckBox" name="detectorFastNonmaxSuppressionCheck">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="cursor">
+                         <cursorShape>PointingHandCursor</cursorShape>
+                        </property>
+                        <property name="checked">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="1">
+                       <widget class="QComboBox" name="detectorFastTypeText">
+                        <property name="currentText">
+                         <string>5_8</string>
+                        </property>
+                        <item>
+                         <property name="text">
+                          <string>5_8</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>7_12</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>9_16</string>
+                         </property>
+                        </item>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </widget>
+                  <widget class="QWidget" name="tabDetectorSift">
                    <attribute name="title">
                     <string>SIFT</string>
                    </attribute>
                    <layout class="QGridLayout" name="gridLayout_19">
                     <item row="0" column="0">
-                     <layout class="QGridLayout" name="gridLayout_18">
+                     <layout class="QGridLayout" name="detectorSIFTParams">
                       <item row="1" column="0">
-                       <widget class="QLabel" name="label_33">
+                       <widget class="QLabel" name="detectorSiftEdgeThresholdLab">
                         <property name="text">
                          <string>Edge Threshold :</string>
                         </property>
@@ -865,21 +1154,21 @@
                        </widget>
                       </item>
                       <item row="1" column="1">
-                       <widget class="QLineEdit" name="briefSiftEdgeThreshText">
+                       <widget class="QLineEdit" name="detectorSiftEdgeThresholdLabText">
                         <property name="text">
                          <string>10</string>
                         </property>
                        </widget>
                       </item>
                       <item row="0" column="1">
-                       <widget class="QLineEdit" name="briefSiftContThreshText">
+                       <widget class="QLineEdit" name="detectorSiftContrastThresholdText">
                         <property name="text">
                          <string>0.04</string>
                         </property>
                        </widget>
                       </item>
                       <item row="0" column="0">
-                       <widget class="QLabel" name="label_34">
+                       <widget class="QLabel" name="detectorSiftContrastThresholdLabel">
                         <property name="text">
                          <string>Contrast Threshold :</string>
                         </property>
@@ -889,7 +1178,7 @@
                        </widget>
                       </item>
                       <item row="2" column="0">
-                       <widget class="QLabel" name="label_35">
+                       <widget class="QLabel" name="detectorSiftNfeaturesLabel">
                         <property name="text">
                          <string>Number of Features :</string>
                         </property>
@@ -899,14 +1188,14 @@
                        </widget>
                       </item>
                       <item row="2" column="1">
-                       <widget class="QLineEdit" name="briefSiftNumFeatText">
+                       <widget class="QLineEdit" name="detectorSiftNfeaturesText">
                         <property name="text">
                          <string>0</string>
                         </property>
                        </widget>
                       </item>
                       <item row="3" column="0">
-                       <widget class="QLabel" name="label_36">
+                       <widget class="QLabel" name="detectorSiftNOctaveLayersLabel">
                         <property name="text">
                          <string>Number of Octave Layers :</string>
                         </property>
@@ -916,21 +1205,21 @@
                        </widget>
                       </item>
                       <item row="3" column="1">
-                       <widget class="QLineEdit" name="briefSiftNumOctText">
+                       <widget class="QLineEdit" name="detectorSiftNOctaveLayersText">
                         <property name="text">
                          <string>3</string>
                         </property>
                        </widget>
                       </item>
                       <item row="4" column="1">
-                       <widget class="QLineEdit" name="briefSiftSigmaText">
+                       <widget class="QLineEdit" name="detectorSiftSigmaText">
                         <property name="text">
                          <string>1.6</string>
                         </property>
                        </widget>
                       </item>
                       <item row="4" column="0">
-                       <widget class="QLabel" name="label_37">
+                       <widget class="QLabel" name="detectorSiftSigmaLabel">
                         <property name="text">
                          <string>Sigma :</string>
                         </property>
@@ -943,15 +1232,15 @@
                     </item>
                    </layout>
                   </widget>
-                  <widget class="QWidget" name="tab_11">
+                  <widget class="QWidget" name="tabDetectorSURF">
                    <attribute name="title">
                     <string>SURF</string>
                    </attribute>
                    <layout class="QGridLayout" name="gridLayout_17">
                     <item row="0" column="0">
-                     <layout class="QGridLayout" name="gridLayout_16">
+                     <layout class="QGridLayout" name="detectorSurfParams">
                       <item row="1" column="0">
-                       <widget class="QLabel" name="label_28">
+                       <widget class="QLabel" name="detectorSurfNOctavesLabel">
                         <property name="text">
                          <string>Number of Octaves :</string>
                         </property>
@@ -961,21 +1250,21 @@
                        </widget>
                       </item>
                       <item row="1" column="1">
-                       <widget class="QLineEdit" name="briefSurfNumOctavesText">
+                       <widget class="QLineEdit" name="detectorSurfNOctavesText">
                         <property name="text">
                          <string>4</string>
                         </property>
                        </widget>
                       </item>
                       <item row="0" column="1">
-                       <widget class="QLineEdit" name="briefSurfHessianThreshText">
+                       <widget class="QLineEdit" name="detectorSurfHessianThresholdText">
                         <property name="text">
-                         <string>100</string>
+                         <string>300</string>
                         </property>
                        </widget>
                       </item>
                       <item row="0" column="0">
-                       <widget class="QLabel" name="label_29">
+                       <widget class="QLabel" name="detectorSurfHessianThresholdLabel">
                         <property name="text">
                          <string>Hessian Threshold :</string>
                         </property>
@@ -985,7 +1274,7 @@
                        </widget>
                       </item>
                       <item row="2" column="0">
-                       <widget class="QLabel" name="label_30">
+                       <widget class="QLabel" name="detectorSurfNOctavesLabel">
                         <property name="text">
                          <string>Number of Octave Layers :</string>
                         </property>
@@ -995,14 +1284,14 @@
                        </widget>
                       </item>
                       <item row="2" column="1">
-                       <widget class="QLineEdit" name="briefSurfNumOctLayersText">
+                       <widget class="QLineEdit" name="detectorSurfNOctavesText">
                         <property name="text">
-                         <string>2</string>
+                         <string>4</string>
                         </property>
                        </widget>
                       </item>
                       <item row="3" column="0">
-                       <widget class="QLabel" name="label_31">
+                       <widget class="QLabel" name="detectorSurfExtendedLabel">
                         <property name="text">
                          <string>Extended :</string>
                         </property>
@@ -1012,14 +1301,20 @@
                        </widget>
                       </item>
                       <item row="3" column="1">
-                       <widget class="QLineEdit" name="briefSurfExtendedText">
-                        <property name="text">
-                         <string>yes</string>
+                       <widget class="QCheckBox" name="detectorSurfExtendedText">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="cursor">
+                         <cursorShape>PointingHandCursor</cursorShape>
+                        </property>
+                        <property name="checked">
+                         <bool>true</bool>
                         </property>
                        </widget>
                       </item>
                       <item row="4" column="0">
-                       <widget class="QLabel" name="label_32">
+                       <widget class="QLabel" name="detectorSurfUprightLabel">
                         <property name="text">
                          <string>Upright :</string>
                         </property>
@@ -1029,9 +1324,15 @@
                        </widget>
                       </item>
                       <item row="4" column="1">
-                       <widget class="QLineEdit" name="briefSurfUprightText">
-                        <property name="text">
-                         <string>no</string>
+                       <widget class="QCheckBox" name="detectorSurfUprightText">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="cursor">
+                         <cursorShape>PointingHandCursor</cursorShape>
+                        </property>
+                        <property name="checked">
+                         <bool>false</bool>
                         </property>
                        </widget>
                       </item>
@@ -1053,7 +1354,7 @@
               <item row="0" column="0">
                <widget class="QTabWidget" name="descriptorTabs">
                 <property name="currentIndex">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="tabDescriptorMethod1">
                  <attribute name="title">
@@ -1102,28 +1403,28 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="1" colspan="2">
+                    <item row="0" column="1">
                      <widget class="QLineEdit" name="descriptorMethod1Param1Text">
                       <property name="text">
                        <string>10</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="1" colspan="2">
+                    <item row="1" column="1">
                      <widget class="QLineEdit" name="descriptorMethod1Param2Text">
                       <property name="text">
                        <string>20</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="1" colspan="2">
+                    <item row="2" column="1">
                      <widget class="QLineEdit" name="descriptorMethod1Param3Text">
                       <property name="text">
                        <string>30</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="1" colspan="2">
+                    <item row="3" column="1">
                      <widget class="QLineEdit" name="descriptorMethod1LengthText">
                       <property name="text">
                        <string>32</string>
@@ -1181,28 +1482,28 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="1" colspan="2">
+                    <item row="0" column="1">
                      <widget class="QLineEdit" name="descriptorMethod2Param1Text">
                       <property name="text">
                        <string>10</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="1" colspan="2">
+                    <item row="1" column="1">
                      <widget class="QLineEdit" name="descriptorMethod2Param2Text">
                       <property name="text">
                        <string>20</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="1" colspan="2">
+                    <item row="2" column="1">
                      <widget class="QLineEdit" name="descriptorMethod2Param3Text">
                       <property name="text">
                        <string>30</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="1" colspan="2">
+                    <item row="3" column="1">
                      <widget class="QLineEdit" name="descriptorMethod2LengthText">
                       <property name="text">
                        <string>32</string>
@@ -1225,7 +1526,7 @@
               <item row="0" column="0">
                <widget class="QTabWidget" name="matcherTabs">
                 <property name="currentIndex">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="tabMatcherMethod1">
                  <attribute name="title">
@@ -1264,21 +1565,21 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="1" colspan="2">
+                    <item row="0" column="1">
                      <widget class="QLineEdit" name="matcherMethod1Param1Text">
                       <property name="text">
                        <string>10</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="1" colspan="2">
+                    <item row="1" column="1">
                      <widget class="QLineEdit" name="matcherMethod1Param2Text">
                       <property name="text">
                        <string>20</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="1" colspan="2">
+                    <item row="2" column="1">
                      <widget class="QLineEdit" name="matcherMethod1Param3Text">
                       <property name="text">
                        <string>30</string>
@@ -1326,21 +1627,21 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="1" colspan="2">
+                    <item row="0" column="1">
                      <widget class="QLineEdit" name="matcherMethod2Param1Text">
                       <property name="text">
                        <string>10</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="1" colspan="2">
+                    <item row="1" column="1">
                      <widget class="QLineEdit" name="matcherMethod2Param2Text">
                       <property name="text">
                        <string>20</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="1" colspan="2">
+                    <item row="2" column="1">
                      <widget class="QLineEdit" name="matcherMethod2Param3Text">
                       <property name="text">
                        <string>30</string>
@@ -1362,107 +1663,6 @@
        </layout>
       </widget>
      </widget>
-    </item>
-    <item row="0" column="1" rowspan="4">
-     <widget class="QTableView" name="tableView">
-      <property name="sortingEnabled">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0">
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QTabWidget" name="tabWidget_2">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="currentIndex">
-         <number>0</number>
-        </property>
-        <widget class="QWidget" name="tab_0">
-         <attribute name="title">
-          <string>Image &amp;&amp; Image</string>
-         </attribute>
-         <layout class="QGridLayout" name="gridLayout_9">
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="firstImgText">
-            <property name="text">
-             <string>C:\Users\Nabil\Desktop\images\box1.png</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>First Image :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QPushButton" name="firstImgBtn">
-            <property name="text">
-             <string>Browse</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="secondImgText">
-            <property name="text">
-             <string>C:\Users\Nabil\Desktop\images\box2.png</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="secondImgBtn">
-            <property name="text">
-             <string>Browse</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Second Image :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="pushButton">
-        <property name="text">
-         <string>Run</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="3" column="0">
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="1" column="0">
-       <widget class="QPlainTextEdit" name="logPlainText">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Log :</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </item>
    </layout>
   </widget>
