@@ -128,7 +128,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tabSIFT">
        <attribute name="title">
@@ -296,12 +296,12 @@
           <item row="2" column="1">
            <widget class="QLineEdit" name="surfNumOctLayersText">
             <property name="text">
-             <string>2</string>
+             <string>3</string>
             </property>
            </widget>
           </item>
           <item row="3" column="0">
-           <widget class="QLabel" name="label_12">
+           <widget class="QLabel" name="surfExtendedLabel">
             <property name="text">
              <string>Extended :</string>
             </property>
@@ -311,14 +311,20 @@
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="QLineEdit" name="surfExtendedText">
-            <property name="text">
-             <string>yes</string>
+           <widget class="QCheckBox" name="surfExtendedText">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
           <item row="4" column="0">
-           <widget class="QLabel" name="label_13">
+           <widget class="QLabel" name="surfUprightLabel">
             <property name="text">
              <string>Upright :</string>
             </property>
@@ -328,9 +334,15 @@
            </widget>
           </item>
           <item row="4" column="1">
-           <widget class="QLineEdit" name="surfUprightText">
-            <property name="text">
-             <string>no</string>
+           <widget class="QCheckBox" name="surfUprightText">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -532,7 +544,7 @@
           <item row="2" column="0">
            <widget class="QLabel" name="label_19">
             <property name="text">
-             <string>Threshold Score :</string>
+             <string>Threshold :</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -574,7 +586,7 @@
           <item row="1" column="0">
            <widget class="QTabWidget" name="tabWidget_3">
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="tab_10">
              <attribute name="title">
@@ -726,12 +738,12 @@
                 <item row="2" column="1">
                  <widget class="QLineEdit" name="briefSurfNumOctLayersText">
                   <property name="text">
-                   <string>2</string>
+                   <string>3</string>
                   </property>
                  </widget>
                 </item>
                 <item row="3" column="0">
-                 <widget class="QLabel" name="label_31">
+                 <widget class="QLabel" name="briefSurfExtendedLabel">
                   <property name="text">
                    <string>Extended :</string>
                   </property>
@@ -741,14 +753,20 @@
                  </widget>
                 </item>
                 <item row="3" column="1">
-                 <widget class="QLineEdit" name="briefSurfExtendedText">
-                  <property name="text">
-                   <string>yes</string>
+                 <widget class="QCheckBox" name="briefSurfExtendedText">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
                 <item row="4" column="0">
-                 <widget class="QLabel" name="label_32">
+                 <widget class="QLabel" name="briefSurfUprightLabel">
                   <property name="text">
                    <string>Upright :</string>
                   </property>
@@ -758,9 +776,15 @@
                  </widget>
                 </item>
                 <item row="4" column="1">
-                 <widget class="QLineEdit" name="briefSurfUprightText">
-                  <property name="text">
-                   <string>no</string>
+                 <widget class="QCheckBox" name="briefSurfUprightText">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
@@ -805,7 +829,7 @@
           <item row="0" column="0">
            <widget class="QTabWidget" name="customTabs">
             <property name="currentIndex">
-             <number>3</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="tabSegmentation">
              <attribute name="title">
@@ -949,400 +973,396 @@
              <attribute name="title">
               <string>Detector</string>
              </attribute>
-             <layout class="QGridLayout" name="gridLayout_14">
-              <item row="1" column="0">
-               <layout class="QGridLayout" name="gridLayout_15">
-                <item row="0" column="0">
-                 <widget class="QTabWidget" name="tabWidget_3">
-                  <property name="currentIndex">
-                   <number>3</number>
-                  </property>
-                  <widget class="QWidget" name="tabDetectorStar">
-                   <attribute name="title">
-                    <string>Star</string>
-                   </attribute>
-                   <layout class="QGridLayout" name="gridLayout_13">
+             <layout class="QGridLayout" name="DetectorsGridLayout">
+              <item row="0" column="0">
+               <widget class="QTabWidget" name="detectorTabs">
+                <property name="currentIndex">
+                 <number>3</number>
+                </property>
+                <widget class="QWidget" name="tabDetectorStar">
+                 <attribute name="title">
+                  <string>STAR</string>
+                 </attribute>
+                 <layout class="QGridLayout" name="gridLayout_13">
+                  <item row="0" column="0">
+                   <layout class="QGridLayout" name="detectorStarParams">
                     <item row="0" column="0">
-                     <layout class="QGridLayout" name="detectorStarParams">
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="detectorStarMaxSizeLabel">
-                        <property name="text">
-                         <string>Max Size :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="detectorStarResponseThresholdLabel">
-                        <property name="text">
-                         <string>Response Threshold :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="0">
-                       <widget class="QLabel" name="detectorStarLineThresholdProjected Label">
-                        <property name="text">
-                         <string>Line Threshold Projected  :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="0">
-                       <widget class="QLabel" name="detectorStarLineThresholdBinarizedLabel">
-                        <property name="text">
-                         <string>Line Threshold Binarized :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="0">
-                       <widget class="QLabel" name="detectorStarSuppressNonmaxSizeLabel">
-                        <property name="text">
-                         <string>Non-maximum Suppression Size :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="1">
-                       <widget class="QLineEdit" name="detectorStarMaxSizeText">
-                        <property name="text">
-                         <string>16</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="1">
-                       <widget class="QLineEdit" name="detectorStarResponseThresholdText">
-                        <property name="text">
-                         <string>30</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="1">
-                       <widget class="QLineEdit" name="detectorStarLineThresholdProjected Text">
-                        <property name="text">
-                         <string>10</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="1">
-                       <widget class="QLineEdit" name="detectorStarLineThresholdBinarizedText">
-                        <property name="text">
-                         <string>8</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="1">
-                       <widget class="QLineEdit" name="detectorStarSuppressNonmaxSizeText">
-                        <property name="text">
-                         <string>5</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
+                     <widget class="QLabel" name="detectorStarMaxSizeLabel">
+                      <property name="text">
+                       <string>Max Size :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="detectorStarResponseThresholdLabel">
+                      <property name="text">
+                       <string>Response Threshold :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QLabel" name="detectorStarLineThresholdProjected Label">
+                      <property name="text">
+                       <string>Line Threshold Projected  :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QLabel" name="detectorStarLineThresholdBinarizedLabel">
+                      <property name="text">
+                       <string>Line Threshold Binarized :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="detectorStarSuppressNonmaxSizeLabel">
+                      <property name="text">
+                       <string>Non-maximum Suppression Size :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QLineEdit" name="detectorStarMaxSizeText">
+                      <property name="text">
+                       <string>45</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QLineEdit" name="detectorStarResponseThresholdText">
+                      <property name="text">
+                       <string>30</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QLineEdit" name="detectorStarLineThresholdProjected Text">
+                      <property name="text">
+                       <string>10</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QLineEdit" name="detectorStarLineThresholdBinarizedText">
+                      <property name="text">
+                       <string>8</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QLineEdit" name="detectorStarSuppressNonmaxSizeText">
+                      <property name="text">
+                       <string>5</string>
+                      </property>
+                     </widget>
                     </item>
                    </layout>
-                  </widget>
-                  <widget class="QWidget" name="tabDetectorFast">
-                   <attribute name="title">
-                    <string>Fast</string>
-                   </attribute>
-                   <layout class="QGridLayout" name="gridLayout_13">
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="tabDetectorFast">
+                 <attribute name="title">
+                  <string>FAST</string>
+                 </attribute>
+                 <layout class="QGridLayout" name="gridLayout_13">
+                  <item row="0" column="0">
+                   <layout class="QGridLayout" name="detectorFastParams">
                     <item row="0" column="0">
-                     <layout class="QGridLayout" name="detectorFastParams">
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="detectorFastThresholdLabel">
-                        <property name="text">
-                         <string>Threshold :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
+                     <widget class="QLabel" name="detectorFastThresholdLabel">
+                      <property name="text">
+                       <string>Threshold :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="detectorFastNonmaxSuppressionLabel">
+                      <property name="text">
+                       <string>Non-maximum Suppression :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QLabel" name="detectorFastTypeLabel">
+                      <property name="text">
+                       <string>Type :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QLineEdit" name="detectorFastThresholdText">
+                      <property name="text">
+                       <string>10</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QCheckBox" name="detectorFastNonmaxSuppressionCheck">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="cursor">
+                       <cursorShape>PointingHandCursor</cursorShape>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QComboBox" name="detectorFastTypeText">
+                      <property name="currentText">
+                       <string>5_8</string>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string>5_8</string>
+                       </property>
                       </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="detectorFastNonmaxSuppressionLabel">
-                        <property name="text">
-                         <string>Non-maximum Suppression :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
+                      <item>
+                       <property name="text">
+                        <string>7_12</string>
+                       </property>
                       </item>
-                      <item row="2" column="0">
-                       <widget class="QLabel" name="detectorFastTypeLabel">
-                        <property name="text">
-                         <string>Type :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
+                      <item>
+                       <property name="text">
+                        <string>9_16</string>
+                       </property>
                       </item>
-                      <item row="0" column="1">
-                       <widget class="QLineEdit" name="detectorFastThresholdText">
-                        <property name="text">
-                         <string>1</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="1">
-                       <widget class="QCheckBox" name="detectorFastNonmaxSuppressionCheck">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
-                        <property name="cursor">
-                         <cursorShape>PointingHandCursor</cursorShape>
-                        </property>
-                        <property name="checked">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="1">
-                       <widget class="QComboBox" name="detectorFastTypeText">
-                        <property name="currentText">
-                         <string>5_8</string>
-                        </property>
-                        <item>
-                         <property name="text">
-                          <string>5_8</string>
-                         </property>
-                        </item>
-                        <item>
-                         <property name="text">
-                          <string>7_12</string>
-                         </property>
-                        </item>
-                        <item>
-                         <property name="text">
-                          <string>9_16</string>
-                         </property>
-                        </item>
-                       </widget>
-                      </item>
-                     </layout>
+                     </widget>
                     </item>
                    </layout>
-                  </widget>
-                  <widget class="QWidget" name="tabDetectorSift">
-                   <attribute name="title">
-                    <string>SIFT</string>
-                   </attribute>
-                   <layout class="QGridLayout" name="gridLayout_19">
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="tabDetectorSift">
+                 <attribute name="title">
+                  <string>SIFT</string>
+                 </attribute>
+                 <layout class="QGridLayout" name="gridLayout_19">
+                  <item row="0" column="0">
+                   <layout class="QGridLayout" name="detectorSIFTParams">
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="detectorSiftEdgeThresholdLab">
+                      <property name="text">
+                       <string>Edge Threshold :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QLineEdit" name="detectorSiftEdgeThresholdLabText">
+                      <property name="text">
+                       <string>10</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QLineEdit" name="detectorSiftContrastThresholdText">
+                      <property name="text">
+                       <string>0.04</string>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="0" column="0">
-                     <layout class="QGridLayout" name="detectorSIFTParams">
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="detectorSiftEdgeThresholdLab">
-                        <property name="text">
-                         <string>Edge Threshold :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="1">
-                       <widget class="QLineEdit" name="detectorSiftEdgeThresholdLabText">
-                        <property name="text">
-                         <string>10</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="1">
-                       <widget class="QLineEdit" name="detectorSiftContrastThresholdText">
-                        <property name="text">
-                         <string>0.04</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="detectorSiftContrastThresholdLabel">
-                        <property name="text">
-                         <string>Contrast Threshold :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="0">
-                       <widget class="QLabel" name="detectorSiftNfeaturesLabel">
-                        <property name="text">
-                         <string>Number of Features :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="1">
-                       <widget class="QLineEdit" name="detectorSiftNfeaturesText">
-                        <property name="text">
-                         <string>0</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="0">
-                       <widget class="QLabel" name="detectorSiftNOctaveLayersLabel">
-                        <property name="text">
-                         <string>Number of Octave Layers :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="1">
-                       <widget class="QLineEdit" name="detectorSiftNOctaveLayersText">
-                        <property name="text">
-                         <string>3</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="1">
-                       <widget class="QLineEdit" name="detectorSiftSigmaText">
-                        <property name="text">
-                         <string>1.6</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="0">
-                       <widget class="QLabel" name="detectorSiftSigmaLabel">
-                        <property name="text">
-                         <string>Sigma :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
+                     <widget class="QLabel" name="detectorSiftContrastThresholdLabel">
+                      <property name="text">
+                       <string>Contrast Threshold :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QLabel" name="detectorSiftNfeaturesLabel">
+                      <property name="text">
+                       <string>Number of Features :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QLineEdit" name="detectorSiftNfeaturesText">
+                      <property name="text">
+                       <string>0</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QLabel" name="detectorSiftNOctaveLayersLabel">
+                      <property name="text">
+                       <string>Number of Octave Layers :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QLineEdit" name="detectorSiftNOctaveLayersText">
+                      <property name="text">
+                       <string>3</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QLineEdit" name="detectorSiftSigmaText">
+                      <property name="text">
+                       <string>1.6</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="detectorSiftSigmaLabel">
+                      <property name="text">
+                       <string>Sigma :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
                     </item>
                    </layout>
-                  </widget>
-                  <widget class="QWidget" name="tabDetectorSURF">
-                   <attribute name="title">
-                    <string>SURF</string>
-                   </attribute>
-                   <layout class="QGridLayout" name="gridLayout_17">
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="tabDetectorSURF">
+                 <attribute name="title">
+                  <string>SURF</string>
+                 </attribute>
+                 <layout class="QGridLayout" name="gridLayout_17">
+                  <item row="0" column="0">
+                   <layout class="QGridLayout" name="detectorSurfParams">
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="detectorSurfNOctavesLabel">
+                      <property name="text">
+                       <string>Number of Octaves :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QLineEdit" name="detectorSurfNOctavesText">
+                      <property name="text">
+                       <string>4</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QLineEdit" name="detectorSurfHessianThresholdText">
+                      <property name="text">
+                       <string>100</string>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="0" column="0">
-                     <layout class="QGridLayout" name="detectorSurfParams">
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="detectorSurfNOctavesLabel">
-                        <property name="text">
-                         <string>Number of Octaves :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="1">
-                       <widget class="QLineEdit" name="detectorSurfNOctavesText">
-                        <property name="text">
-                         <string>4</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="1">
-                       <widget class="QLineEdit" name="detectorSurfHessianThresholdText">
-                        <property name="text">
-                         <string>300</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="detectorSurfHessianThresholdLabel">
-                        <property name="text">
-                         <string>Hessian Threshold :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="0">
-                       <widget class="QLabel" name="detectorSurfNOctavesLabel">
-                        <property name="text">
-                         <string>Number of Octave Layers :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="1">
-                       <widget class="QLineEdit" name="detectorSurfNOctavesText">
-                        <property name="text">
-                         <string>4</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="0">
-                       <widget class="QLabel" name="detectorSurfExtendedLabel">
-                        <property name="text">
-                         <string>Extended :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="1">
-                       <widget class="QCheckBox" name="detectorSurfExtendedText">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
-                        <property name="cursor">
-                         <cursorShape>PointingHandCursor</cursorShape>
-                        </property>
-                        <property name="checked">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="0">
-                       <widget class="QLabel" name="detectorSurfUprightLabel">
-                        <property name="text">
-                         <string>Upright :</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="1">
-                       <widget class="QCheckBox" name="detectorSurfUprightText">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
-                        <property name="cursor">
-                         <cursorShape>PointingHandCursor</cursorShape>
-                        </property>
-                        <property name="checked">
-                         <bool>false</bool>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
+                     <widget class="QLabel" name="detectorSurfHessianThresholdLabel">
+                      <property name="text">
+                       <string>Hessian Threshold :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QLabel" name="detectorSurfNOctavesLabel">
+                      <property name="text">
+                       <string>Number of Octave Layers :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QLineEdit" name="detectorSurfNOctavesText">
+                      <property name="text">
+                       <string>3</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QLabel" name="detectorSurfExtendedLabel">
+                      <property name="text">
+                       <string>Extended :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QCheckBox" name="detectorSurfExtendedText">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="cursor">
+                       <cursorShape>PointingHandCursor</cursorShape>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="detectorSurfUprightLabel">
+                      <property name="text">
+                       <string>Upright :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QCheckBox" name="detectorSurfUprightText">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="cursor">
+                       <cursorShape>PointingHandCursor</cursorShape>
+                      </property>
+                      <property name="checked">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
                     </item>
                    </layout>
-                  </widget>
-                 </widget>
-                </item>
-               </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -1356,6 +1376,178 @@
                 <property name="currentIndex">
                  <number>0</number>
                 </property>
+                <widget class="QWidget" name="tabDescriptorFreak">
+                 <attribute name="title">
+                  <string>FREAK</string>
+                 </attribute>
+                 <layout class="QGridLayout" name="descriptorFreakParams">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="descriptorFreakOrientationNormalizedLabel">
+                    <property name="text">
+                     <string>Orientation Normalized :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="descriptorFreakScaleNormalizedLabel">
+                    <property name="text">
+                     <string>Scale Normalized :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="descriptorFreakPatternScaleLabel">
+                    <property name="text">
+                     <string>Pattern Scale :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="descriptorFreakNOctavesLabel">
+                    <property name="text">
+                     <string>Number of Octaves :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QLabel" name="descriptorFreakNelectedPairsLabel">
+                    <property name="text">
+                     <string>Selected Pairs (optional) :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1" colspan="2">
+                   <widget class="QCheckBox" name="descriptorFreakOrientationNormalizedCheck">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="cursor">
+                     <cursorShape>PointingHandCursor</cursorShape>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1" colspan="2">
+                   <widget class="QCheckBox" name="descriptorFreakScaleNormalizedCheck">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="cursor">
+                     <cursorShape>PointingHandCursor</cursorShape>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1" colspan="2">
+                   <widget class="QLineEdit" name="descriptorFreakPatternScaleText">
+                    <property name="text">
+                     <string>22.0</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1" colspan="2">
+                   <widget class="QLineEdit" name="descriptorFreakNOctavesText">
+                    <property name="text">
+                     <string>4</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1" colspan="2">
+                   <widget class="QLineEdit" name="descriptorFreakSelectedPairsText">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="tabDescriptorBrief">
+                 <attribute name="title">
+                  <string>BRIEF</string>
+                 </attribute>
+                 <layout class="QGridLayout" name="gridLayout_13">
+                  <item row="0" column="0">
+                   <layout class="QGridLayout" name="descriptorBriefParams">
+                    <item row="0" column="0">
+                     <widget class="QLabel" name="descriptorBriefPATCH_SIZELabel">
+                      <property name="text">
+                       <string>Patch Size :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="descriptorBriefKERNEL_SIZELabel">
+                      <property name="text">
+                       <string>Kernel Size :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QLabel" name="descriptorBriefLengthLabel">
+                      <property name="text">
+                       <string>Descriptor Length in Bytes :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QLineEdit" name="descriptorBriefPATCH_SIZEText">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string>48</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QLineEdit" name="descriptorBriefKERNEL_SIZEText">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string>9</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QLineEdit" name="descriptorBriefLengthText">
+                      <property name="text">
+                       <string>32</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
                 <widget class="QWidget" name="tabDescriptorMethod1">
                  <attribute name="title">
                   <string>Method1</string>

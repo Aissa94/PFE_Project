@@ -51,7 +51,7 @@ private:
     void runBRIEF();
     void runORB();
 	void runBRISK();
-
+	void runCustom();
 };
 
 #endif // MAINWINDOW_H
