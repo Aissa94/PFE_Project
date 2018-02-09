@@ -36,6 +36,8 @@ private slots:
     void on_actionRun_triggered();
 
     void on_actionClear_Log_triggered();
+    
+	void on_actionSave_Log_File_As_triggered();
 
     void on_actionAbout_Qt_triggered();
 
@@ -52,6 +54,8 @@ private:
     void runORB();
 	void runBRISK();
 	void runCustom();
+	void newRunCustom();
+	bool MainWindow::noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints);
 };
 
 #endif // MAINWINDOW_H

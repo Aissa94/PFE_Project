@@ -117,7 +117,7 @@
      </layout>
     </item>
     <item row="2" column="0">
-     <widget class="QTabWidget" name="tabWidget">
+     <widget class="QTabWidget" name="allMethodsTabs">
       <property name="enabled">
        <bool>true</bool>
       </property>
@@ -128,7 +128,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="tabSIFT">
        <attribute name="title">
@@ -136,7 +136,7 @@
        </attribute>
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="0" column="0">
-         <layout class="QGridLayout" name="gridLayout_2">
+         <layout class="QGridLayout" name="siftTabs_2">
           <item row="1" column="0">
            <widget class="QLabel" name="label_2">
             <property name="text">
@@ -248,7 +248,7 @@
        </attribute>
        <layout class="QGridLayout" name="gridLayout_8">
         <item row="0" column="0">
-         <layout class="QGridLayout" name="gridLayout_7">
+         <layout class="QGridLayout" name="surfTabs">
           <item row="1" column="0">
            <widget class="QLabel" name="label_9">
             <property name="text">
@@ -363,7 +363,7 @@
        </attribute>
        <layout class="QGridLayout" name="gridLayout_13">
         <item row="0" column="0">
-         <layout class="QGridLayout" name="gridLayout_12">
+         <layout class="QGridLayout" name="orbTabs">
           <item row="1" column="0">
            <widget class="QLabel" name="label_18">
             <property name="text">
@@ -520,7 +520,7 @@
        </attribute>
        <layout class="QGridLayout" name="gridLayout_13">
         <item row="0" column="0">
-         <layout class="QGridLayout" name="gridLayout_12">
+         <layout class="QGridLayout" name="briskTabs">
           <item row="0" column="0">
            <widget class="QLabel" name="label_18">
             <property name="text">
@@ -582,9 +582,9 @@
        </attribute>
        <layout class="QGridLayout" name="gridLayout_14">
         <item row="1" column="0">
-         <layout class="QGridLayout" name="gridLayout_15">
+         <layout class="QGridLayout" name="briefTabsAll">
           <item row="1" column="0">
-           <widget class="QTabWidget" name="tabWidget_3">
+           <widget class="QTabWidget" name="briefTabs">
             <property name="currentIndex">
              <number>1</number>
             </property>
@@ -977,7 +977,7 @@
               <item row="0" column="0">
                <widget class="QTabWidget" name="detectorTabs">
                 <property name="currentIndex">
-                 <number>3</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="tabDetectorStar">
                  <attribute name="title">
@@ -1051,14 +1051,14 @@
                      </widget>
                     </item>
                     <item row="2" column="1">
-                     <widget class="QLineEdit" name="detectorStarLineThresholdProjected Text">
+                     <widget class="QLineEdit" name="detectorStarThresholdProjectedText">
                       <property name="text">
                        <string>10</string>
                       </property>
                      </widget>
                     </item>
                     <item row="3" column="1">
-                     <widget class="QLineEdit" name="detectorStarLineThresholdBinarizedText">
+                     <widget class="QLineEdit" name="detectorStarThresholdBinarizedText">
                       <property name="text">
                        <string>8</string>
                       </property>
@@ -1103,7 +1103,20 @@
                      </widget>
                     </item>
                     <item row="2" column="0">
+                     <widget class="QLabel" name="detectorFastXLabel">
+                      <property name="text">
+                       <string>Use FASTX detector :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
                      <widget class="QLabel" name="detectorFastTypeLabel">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
                       <property name="text">
                        <string>Type :</string>
                       </property>
@@ -1133,7 +1146,23 @@
                      </widget>
                     </item>
                     <item row="2" column="1">
+                     <widget class="QCheckBox" name="detectorFastXCheck">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="cursor">
+                       <cursorShape>PointingHandCursor</cursorShape>
+                      </property>
+                      <property name="checked">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
                      <widget class="QComboBox" name="detectorFastTypeText">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
                       <property name="currentText">
                        <string>5_8</string>
                       </property>
@@ -1176,7 +1205,7 @@
                      </widget>
                     </item>
                     <item row="1" column="1">
-                     <widget class="QLineEdit" name="detectorSiftEdgeThresholdLabText">
+                     <widget class="QLineEdit" name="detectorSiftEdgeThresholdText">
                       <property name="text">
                        <string>10</string>
                       </property>
@@ -1473,6 +1502,9 @@
                   </item>
                   <item row="4" column="1" colspan="2">
                    <widget class="QLineEdit" name="descriptorFreakSelectedPairsText">
+                    <property name="inputMask">
+                     <string/>
+                    </property>
                     <property name="text">
                      <string/>
                     </property>
