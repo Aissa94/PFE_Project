@@ -54,8 +54,9 @@ private:
     void runORB();
 	void runBRISK();
 	void runCustom();
-	void newRunCustom();
-	bool MainWindow::noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints);
+	void runCustom_old();
+	bool noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints);
+	int getNormByText(std::string norm);
 };
 
 #endif // MAINWINDOW_H

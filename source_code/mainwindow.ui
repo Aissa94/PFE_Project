@@ -226,9 +226,6 @@
         </item>
         <item row="1" column="0">
          <widget class="QCheckBox" name="siftBruteForceCheck">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
           <property name="cursor">
            <cursorShape>PointingHandCursor</cursorShape>
           </property>
@@ -312,9 +309,6 @@
           </item>
           <item row="3" column="1">
            <widget class="QCheckBox" name="surfExtendedText">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
             <property name="cursor">
              <cursorShape>PointingHandCursor</cursorShape>
             </property>
@@ -335,9 +329,6 @@
           </item>
           <item row="4" column="1">
            <widget class="QCheckBox" name="surfUprightText">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
             <property name="cursor">
              <cursorShape>PointingHandCursor</cursorShape>
             </property>
@@ -754,9 +745,6 @@
                 </item>
                 <item row="3" column="1">
                  <widget class="QCheckBox" name="briefSurfExtendedText">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
                   <property name="cursor">
                    <cursorShape>PointingHandCursor</cursorShape>
                   </property>
@@ -777,9 +765,6 @@
                 </item>
                 <item row="4" column="1">
                  <widget class="QCheckBox" name="briefSurfUprightText">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
                   <property name="cursor">
                    <cursorShape>PointingHandCursor</cursorShape>
                   </property>
@@ -829,7 +814,7 @@
           <item row="0" column="0">
            <widget class="QTabWidget" name="customTabs">
             <property name="currentIndex">
-             <number>1</number>
+             <number>3</number>
             </property>
             <widget class="QWidget" name="tabSegmentation">
              <attribute name="title">
@@ -1134,9 +1119,6 @@
                     </item>
                     <item row="1" column="1">
                      <widget class="QCheckBox" name="detectorFastNonmaxSuppressionCheck">
-                      <property name="enabled">
-                       <bool>true</bool>
-                      </property>
                       <property name="cursor">
                        <cursorShape>PointingHandCursor</cursorShape>
                       </property>
@@ -1147,9 +1129,6 @@
                     </item>
                     <item row="2" column="1">
                      <widget class="QCheckBox" name="detectorFastXCheck">
-                      <property name="enabled">
-                       <bool>true</bool>
-                      </property>
                       <property name="cursor">
                        <cursorShape>PointingHandCursor</cursorShape>
                       </property>
@@ -1353,9 +1332,6 @@
                     </item>
                     <item row="3" column="1">
                      <widget class="QCheckBox" name="detectorSurfExtendedText">
-                      <property name="enabled">
-                       <bool>true</bool>
-                      </property>
                       <property name="cursor">
                        <cursorShape>PointingHandCursor</cursorShape>
                       </property>
@@ -1376,9 +1352,6 @@
                     </item>
                     <item row="4" column="1">
                      <widget class="QCheckBox" name="detectorSurfUprightText">
-                      <property name="enabled">
-                       <bool>true</bool>
-                      </property>
                       <property name="cursor">
                        <cursorShape>PointingHandCursor</cursorShape>
                       </property>
@@ -1462,9 +1435,6 @@
                   </item>
                   <item row="0" column="1" colspan="2">
                    <widget class="QCheckBox" name="descriptorFreakOrientationNormalizedCheck">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
                     <property name="cursor">
                      <cursorShape>PointingHandCursor</cursorShape>
                     </property>
@@ -1475,9 +1445,6 @@
                   </item>
                   <item row="1" column="1" colspan="2">
                    <widget class="QCheckBox" name="descriptorFreakScaleNormalizedCheck">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
                     <property name="cursor">
                      <cursorShape>PointingHandCursor</cursorShape>
                     </property>
@@ -1752,15 +1719,103 @@
                 <property name="currentIndex">
                  <number>0</number>
                 </property>
-                <widget class="QWidget" name="tabMatcherMethod1">
+                <widget class="QWidget" name="tabMatcherBruteFoce">
                  <attribute name="title">
-                  <string>Method1</string>
+                  <string>Brute-Force</string>
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_13">
                   <item row="0" column="0">
-                   <layout class="QGridLayout" name="matcherMethod1Params">
+                   <layout class="QGridLayout" name="matcherBruteForceParams">
                     <item row="0" column="0">
-                     <widget class="QLabel" name="matcherMethod1Param1Label">
+                     <widget class="QLabel" name="matcherBruteForceNormTypeLabel">
+                      <property name="text">
+                       <string>Norm Type :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="matcherBruteForceCrossCheckLabel">
+                      <property name="text">
+                       <string>Cross Check :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QLabel" name="matcherBruteForceKBestLabel">
+                      <property name="text">
+                       <string>K-Best Matches (optional) :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QComboBox" name="matcherBruteForceNormTypeText">
+                      <property name="currentText">
+                       <string>NORM_L2</string>
+                      </property>
+                      <property name="currentIndex">
+                       <number>1</number>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string>NORM_L1</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>NORM_L2</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>NORM_HAMMING</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>NORM_HAMMING2</string>
+                       </property>
+                      </item>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QCheckBox" name="matcherBruteForceCrossCheckText">
+                      <property name="cursor">
+                       <cursorShape>PointingHandCursor</cursorShape>
+                      </property>
+                      <property name="checked">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QLineEdit" name="matcherBruteForceKBestText">
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="tabMatcherFlannBased">
+                 <attribute name="title">
+                  <string>Flann-Based</string>
+                 </attribute>
+                 <layout class="QGridLayout" name="gridLayout_13">
+                  <item row="0" column="0">
+                   <layout class="QGridLayout" name="matcherFlannBasedParams">
+                    <item row="0" column="0">
+                     <widget class="QLabel" name="matcherFlannBasedParam1Label">
                       <property name="text">
                        <string>Parameter1 :</string>
                       </property>
@@ -1770,7 +1825,7 @@
                      </widget>
                     </item>
                     <item row="1" column="0">
-                     <widget class="QLabel" name="matcherMethod1Param2Label">
+                     <widget class="QLabel" name="matcherFlannBasedParam2Label">
                       <property name="text">
                        <string>Parameter2 :</string>
                       </property>
@@ -1780,7 +1835,7 @@
                      </widget>
                     </item>
                     <item row="2" column="0">
-                     <widget class="QLabel" name="matcherMethod1Param3Label">
+                     <widget class="QLabel" name="matcherFlannBasedParam3Label">
                       <property name="text">
                        <string>Parameter3 :</string>
                       </property>
@@ -1790,21 +1845,21 @@
                      </widget>
                     </item>
                     <item row="0" column="1">
-                     <widget class="QLineEdit" name="matcherMethod1Param1Text">
+                     <widget class="QLineEdit" name="matcherFlannBasedParam1Text">
                       <property name="text">
                        <string>10</string>
                       </property>
                      </widget>
                     </item>
                     <item row="1" column="1">
-                     <widget class="QLineEdit" name="matcherMethod1Param2Text">
+                     <widget class="QLineEdit" name="matcherFlannBasedParam2Text">
                       <property name="text">
                        <string>20</string>
                       </property>
                      </widget>
                     </item>
                     <item row="2" column="1">
-                     <widget class="QLineEdit" name="matcherMethod1Param3Text">
+                     <widget class="QLineEdit" name="matcherFlannBasedParam3Text">
                       <property name="text">
                        <string>30</string>
                       </property>
@@ -1814,15 +1869,15 @@
                   </item>
                  </layout>
                 </widget>
-                <widget class="QWidget" name="tabMatcherMethod2">
+                <widget class="QWidget" name="tabMatcherMethod">
                  <attribute name="title">
-                  <string>Method2</string>
+                  <string>Method</string>
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_13">
                   <item row="0" column="0">
-                   <layout class="QGridLayout" name="matcherMethod2Params">
+                   <layout class="QGridLayout" name="matcherMethodParams">
                     <item row="0" column="0">
-                     <widget class="QLabel" name="matcherMethod2Param1Label">
+                     <widget class="QLabel" name="matcherMethodParam1Label">
                       <property name="text">
                        <string>Parameter1 :</string>
                       </property>
@@ -1832,7 +1887,7 @@
                      </widget>
                     </item>
                     <item row="1" column="0">
-                     <widget class="QLabel" name="matcherMethod2Param2Label">
+                     <widget class="QLabel" name="matcherMethodParam2Label">
                       <property name="text">
                        <string>Parameter2 :</string>
                       </property>
@@ -1842,7 +1897,7 @@
                      </widget>
                     </item>
                     <item row="2" column="0">
-                     <widget class="QLabel" name="matcherMethod2Param3Label">
+                     <widget class="QLabel" name="matcherMethodParam3Label">
                       <property name="text">
                        <string>Parameter3 :</string>
                       </property>
@@ -1852,21 +1907,21 @@
                      </widget>
                     </item>
                     <item row="0" column="1">
-                     <widget class="QLineEdit" name="matcherMethod2Param1Text">
+                     <widget class="QLineEdit" name="matcherMethodParam1Text">
                       <property name="text">
                        <string>10</string>
                       </property>
                      </widget>
                     </item>
                     <item row="1" column="1">
-                     <widget class="QLineEdit" name="matcherMethod2Param2Text">
+                     <widget class="QLineEdit" name="matcherMethodParam2Text">
                       <property name="text">
                        <string>20</string>
                       </property>
                      </widget>
                     </item>
                     <item row="2" column="1">
-                     <widget class="QLineEdit" name="matcherMethod2Param3Text">
+                     <widget class="QLineEdit" name="matcherMethodParam3Text">
                       <property name="text">
                        <string>30</string>
                       </property>

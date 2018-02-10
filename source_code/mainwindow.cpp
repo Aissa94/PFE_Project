@@ -90,7 +90,7 @@ void MainWindow::on_pushButton_pressed()
 
 	default:
 		// custom
-		newRunCustom();
+		runCustom();
 		break;
 	}
 }
@@ -104,7 +104,7 @@ void MainWindow::runSIFT()
     //              double sigma=1.6);
 
     //ui->logPlainText->appendPlainText("Starting SIFT object detection!");
-    ui->logPlainText->appendPlainText("Starting SIFT object detection!");
+	ui->logPlainText->appendHtml("<b>Starting SIFT object detection!</b>");
 
 
     // Read Parameters ...
@@ -209,7 +209,7 @@ void MainWindow::runSURF()
     //                      int nOctaves=4, int nOctaveLayers=2,
     //                      bool extended=true, bool upright=false);
 
-    ui->logPlainText->appendPlainText("Starting SURF object detection!");
+	ui->logPlainText->appendHtml("<b>Starting SURF object detection!</b>");
 
     // Read Parameters ...
     double hessainThreshold = ui->surfHessianThreshText->text().toDouble();
@@ -310,7 +310,7 @@ void MainWindow::runBRIEF()
     //QMessageBox msg; msg.setText("BRIEF"); msg.exec();
 
     //ui->logPlainText->appendPlainText("Starting BRIEF object detection!");
-    ui->logPlainText->appendPlainText("Starting BRIEF object detection!");
+	ui->logPlainText->appendHtml("<b>Starting BRIEF object detection!</b>");
 
     // Read Parameters ...
     int descLen = ui->briefDescLenText->text().toInt();
@@ -343,7 +343,7 @@ void MainWindow::runBRIEF()
 		}
     }
 
-	cv::BriefDescriptorExtractor briefExtractor(descLen);
+	cv::BriefDescriptorExtractor briefDescriptor(descLen);
 
     // Keypoints Vectors for the First & Second Image ...
     std::vector<cv::KeyPoint> firstImgKeypoints, secondImgKeypoints;
@@ -376,8 +376,8 @@ void MainWindow::runBRIEF()
     cv::Mat firstImgDescriptor, secondImgDescriptor;
 
     // Computing the descriptors
-    briefExtractor.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
-    briefExtractor.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
+    briefDescriptor.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
+    briefDescriptor.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
 
     // Find the matching points
     cv::BFMatcher matcher(cv::NORM_HAMMING);
@@ -479,7 +479,7 @@ void MainWindow::runORB()
     //                     int firstLevel = 0, int WTA_K=2, int scoreType=HARRIS_SCORE, int patchSize=31 );
 
     //ui->logPlainText->appendPlainText("Starting ORB object detection!");
-    ui->logPlainText->appendPlainText("Starting ORB object detection!");
+	ui->logPlainText->appendHtml("<b>Starting ORB object detection!</b>");
 
     // Read Parameters ...
     int  nfeatures = ui->orbNumFeatText->text().toInt();
@@ -595,7 +595,7 @@ void MainWindow::runBRISK()
 	//    BRISK(int thresh = 30, int octaves = 3,float patternScale = 1.0f);
 
 	//ui->logPlainText->appendPlainText("Starting BRISK object detection!");
-	ui->logPlainText->appendPlainText("Starting BRISK object detection!");
+	ui->logPlainText->appendHtml("<b>Starting BRISK object detection!</b>");
 
 	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 3 Columns
 	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
@@ -711,7 +711,7 @@ void MainWindow::runBRISK()
 
 }
 
-void MainWindow::newRunCustom()
+void MainWindow::runCustom()
 {
 	// Get choices
 	int detectorIndex = ui->detectorTabs->currentIndex();
@@ -724,8 +724,7 @@ void MainWindow::newRunCustom()
 	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + detectorName + ", " + descriptorName + ", " + matcherName + ") object detection!</b>"));
 
 	// Customising Detector...
-	//cv::FeatureDetector *ptrDetector;
-	cv::FeatureDetector * ptrDetector = nullptr;// = cv::FeatureDetector::create(detectorName);
+	cv::FeatureDetector * ptrDetector = nullptr;
 	switch (detectorIndex)
 	{
 	case 0:{
@@ -740,8 +739,7 @@ void MainWindow::newRunCustom()
 	case 1:
 		// FAST
 		ptrDetector = new cv::FastFeatureDetector(ui->detectorFastThresholdText->text().toInt(),
-			ui->detectorFastNonmaxSuppressionCheck->isChecked()/*,
-			ui->detectorFastTypeText->currentIndex()*/);
+			ui->detectorFastNonmaxSuppressionCheck->isChecked());
 	/*case 2:
 		// FASTX
 		cv::FASTX(ui->detectorFastThresholdText->text().toInt(),
@@ -780,10 +778,13 @@ void MainWindow::newRunCustom()
 	std::vector<cv::KeyPoint> firstImgKeypoints, secondImgKeypoints;
 
 	// Detecting Keypoints ...
+	double detectionTime = (double)cv::getTickCount();
 	ptrDetector->detect(firstImg, firstImgKeypoints);
 	ptrDetector->detect(secondImg, secondImgKeypoints);
+	detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
 	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
+	ui->logPlainText->appendPlainText("detection time: " + QString::number(detectionTime) + " (s)");
 
 	// Customising Descriptor...
 	cv::DescriptorExtractor * ptrDescriptor = nullptr;
@@ -791,29 +792,29 @@ void MainWindow::newRunCustom()
 	{
 	case 0:
 	{
-		// trait the descriptorFreakSelectedPairsNumbers
+		// trait the descriptorFreakSelectedPairsIndexes
 		std::string descriptorFreakSelectedPairsText = ui->descriptorFreakSelectedPairsText->text().toStdString();
 		std::stringstream stringStream(descriptorFreakSelectedPairsText);
 		// get ints from a text
 		int number;
-		std::vector<int> descriptorFreakSelectedPairsNumbers;
+		std::vector<int> descriptorFreakSelectedPairsIndexes;
 		while (stringStream >> number){
-			descriptorFreakSelectedPairsNumbers.push_back(number);
+			descriptorFreakSelectedPairsIndexes.push_back(number);
 		}
-		for each (int var in descriptorFreakSelectedPairsNumbers)
-		{
-			ui->logPlainText->appendPlainText(QString::number(var));
-		}
-		// FREAK
+		// FREAK	
 		ptrDescriptor = new cv::FREAK(ui->descriptorFreakOrientationNormalizedCheck->isChecked(),
 			ui->descriptorFreakScaleNormalizedCheck->isChecked(),
 			ui->descriptorFreakPatternScaleText->text().toFloat(),
-			ui->descriptorFreakNOctavesText->text().toFloat());
+			ui->descriptorFreakNOctavesText->text().toFloat(),
+			descriptorFreakSelectedPairsIndexes);
+		/* Select Pairs
+		std::vector<std::vector<cv::KeyPoint>> test = { firstImgKeypoints, secondImgKeypoints };
+		descriptorFreakSelectedPairsIndexes = ((cv::FREAK)ptrDescriptor).selectPairs({ firstImg, secondImg }, test, 0.699999999999, true);*/
 	}
 		break;
 	case 1:
 		// BRIEF
-		ptrDescriptor = new cv::BriefDescriptorExtractor(ui->descriptorBriefLengthLabel->text().toInt());
+		ptrDescriptor = new cv::BriefDescriptorExtractor(ui->descriptorBriefLengthText->text().toInt());
 		break;
 	case 2:
 		break;
@@ -832,17 +833,67 @@ void MainWindow::newRunCustom()
 	cv::Mat firstImgDescriptor, secondImgDescriptor;
 
 	// Computing the descriptors
-	ptrDescriptor->compute(firstImg, firstImgKeypoints, firstImgDescriptor);
-	ptrDescriptor->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
+	double descriptionTime;
+	try{
+		descriptionTime = (double)cv::getTickCount();
+		ptrDescriptor->compute(firstImg, firstImgKeypoints, firstImgDescriptor);
+		ptrDescriptor->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
+		descriptionTime = ((double)cv::getTickCount() - descriptionTime) / cv::getTickFrequency();
+		ui->logPlainText->appendPlainText("description time: " + QString::number(descriptionTime) + " (s)");
+	}
+	catch (...){
+		ui->logPlainText->appendHtml("<b style='color:red'>Please select the right pair indexes within the FREAK descriptor, or just leave it!.</b><br>(For more details read Section(4.2) in: <i>A. Alahi, R. Ortiz, and P. Vandergheynst. FREAK: Fast Retina Keypoint. In IEEE Conference on Computer Vision and Pattern Recognition, 2012.</i>)");
+		return;
+	}
+
+	// Customising Matcher...
+	cv::DescriptorMatcher * matcher = nullptr;
+	int kBestMatches = 1;
+	// for RANSAK we need 2 Matches
+	std::vector< cv::DMatch > firstMatches, secondMatches;
+	// std::vector<std::vector< cv::DMatch >> firstSetMatches(), secondSetMatches();
+	switch (descriptorIndex)
+	{
+	case 0:{
+		// BruteForce
+		kBestMatches = ui->matcherBruteForceKBestText->text().toInt();
+		int i = getNormByText(ui->matcherBruteForceNormTypeText->currentText().toStdString());
+		matcher = new cv::BFMatcher(i, ui->matcherBruteForceCrossCheckText->isChecked());
+	}break;
+	case 1:
+		// FlannBased
+		matcher = new cv::FlannBasedMatcher();// enter params!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		break;
+	// ...
+	default:
+		break;
+	}
 
 	// Find the matching points
-	cv::BFMatcher matcher(cv::NORM_HAMMING);
-	std::vector< cv::DMatch > firstMatches, secondMatches;
+	double firstMatchingTime, secondMatchingTime, bestMatchingTime;
+	/*if (kBestMatches > 1){
+		// first and second set of the k best matches
+		firstMatchingTime = (double)cv::getTickCount();
+		matcher.knnMatch(firstImgDescriptor, secondImgDescriptor, firstSetMatches, kBestMatches, cv::Mat(), false);
+		firstMatchingTime = ((double)cv::getTickCount() - firstMatchingTime) / cv::getTickFrequency();
 
-	//QMessageBox msg; msg.setText("Here"); msg.exec();
-
-	matcher.match(firstImgDescriptor, secondImgDescriptor, firstMatches);
-	matcher.match(secondImgDescriptor, firstImgDescriptor, secondMatches);
+		secondMatchingTime = (double)cv::getTickCount();
+		matcher.knnMatch(secondImgDescriptor, firstImgDescriptor, secondSetMatches, kBestMatches, cv::Mat(), false);
+		secondMatchingTime = ((double)cv::getTickCount() - secondMatchingTime) / cv::getTickFrequency();
+	}
+	else*/ {
+		// first and second set of the best matches (simple match)
+		firstMatchingTime = (double)cv::getTickCount();
+		matcher->match(firstImgDescriptor, secondImgDescriptor, firstMatches);
+		firstMatchingTime = ((double)cv::getTickCount() - firstMatchingTime) / cv::getTickFrequency();
+		
+		secondMatchingTime = (double)cv::getTickCount();
+		matcher->match(secondImgDescriptor, firstImgDescriptor, secondMatches);
+		secondMatchingTime = ((double)cv::getTickCount() - secondMatchingTime) / cv::getTickFrequency();
+	}
+	bestMatchingTime = std::min(firstMatchingTime, secondMatchingTime);
+	ui->logPlainText->appendPlainText("matching time: " + QString::number(bestMatchingTime) + " (s)");
+	ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + bestMatchingTime) + " (s)");
 
 	int bestMatchesCount = 0;
 	std::vector< cv::DMatch > bestMatches;
@@ -908,7 +959,7 @@ void MainWindow::newRunCustom()
 
 }
 
-void MainWindow::runCustom()
+void MainWindow::runCustom_old()
 {
 	// Get choices
 	std::string detectorName = ui->detectorTabs->tabText(ui->detectorTabs->currentIndex()).toStdString();
@@ -1145,4 +1196,16 @@ bool MainWindow::noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeyp
 		return true;
 	}
 	return false;
+}
+
+int MainWindow::getNormByText(std::string norm){
+	if (norm == "NORM_INF") return cv::NORM_INF;
+	else if (norm == "NORM_L1") return cv::NORM_L1;
+	else if (norm == "NORM_L2") return cv::NORM_L2;
+	else if (norm == "NORM_L2SQR") return cv::NORM_L2SQR;
+	else if (norm == "NORM_HAMMING") return cv::NORM_HAMMING;
+	else if (norm == "NORM_HAMMING2") return cv::NORM_HAMMING2;
+	else if (norm == "NORM_TYPE_MASK") return cv::NORM_TYPE_MASK;
+	else if (norm == "NORM_RELATIVE") return cv::NORM_RELATIVE;
+	else if (norm == "NORM_MINMAX") return cv::NORM_MINMAX;
 }
