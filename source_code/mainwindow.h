@@ -57,6 +57,7 @@ private:
 	void runCustom_old();
 	bool noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints);
 	int getNormByText(std::string norm);
+	void writeToFile(std::string fileName, cv::Algorithm * algoToWrite);
 };
 
 #endif // MAINWINDOW_H

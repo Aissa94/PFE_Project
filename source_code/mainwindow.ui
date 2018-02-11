@@ -320,7 +320,7 @@
           <item row="4" column="0">
            <widget class="QLabel" name="surfUprightLabel">
             <property name="text">
-             <string>Upright :</string>
+             <string>Features Orientation :</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -333,7 +333,7 @@
              <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="checked">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -586,27 +586,17 @@
              <layout class="QGridLayout" name="gridLayout_19">
               <item row="0" column="0">
                <layout class="QGridLayout" name="gridLayout_18">
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_33">
-                  <property name="text">
-                   <string>Edge Threshold :</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QLineEdit" name="briefSiftEdgeThreshText">
-                  <property name="text">
-                   <string>10</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="0" column="1">
                  <widget class="QLineEdit" name="briefSiftContThreshText">
                   <property name="text">
                    <string>0.04</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QLineEdit" name="briefSiftSigmaText">
+                  <property name="text">
+                   <string>1.6</string>
                   </property>
                  </widget>
                 </item>
@@ -620,13 +610,17 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="label_35">
+                <item row="1" column="1">
+                 <widget class="QLineEdit" name="briefSiftEdgeThreshText">
                   <property name="text">
-                   <string>Number of Features :</string>
+                   <string>10</string>
                   </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QLineEdit" name="briefSiftNumOctText">
+                  <property name="text">
+                   <string>3</string>
                   </property>
                  </widget>
                 </item>
@@ -647,17 +641,13 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="1">
-                 <widget class="QLineEdit" name="briefSiftNumOctText">
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_35">
                   <property name="text">
-                   <string>3</string>
+                   <string>Number of Features :</string>
                   </property>
-                 </widget>
-                </item>
-                <item row="4" column="1">
-                 <widget class="QLineEdit" name="briefSiftSigmaText">
-                  <property name="text">
-                   <string>1.6</string>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -665,6 +655,16 @@
                  <widget class="QLabel" name="label_37">
                   <property name="text">
                    <string>Sigma :</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_33">
+                  <property name="text">
+                   <string>Edge Threshold :</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -756,7 +756,7 @@
                 <item row="4" column="0">
                  <widget class="QLabel" name="briefSurfUprightLabel">
                   <property name="text">
-                   <string>Upright :</string>
+                   <string>Features Orientation :</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -769,7 +769,7 @@
                    <cursorShape>PointingHandCursor</cursorShape>
                   </property>
                   <property name="checked">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -814,7 +814,7 @@
           <item row="0" column="0">
            <widget class="QTabWidget" name="customTabs">
             <property name="currentIndex">
-             <number>3</number>
+             <number>2</number>
             </property>
             <widget class="QWidget" name="tabSegmentation">
              <attribute name="title">
@@ -962,7 +962,7 @@
               <item row="0" column="0">
                <widget class="QTabWidget" name="detectorTabs">
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>3</number>
                 </property>
                 <widget class="QWidget" name="tabDetectorStar">
                  <attribute name="title">
@@ -1304,7 +1304,7 @@
                      </widget>
                     </item>
                     <item row="2" column="0">
-                     <widget class="QLabel" name="detectorSurfNOctavesLabel">
+                     <widget class="QLabel" name="detectorSurfNLayersLabel">
                       <property name="text">
                        <string>Number of Octave Layers :</string>
                       </property>
@@ -1314,16 +1314,16 @@
                      </widget>
                     </item>
                     <item row="2" column="1">
-                     <widget class="QLineEdit" name="detectorSurfNOctavesText">
+                     <widget class="QLineEdit" name="detectorSurfNLayersText">
                       <property name="text">
                        <string>3</string>
                       </property>
                      </widget>
                     </item>
                     <item row="3" column="0">
-                     <widget class="QLabel" name="detectorSurfExtendedLabel">
+                     <widget class="QLabel" name="detectorSurfUprightLabel">
                       <property name="text">
-                       <string>Extended :</string>
+                       <string>Features Orientation :</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1331,32 +1331,12 @@
                      </widget>
                     </item>
                     <item row="3" column="1">
-                     <widget class="QCheckBox" name="detectorSurfExtendedText">
-                      <property name="cursor">
-                       <cursorShape>PointingHandCursor</cursorShape>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QLabel" name="detectorSurfUprightLabel">
-                      <property name="text">
-                       <string>Upright :</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="1">
                      <widget class="QCheckBox" name="detectorSurfUprightText">
                       <property name="cursor">
                        <cursorShape>PointingHandCursor</cursorShape>
                       </property>
                       <property name="checked">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -1376,7 +1356,7 @@
               <item row="0" column="0">
                <widget class="QTabWidget" name="descriptorTabs">
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>3</number>
                 </property>
                 <widget class="QWidget" name="tabDescriptorFreak">
                  <attribute name="title">
@@ -1547,45 +1527,15 @@
                   </item>
                  </layout>
                 </widget>
-                <widget class="QWidget" name="tabDescriptorMethod1">
+                <widget class="QWidget" name="tabDescriptorSift">
                  <attribute name="title">
-                  <string>Method1</string>
+                  <string>SIFT</string>
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_13">
                   <item row="0" column="0">
-                   <layout class="QGridLayout" name="descriptorMethod1Params">
+                   <layout class="QGridLayout" name="descriptorSiftParams">
                     <item row="0" column="0">
-                     <widget class="QLabel" name="descriptorMethod1Param1Label">
-                      <property name="text">
-                       <string>Parameter1 :</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="0">
-                     <widget class="QLabel" name="descriptorMethod1Param2Label">
-                      <property name="text">
-                       <string>Parameter2 :</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="0">
-                     <widget class="QLabel" name="descriptorMethod1Param3Label">
-                      <property name="text">
-                       <string>Parameter3 :</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="0">
-                     <widget class="QLabel" name="descriptorMethod1LengthLabel">
+                     <widget class="QLabel" name="descriptorSiftLengthLabel">
                       <property name="text">
                        <string>Descriptor Length in Bytes :</string>
                       </property>
@@ -1595,30 +1545,60 @@
                      </widget>
                     </item>
                     <item row="0" column="1">
-                     <widget class="QLineEdit" name="descriptorMethod1Param1Text">
+                     <widget class="QLineEdit" name="descriptorSiftLengthText">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
                       <property name="text">
-                       <string>10</string>
+                       <string>128</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="tabDescriptorSurf">
+                 <attribute name="title">
+                  <string>SURF</string>
+                 </attribute>
+                 <layout class="QGridLayout" name="gridLayout_13">
+                  <item row="0" column="0">
+                   <layout class="QGridLayout" name="descriptorSiftParams">
+                    <item row="0" column="0">
+                     <widget class="QLabel" name="descriptorSurfExtendedLabel">
+                      <property name="text">
+                       <string>Descriptor Length in Bytes :</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QRadioButton" name="descriptorSurfNotExtended">
+                      <property name="text">
+                       <string>64</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="descriptorSurfExtendedLabel">
+                      <property name="text">
+                       <string></string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
                     <item row="1" column="1">
-                     <widget class="QLineEdit" name="descriptorMethod1Param2Text">
+                     <widget class="QRadioButton" name="descriptorSurfExtended">
                       <property name="text">
-                       <string>20</string>
+                       <string>128</string>
                       </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="1">
-                     <widget class="QLineEdit" name="descriptorMethod1Param3Text">
-                      <property name="text">
-                       <string>30</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="1">
-                     <widget class="QLineEdit" name="descriptorMethod1LengthText">
-                      <property name="text">
-                       <string>32</string>
+                      <property name="checked">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -1717,7 +1697,7 @@
               <item row="0" column="0">
                <widget class="QTabWidget" name="matcherTabs">
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>1</number>
                 </property>
                 <widget class="QWidget" name="tabMatcherBruteFoce">
                  <attribute name="title">

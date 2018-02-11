@@ -216,7 +216,7 @@ void MainWindow::runSURF()
     int nOctaves = ui->surfNumOctavesText->text().toInt();
     int nOctaveLayers = ui->surfNumOctLayersText->text().toInt();
 	bool extended = ui->surfExtendedText->isChecked();
-	bool upright = ui->surfUprightText->isChecked();
+	bool upright = !ui->surfUprightText->isChecked();
 
     // Create SURF Objects ...
     cv::SURF surfDetector(hessainThreshold, nOctaves, nOctaveLayers, extended, upright);
@@ -256,7 +256,7 @@ void MainWindow::runSURF()
     matcher->match( secondImgDescriptor, firstImgDescriptor, secondMatches );
 
     delete matcher;
-
+	// !!!!!!!!!!!!!!!!!!!!!!!!!hena yebda le pblm de diffirence entre hada w ta3 custom !!! !!! !!! !!
     int bestMatchesCount = 0;
     std::vector< cv::DMatch > bestMatches;
 
@@ -323,12 +323,12 @@ void MainWindow::runBRIEF()
     {
 	case 0: // SIFT features used for BRIEF detection ...
 		{
-			double brfContrastThreshold = ui->briefSiftContThreshText->text().toDouble();
-			int brfEdgeThreshold = ui->briefSiftEdgeThreshText->text().toInt();
 			int brfNumberFeatures = ui->briefSiftNumFeatText->text().toInt();
 			int brfOctaveLayers = ui->briefSiftNumOctText->text().toInt();
+			double brfContrastThreshold = ui->briefSiftContThreshText->text().toDouble();
+			double brfEdgeThreshold = ui->briefSiftEdgeThreshText->text().toDouble();
 			double brfSigma = ui->briefSiftSigmaText->text().toDouble();
-			fDetector = new cv::SIFT(brfContrastThreshold, brfEdgeThreshold, brfNumberFeatures, brfOctaveLayers, brfSigma);
+			fDetector = new cv::SIFT(brfNumberFeatures, brfOctaveLayers, brfContrastThreshold, brfEdgeThreshold, brfSigma);
 			break;
 		}
 	case 1: // SURF features used for BRIEF detection ...
@@ -337,7 +337,7 @@ void MainWindow::runBRIEF()
 			int brfNOctaves = ui->briefSurfNumOctavesText->text().toInt();
 			int brfNOctaveLayers = ui->briefSurfNumOctLayersText->text().toInt();
 			bool brfExtended = ui->briefSurfExtendedText->isChecked();
-			bool brfUpright = ui->briefSurfUprightText->isChecked();
+			bool brfUpright = !ui->briefSurfUprightText->isChecked();
 			fDetector = new cv::SURF(brfHessainThreshold, brfNOctaves, brfNOctaveLayers, brfExtended, brfUpright);
 			break;
 		}
@@ -380,7 +380,8 @@ void MainWindow::runBRIEF()
     briefDescriptor.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
 
     // Find the matching points
-    cv::BFMatcher matcher(cv::NORM_HAMMING);
+	cv::BFMatcher matcher(cv::NORM_HAMMING);
+	//cv::FlannBasedMatcher * matcher; matcher = new cv::FlannBasedMatcher();
     std::vector< cv::DMatch > firstMatches, secondMatches;
 
     //QMessageBox msg; msg.setText("Here"); msg.exec();
@@ -748,19 +749,20 @@ void MainWindow::runCustom()
 		break;
 	case 2:
 		// SIFT
-		ptrDetector = new cv::SiftDescriptorExtractor(ui->detectorSiftNfeaturesText->text().toInt(),
+		ptrDetector = new cv::SiftFeatureDetector(ui->detectorSiftNfeaturesText->text().toInt(),
 			ui->detectorSiftNOctaveLayersText->text().toInt(),
-			ui->detectorSiftContrastThresholdText->text().toFloat(),
-			ui->detectorSiftEdgeThresholdText->text().toFloat(),
-			ui->detectorSiftSigmaText->text().toFloat());
+			ui->detectorSiftContrastThresholdText->text().toDouble(),
+			ui->detectorSiftEdgeThresholdText->text().toDouble(),
+			ui->detectorSiftSigmaText->text().toDouble());
 		break;
 	case 3:
 		//SURF
-		ptrDetector = new cv::SurfDescriptorExtractor(ui->detectorSurfHessianThresholdText->text().toFloat(),
+		// we didn't need the Extended param because it is related to the SURF descriptor
+		ptrDetector = new cv::SurfFeatureDetector(ui->detectorSurfHessianThresholdText->text().toDouble(),
 			ui->detectorSurfNOctavesText->text().toInt(),
-			ui->detectorSurfNOctavesText->text().toInt(),
-			ui->detectorSurfExtendedText->isChecked(),
-			ui->detectorSurfUprightText->isChecked());
+			ui->detectorSurfNLayersText->text().toInt(),
+			true,
+			!ui->detectorSurfUprightText->isChecked());
 		break;
 	//....
 	default:
@@ -768,10 +770,8 @@ void MainWindow::runCustom()
 		break;
 	}
 
-	// Open the file in WRITE mode
-	cv::FileStorage fsDetector("params/detector_" + detectorName + "_params.yaml", cv::FileStorage::WRITE);
 	// Write the parameters
-	ptrDetector->write(fsDetector);
+	writeToFile("detector_" + detectorName, ptrDetector);
 	// fs in WRITE mode automatically released
 
 	// Keypoints Vectors for the First & Second Image ...
@@ -817,17 +817,21 @@ void MainWindow::runCustom()
 		ptrDescriptor = new cv::BriefDescriptorExtractor(ui->descriptorBriefLengthText->text().toInt());
 		break;
 	case 2:
+		// SIFT
+		ptrDescriptor = new cv::SiftDescriptorExtractor();
+		break;
+	case 3:
+		//SURF
+		// we just need the Extended param because others are related to the SURF detector
+		ptrDescriptor = new cv::SurfDescriptorExtractor(100, 4, 3, ui->descriptorSurfExtended->isChecked(), false);
 		break;
 	//....
 	default:
 		break;
 	}
 
-	// Open the file in WRITE mode
-	cv::FileStorage fsDescriptor("params/descriptor_" + descriptorName + "_params.yaml", cv::FileStorage::WRITE);
 	// Write the parameters
-	ptrDescriptor->write(fsDescriptor);
-	// fs in WRITE mode automatically released
+	writeToFile("descriptor_" + descriptorName, ptrDescriptor);
 
 	// Descriptors for the First & Second Image ...
 	cv::Mat firstImgDescriptor, secondImgDescriptor;
@@ -835,6 +839,7 @@ void MainWindow::runCustom()
 	// Computing the descriptors
 	double descriptionTime;
 	try{
+		// Aissa !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! affichinna firstImgKeypoints avant et après pour voir c'est compute va les changer ou pas!!!!
 		descriptionTime = (double)cv::getTickCount();
 		ptrDescriptor->compute(firstImg, firstImgKeypoints, firstImgDescriptor);
 		ptrDescriptor->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
@@ -847,50 +852,62 @@ void MainWindow::runCustom()
 	}
 
 	// Customising Matcher...
-	cv::DescriptorMatcher * matcher = nullptr;
+	cv::DescriptorMatcher * ptrMatcher = nullptr;
 	int kBestMatches = 1;
-	// for RANSAK we need 2 Matches
-	std::vector< cv::DMatch > firstMatches, secondMatches;
 	// std::vector<std::vector< cv::DMatch >> firstSetMatches(), secondSetMatches();
-	switch (descriptorIndex)
+	switch (matcherIndex)
 	{
-	case 0:{
+	case 0:
+	{
 		// BruteForce
 		kBestMatches = ui->matcherBruteForceKBestText->text().toInt();
-		int i = getNormByText(ui->matcherBruteForceNormTypeText->currentText().toStdString());
-		matcher = new cv::BFMatcher(i, ui->matcherBruteForceCrossCheckText->isChecked());
-	}break;
+		int norm = getNormByText(ui->matcherBruteForceNormTypeText->currentText().toStdString());
+		ptrMatcher = new cv::BFMatcher(norm, ui->matcherBruteForceCrossCheckText->isChecked());
+	}
+		break;
 	case 1:
 		// FlannBased
-		matcher = new cv::FlannBasedMatcher();// enter params!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		ptrMatcher = new cv::FlannBasedMatcher();
 		break;
 	// ...
 	default:
 		break;
 	}
 
+	// Write the parameters
+	writeToFile("matcher_" + matcherName, ptrMatcher);
+
 	// Find the matching points
+	// for RANSAK we need 2 Matches
+	std::vector< cv::DMatch > firstMatches, secondMatches;
 	double firstMatchingTime, secondMatchingTime, bestMatchingTime;
-	/*if (kBestMatches > 1){
+	try{
+		/*if (kBestMatches > 1){
 		// first and second set of the k best matches
 		firstMatchingTime = (double)cv::getTickCount();
-		matcher.knnMatch(firstImgDescriptor, secondImgDescriptor, firstSetMatches, kBestMatches, cv::Mat(), false);
+		ptrMatcher->knnMatch(firstImgDescriptor, secondImgDescriptor, firstSetMatches, kBestMatches, cv::Mat(), false);
 		firstMatchingTime = ((double)cv::getTickCount() - firstMatchingTime) / cv::getTickFrequency();
 
 		secondMatchingTime = (double)cv::getTickCount();
-		matcher.knnMatch(secondImgDescriptor, firstImgDescriptor, secondSetMatches, kBestMatches, cv::Mat(), false);
+		ptrMatcher->knnMatch(secondImgDescriptor, firstImgDescriptor, secondSetMatches, kBestMatches, cv::Mat(), false);
 		secondMatchingTime = ((double)cv::getTickCount() - secondMatchingTime) / cv::getTickFrequency();
+		}
+		else*/ {
+			// first and reverse set of the best matches (simple match)
+			firstMatchingTime = (double)cv::getTickCount();
+			ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, firstMatches);
+			firstMatchingTime = ((double)cv::getTickCount() - firstMatchingTime) / cv::getTickFrequency();
+
+			secondMatchingTime = (double)cv::getTickCount();
+			ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, secondMatches);
+			secondMatchingTime = ((double)cv::getTickCount() - secondMatchingTime) / cv::getTickFrequency();
+		}
 	}
-	else*/ {
-		// first and second set of the best matches (simple match)
-		firstMatchingTime = (double)cv::getTickCount();
-		matcher->match(firstImgDescriptor, secondImgDescriptor, firstMatches);
-		firstMatchingTime = ((double)cv::getTickCount() - firstMatchingTime) / cv::getTickFrequency();
-		
-		secondMatchingTime = (double)cv::getTickCount();
-		matcher->match(secondImgDescriptor, firstImgDescriptor, secondMatches);
-		secondMatchingTime = ((double)cv::getTickCount() - secondMatchingTime) / cv::getTickFrequency();
+	catch (...){
+		ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one</b>");
+		return;
 	}
+	
 	bestMatchingTime = std::min(firstMatchingTime, secondMatchingTime);
 	ui->logPlainText->appendPlainText("matching time: " + QString::number(bestMatchingTime) + " (s)");
 	ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + bestMatchingTime) + " (s)");
@@ -992,11 +1009,8 @@ void MainWindow::runCustom_old()
 		//ptrDetector->set("octaves", 3);
 		//ptrDetector->set("patternScale", 1);
 
-		// Open the file in WRITE mode
-		cv::FileStorage fsDetector("params/detector_" + detectorName + "_params.yaml", cv::FileStorage::WRITE);
 		// Write the parameters
-		ptrDetector->write(fsDetector);
-		// fs in WRITE mode automatically released
+		writeToFile("detector_" + detectorName, ptrDetector);
 	}
 	// fs in READ mode automatically released
 
@@ -1045,11 +1059,8 @@ void MainWindow::runCustom_old()
 		//ptrDescriptor->set("octaves", 3);
 		//ptrDetector->set("patternScale", 1);
 
-		// Open the file in WRITE mode
-		cv::FileStorage fsDescriptor("params/descriptor_" + descriptorName + "_params.yaml", cv::FileStorage::WRITE);
 		// Write the parameters
-		ptrDescriptor->write(fsDescriptor);
-		// fs in WRITE mode automatically released
+		writeToFile("descriptor_" + descriptorName, ptrDescriptor);
 	}
 	// fs in READ mode automatically released
 
@@ -1208,4 +1219,13 @@ int MainWindow::getNormByText(std::string norm){
 	else if (norm == "NORM_TYPE_MASK") return cv::NORM_TYPE_MASK;
 	else if (norm == "NORM_RELATIVE") return cv::NORM_RELATIVE;
 	else if (norm == "NORM_MINMAX") return cv::NORM_MINMAX;
+}
+
+void MainWindow::writeToFile(std::string fileName, cv::Algorithm * algoToWrite){
+// Open a file and write parameters of an algorithm
+	// Open the file in WRITE mode
+	cv::FileStorage fs("params/" + fileName + "_params.yaml", cv::FileStorage::WRITE);
+	// Write the parameters
+	algoToWrite->write(fs);
+	// fs in WRITE mode automatically released
 }

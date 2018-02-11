@@ -29,21 +29,21 @@
     </TypeIdentifier>
   </Class>
   <Class Name="cv::Feature2D" Collapsed="true">
-    <Position X="25" Y="3.5" Width="1.5" />
+    <Position X="24.75" Y="2.5" Width="1.5" />
     <InheritanceLine Type="cv::FeatureDetector" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
       <Path>
-        <Point X="12.25" Y="1.191" />
-        <Point X="12.25" Y="3.125" />
-        <Point X="25.75" Y="3.125" />
-        <Point X="25.75" Y="3.5" />
+        <Point X="12.688" Y="1.191" />
+        <Point X="12.688" Y="1.74" />
+        <Point X="25.5" Y="1.74" />
+        <Point X="25.5" Y="2.5" />
       </Path>
     </InheritanceLine>
     <InheritanceLine Type="cv::DescriptorExtractor" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
       <Path>
-        <Point X="31.375" Y="1.191" />
-        <Point X="31.375" Y="3.125" />
-        <Point X="25.75" Y="3.125" />
-        <Point X="25.75" Y="3.5" />
+        <Point X="31.062" Y="1.191" />
+        <Point X="31.062" Y="1.74" />
+        <Point X="25.5" Y="1.74" />
+        <Point X="25.5" Y="2.5" />
       </Path>
     </InheritanceLine>
     <TypeIdentifier>
