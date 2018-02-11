@@ -128,7 +128,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tabSIFT">
        <attribute name="title">
@@ -567,243 +567,6 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tabBRIEF">
-       <attribute name="title">
-        <string>BRIEF</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_14">
-        <item row="1" column="0">
-         <layout class="QGridLayout" name="briefTabsAll">
-          <item row="1" column="0">
-           <widget class="QTabWidget" name="briefTabs">
-            <property name="currentIndex">
-             <number>1</number>
-            </property>
-            <widget class="QWidget" name="tab_10">
-             <attribute name="title">
-              <string>SIFT</string>
-             </attribute>
-             <layout class="QGridLayout" name="gridLayout_19">
-              <item row="0" column="0">
-               <layout class="QGridLayout" name="gridLayout_18">
-                <item row="0" column="1">
-                 <widget class="QLineEdit" name="briefSiftContThreshText">
-                  <property name="text">
-                   <string>0.04</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="1">
-                 <widget class="QLineEdit" name="briefSiftSigmaText">
-                  <property name="text">
-                   <string>1.6</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_34">
-                  <property name="text">
-                   <string>Contrast Threshold :</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QLineEdit" name="briefSiftEdgeThreshText">
-                  <property name="text">
-                   <string>10</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QLineEdit" name="briefSiftNumOctText">
-                  <property name="text">
-                   <string>3</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QLineEdit" name="briefSiftNumFeatText">
-                  <property name="text">
-                   <string>0</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QLabel" name="label_36">
-                  <property name="text">
-                   <string>Number of Octave Layers :</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="label_35">
-                  <property name="text">
-                   <string>Number of Features :</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="0">
-                 <widget class="QLabel" name="label_37">
-                  <property name="text">
-                   <string>Sigma :</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_33">
-                  <property name="text">
-                   <string>Edge Threshold :</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="tab_11">
-             <attribute name="title">
-              <string>SURF</string>
-             </attribute>
-             <layout class="QGridLayout" name="gridLayout_17">
-              <item row="0" column="0">
-               <layout class="QGridLayout" name="gridLayout_16">
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_28">
-                  <property name="text">
-                   <string>Number of Octaves :</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QLineEdit" name="briefSurfNumOctavesText">
-                  <property name="text">
-                   <string>4</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QLineEdit" name="briefSurfHessianThreshText">
-                  <property name="text">
-                   <string>100</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_29">
-                  <property name="text">
-                   <string>Hessian Threshold :</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="label_30">
-                  <property name="text">
-                   <string>Number of Octave Layers :</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QLineEdit" name="briefSurfNumOctLayersText">
-                  <property name="text">
-                   <string>3</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QLabel" name="briefSurfExtendedLabel">
-                  <property name="text">
-                   <string>Extended :</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QCheckBox" name="briefSurfExtendedText">
-                  <property name="cursor">
-                   <cursorShape>PointingHandCursor</cursorShape>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="0">
-                 <widget class="QLabel" name="briefSurfUprightLabel">
-                  <property name="text">
-                   <string>Features Orientation :</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="1">
-                 <widget class="QCheckBox" name="briefSurfUprightText">
-                  <property name="cursor">
-                   <cursorShape>PointingHandCursor</cursorShape>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_26">
-            <property name="text">
-             <string>Key Point Finding Algorithm :</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_27">
-          <property name="text">
-           <string>Descriptor Length in Bytes :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLineEdit" name="briefDescLenText">
-          <property name="text">
-           <string>32</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="tabCutom">
        <attribute name="title">
         <string>Custom</string>
@@ -814,7 +577,7 @@
           <item row="0" column="0">
            <widget class="QTabWidget" name="customTabs">
             <property name="currentIndex">
-             <number>2</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="tabSegmentation">
              <attribute name="title">
@@ -962,9 +725,12 @@
               <item row="0" column="0">
                <widget class="QTabWidget" name="detectorTabs">
                 <property name="currentIndex">
-                 <number>3</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="tabDetectorStar">
+                 <property name="toolTip">
+                  <string>The keypoint detector introduced by [Agrawal08], synonym of StarDetector</string>
+                 </property>
                  <attribute name="title">
                   <string>STAR</string>
                  </attribute>
@@ -1061,6 +827,9 @@
                  </layout>
                 </widget>
                 <widget class="QWidget" name="tabDetectorFast">
+                 <property name="toolTip">
+                  <string>Detects corners using the FAST algorithm by [Rosten06].</string>
+                 </property>
                  <attribute name="title">
                   <string>FAST</string>
                  </attribute>
@@ -1069,6 +838,9 @@
                    <layout class="QGridLayout" name="detectorFastParams">
                     <item row="0" column="0">
                      <widget class="QLabel" name="detectorFastThresholdLabel">
+                      <property name="toolTip">
+                       <string>threshold on difference between intensity of the central pixel and pixels of a circle around this pixel.</string>
+                      </property>
                       <property name="text">
                        <string>Threshold :</string>
                       </property>
@@ -1079,6 +851,9 @@
                     </item>
                     <item row="1" column="0">
                      <widget class="QLabel" name="detectorFastNonmaxSuppressionLabel">
+                      <property name="toolTip">
+                       <string>If true, non-maximum suppression is applied to detected corners (keypoints).</string>
+                      </property>
                       <property name="text">
                        <string>Non-maximum Suppression :</string>
                       </property>
@@ -1089,6 +864,9 @@
                     </item>
                     <item row="2" column="0">
                      <widget class="QLabel" name="detectorFastXLabel">
+                      <property name="toolTip">
+                       <string>With variant types</string>
+                      </property>
                       <property name="text">
                        <string>Use FASTX detector :</string>
                       </property>
@@ -1101,6 +879,9 @@
                      <widget class="QLabel" name="detectorFastTypeLabel">
                       <property name="enabled">
                        <bool>false</bool>
+                      </property>
+                      <property name="toolTip">
+                       <string>One of the three neighborhoods as defined in the paper</string>
                       </property>
                       <property name="text">
                        <string>Type :</string>
@@ -1167,6 +948,9 @@
                  </layout>
                 </widget>
                 <widget class="QWidget" name="tabDetectorSift">
+                 <property name="toolTip">
+                  <string>Extracting keypoints using the Scale Invariant Feature Transform (SIFT) algorithm by D. Lowe [Lowe04].</string>
+                 </property>
                  <attribute name="title">
                   <string>SIFT</string>
                  </attribute>
@@ -1175,6 +959,9 @@
                    <layout class="QGridLayout" name="detectorSIFTParams">
                     <item row="1" column="0">
                      <widget class="QLabel" name="detectorSiftEdgeThresholdLab">
+                      <property name="toolTip">
+                       <string>The threshold used to filter out edge-like features. Note that the its meaning is different from the contrastThreshold, i.e. the larger the edgeThreshold, the less features are filtered out (more features are retained).</string>
+                      </property>
                       <property name="text">
                        <string>Edge Threshold :</string>
                       </property>
@@ -1199,6 +986,9 @@
                     </item>
                     <item row="0" column="0">
                      <widget class="QLabel" name="detectorSiftContrastThresholdLabel">
+                      <property name="toolTip">
+                       <string>The contrast threshold used to filter out weak features in semi-uniform (low-contrast) regions. The larger the threshold, the less features are produced by the detector.</string>
+                      </property>
                       <property name="text">
                        <string>Contrast Threshold :</string>
                       </property>
@@ -1209,6 +999,9 @@
                     </item>
                     <item row="2" column="0">
                      <widget class="QLabel" name="detectorSiftNfeaturesLabel">
+                      <property name="toolTip">
+                       <string>The number of best features to retain. The features are ranked by their scores (measured in SIFT algorithm as the local contrast)</string>
+                      </property>
                       <property name="text">
                        <string>Number of Features :</string>
                       </property>
@@ -1226,6 +1019,9 @@
                     </item>
                     <item row="3" column="0">
                      <widget class="QLabel" name="detectorSiftNOctaveLayersLabel">
+                      <property name="toolTip">
+                       <string>The number of layers in each octave. 3 is the value used in D. Lowe paper. The number of octaves is computed automatically from the image resolution.</string>
+                      </property>
                       <property name="text">
                        <string>Number of Octave Layers :</string>
                       </property>
@@ -1250,6 +1046,9 @@
                     </item>
                     <item row="4" column="0">
                      <widget class="QLabel" name="detectorSiftSigmaLabel">
+                      <property name="toolTip">
+                       <string>The sigma of the Gaussian applied to the input image at the octave #0. If your image is captured with a weak camera with soft lenses, you might want to reduce the number.</string>
+                      </property>
                       <property name="text">
                        <string>Sigma :</string>
                       </property>
@@ -1356,7 +1155,7 @@
               <item row="0" column="0">
                <widget class="QTabWidget" name="descriptorTabs">
                 <property name="currentIndex">
-                 <number>3</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="tabDescriptorFreak">
                  <attribute name="title">
@@ -1585,7 +1384,7 @@
                     <item row="1" column="0">
                      <widget class="QLabel" name="descriptorSurfExtendedLabel">
                       <property name="text">
-                       <string></string>
+                       <string/>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1697,7 +1496,7 @@
               <item row="0" column="0">
                <widget class="QTabWidget" name="matcherTabs">
                 <property name="currentIndex">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="tabMatcherBruteFoce">
                  <attribute name="title">
