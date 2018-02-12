@@ -36,6 +36,8 @@ private slots:
     void on_actionRun_triggered();
 
     void on_actionClear_Log_triggered();
+    
+	void on_actionSave_Log_File_As_triggered();
 
     void on_actionAbout_Qt_triggered();
 
@@ -45,13 +47,17 @@ private:
     Ui::MainWindow *ui;
 
     QString outputImagesPath;
-
+	void resetParams();
     void runSIFT();
     void runSURF();
-    void runBRIEF();
     void runORB();
 	void runBRISK();
-
+	void runCustom();
+	void runCustom_old();
+	void calculateBestMatches();
+	void writeToFile(std::string fileName, cv::Algorithm * algoToWrite);
+	bool noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints);
+	int  getNormByText(std::string norm);
 };
 
 #endif // MAINWINDOW_H

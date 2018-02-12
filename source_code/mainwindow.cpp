@@ -1,68 +1,45 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+// Images Declaration
+	cv::Mat firstImg, cv::Mat secondImg;
+	cv::Mat firstImgDescriptorShow, secondImgDescriptorShow;
+
+// Vectors Declaration
+	// Keypoints Vectors for the First & Second Image ...
+	std::vector<cv::KeyPoint> firstImgKeypoints, secondImgKeypoints;
+	// Descriptors for the First & Second Image ...
+	cv::Mat firstImgDescriptor, secondImgDescriptor;
+	// Matches for the First & Second Image ...
+	std::vector<cv::DMatch> firstMatches, secondMatches, bestMatches;
+	cv::Mat bestImgMatches;
+
+// Operators Declaration
+	cv::FeatureDetector * ptrDetector;
+	cv::DescriptorExtractor * ptrDescriptor;
+	cv::DescriptorMatcher * ptrMatcher;
+
+// Times
+	double detectionTime, descriptionTime, firstMatchingTime, secondMatchingTime, bestMatchingTime;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
+	// cusomizing ToolTips :
+	qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white;}");
+	//qApp->setStyleSheet("QToolTip { visibility: visible; width: 120px; background-color: #555; color: #fff; text-align: center; border-radius: 6px; padding: 5px 0; position: absolute; z-index: 1; bottom: 125 %; left: 50% ;margin-left: -60px; opacity: 1; transition: opacity 0.3s;}");
     //outputImagesPath = "/Users/elma/Desktop/FeaturePointsComparisonOutputImages";
     //outputImagesPath = QInputDialog::getText(this, "Output Images Path");
-
+	ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
+	ui->segmentationMethod1Param1Label->setToolTip("test");
 }
 
 
 MainWindow::~MainWindow()
 {
     delete ui;
-}
-
-void MainWindow::on_firstImgBtn_pressed()
-{
-    QString str = QFileDialog::getOpenFileName();
-    if (!str.trimmed().isEmpty())
-        ui->firstImgText->setText(str);
-}
-
-void MainWindow::on_secondImgBtn_pressed()
-{
-    QString str = QFileDialog::getOpenFileName();
-    if (!str.trimmed().isEmpty())
-        ui->secondImgText->setText(str);
-}
-
-void MainWindow::on_pushButton_pressed()
-{
-	int selectedAlgorithm = ui->tabWidget->currentIndex();
-    switch(selectedAlgorithm)
-    {
-    case 0:
-        // SIFT
-        runSIFT();
-        break;
-
-    case 1:
-        // SURF
-        runSURF();
-        break;
-
-    case 2:
-        // BRIEF
-        runBRIEF();
-        break;
-
-    case 3:
-        // ORB
-        runORB();
-        break;
-
-	case 4:
-		// BRISK
-		runBRISK();
-		break;
-	}
-
 }
 
 void MainWindow::runSIFT()
@@ -73,8 +50,8 @@ void MainWindow::runSIFT()
     //              double contrastThreshold=0.04, double edgeThreshold=10,
     //              double sigma=1.6);
 
-    //ui->logPlainText->appendPlainText("\nStarting SIFT object detection!");
-    ui->logPlainText->appendHtml("<b>Staring SIFT object detection!</b>");
+    //ui->logPlainText->appendPlainText("Starting SIFT object detection!");
+	ui->logPlainText->appendHtml("<b>Starting SIFT object detection!</b>");
 
 
     // Read Parameters ...
@@ -87,109 +64,30 @@ void MainWindow::runSIFT()
     // Create SIFT Objects ...
     cv::SIFT siftDetector(nfeatures, nOctaveLayers, contrastThreshold, edgeThreshold, sigma);
 
-    // Read Images ...
-    cv::Mat firstImg = cv::imread( ui->firstImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE );
-    cv::Mat secondImg = cv::imread( ui->secondImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE );
-
-    if((firstImg.cols < 100) && (firstImg.rows < 100))
-    {
-        cv::resize(firstImg, firstImg, cv::Size(), 200/firstImg.rows, 200/firstImg.cols);
-    }
-
-    if((secondImg.cols < 100) && (secondImg.rows < 100))
-    {
-        cv::resize(secondImg, secondImg, cv::Size(), 200/secondImg.rows, 200/secondImg.cols);
-    }
-
-    // Check if the Images are loaded correctly ...
-    if(firstImg.empty() || secondImg.empty())
-    {
-        ui->logPlainText->appendPlainText("Error while trying to read one of the input files!");
-        return;
-    }
-
-    // Keypoints Vectors for the First & Second Image ...
-    std::vector<cv::KeyPoint> firstImgKeypoints, secondImgKeypoints;
-
     // Detecting Keypoints ...
     siftDetector.detect(firstImg, firstImgKeypoints);
-
-    ui->logPlainText->appendPlainText("Found " + QString::number(firstImgKeypoints.size()) + " key points in the first image!");
-
     siftDetector.detect(secondImg, secondImgKeypoints);
 
-    ui->logPlainText->appendPlainText("Found " + QString::number(secondImgKeypoints.size()) + " key points in the second image!");
-
-    // Descriptors for the First & Second Image ...
-    cv::Mat firstImgDescriptor, secondImgDescriptor;
+	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
 
     // Computing the descriptors
-    siftDetector.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
+	siftDetector.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
     siftDetector.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
 
     // Find the matching points
-    cv::DescriptorMatcher *matcher;
     if(ui->siftBruteForceCheck->isChecked())
     {
-        matcher = new cv::BFMatcher(cv::NORM_L1);
+        ptrMatcher = new cv::BFMatcher(cv::NORM_L1);
     }
     else
     {
-        matcher = new cv::FlannBasedMatcher();
+        ptrMatcher = new cv::FlannBasedMatcher();
     }
-    std::vector< cv::DMatch > firstMatches, secondMatches;
-    matcher->match( firstImgDescriptor, secondImgDescriptor, firstMatches );
-    matcher->match( secondImgDescriptor, firstImgDescriptor, secondMatches );
+    ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, firstMatches );
+    ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, secondMatches );
 
-    delete matcher;
-
-    int bestMatchesCount = 0;
-    std::vector< cv::DMatch > bestMatches;
-
-    for ( uint i=0; i<firstMatches.size(); i++ )
-    {
-        cv::Point matchedPt1 = firstImgKeypoints[i].pt;
-        cv::Point matchedPt2 = secondImgKeypoints[firstMatches[i].trainIdx].pt;
-
-        bool foundInReverse = false;
-
-        for( uint j=0; j<secondMatches.size(); j++)
-        {
-            cv::Point tmpSecImgKeyPnt = secondImgKeypoints[j].pt;
-            cv::Point tmpFrstImgKeyPntTrn = firstImgKeypoints[secondMatches[j].trainIdx].pt;
-            if((tmpSecImgKeyPnt == matchedPt2) && ( tmpFrstImgKeyPntTrn == matchedPt1))
-            {
-                foundInReverse = true;
-                break;
-            }
-        }
-
-        if(foundInReverse)
-        {
-            bestMatches.push_back(firstMatches[i]);
-            bestMatchesCount++;
-        }
-
-    }
-
-    ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount));
-
-
-    double minKeypoints = firstImgKeypoints.size() <= secondImgKeypoints.size() ?
-                firstImgKeypoints.size()
-              :
-                secondImgKeypoints.size();
-
-    ui->logPlainText->appendPlainText("Probability = " + QString::number((bestMatchesCount/minKeypoints)*100));
-
-    cv::Mat bestImgMatches;
-    cv::drawMatches( firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
-                     bestMatches, bestImgMatches, cv::Scalar(0,255,0), cv::Scalar(0,255,0),
-                     std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
-
-    cv::imwrite(QString(qApp->applicationDirPath() + "/output.png").toStdString(), bestImgMatches);
-    QDesktopServices::openUrl(QUrl::fromLocalFile(qApp->applicationDirPath() + "/output.png"));
-
+	// Drowing best matches
+	calculateBestMatches();
 }
 
 void MainWindow::runSURF()
@@ -200,319 +98,43 @@ void MainWindow::runSURF()
     //                      int nOctaves=4, int nOctaveLayers=2,
     //                      bool extended=true, bool upright=false);
 
-    //ui->logPlainText->appendPlainText("\nStarting SURF object detection!");
-    ui->logPlainText->appendHtml("<b>Staring SURF object detection!</b>");
+	ui->logPlainText->appendHtml("<b>Starting SURF object detection!</b>");
 
     // Read Parameters ...
     double hessainThreshold = ui->surfHessianThreshText->text().toDouble();
     int nOctaves = ui->surfNumOctavesText->text().toInt();
     int nOctaveLayers = ui->surfNumOctLayersText->text().toInt();
-    bool extended = false;
-    if(ui->surfExtendedText->text().trimmed().toLower() == "yes")
-        extended = true;
-    bool upright = false;
-    if(ui->surfUprightText->text().trimmed().toLower() == "yes")
-        upright = true;
+	bool extended = ui->surfExtendedText->isChecked();
+	bool upright = !ui->surfUprightText->isChecked();
 
     // Create SURF Objects ...
     cv::SURF surfDetector(hessainThreshold, nOctaves, nOctaveLayers, extended, upright);
 
-    // Read Images ...
-    cv::Mat firstImg = cv::imread( ui->firstImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE );
-    cv::Mat secondImg = cv::imread( ui->secondImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE );
-
-    if((firstImg.cols < 100) && (firstImg.rows < 100))
-    {
-        cv::resize(firstImg, firstImg, cv::Size(), 200/firstImg.rows, 200/firstImg.cols);
-    }
-
-    if((secondImg.cols < 100) && (secondImg.rows < 100))
-    {
-        cv::resize(secondImg, secondImg, cv::Size(), 200/secondImg.rows, 200/secondImg.cols);
-    }
-
-    // Check if the Images are loaded correctly ...
-    if(firstImg.empty() || secondImg.empty())
-    {
-        ui->logPlainText->appendPlainText("Error while trying to read one of the input files!");
-        return;
-    }
-
-    // Keypoints Vectors for the First & Second Image ...
-    std::vector<cv::KeyPoint> firstImgKeypoints, secondImgKeypoints;
-
     // Detecting Keypoints ...
     surfDetector.detect(firstImg, firstImgKeypoints);
+	surfDetector.detect(secondImg, secondImgKeypoints);
 
-    ui->logPlainText->appendPlainText("Found " + QString::number(firstImgKeypoints.size()) + " key points in the first image!");
-
-    surfDetector.detect(secondImg, secondImgKeypoints);
-
-    ui->logPlainText->appendPlainText("Found " + QString::number(secondImgKeypoints.size()) + " key points in the second image!");
-
-    // Descriptors for the First & Second Image ...
-    cv::Mat firstImgDescriptor, secondImgDescriptor;
+    if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
 
     // Computing the descriptors
     surfDetector.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
     surfDetector.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
 
     // Find the matching points
-    cv::DescriptorMatcher *matcher;
     if(ui->siftBruteForceCheck->isChecked())
     {
-        matcher = new cv::BFMatcher(cv::NORM_L1);
+        ptrMatcher = new cv::BFMatcher(cv::NORM_L1);
     }
     else
     {
-        matcher = new cv::FlannBasedMatcher();
+        ptrMatcher = new cv::FlannBasedMatcher();
     }
 
-    std::vector< cv::DMatch > firstMatches, secondMatches;
-    matcher->match( firstImgDescriptor, secondImgDescriptor, firstMatches );
-    matcher->match( secondImgDescriptor, firstImgDescriptor, secondMatches );
+    ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, firstMatches );
+    ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, secondMatches );
 
-    delete matcher;
-
-    int bestMatchesCount = 0;
-    std::vector< cv::DMatch > bestMatches;
-
-    for ( uint i=0; i<firstMatches.size(); i++ )
-    {
-        cv::Point matchedPt1 = firstImgKeypoints[i].pt;
-        cv::Point matchedPt2 = secondImgKeypoints[firstMatches[i].trainIdx].pt;
-
-        bool foundInReverse = false;
-
-        for( uint j=0; j<secondMatches.size(); j++)
-        {
-            cv::Point tmpSecImgKeyPnt = secondImgKeypoints[j].pt;
-            cv::Point tmpFrstImgKeyPntTrn = firstImgKeypoints[secondMatches[j].trainIdx].pt;
-            if((tmpSecImgKeyPnt == matchedPt2) && ( tmpFrstImgKeyPntTrn == matchedPt1))
-            {
-                foundInReverse = true;
-                break;
-            }
-        }
-
-        if(foundInReverse)
-        {
-            bestMatches.push_back(firstMatches[i]);
-            bestMatchesCount++;
-        }
-
-    }
-
-    ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount));
-
-    double minKeypoints = firstImgKeypoints.size() <= secondImgKeypoints.size() ?
-                firstImgKeypoints.size()
-              :
-                secondImgKeypoints.size();
-
-    ui->logPlainText->appendPlainText("Probability = " + QString::number((bestMatchesCount/minKeypoints)*100));
-
-    cv::Mat bestImgMatches;
-    cv::drawMatches( firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
-                     bestMatches, bestImgMatches, cv::Scalar(0,255,0), cv::Scalar(0,255,0),
-                     std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
-
-    cv::imwrite(QString(qApp->applicationDirPath() + "/output.png").toStdString(), bestImgMatches);
-    QDesktopServices::openUrl(QUrl::fromLocalFile(qApp->applicationDirPath() + "/output.png"));
-
-}
-
-void MainWindow::runBRIEF()
-{
-    //QMessageBox msg; msg.setText("BRIEF"); msg.exec();
-
-    //ui->logPlainText->appendPlainText("\nStarting BRIEF object detection!");
-    ui->logPlainText->appendHtml("<b>Staring BRIEF object detection!</b>");
-
-    // Read Parameters ...
-    int descLen = ui->briefDescLenText->text().toInt();
-
-
-    // Create needed objects ...
-    cv::FeatureDetector *fDetector;
-
-    switch(ui->tabWidget_3->currentIndex())
-    {
-	case 0: // SIFT features used for BRIEF detection ...
-		{
-			double brfContrastThreshold = ui->briefSiftContThreshText->text().toDouble();
-			int brfEdgeThreshold = ui->briefSiftEdgeThreshText->text().toInt();
-			int brfNumberFeatures = ui->briefSiftNumFeatText->text().toInt();
-			int brfOctaveLayers = ui->briefSurfNumOctLayersText->text().toInt();
-			double brfSigma = ui->briefSiftSigmaText->text().toDouble();
-			fDetector = new cv::SIFT(brfContrastThreshold, brfEdgeThreshold, brfNumberFeatures, brfOctaveLayers, brfSigma);
-			break;
-		}
-	case 1: // SURF features used for BRIEF detection ...
-		{
-			double brfHessainThreshold = ui->briefSurfHessianThreshText->text().toDouble();
-			int brfNOctaves = ui->briefSurfNumOctavesText->text().toInt();
-			int brfNOctaveLayers = ui->briefSurfNumOctLayersText->text().toInt();
-			bool brfExtended = false;
-			if (ui->briefSurfExtendedText->text().trimmed().toLower() == "yes")
-				brfExtended = true;
-			bool brfUpright = false;
-			if (ui->briefSurfUprightText->text().trimmed().toLower() == "yes")
-				brfUpright = true;
-			fDetector = new cv::SURF(brfHessainThreshold, brfNOctaves, brfNOctaveLayers, brfExtended, brfUpright);
-			break;
-		}
-    }
-
-    cv::BriefDescriptorExtractor briefExtractor(descLen);
-
-    // Read Images ...
-    cv::Mat firstImg = cv::imread( ui->firstImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE );
-    cv::Mat secondImg = cv::imread( ui->secondImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE );
-
-    if((firstImg.cols < 100) && (firstImg.rows < 100))
-    {
-        cv::resize(firstImg, firstImg, cv::Size(), 200/firstImg.rows, 200/firstImg.cols);
-    }
-
-    if((secondImg.cols < 100) && (secondImg.rows < 100))
-    {
-        cv::resize(secondImg, secondImg, cv::Size(), 200/secondImg.rows, 200/secondImg.cols);
-    }
-
-
-
-    // Check if the Images are loaded correctly ...
-    if(firstImg.empty() || secondImg.empty())
-    {
-        ui->logPlainText->appendPlainText("Error while trying to read one of the input files!");
-        return;
-    }
-
-    // Keypoints Vectors for the First & Second Image ...
-    std::vector<cv::KeyPoint> firstImgKeypoints, secondImgKeypoints;
-
-    // Detecting Keypoints ...
-    fDetector->detect(firstImg, firstImgKeypoints);
-
-    ui->logPlainText->appendPlainText("Found " + QString::number(firstImgKeypoints.size()) + " key points in the first image!");
-
-    fDetector->detect(secondImg, secondImgKeypoints);
-
-    delete fDetector;
-
-    ui->logPlainText->appendPlainText("Found " + QString::number(secondImgKeypoints.size()) + " key points in the second image!");
-
-    if(firstImgKeypoints.size() <= 0)
-    {
-        ui->logPlainText->appendPlainText("Point matching can not be done because no key points detected in the first image!");
-        return;
-    }
-
-    if(secondImgKeypoints.size() <= 0)
-    {
-        ui->logPlainText->appendPlainText("Point matching can not be done because no key points detected in the second image!");
-        return;
-    }
-
-
-    // Descriptors for the First & Second Image ...
-    cv::Mat firstImgDescriptor, secondImgDescriptor;
-
-    // Computing the descriptors
-    briefExtractor.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
-    briefExtractor.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
-
-    // Find the matching points
-    cv::BFMatcher matcher(cv::NORM_HAMMING);
-    std::vector< cv::DMatch > firstMatches, secondMatches;
-
-    //QMessageBox msg; msg.setText("Here"); msg.exec();
-
-    matcher.match( firstImgDescriptor, secondImgDescriptor, firstMatches );
-    matcher.match( secondImgDescriptor, firstImgDescriptor, secondMatches );
-
-    int bestMatchesCount = 0;
-    std::vector< cv::DMatch > bestMatches;
-
-    for ( uint i=0; i<firstMatches.size(); i++ )
-    {
-        cv::Point matchedPt1 = firstImgKeypoints[i].pt;
-        cv::Point matchedPt2 = secondImgKeypoints[firstMatches[i].trainIdx].pt;
-
-        bool foundInReverse = false;
-
-        for( uint j=0; j<secondMatches.size(); j++)
-        {
-            cv::Point tmpSecImgKeyPnt = secondImgKeypoints[j].pt;
-            cv::Point tmpFrstImgKeyPntTrn = firstImgKeypoints[secondMatches[j].trainIdx].pt;
-            if((tmpSecImgKeyPnt == matchedPt2) && ( tmpFrstImgKeyPntTrn == matchedPt1))
-            {
-                foundInReverse = true;
-                break;
-            }
-        }
-
-        if(foundInReverse)
-        {
-            bestMatches.push_back(firstMatches[i]);
-            bestMatchesCount++;
-        }
-
-    }
-
-    ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount));
-
-    double minKeypoints = firstImgKeypoints.size() <= secondImgKeypoints.size() ?
-                firstImgKeypoints.size()
-              :
-                secondImgKeypoints.size();
-
-    ui->logPlainText->appendPlainText("Probability = " + QString::number((bestMatchesCount/minKeypoints)*100));
-
-    cv::Mat bestImgMatches;
-    cv::drawMatches( firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
-                     bestMatches, bestImgMatches, cv::Scalar(0,255,0), cv::Scalar(0,255,0),
-                     std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
-
-    //    if((bestImgMatches.rows < 480) && (bestImgMatches.cols < 640))
-    //        cv::resize(bestImgMatches, bestImgMatches, cv::Size(), 2, 2);
-
-    // RANSAC
-    std::vector<cv::Point2f> obj;
-    std::vector<cv::Point2f> scene;
-
-    for( uint i = 0; i < bestMatches.size(); i++ )
-    {
-        //-- Get the keypoints from the good matches
-        obj.push_back( firstImgKeypoints[ bestMatches[i].queryIdx ].pt );
-        scene.push_back( secondImgKeypoints[ bestMatches[i].trainIdx ].pt );
-    }
-
-    cv::Mat H = cv::findHomography( obj, scene, CV_LMEDS );
-
-    //-- Get the corners from the image_1 ( the object to be "detected" )
-    std::vector<cv::Point2f> obj_corners(4);
-    obj_corners[0] = cvPoint(0,0);
-    obj_corners[1] = cvPoint( firstImg.cols, 0 );
-    obj_corners[2] = cvPoint( firstImg.cols, firstImg.rows );
-    obj_corners[3] = cvPoint( 0, firstImg.rows );
-    std::vector<cv::Point2f> scene_corners(4);
-
-    cv::perspectiveTransform( obj_corners, scene_corners, H);
-
-    //-- Draw lines between the corners (the mapped object in the scene - image_2 )
-	cv::Point2f offset((float)firstImg.cols, 0);
-	cv::line(bestImgMatches, scene_corners[0] + offset, scene_corners[1] + offset, cv::Scalar(255, 0, 0), 4);
-	cv::line(bestImgMatches, scene_corners[1] + offset, scene_corners[2] + offset, cv::Scalar(255, 0, 0), 4);
-	cv::line(bestImgMatches, scene_corners[2] + offset, scene_corners[3] + offset, cv::Scalar(255, 0, 0), 4);
-	cv::line(bestImgMatches, scene_corners[3] + offset, scene_corners[0] + offset, cv::Scalar(255, 0, 0), 4);
-
-    // End of RANSAC
-
-    cv::imwrite(QString(qApp->applicationDirPath() + "/output.png").toStdString(), bestImgMatches);
-    QDesktopServices::openUrl(QUrl::fromLocalFile(qApp->applicationDirPath() + "/output.png"));
-
+	// !!!!!!!!!!!!!!!!!!!!!!!!!hena yebda le pblm de diffirence entre hada w ta3 custom !!! !!! !!! !!
+	calculateBestMatches();
 }
 
 void MainWindow::runORB()
@@ -522,8 +144,8 @@ void MainWindow::runORB()
     //    ORB(int nfeatures = 500, float scaleFactor = 1.2f, int nlevels = 8, int edgeThreshold = 31,
     //                     int firstLevel = 0, int WTA_K=2, int scoreType=HARRIS_SCORE, int patchSize=31 );
 
-    //ui->logPlainText->appendPlainText("\nStarting ORB object detection!");
-    ui->logPlainText->appendHtml("<b>Staring ORB object detection!</b>");
+    //ui->logPlainText->appendPlainText("Starting ORB object detection!");
+	ui->logPlainText->appendHtml("<b>Starting ORB object detection!</b>");
 
     // Read Parameters ...
     int  nfeatures = ui->orbNumFeatText->text().toInt();
@@ -543,116 +165,22 @@ void MainWindow::runORB()
     // Create ORB Object ...
     cv::ORB orbDetector(nfeatures, scaleFactor, nlevels, edgeThreshold, firstLevel, WTA_K, scoreType, patchSize);
 
-    // Read Images ...
-    cv::Mat firstImg = cv::imread( ui->firstImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE );
-    cv::Mat secondImg = cv::imread( ui->secondImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE );
-
-    if((firstImg.cols < 100) && (firstImg.rows < 100))
-    {
-        cv::resize(firstImg, firstImg, cv::Size(), 200/firstImg.rows, 200/firstImg.cols);
-    }
-
-    if((secondImg.cols < 100) && (secondImg.rows < 100))
-    {
-        cv::resize(secondImg, secondImg, cv::Size(), 200/secondImg.rows, 200/secondImg.cols);
-    }
-
-
-
-    // Check if the Images are loaded correctly ...
-    if(firstImg.empty() || secondImg.empty())
-    {
-        ui->logPlainText->appendPlainText("Error while trying to read one of the input files!");
-        return;
-    }
-
-    // Keypoints Vectors for the First & Second Image ...
-    std::vector<cv::KeyPoint> firstImgKeypoints, secondImgKeypoints;
-
     // Detecting Keypoints ...
     orbDetector.detect(firstImg, firstImgKeypoints);
+	orbDetector.detect(secondImg, secondImgKeypoints);
 
-    ui->logPlainText->appendPlainText("Found " + QString::number(firstImgKeypoints.size()) + " key points in the first image!");
-
-    orbDetector.detect(secondImg, secondImgKeypoints);
-
-    ui->logPlainText->appendPlainText("Found " + QString::number(secondImgKeypoints.size()) + " key points in the second image!");
-
-    if(firstImgKeypoints.size() <= 0)
-    {
-        ui->logPlainText->appendPlainText("Point matching can not be done because no key points detected in the first image!");
-        return;
-    }
-
-    if(secondImgKeypoints.size() <= 0)
-    {
-        ui->logPlainText->appendPlainText("Point matching can not be done because no key points detected in the second image!");
-        return;
-    }
-
-
-    // Descriptors for the First & Second Image ...
-    cv::Mat firstImgDescriptor, secondImgDescriptor;
+	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
 
     // Computing the descriptors
     orbDetector.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
     orbDetector.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
 
     // Find the matching points
-    cv::BFMatcher matcher(cv::NORM_HAMMING);
-    std::vector< cv::DMatch > firstMatches, secondMatches;
+    ptrMatcher = new cv::BFMatcher(cv::NORM_HAMMING);
+	ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, firstMatches );
+    ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, secondMatches );
 
-    //QMessageBox msg; msg.setText("Here"); msg.exec();
-
-    matcher.match( firstImgDescriptor, secondImgDescriptor, firstMatches );
-    matcher.match( secondImgDescriptor, firstImgDescriptor, secondMatches );
-
-    int bestMatchesCount = 0;
-    std::vector< cv::DMatch > bestMatches;
-
-    for ( uint i=0; i<firstMatches.size(); i++ )
-    {
-        cv::Point matchedPt1 = firstImgKeypoints[i].pt;
-        cv::Point matchedPt2 = secondImgKeypoints[firstMatches[i].trainIdx].pt;
-
-        bool foundInReverse = false;
-
-        for( uint j=0; j<secondMatches.size(); j++)
-        {
-            cv::Point tmpSecImgKeyPnt = secondImgKeypoints[j].pt;
-            cv::Point tmpFrstImgKeyPntTrn = firstImgKeypoints[secondMatches[j].trainIdx].pt;
-            if((tmpSecImgKeyPnt == matchedPt2) && ( tmpFrstImgKeyPntTrn == matchedPt1))
-            {
-                foundInReverse = true;
-                break;
-            }
-        }
-
-        if(foundInReverse)
-        {
-            bestMatches.push_back(firstMatches[i]);
-            bestMatchesCount++;
-        }
-
-    }
-
-    ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount));
-
-    double minKeypoints = firstImgKeypoints.size() <= secondImgKeypoints.size() ?
-                firstImgKeypoints.size()
-              :
-                secondImgKeypoints.size();
-
-    ui->logPlainText->appendPlainText("Probability = " + QString::number((bestMatchesCount/minKeypoints)*100));
-
-    cv::Mat bestImgMatches;
-    cv::drawMatches( firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
-                     bestMatches, bestImgMatches, cv::Scalar(0,255,0), cv::Scalar(0,255,0),
-                     std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
-
-    cv::imwrite(QString(qApp->applicationDirPath() + "/output.png").toStdString(), bestImgMatches);
-    QDesktopServices::openUrl(QUrl::fromLocalFile(qApp->applicationDirPath() + "/output.png"));
-
+	calculateBestMatches();
 }
 
 void MainWindow::runBRISK()
@@ -661,8 +189,8 @@ void MainWindow::runBRISK()
 
 	//    BRISK(int thresh = 30, int octaves = 3,float patternScale = 1.0f);
 
-	//ui->logPlainText->appendPlainText("\nStarting BRISK object detection!");
-	ui->logPlainText->appendHtml("<b>Staring BRISK object detection!</b>");
+	//ui->logPlainText->appendPlainText("Starting BRISK object detection!");
+	ui->logPlainText->appendHtml("<b>Starting BRISK object detection!</b>");
 
 	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 3 Columns
 	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
@@ -679,11 +207,255 @@ void MainWindow::runBRISK()
 
 	// Create BRISK Object ...
 	cv::BRISK briskDetector(thresh, octaves, patternScale);
+	// Detecting Keypoints ...
+	briskDetector.detect(firstImg, firstImgKeypoints);
+	briskDetector.detect(secondImg, secondImgKeypoints);
 
+	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
+
+	// Computing the descriptors
+	briskDetector.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
+	briskDetector.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
+
+	// Find the matching points
+	ptrMatcher = new cv::BFMatcher(cv::NORM_HAMMING);
+	ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, firstMatches);
+	ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, secondMatches);
+
+	calculateBestMatches();
+}
+
+void MainWindow::runCustom()
+{
+	// Get choices
+	int detectorIndex = ui->detectorTabs->currentIndex();
+	int descriptorIndex = ui->descriptorTabs->currentIndex();
+	int matcherIndex = ui->matcherTabs->currentIndex();
+	std::string detectorName = ui->detectorTabs->tabText(ui->detectorTabs->currentIndex()).toStdString();
+	std::string descriptorName = ui->descriptorTabs->tabText(ui->descriptorTabs->currentIndex()).toStdString();
+	std::string matcherName = ui->matcherTabs->tabText(ui->matcherTabs->currentIndex()).toStdString();
+
+	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + detectorName + ", " + descriptorName + ", " + matcherName + ") object detection!</b>"));
+
+	// Customising Detector...	
+	switch (detectorIndex)
+	{
+	case 0:{
+		// STAR
+		ptrDetector = new cv::StarFeatureDetector(ui->detectorStarMaxSizeText->text().toInt(),
+			ui->detectorStarResponseThresholdText->text().toInt(),
+			ui->detectorStarThresholdProjectedText->text().toInt(),
+			ui->detectorStarThresholdBinarizedText->text().toInt(),
+			ui->detectorStarSuppressNonmaxSizeText->text().toInt());
+	}
+		break;
+	case 1:
+		// FAST
+		ptrDetector = new cv::FastFeatureDetector(ui->detectorFastThresholdText->text().toInt(),
+			ui->detectorFastNonmaxSuppressionCheck->isChecked());
+	/*case 2:
+		// FASTX
+		cv::FASTX(ui->detectorFastThresholdText->text().toInt(),
+			ui->detectorFastNonmaxSuppressionCheck->isChecked(),
+			ui->detectorFastTypeText->currentIndex());*/
+		break;
+	case 2:
+		// SIFT
+		ptrDetector = new cv::SiftFeatureDetector(ui->detectorSiftNfeaturesText->text().toInt(),
+			ui->detectorSiftNOctaveLayersText->text().toInt(),
+			ui->detectorSiftContrastThresholdText->text().toDouble(),
+			ui->detectorSiftEdgeThresholdText->text().toDouble(),
+			ui->detectorSiftSigmaText->text().toDouble());
+		break;
+	case 3:
+		//SURF
+		// we didn't need the Extended param because it is related to the SURF descriptor
+		ptrDetector = new cv::SurfFeatureDetector(ui->detectorSurfHessianThresholdText->text().toDouble(),
+			ui->detectorSurfNOctavesText->text().toInt(),
+			ui->detectorSurfNLayersText->text().toInt(),
+			true,
+			!ui->detectorSurfUprightText->isChecked());
+		break;
+	//....
+	default:
+		return;
+		break;
+	}
+
+	// Write the parameters
+	writeToFile("detector_" + detectorName, ptrDetector);
+	// fs in WRITE mode automatically released
+
+	// Detecting Keypoints ...
+	detectionTime = (double)cv::getTickCount();
+	ptrDetector->detect(firstImg, firstImgKeypoints);
+	ptrDetector->detect(secondImg, secondImgKeypoints);
+	detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+
+	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
+	ui->logPlainText->appendPlainText("detection time: " + QString::number(detectionTime) + " (s)");
+
+	// Customising Descriptor...
+	switch (descriptorIndex)
+	{
+	case 0:
+	{
+		// trait the descriptorFreakSelectedPairsIndexes
+		std::string descriptorFreakSelectedPairsText = ui->descriptorFreakSelectedPairsText->text().toStdString();
+		std::stringstream stringStream(descriptorFreakSelectedPairsText);
+		// get ints from a text
+		int number;
+		std::vector<int> descriptorFreakSelectedPairsIndexes;
+		while (stringStream >> number){
+			descriptorFreakSelectedPairsIndexes.push_back(number);
+		}
+		// FREAK	
+		ptrDescriptor = new cv::FREAK(ui->descriptorFreakOrientationNormalizedCheck->isChecked(),
+			ui->descriptorFreakScaleNormalizedCheck->isChecked(),
+			ui->descriptorFreakPatternScaleText->text().toFloat(),
+			ui->descriptorFreakNOctavesText->text().toFloat(),
+			descriptorFreakSelectedPairsIndexes);
+		/* Select Pairs
+		std::vector<std::vector<cv::KeyPoint>> test = { firstImgKeypoints, secondImgKeypoints };
+		descriptorFreakSelectedPairsIndexes = ((cv::FREAK)ptrDescriptor).selectPairs({ firstImg, secondImg }, test, 0.699999999999, true);*/
+	}
+		break;
+	case 1:
+		// BRIEF
+		ptrDescriptor = new cv::BriefDescriptorExtractor(ui->descriptorBriefLengthText->text().toInt());
+		break;
+	case 2:
+		// SIFT
+		ptrDescriptor = new cv::SiftDescriptorExtractor();
+		break;
+	case 3:
+		//SURF
+		// we just need the Extended param because others are related to the SURF detector
+		ptrDescriptor = new cv::SurfDescriptorExtractor(100, 4, 3, ui->descriptorSurfExtended->isChecked(), false);
+		break;
+	//....
+	default:
+		break;
+	}
+
+	// Write the parameters
+	writeToFile("descriptor_" + descriptorName, ptrDescriptor);
+
+	if (ui->opponentColor->isChecked())
+		//OpponentColor
+		ptrDescriptor = new cv::OpponentColorDescriptorExtractor(ptrDescriptor);
+	// Write the parameters
+	writeToFile("descriptorOppCol_" + descriptorName, ptrDescriptor);
+
+	try{
+		// Aissa !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! affichinna firstImgKeypoints avant et après pour voir c'est compute va les changer ou pas!!!!
+		descriptionTime = (double)cv::getTickCount();
+		ptrDescriptor->compute(firstImg, firstImgKeypoints, firstImgDescriptor);
+		ptrDescriptor->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
+		descriptionTime = ((double)cv::getTickCount() - descriptionTime) / cv::getTickFrequency();
+		ui->logPlainText->appendPlainText("description time: " + QString::number(descriptionTime) + " (s)");
+	}
+	catch (...){
+		ui->logPlainText->appendHtml("<b style='color:red'>Please select the right pair indexes within the FREAK descriptor, or just leave it!.</b><br>(For more details read Section(4.2) in: <i>A. Alahi, R. Ortiz, and P. Vandergheynst. FREAK: Fast Retina Keypoint. In IEEE Conference on Computer Vision and Pattern Recognition, 2012.</i>)");
+		return;
+	}
+
+	// Customising Matcher...
+	int kBestMatches = 1;
+	// std::vector<std::vector< cv::DMatch >> firstSetMatches(), secondSetMatches();
+	switch (matcherIndex)
+	{
+	case 0:
+	{
+		// BruteForce
+		kBestMatches = ui->matcherBruteForceKBestText->text().toInt();
+		int norm = getNormByText(ui->matcherBruteForceNormTypeText->currentText().toStdString());
+		ptrMatcher = new cv::BFMatcher(norm, ui->matcherBruteForceCrossCheckText->isChecked());
+	}
+		break;
+	case 1:
+		// FlannBased
+		ptrMatcher = new cv::FlannBasedMatcher();
+		break;
+	// ...
+	default:
+		break;
+	}
+
+	// Write the parameters
+	writeToFile("matcher_" + matcherName, ptrMatcher);
+
+	// Find the matching points
+	try{
+		/*if (kBestMatches > 1){
+		// first and second set of the k best matches
+		firstMatchingTime = (double)cv::getTickCount();
+		ptrMatcher->knnMatch(firstImgDescriptor, secondImgDescriptor, firstSetMatches, kBestMatches, cv::Mat(), false);
+		firstMatchingTime = ((double)cv::getTickCount() - firstMatchingTime) / cv::getTickFrequency();
+
+		secondMatchingTime = (double)cv::getTickCount();
+		ptrMatcher->knnMatch(secondImgDescriptor, firstImgDescriptor, secondSetMatches, kBestMatches, cv::Mat(), false);
+		secondMatchingTime = ((double)cv::getTickCount() - secondMatchingTime) / cv::getTickFrequency();
+		}
+		else*/ {
+			// first and reverse set of the best matches (simple match)
+			firstMatchingTime = (double)cv::getTickCount();
+			ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, firstMatches);
+			firstMatchingTime = ((double)cv::getTickCount() - firstMatchingTime) / cv::getTickFrequency();
+
+			secondMatchingTime = (double)cv::getTickCount();
+			ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, secondMatches);
+			secondMatchingTime = ((double)cv::getTickCount() - secondMatchingTime) / cv::getTickFrequency();
+		}
+	}
+	catch (...){
+		// For example Flann-Based doesn't work with Brief desctiptor extractor
+		// And also, some descriptors must be used with specific NORM_s
+		ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one</b>");
+		return;
+	}
+	
+	bestMatchingTime = std::min(firstMatchingTime, secondMatchingTime);
+	ui->logPlainText->appendPlainText("matching time: " + QString::number(bestMatchingTime) + " (s)");
+	ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + bestMatchingTime) + " (s)");
+
+	calculateBestMatches();
+}
+
+
+void MainWindow::on_firstImgBtn_pressed()
+{
+	QString str = QFileDialog::getOpenFileName();
+	if (!str.trimmed().isEmpty())
+		ui->firstImgText->setText(str);
+}
+
+void MainWindow::on_secondImgBtn_pressed()
+{
+	QString str = QFileDialog::getOpenFileName();
+	if (!str.trimmed().isEmpty())
+		ui->secondImgText->setText(str);
+}
+
+void MainWindow::on_pushButton_pressed()
+{
 	// Read Images ...
-	cv::Mat firstImg = cv::imread(ui->firstImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE);
-	cv::Mat secondImg = cv::imread(ui->secondImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE);
+	if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex()==4)){
+		// Custom && OpponentColor
+		firstImg = cv::imread(ui->firstImgText->text().toStdString(), CV_LOAD_IMAGE_COLOR);
+		secondImg = cv::imread(ui->secondImgText->text().toStdString(), CV_LOAD_IMAGE_COLOR);
+	}
+	else{
+		firstImg = cv::imread(ui->firstImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE);
+		secondImg = cv::imread(ui->secondImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE);
+	}
 
+	// Check if the Images are loaded correctly ...
+	if (firstImg.empty() || secondImg.empty())
+	{
+		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read one of the input files!</b>");
+		return;
+	}
 	if ((firstImg.cols < 100) && (firstImg.rows < 100))
 	{
 		cv::resize(firstImg, firstImg, cv::Size(), 200 / firstImg.rows, 200 / firstImg.cols);
@@ -694,48 +466,128 @@ void MainWindow::runBRISK()
 		cv::resize(secondImg, secondImg, cv::Size(), 200 / secondImg.rows, 200 / secondImg.cols);
 	}
 
+	// Rest parameters :
+	resetParams();
 
-
-	// Check if the Images are loaded correctly ...
-	if (firstImg.empty() || secondImg.empty())
+	// Launch the algorithm
+	switch (ui->allMethodsTabs->currentIndex())
 	{
-		ui->logPlainText->appendPlainText("Error while trying to read one of the input files!");
-		return;
+	case 0:
+		// SIFT
+		runSIFT();
+		break;
+
+	case 1:
+		// SURF
+		runSURF();
+		break;
+
+	case 2:
+		// ORB
+		runORB();
+		break;
+
+	case 3:
+		// BRISK
+		runBRISK();
+		break;
+
+	default:
+		// custom
+		runCustom();
+		break;
 	}
+}
 
-	// Keypoints Vectors for the First & Second Image ...
-	std::vector<cv::KeyPoint> firstImgKeypoints, secondImgKeypoints;
+void MainWindow::on_actionDestroy_All_Windows_triggered()
+{
+    cv::destroyAllWindows();
+}
 
-	// Detecting Keypoints ...
-	briskDetector.detect(firstImg, firstImgKeypoints);
+void MainWindow::on_actionRun_triggered()
+{
+	on_pushButton_pressed();
+}
 
-	ui->logPlainText->appendPlainText("Found " + QString::number(firstImgKeypoints.size()) + " key points in the first image!");
+void MainWindow::on_actionClear_Log_triggered()
+{
+    ui->logPlainText->clear();
+}
 
-	briskDetector.detect(secondImg, secondImgKeypoints);
+void MainWindow::on_actionSave_Log_File_As_triggered()
+{
+	QString fileName = QFileDialog::getSaveFileName(this,
+		tr("Save Log File"), "palmprint_registration_log_file",
+		tr("Txt File (*.txt);;All Files (*)"));
+	if (fileName.isEmpty())
+		return;
+	else {
+		QFile file(fileName);
+		if (!file.open(QIODevice::WriteOnly)) {
+			QMessageBox::information(this, tr("Unable to open file"),
+				file.errorString());
+			return;
+		}
+		QDataStream out(&file);
+		out.setVersion(QDataStream::Qt_4_5);
+		// We must fix it !
+		out << ui->logPlainText->toPlainText();// .toStdString().c_str();
+	}
+}
 
-	ui->logPlainText->appendPlainText("Found " + QString::number(secondImgKeypoints.size()) + " key points in the second image!");
+void MainWindow::on_actionAbout_Qt_triggered()
+{
+    QApplication::aboutQt();
+}
 
-	if (firstImgKeypoints.size() <= 0)
+void MainWindow::on_actionAbout_Me_triggered()
+{
+    QMessageBox::about(this,
+                       "About Us",
+                       "<b>OpenCV Feature Detectors Comparison</b>"
+                       "<br><br>This program uses OpenCV and Qt, and is provided as is, for educational purposes such as benchmarking of algorithms.<br>"
+                       "<br>You may contact me for the source code of this program at <a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>"
+                       "<br><br>Thanks"
+                       "<br><br>GHOUILA Nabil & BELKAID Aïssa"
+					   "<br><br><a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>");
+}
+
+bool MainWindow::noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints)
+{
+	ui->logPlainText->appendPlainText("Found " + QString::number(imgKeypoints.size()) + " key points in the " + QString::fromStdString(rank) + " image!");
+
+
+	if (imgKeypoints.size() <= 0)
 	{
-		ui->logPlainText->appendPlainText("Point matching can not be done because no key points detected in the first image!");
-		return;
+		ui->logPlainText->appendPlainText("Point matching can not be done because no key points detected in the " + QString::fromStdString(rank) + " image!");
+		return true;
 	}
+	return false;
+}
 
-	if (secondImgKeypoints.size() <= 0)
-	{
-		ui->logPlainText->appendPlainText("Point matching can not be done because no key points detected in the second image!");
-		return;
-	}
+int MainWindow::getNormByText(std::string norm){
+	if (norm == "NORM_INF") return cv::NORM_INF;
+	else if (norm == "NORM_L1") return cv::NORM_L1;
+	else if (norm == "NORM_L2") return cv::NORM_L2;
+	else if (norm == "NORM_L2SQR") return cv::NORM_L2SQR;
+	else if (norm == "NORM_HAMMING") return cv::NORM_HAMMING;
+	else if (norm == "NORM_HAMMING2") return cv::NORM_HAMMING2;
+	else if (norm == "NORM_TYPE_MASK") return cv::NORM_TYPE_MASK;
+	else if (norm == "NORM_RELATIVE") return cv::NORM_RELATIVE;
+	else if (norm == "NORM_MINMAX") return cv::NORM_MINMAX;
+}
 
+void MainWindow::writeToFile(std::string fileName, cv::Algorithm * algoToWrite){
+// Open a file and write parameters of an algorithm
+	// Open the file in WRITE mode
+	cv::FileStorage fs("params/" + fileName + "_params.yaml", cv::FileStorage::WRITE);
+	// Write the parameters
+	algoToWrite->write(fs);
+	// fs in WRITE mode automatically released
+}
 
-	// Descriptors for the First & Second Image ...
-	cv::Mat firstImgDescriptor, secondImgDescriptor;
-	cv::Mat firstImgDescriptorShow, secondImgDescriptorShow;
-
-	// Computing the descriptors
-	briskDetector.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
-	briskDetector.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
-
+void MainWindow::calculateBestMatches(){
+    
 	cv::drawKeypoints(firstImg, firstImgKeypoints, firstImgDescriptorShow, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
 	QGraphicsScene *imgKeypoints1 = new QGraphicsScene();
 	QImage imgKey1((const uchar *)firstImgDescriptorShow.data, firstImgDescriptorShow.cols, firstImgDescriptorShow.rows, firstImgDescriptorShow.step, QImage::Format_RGB888);
@@ -751,20 +603,15 @@ void MainWindow::runBRISK()
 	imgKeypoints2->addPixmap(piximg2);
 	ui->graphicsView_3->setScene(imgKeypoints2);
 	ui->graphicsView_3->fitInView(imgKeypoints2->sceneRect(), Qt::KeepAspectRatio);
-		
-	// Find the matching points
-	cv::BFMatcher matcher(cv::NORM_HAMMING);
-	std::vector< cv::DMatch > firstMatches, secondMatches;
 
-	//QMessageBox msg; msg.setText("Here"); msg.exec();
-
-	matcher.match(firstImgDescriptor, secondImgDescriptor, firstMatches);
-	matcher.match(secondImgDescriptor, firstImgDescriptor, secondMatches);
-
-
+	// Calculate the number of best matches between two sets of matches
 	int bestMatchesCount = 0;
-	std::vector< cv::DMatch > bestMatches;
-
+	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 3 Columns
+	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
+	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
+	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
+	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
+	model->setHorizontalHeaderItem(4, new QStandardItem(QString("ERR")));
 	for (uint i = 0; i<firstMatches.size(); i++)
 	{
 		cv::Point matchedPt1 = firstImgKeypoints[i].pt;
@@ -801,17 +648,13 @@ void MainWindow::runBRISK()
 		}
 
 	}
-
 	ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount));
-
 	double minKeypoints = firstImgKeypoints.size() <= secondImgKeypoints.size() ?
 		firstImgKeypoints.size()
 		:
 		secondImgKeypoints.size();
 
 	ui->logPlainText->appendPlainText("Probability = " + QString::number((bestMatchesCount / minKeypoints) * 100));
-
-	cv::Mat bestImgMatches;
 	cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
 		bestMatches, bestImgMatches, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0),
 		std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
@@ -832,55 +675,18 @@ void MainWindow::on_actionDestroy_All_Windows_triggered()
     cv::destroyAllWindows();
 }
 
-void MainWindow::on_actionRun_triggered()
+void MainWindow::resetParams()
 {
-    switch(ui->tabWidget->currentIndex())
-    {
-    case 0:
-        // SIFT
-        runSIFT();
-        break;
-
-    case 1:
-        // SURF
-        runSURF();
-        break;
-
-    case 2:
-        // BRIEF
-        runBRIEF();
-        break;
-
-    case 3:
-        // ORB
-        runORB();
-        break;
-
-	case 4:
-		// BRISK
-		runBRISK();
-		break;
-    }
-}
-
-void MainWindow::on_actionClear_Log_triggered()
-{
-    ui->logPlainText->clear();
-}
-
-void MainWindow::on_actionAbout_Qt_triggered()
-{
-    QApplication::aboutQt();
-}
-
-void MainWindow::on_actionAbout_Me_triggered()
-{
-    QMessageBox::about(this,
-                       "About Us",
-                       "<b>OpenCV Feature Detectors Comparison</b>"
-                       "<br><br>This program uses OpenCV and Qt, and is provided as is, for educational purposes such as benchmarking of algorithms.<br>"
-                       "<br>You may contact me for the source code of this program at <a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>"
-                       "<br><br>Thanks"
-                       "<br><br>GHOUILA Nabil & BELKAID Aïssa"
-					   "<br><br><a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>");
+	try{
+		firstImgKeypoints.clear(); secondImgKeypoints.clear();
+		firstImgDescriptor.release(); secondImgDescriptor.release();
+		firstMatches.clear(); secondMatches.clear(); bestMatches.clear();
+		bestImgMatches.release();
+		delete ptrDetector;
+		delete ptrDescriptor;
+		delete ptrMatcher;
+	}
+	catch (...){
+		ui->logPlainText->appendHtml("<b style='color:yellow'>Enable to free some structures!</b>");
+	}
 }
