@@ -4,28 +4,28 @@
     <Position X="7.75" Y="8" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AEAACEACAAAAgAACAIAAIAAAAAAAAEAAAAAAAABAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::KeyPointsFilter" Collapsed="true">
     <Position X="9.5" Y="8" Width="1.5" />
     <TypeIdentifier>
       <HashCode>EAAAAAgAIAAAAAAAAAAAABAAAABAAAAAAAgAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::FeatureDetector" Collapsed="true">
     <Position X="11.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAQAAAAgAAAAAAAAAAAAAAACAAAAAAAAAQBAAIAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::DescriptorExtractor" Collapsed="true">
     <Position X="30.5" Y="0.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAIAAAAACAAAoAAAAAABAAABAYAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::Feature2D" Collapsed="true">
@@ -48,70 +48,70 @@
     </InheritanceLine>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAABAAABAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::BRISK" Collapsed="true">
     <Position X="31.25" Y="8.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AASAEFEEEEAAADAAUAEAAAABAAAoADAAQgAAAIUAUBE=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::ORB" Collapsed="true">
     <Position X="29" Y="8.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAQBAABAAAEAAAAAIAAAAoQAAAQAAMAICAQAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::FREAK" Collapsed="true">
     <Position X="33" Y="3.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAACAAAAAQJAAYGAABABAAAAoABABUAQgAAAAQAU=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::MSER" Collapsed="true">
     <Position X="9" Y="3.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AARBAAAAAAEAAAEAEAAAAAAAAgAAAAAARAEAAMAIAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::StarDetector" Collapsed="true">
     <Position X="11.5" Y="3.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAgAAAAEAAAAAEAAAAAAAAAQCAACAQAAAIIAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::FastFeatureDetector" Collapsed="true">
     <Position X="0.5" Y="3.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAQAAAAAAAAAAAAAAAACAAQAAAAIAAAgA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::GFTTDetector" Collapsed="true">
     <Position X="2.5" Y="3.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAABAAAAAAQAAAAAAACAQAAA4AIAAIAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::SimpleBlobDetector" Collapsed="true">
     <Position X="4.5" Y="3.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAABAAAAACAAAAACAAAAAAAAAAAAAAQQABAIAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::DenseFeatureDetector" Collapsed="true">
     <Position X="6.75" Y="3.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAQAAAAABAACAAAAAAACAEAAAAEAQAIAAoAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::GridAdaptedFeatureDetector" Collapsed="true">
@@ -126,7 +126,7 @@
     </InheritanceLine>
     <TypeIdentifier>
       <HashCode>AQAAAAAAAAAAAACAAAAAAAACoAAAAAAAQAAAAIAACAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::PyramidAdaptedFeatureDetector" Collapsed="true">
@@ -141,7 +141,7 @@
     </InheritanceLine>
     <TypeIdentifier>
       <HashCode>AQAAAIAAAAAAAAAAAAAAAAACAAAAAAAAAAAAQIAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::AdjusterAdapter" Collapsed="true">
@@ -156,7 +156,7 @@
     </InheritanceLine>
     <TypeIdentifier>
       <HashCode>AAAAAQAAAAAAAAAAAAAAABQAAAAAAAAAQABAEAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::DynamicAdaptedFeatureDetector" Collapsed="true">
@@ -171,14 +171,14 @@
     </InheritanceLine>
     <TypeIdentifier>
       <HashCode>AAgAAAAAAAAEAAAAAAAAAQACAAAAEAAAAAAgAMAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::FastAdjuster" Collapsed="true">
     <Position X="19.25" Y="5.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAQBAAAAAAgAAAAABABQAAAAAAIAAAAAAkIAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::StarAdjuster" Collapsed="true">
@@ -191,7 +191,7 @@
     </InheritanceLine>
     <TypeIdentifier>
       <HashCode>AAAAAQAAAAAAAgAAQAAAABQAAAAAAIAAAAAAkIAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::SurfAdjuster" Collapsed="true">
@@ -206,7 +206,7 @@
     </InheritanceLine>
     <TypeIdentifier>
       <HashCode>AAAAAQAAAAAAAgAAAAAAABQACAAAAIAAAAAAkIAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::OpponentColorDescriptorExtractor" Collapsed="true">
@@ -219,7 +219,7 @@
     </InheritanceLine>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAEAAAAECAAAAACAAAoAAAAAQAAAAAAQAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::BriefDescriptorExtractor" Collapsed="true">
@@ -234,49 +234,49 @@
     </InheritanceLine>
     <TypeIdentifier>
       <HashCode>AAAgAAAAAAAAAAAAACAAAgAAAAA4AAgAUQAAAAAAQAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::DescriptorMatcher" Collapsed="true">
     <Position X="36" Y="0.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>IEEAEAAAIAAAAAAAACAIAgECQBAAAAAAAQhAEAACAAc=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::BFMatcher" Collapsed="true">
     <Position X="35.25" Y="3.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>ICEAAAAAAAAAAAAAAAAAAgAAAAAAAAAAQAAAEAAAACA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::FlannBasedMatcher" Collapsed="true">
     <Position X="37" Y="3.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>IEAAAAIEIAAAAAgAACAAAgEAAgAAAAAAQQQAEAACAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::GenericDescriptorMatcher" Collapsed="true">
     <Position X="2.25" Y="8" Width="2" />
     <TypeIdentifier>
       <HashCode>IEEAAAAEIAAAAAAAACAAIhACQAAAAABAIQBAEAACAAI=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::VectorDescriptorMatcher" Collapsed="true">
     <Position X="2.25" Y="10" Width="2" />
     <TypeIdentifier>
       <HashCode>IEAAAAAIIAAAAAAACCAAAgACAAgAAAAAAQAAEAAKAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::BOWTrainer" Collapsed="true">
     <Position X="11.25" Y="6.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AEQAAAATAAAAAAAAAIIAAAAAAQAAAAAAAAAAAAACAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::BOWKMeansTrainer" Collapsed="true">
@@ -289,126 +289,126 @@
     </InheritanceLine>
     <TypeIdentifier>
       <HashCode>AQAAAAABAAAAAAAAAAEAAAAAAAEAAABAAAAAAAAAIAQ=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::BOWImgDescriptorExtractor" Collapsed="true">
     <Position X="5.75" Y="8" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAEABAAAAAAAAAAAAAIAAEAEAAQAADASAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::SIFT" Collapsed="true">
     <Position X="19" Y="8.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>BAAABAAAAAQIBAAAEAABAAABAAAoQAAQQAAAAIAAQAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\nonfree\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\nonfree\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="cv::SURF" Collapsed="true">
     <Position X="23.5" Y="8.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAABAAACAIAAAAAEEAAAAIAAAApAAAAQAAAAIAAQAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\nonfree\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\nonfree\features2d.hpp</FileName>
     </TypeIdentifier>
   </Class>
   <Struct Name="cv::Accumulator&lt;T&gt;" Collapsed="true">
     <Position X="11.25" Y="11.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Struct>
   <Struct Name="cv::Accumulator&lt;unsigned char&gt;" Collapsed="true">
     <Position X="7.75" Y="9.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Struct>
   <Struct Name="cv::Accumulator&lt;unsigned short&gt;" Collapsed="true">
     <Position X="9.5" Y="9.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Struct>
   <Struct Name="cv::Accumulator&lt;char&gt;" Collapsed="true">
     <Position X="11.25" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Struct>
   <Struct Name="cv::Accumulator&lt;short&gt;" Collapsed="true">
     <Position X="7.75" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Struct>
   <Struct Name="cv::SL2&lt;T&gt;" Collapsed="true">
     <Position X="9.5" Y="11.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Struct>
   <Struct Name="cv::L2&lt;T&gt;" Collapsed="true">
     <Position X="7.75" Y="11.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Struct>
   <Struct Name="cv::L1&lt;T&gt;" Collapsed="true">
     <Position X="5.75" Y="11.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Struct>
   <Struct Name="cv::Hamming" Collapsed="true">
     <Position X="5.75" Y="9.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Struct>
   <Struct Name="cv::HammingMultilevel&lt;cellsize&gt;" Collapsed="true">
     <Position X="13" Y="11.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Struct>
   <Struct Name="cv::DMatch" Collapsed="true">
     <Position X="9.5" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAIAAAAAAAAAAAEAAABAAAAAgAAIAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Struct>
   <Struct Name="cv::DrawMatchesFlags" Collapsed="true">
     <Position X="11.25" Y="9.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Struct>
   <Typedef Name="cv::OrbFeatureDetector" Collapsed="true">
     <Position X="30" Y="9.5" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Typedef>
   <Typedef Name="cv::OrbDescriptorExtractor" Collapsed="true">
     <Position X="27.5" Y="9.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
     <AliasOfLine Type="cv::ORB" FixedToPoint="true">
       <Path>
@@ -423,7 +423,7 @@
     <Position X="8.5" Y="4.75" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
     <AliasOfLine Type="cv::MSER" FixedFromPoint="true" FixedToPoint="true">
       <Path>
@@ -436,7 +436,7 @@
     <Position X="1.75" Y="4.75" Width="3.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
     <AliasOfLine Type="cv::GFTTDetector" FixedToPoint="true">
       <Path>
@@ -449,21 +449,21 @@
     <Position X="11" Y="4.75" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Typedef>
   <Typedef Name="cv::HammingLUT" Collapsed="true">
     <Position X="5.5" Y="10.5" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Typedef>
   <Typedef Name="cv::GenericDescriptorMatch" Collapsed="true">
     <Position X="1.5" Y="6.5" Width="3.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
     <AliasOfLine Type="cv::GenericDescriptorMatcher" ManuallyRouted="true" FixedToPoint="true">
       <Path>
@@ -478,35 +478,35 @@
     <Position X="1.5" Y="11.75" Width="3.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\features2d\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\features2d\features2d.hpp</FileName>
     </TypeIdentifier>
   </Typedef>
   <Typedef Name="cv::SiftFeatureDetector" Collapsed="true">
     <Position X="19.75" Y="9.5" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\nonfree\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\nonfree\features2d.hpp</FileName>
     </TypeIdentifier>
   </Typedef>
   <Typedef Name="cv::SiftDescriptorExtractor" Collapsed="true">
     <Position X="17.25" Y="9.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\nonfree\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\nonfree\features2d.hpp</FileName>
     </TypeIdentifier>
   </Typedef>
   <Typedef Name="cv::SurfFeatureDetector" Collapsed="true">
     <Position X="22.25" Y="9.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\nonfree\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\nonfree\features2d.hpp</FileName>
     </TypeIdentifier>
   </Typedef>
   <Typedef Name="cv::SurfDescriptorExtractor" Collapsed="true">
     <Position X="24.75" Y="9.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>c:\program files\opencv\opencv_vc12\build\include\opencv2\nonfree\features2d.hpp</FileName>
+      <FileName>c:\program files\opencv\build\include\opencv2\nonfree\features2d.hpp</FileName>
     </TypeIdentifier>
     <AliasOfLine Type="cv::SURF" FixedFromPoint="true">
       <Path>
