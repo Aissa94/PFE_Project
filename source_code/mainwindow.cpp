@@ -28,7 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 	// cusomizing ToolTips :
-	qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
+	qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white;}");
+	//qApp->setStyleSheet("QToolTip { visibility: visible; width: 120px; background-color: #555; color: #fff; text-align: center; border-radius: 6px; padding: 5px 0; position: absolute; z-index: 1; bottom: 125 %; left: 50% ;margin-left: -60px; opacity: 1; transition: opacity 0.3s;}");
     //outputImagesPath = "/Users/elma/Desktop/FeaturePointsComparisonOutputImages";
     //outputImagesPath = QInputDialog::getText(this, "Output Images Path");
 	ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
@@ -243,54 +244,7 @@ void MainWindow::runBRISK()
 	ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, firstMatches);
 	ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, secondMatches);
 
-	int bestMatchesCount = 0;
-	std::vector< cv::DMatch > bestMatches;
-
-	for (uint i = 0; i<firstMatches.size(); i++)
-	{
-		cv::Point matchedPt1 = firstImgKeypoints[i].pt;
-		cv::Point matchedPt2 = secondImgKeypoints[firstMatches[i].trainIdx].pt;
-
-		bool foundInReverse = false;
-
-		for (uint j = 0; j<secondMatches.size(); j++)
-		{
-			cv::Point tmpSecImgKeyPnt = secondImgKeypoints[j].pt;
-			cv::Point tmpFrstImgKeyPntTrn = firstImgKeypoints[secondMatches[j].trainIdx].pt;
-			if ((tmpSecImgKeyPnt == matchedPt2) && (tmpFrstImgKeyPntTrn == matchedPt1))
-			{
-				foundInReverse = true;
-				break;
-			}
-		}
-
-		if (foundInReverse)
-		{
-			QStandardItem *x1 = new QStandardItem(QString::number(matchedPt1.x));
-			model->setItem(bestMatchesCount, 0, x1);
-			QStandardItem *y1 = new QStandardItem(QString::number(matchedPt1.y));
-			model->setItem(bestMatchesCount, 1, y1);
-			QStandardItem *x2 = new QStandardItem(QString::number(matchedPt2.x));
-			model->setItem(bestMatchesCount, 2, x2);
-			QStandardItem *y2 = new QStandardItem(QString::number(matchedPt2.y));
-			model->setItem(bestMatchesCount, 3, y2);
-			ui->tableView->setModel(model);
-			bestMatches.push_back(firstMatches[i]);
-			bestMatchesCount++;
-		}
-
-	}
-
-	ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount));
-
-	double minKeypoints = firstImgKeypoints.size() <= secondImgKeypoints.size() ?
-		firstImgKeypoints.size()
-		:
-		secondImgKeypoints.size();
-
-	ui->logPlainText->appendPlainText("Probability = " + QString::number((bestMatchesCount / minKeypoints) * 100));
-
-	//calculateBestMatches();
+	calculateBestMatches();
 	cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
 		bestMatches, bestImgMatches, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0),
 		std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
@@ -416,6 +370,12 @@ void MainWindow::runCustom()
 	// Write the parameters
 	writeToFile("descriptor_" + descriptorName, ptrDescriptor);
 
+	if (ui->opponentColor->isChecked())
+		//OpponentColor
+		ptrDescriptor = new cv::OpponentColorDescriptorExtractor(ptrDescriptor);
+	// Write the parameters
+	writeToFile("descriptorOppCol_" + descriptorName, ptrDescriptor);
+
 	try{
 		// Aissa !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! affichinna firstImgKeypoints avant et après pour voir c'est compute va les changer ou pas!!!!
 		descriptionTime = (double)cv::getTickCount();
@@ -488,60 +448,7 @@ void MainWindow::runCustom()
 	ui->logPlainText->appendPlainText("matching time: " + QString::number(bestMatchingTime) + " (s)");
 	ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + bestMatchingTime) + " (s)");
 
-	int bestMatchesCount = 0;
-
-	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 3 Columns
-	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
-	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
-	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
-	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
-	model->setHorizontalHeaderItem(4, new QStandardItem(QString("ERR")));
-
-	for (uint i = 0; i<firstMatches.size(); i++)
-	{
-		cv::Point matchedPt1 = firstImgKeypoints[i].pt;
-		cv::Point matchedPt2 = secondImgKeypoints[firstMatches[i].trainIdx].pt;
-
-		bool foundInReverse = false;
-
-		for (uint j = 0; j<secondMatches.size(); j++)
-		{
-			cv::Point tmpSecImgKeyPnt = secondImgKeypoints[j].pt;
-			cv::Point tmpFrstImgKeyPntTrn = firstImgKeypoints[secondMatches[j].trainIdx].pt;
-			if ((tmpSecImgKeyPnt == matchedPt2) && (tmpFrstImgKeyPntTrn == matchedPt1))
-			{
-				foundInReverse = true;
-				break;
-			}
-		}
-
-		if (foundInReverse)
-		{
-			QStandardItem *x1 = new QStandardItem(QString::number(matchedPt1.x));
-			model->setItem(bestMatchesCount, 0, x1);
-			QStandardItem *y1 = new QStandardItem(QString::number(matchedPt1.y));
-			model->setItem(bestMatchesCount, 1, y1);
-			QStandardItem *x2 = new QStandardItem(QString::number(matchedPt2.x));
-			model->setItem(bestMatchesCount, 2, x2);
-			QStandardItem *y2 = new QStandardItem(QString::number(matchedPt2.y));
-			model->setItem(bestMatchesCount, 3, y2);
-			ui->tableView->setModel(model);
-			bestMatches.push_back(firstMatches[i]);
-			bestMatchesCount++;
-		}
-
-	}
-
-	ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount));
-
-	double minKeypoints = firstImgKeypoints.size() <= secondImgKeypoints.size() ?
-		firstImgKeypoints.size()
-		:
-		secondImgKeypoints.size();
-
-	ui->logPlainText->appendPlainText("Probability = " + QString::number((bestMatchesCount / minKeypoints) * 100));
-
-	//calculateBestMatches();
+	calculateBestMatches();
 	cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
 		bestMatches, bestImgMatches, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0),
 		std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
@@ -569,8 +476,15 @@ void MainWindow::on_secondImgBtn_pressed()
 void MainWindow::on_pushButton_pressed()
 {
 	// Read Images ...
-	firstImg = cv::imread(ui->firstImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE);
-	secondImg = cv::imread(ui->secondImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE);
+	if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex()==4)){
+		// Custom && OpponentColor
+		firstImg = cv::imread(ui->firstImgText->text().toStdString(), CV_LOAD_IMAGE_COLOR);
+		secondImg = cv::imread(ui->secondImgText->text().toStdString(), CV_LOAD_IMAGE_COLOR);
+	}
+	else{
+		firstImg = cv::imread(ui->firstImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE);
+		secondImg = cv::imread(ui->secondImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE);
+	}
 
 	// Check if the Images are loaded correctly ...
 	if (firstImg.empty() || secondImg.empty())
@@ -710,7 +624,12 @@ void MainWindow::writeToFile(std::string fileName, cv::Algorithm * algoToWrite){
 void MainWindow::calculateBestMatches(){
 	// Calculate the number of best matches between two sets of matches
 	int bestMatchesCount = 0;
-
+	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 3 Columns
+	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
+	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
+	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
+	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
+	model->setHorizontalHeaderItem(4, new QStandardItem(QString("ERR")));
 	for (uint i = 0; i<firstMatches.size(); i++)
 	{
 		cv::Point matchedPt1 = firstImgKeypoints[i].pt;
@@ -731,6 +650,15 @@ void MainWindow::calculateBestMatches(){
 
 		if (foundInReverse)
 		{
+			QStandardItem *x1 = new QStandardItem(QString::number(matchedPt1.x));
+			model->setItem(bestMatchesCount, 0, x1);
+			QStandardItem *y1 = new QStandardItem(QString::number(matchedPt1.y));
+			model->setItem(bestMatchesCount, 1, y1);
+			QStandardItem *x2 = new QStandardItem(QString::number(matchedPt2.x));
+			model->setItem(bestMatchesCount, 2, x2);
+			QStandardItem *y2 = new QStandardItem(QString::number(matchedPt2.y));
+			model->setItem(bestMatchesCount, 3, y2);
+			ui->tableView->setModel(model);
 			bestMatches.push_back(firstMatches[i]);
 			bestMatchesCount++;
 		}
@@ -746,11 +674,16 @@ void MainWindow::calculateBestMatches(){
 
 void MainWindow::resetParams()
 {
-	firstImgKeypoints.clear(); secondImgKeypoints.clear();
-	firstImgDescriptor.release(); secondImgDescriptor.release();
-	firstMatches.clear(); secondMatches.clear(); bestMatches.clear();
-	bestImgMatches.release();
-	delete ptrDetector;
-	delete ptrDescriptor;
-	delete ptrMatcher;
+	try{
+		firstImgKeypoints.clear(); secondImgKeypoints.clear();
+		firstImgDescriptor.release(); secondImgDescriptor.release();
+		firstMatches.clear(); secondMatches.clear(); bestMatches.clear();
+		bestImgMatches.release();
+		delete ptrDetector;
+		delete ptrDescriptor;
+		delete ptrMatcher;
+	}
+	catch (...){
+		ui->logPlainText->appendHtml("<b style='color:yellow'>Enable to free some structures!</b>");
+	}
 }
