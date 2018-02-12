@@ -14,6 +14,7 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QCheckBox>
+#include <QtWidgets/QGraphicsView>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
@@ -41,6 +42,9 @@ public:
     QAction *actionAbout_Me;
     QWidget *centralWidget;
     QGridLayout *gridLayout_6;
+    QGridLayout *gridLayout_3;
+    QPlainTextEdit *logPlainText;
+    QLabel *label_6;
     QGridLayout *gridLayout;
     QTabWidget *tabWidget_2;
     QWidget *tab_5;
@@ -52,9 +56,6 @@ public:
     QPushButton *secondImgBtn;
     QLineEdit *secondImgText;
     QPushButton *pushButton;
-    QGridLayout *gridLayout_3;
-    QPlainTextEdit *logPlainText;
-    QLabel *label_6;
     QTabWidget *tabWidget;
     QWidget *tab;
     QGridLayout *gridLayout_4;
@@ -73,15 +74,15 @@ public:
     QWidget *tab_2;
     QGridLayout *gridLayout_8;
     QGridLayout *gridLayout_7;
-    QLabel *label_9;
-    QLineEdit *surfNumOctavesText;
     QLineEdit *surfHessianThreshText;
     QLabel *label_10;
+    QLineEdit *surfNumOctavesText;
+    QLabel *label_9;
+    QLineEdit *surfExtendedText;
     QLabel *label_11;
     QLineEdit *surfNumOctLayersText;
-    QLabel *label_12;
-    QLineEdit *surfExtendedText;
     QLabel *label_13;
+    QLabel *label_12;
     QLineEdit *surfUprightText;
     QCheckBox *surfBruteForceCheck;
     QWidget *tab_3;
@@ -139,12 +140,23 @@ public:
     QLineEdit *orbPatchSizeText;
     QWidget *tab_6;
     QGridLayout *gridLayout_20;
-    QLabel *label_38;
     QLabel *label_39;
     QLineEdit *briskThreshText;
     QLabel *label_44;
-    QLineEdit *briskPatternScaleText;
     QLineEdit *briskOctavesText;
+    QLineEdit *briskPatternScaleText;
+    QLabel *label_38;
+    QTabWidget *tabWidget_4;
+    QWidget *tab_8;
+    QGraphicsView *graphicsView_2;
+    QGridLayout *gridLayout_10;
+    QWidget *tab_7;
+    QGraphicsView *graphicsView_3;
+    QGridLayout *gridLayout_11;
+    QWidget *tabWidget_4Page1;
+    QGraphicsView *graphicsView;
+    QGridLayout *gridLayout_5;
+    QWidget *tabWidget_4Page2;
     QTableView *tableView;
     QMenuBar *menuBar;
     QMenu *menuWindows;
@@ -155,7 +167,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(1125, 658);
+        MainWindow->resize(1147, 626);
         actionDestroy_All_Windows = new QAction(MainWindow);
         actionDestroy_All_Windows->setObjectName(QStringLiteral("actionDestroy_All_Windows"));
         actionRun = new QAction(MainWindow);
@@ -174,6 +186,23 @@ public:
         gridLayout_6->setSpacing(6);
         gridLayout_6->setContentsMargins(11, 11, 11, 11);
         gridLayout_6->setObjectName(QStringLiteral("gridLayout_6"));
+        gridLayout_3 = new QGridLayout();
+        gridLayout_3->setSpacing(6);
+        gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
+        logPlainText = new QPlainTextEdit(centralWidget);
+        logPlainText->setObjectName(QStringLiteral("logPlainText"));
+        logPlainText->setReadOnly(true);
+
+        gridLayout_3->addWidget(logPlainText, 1, 0, 1, 1);
+
+        label_6 = new QLabel(centralWidget);
+        label_6->setObjectName(QStringLiteral("label_6"));
+
+        gridLayout_3->addWidget(label_6, 0, 0, 1, 1);
+
+
+        gridLayout_6->addLayout(gridLayout_3, 2, 0, 1, 1);
+
         gridLayout = new QGridLayout();
         gridLayout->setSpacing(6);
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
@@ -229,23 +258,6 @@ public:
 
 
         gridLayout_6->addLayout(gridLayout, 0, 0, 1, 1);
-
-        gridLayout_3 = new QGridLayout();
-        gridLayout_3->setSpacing(6);
-        gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
-        logPlainText = new QPlainTextEdit(centralWidget);
-        logPlainText->setObjectName(QStringLiteral("logPlainText"));
-        logPlainText->setReadOnly(true);
-
-        gridLayout_3->addWidget(logPlainText, 1, 0, 1, 1);
-
-        label_6 = new QLabel(centralWidget);
-        label_6->setObjectName(QStringLiteral("label_6"));
-
-        gridLayout_3->addWidget(label_6, 0, 0, 1, 1);
-
-
-        gridLayout_6->addLayout(gridLayout_3, 3, 0, 1, 1);
 
         tabWidget = new QTabWidget(centralWidget);
         tabWidget->setObjectName(QStringLiteral("tabWidget"));
@@ -333,17 +345,6 @@ public:
         gridLayout_7 = new QGridLayout();
         gridLayout_7->setSpacing(6);
         gridLayout_7->setObjectName(QStringLiteral("gridLayout_7"));
-        label_9 = new QLabel(tab_2);
-        label_9->setObjectName(QStringLiteral("label_9"));
-        label_9->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_7->addWidget(label_9, 1, 0, 1, 1);
-
-        surfNumOctavesText = new QLineEdit(tab_2);
-        surfNumOctavesText->setObjectName(QStringLiteral("surfNumOctavesText"));
-
-        gridLayout_7->addWidget(surfNumOctavesText, 1, 1, 1, 1);
-
         surfHessianThreshText = new QLineEdit(tab_2);
         surfHessianThreshText->setObjectName(QStringLiteral("surfHessianThreshText"));
 
@@ -354,6 +355,22 @@ public:
         label_10->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout_7->addWidget(label_10, 0, 0, 1, 1);
+
+        surfNumOctavesText = new QLineEdit(tab_2);
+        surfNumOctavesText->setObjectName(QStringLiteral("surfNumOctavesText"));
+
+        gridLayout_7->addWidget(surfNumOctavesText, 1, 1, 1, 1);
+
+        label_9 = new QLabel(tab_2);
+        label_9->setObjectName(QStringLiteral("label_9"));
+        label_9->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_7->addWidget(label_9, 1, 0, 1, 1);
+
+        surfExtendedText = new QLineEdit(tab_2);
+        surfExtendedText->setObjectName(QStringLiteral("surfExtendedText"));
+
+        gridLayout_7->addWidget(surfExtendedText, 3, 1, 1, 1);
 
         label_11 = new QLabel(tab_2);
         label_11->setObjectName(QStringLiteral("label_11"));
@@ -366,22 +383,17 @@ public:
 
         gridLayout_7->addWidget(surfNumOctLayersText, 2, 1, 1, 1);
 
-        label_12 = new QLabel(tab_2);
-        label_12->setObjectName(QStringLiteral("label_12"));
-        label_12->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_7->addWidget(label_12, 3, 0, 1, 1);
-
-        surfExtendedText = new QLineEdit(tab_2);
-        surfExtendedText->setObjectName(QStringLiteral("surfExtendedText"));
-
-        gridLayout_7->addWidget(surfExtendedText, 3, 1, 1, 1);
-
         label_13 = new QLabel(tab_2);
         label_13->setObjectName(QStringLiteral("label_13"));
         label_13->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         gridLayout_7->addWidget(label_13, 4, 0, 1, 1);
+
+        label_12 = new QLabel(tab_2);
+        label_12->setObjectName(QStringLiteral("label_12"));
+        label_12->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_7->addWidget(label_12, 3, 0, 1, 1);
 
         surfUprightText = new QLineEdit(tab_2);
         surfUprightText->setObjectName(QStringLiteral("surfUprightText"));
@@ -679,12 +691,6 @@ public:
         gridLayout_20->setSpacing(6);
         gridLayout_20->setContentsMargins(11, 11, 11, 11);
         gridLayout_20->setObjectName(QStringLiteral("gridLayout_20"));
-        label_38 = new QLabel(tab_6);
-        label_38->setObjectName(QStringLiteral("label_38"));
-        label_38->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_20->addWidget(label_38, 0, 0, 1, 1);
-
         label_39 = new QLabel(tab_6);
         label_39->setObjectName(QStringLiteral("label_39"));
         label_39->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
@@ -702,30 +708,98 @@ public:
 
         gridLayout_20->addWidget(label_44, 2, 0, 1, 1);
 
-        briskPatternScaleText = new QLineEdit(tab_6);
-        briskPatternScaleText->setObjectName(QStringLiteral("briskPatternScaleText"));
-
-        gridLayout_20->addWidget(briskPatternScaleText, 0, 1, 1, 2);
-
         briskOctavesText = new QLineEdit(tab_6);
         briskOctavesText->setObjectName(QStringLiteral("briskOctavesText"));
 
         gridLayout_20->addWidget(briskOctavesText, 1, 1, 1, 2);
 
+        briskPatternScaleText = new QLineEdit(tab_6);
+        briskPatternScaleText->setObjectName(QStringLiteral("briskPatternScaleText"));
+
+        gridLayout_20->addWidget(briskPatternScaleText, 0, 1, 1, 2);
+
+        label_38 = new QLabel(tab_6);
+        label_38->setObjectName(QStringLiteral("label_38"));
+        label_38->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_20->addWidget(label_38, 0, 0, 1, 1);
+
         tabWidget->addTab(tab_6, QString());
 
-        gridLayout_6->addWidget(tabWidget, 2, 0, 1, 1);
+        gridLayout_6->addWidget(tabWidget, 1, 0, 1, 1);
 
-        tableView = new QTableView(centralWidget);
+        tabWidget_4 = new QTabWidget(centralWidget);
+        tabWidget_4->setObjectName(QStringLiteral("tabWidget_4"));
+        tabWidget_4->setEnabled(true);
+        tabWidget_4->setMouseTracking(false);
+        tab_8 = new QWidget();
+        tab_8->setObjectName(QStringLiteral("tab_8"));
+        graphicsView_2 = new QGraphicsView(tab_8);
+        graphicsView_2->setObjectName(QStringLiteral("graphicsView_2"));
+        graphicsView_2->setEnabled(true);
+        graphicsView_2->setGeometry(QRect(0, 10, 551, 541));
+        QSizePolicy sizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(graphicsView_2->sizePolicy().hasHeightForWidth());
+        graphicsView_2->setSizePolicy(sizePolicy);
+        graphicsView_2->setFrameShape(QFrame::NoFrame);
+        gridLayout_10 = new QGridLayout(graphicsView_2);
+        gridLayout_10->setSpacing(6);
+        gridLayout_10->setContentsMargins(11, 11, 11, 11);
+        gridLayout_10->setObjectName(QStringLiteral("gridLayout_10"));
+        tabWidget_4->addTab(tab_8, QString());
+        tab_7 = new QWidget();
+        tab_7->setObjectName(QStringLiteral("tab_7"));
+        graphicsView_3 = new QGraphicsView(tab_7);
+        graphicsView_3->setObjectName(QStringLiteral("graphicsView_3"));
+        graphicsView_3->setEnabled(true);
+        graphicsView_3->setGeometry(QRect(0, 10, 551, 541));
+        sizePolicy.setHeightForWidth(graphicsView_3->sizePolicy().hasHeightForWidth());
+        graphicsView_3->setSizePolicy(sizePolicy);
+        graphicsView_3->setFrameShape(QFrame::NoFrame);
+        gridLayout_11 = new QGridLayout(graphicsView_3);
+        gridLayout_11->setSpacing(6);
+        gridLayout_11->setContentsMargins(11, 11, 11, 11);
+        gridLayout_11->setObjectName(QStringLiteral("gridLayout_11"));
+        tabWidget_4->addTab(tab_7, QString());
+        tabWidget_4Page1 = new QWidget();
+        tabWidget_4Page1->setObjectName(QStringLiteral("tabWidget_4Page1"));
+        tabWidget_4Page1->setMinimumSize(QSize(555, 560));
+        tabWidget_4Page1->setMaximumSize(QSize(555, 560));
+        graphicsView = new QGraphicsView(tabWidget_4Page1);
+        graphicsView->setObjectName(QStringLiteral("graphicsView"));
+        graphicsView->setEnabled(true);
+        graphicsView->setGeometry(QRect(0, 10, 551, 541));
+        sizePolicy.setHeightForWidth(graphicsView->sizePolicy().hasHeightForWidth());
+        graphicsView->setSizePolicy(sizePolicy);
+        graphicsView->setFrameShape(QFrame::NoFrame);
+        gridLayout_5 = new QGridLayout(graphicsView);
+        gridLayout_5->setSpacing(6);
+        gridLayout_5->setContentsMargins(11, 11, 11, 11);
+        gridLayout_5->setObjectName(QStringLiteral("gridLayout_5"));
+        tabWidget_4->addTab(tabWidget_4Page1, QString());
+        tabWidget_4Page2 = new QWidget();
+        tabWidget_4Page2->setObjectName(QStringLiteral("tabWidget_4Page2"));
+        tabWidget_4Page2->setMinimumSize(QSize(555, 560));
+        tableView = new QTableView(tabWidget_4Page2);
         tableView->setObjectName(QStringLiteral("tableView"));
+        tableView->setGeometry(QRect(0, 10, 551, 541));
+        sizePolicy.setHeightForWidth(tableView->sizePolicy().hasHeightForWidth());
+        tableView->setSizePolicy(sizePolicy);
+        tableView->setAutoFillBackground(false);
+        tableView->setFrameShape(QFrame::NoFrame);
+        tableView->setProperty("showDropIndicator", QVariant(true));
+        tableView->setShowGrid(true);
         tableView->setSortingEnabled(true);
+        tabWidget_4->addTab(tabWidget_4Page2, QString());
 
-        gridLayout_6->addWidget(tableView, 0, 1, 4, 1);
+        gridLayout_6->addWidget(tabWidget_4, 0, 1, 3, 1);
 
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1125, 21));
+        menuBar->setGeometry(QRect(0, 0, 1147, 21));
         menuWindows = new QMenu(menuBar);
         menuWindows->setObjectName(QStringLiteral("menuWindows"));
         menuFile = new QMenu(menuBar);
@@ -733,6 +807,9 @@ public:
         menuHelp = new QMenu(menuBar);
         menuHelp->setObjectName(QStringLiteral("menuHelp"));
         MainWindow->setMenuBar(menuBar);
+#ifndef QT_NO_SHORTCUT
+        label_4->setBuddy(label_4);
+#endif // QT_NO_SHORTCUT
 
         menuBar->addAction(menuFile->menuAction());
         menuBar->addAction(menuWindows->menuAction());
@@ -748,8 +825,9 @@ public:
         retranslateUi(MainWindow);
 
         tabWidget_2->setCurrentIndex(0);
-        tabWidget->setCurrentIndex(4);
+        tabWidget->setCurrentIndex(0);
         tabWidget_3->setCurrentIndex(1);
+        tabWidget_4->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -766,6 +844,7 @@ public:
         actionSave_Log_File_As->setText(QApplication::translate("MainWindow", "Save Log File As ...", 0));
         actionAbout_Qt->setText(QApplication::translate("MainWindow", "About Qt", 0));
         actionAbout_Me->setText(QApplication::translate("MainWindow", "About Me", 0));
+        label_6->setText(QApplication::translate("MainWindow", "Log :", 0));
         label_3->setText(QApplication::translate("MainWindow", "First Image :", 0));
         firstImgText->setText(QApplication::translate("MainWindow", "C:/Users/Aissa/Documents/Visual Studio 2013/Projects/PFE_Project/source_code/images/box1.png", 0));
         firstImgBtn->setText(QApplication::translate("MainWindow", "Browse", 0));
@@ -774,7 +853,6 @@ public:
         secondImgText->setText(QApplication::translate("MainWindow", "C:/Users/Aissa/Documents/Visual Studio 2013/Projects//PFE_Project/source_code/images/box2.png", 0));
         tabWidget_2->setTabText(tabWidget_2->indexOf(tab_5), QApplication::translate("MainWindow", "Image && Image", 0));
         pushButton->setText(QApplication::translate("MainWindow", "Run", 0));
-        label_6->setText(QApplication::translate("MainWindow", "Log :", 0));
 #ifndef QT_NO_TOOLTIP
         tabWidget->setToolTip(QString());
 #endif // QT_NO_TOOLTIP
@@ -790,15 +868,15 @@ public:
         label_8->setText(QApplication::translate("MainWindow", "Sigma :", 0));
         siftBruteForceCheck->setText(QApplication::translate("MainWindow", "Use Brute Force Matching", 0));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "SIFT", 0));
-        label_9->setText(QApplication::translate("MainWindow", "Number of Octaves :", 0));
-        surfNumOctavesText->setText(QApplication::translate("MainWindow", "4", 0));
         surfHessianThreshText->setText(QApplication::translate("MainWindow", "100", 0));
         label_10->setText(QApplication::translate("MainWindow", "Hessian Threshold :", 0));
+        surfNumOctavesText->setText(QApplication::translate("MainWindow", "4", 0));
+        label_9->setText(QApplication::translate("MainWindow", "Number of Octaves :", 0));
+        surfExtendedText->setText(QApplication::translate("MainWindow", "yes", 0));
         label_11->setText(QApplication::translate("MainWindow", "Number of Octave Layers :", 0));
         surfNumOctLayersText->setText(QApplication::translate("MainWindow", "2", 0));
-        label_12->setText(QApplication::translate("MainWindow", "Extended :", 0));
-        surfExtendedText->setText(QApplication::translate("MainWindow", "yes", 0));
         label_13->setText(QApplication::translate("MainWindow", "Upright :", 0));
+        label_12->setText(QApplication::translate("MainWindow", "Extended :", 0));
         surfUprightText->setText(QApplication::translate("MainWindow", "no", 0));
         surfBruteForceCheck->setText(QApplication::translate("MainWindow", "Use Brute Force Matching", 0));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "SURF", 0));
@@ -846,13 +924,20 @@ public:
         orbWTAKText->setText(QApplication::translate("MainWindow", "2", 0));
         orbPatchSizeText->setText(QApplication::translate("MainWindow", "31", 0));
         tabWidget->setTabText(tabWidget->indexOf(tab_4), QApplication::translate("MainWindow", "ORB", 0));
-        label_38->setText(QApplication::translate("MainWindow", "Pattern Scale :", 0));
         label_39->setText(QApplication::translate("MainWindow", "Number of Octaves :", 0));
         briskThreshText->setText(QApplication::translate("MainWindow", "30", 0));
         label_44->setText(QApplication::translate("MainWindow", "Threshold Score :", 0));
-        briskPatternScaleText->setText(QApplication::translate("MainWindow", "1.0", 0));
         briskOctavesText->setText(QApplication::translate("MainWindow", "3", 0));
+        briskPatternScaleText->setText(QApplication::translate("MainWindow", "1.0", 0));
+        label_38->setText(QApplication::translate("MainWindow", "Pattern Scale :", 0));
         tabWidget->setTabText(tabWidget->indexOf(tab_6), QApplication::translate("MainWindow", "BRISK", 0));
+#ifndef QT_NO_STATUSTIP
+        tabWidget_4->setStatusTip(QString());
+#endif // QT_NO_STATUSTIP
+        tabWidget_4->setTabText(tabWidget_4->indexOf(tab_8), QApplication::translate("MainWindow", "Keypoints 1", 0));
+        tabWidget_4->setTabText(tabWidget_4->indexOf(tab_7), QApplication::translate("MainWindow", "Keypoints 2", 0));
+        tabWidget_4->setTabText(tabWidget_4->indexOf(tabWidget_4Page1), QApplication::translate("MainWindow", "Matching", 0));
+        tabWidget_4->setTabText(tabWidget_4->indexOf(tabWidget_4Page2), QApplication::translate("MainWindow", "Table", 0));
         menuWindows->setTitle(QApplication::translate("MainWindow", "Windows", 0));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0));
         menuHelp->setTitle(QApplication::translate("MainWindow", "Help", 0));
