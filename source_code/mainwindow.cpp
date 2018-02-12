@@ -341,7 +341,7 @@ void MainWindow::runCustom()
 	// Write the parameters
 	writeToFile("descriptor_" + descriptorName, ptrDescriptor);
 
-    if (ui->opponentColore->isChecked())
+    if (ui->opponentColor->isChecked())
 		//OpponentColor
 		ptrDescriptor = new cv::OpponentColorDescriptorExtractor(ptrDescriptor);
 	// Write the parameters
