@@ -611,7 +611,7 @@ void MainWindow::calculateBestMatches(){
 	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
 	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
 	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
-	model->setHorizontalHeaderItem(4, new QStandardItem(QString("ERR")));
+	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
 	for (uint i = 0; i<firstMatches.size(); i++)
 	{
 		cv::Point matchedPt1 = firstImgKeypoints[i].pt;
@@ -668,11 +668,6 @@ void MainWindow::calculateBestMatches(){
 	scene->addPixmap(pixmap);
 	ui->graphicsView->setScene(scene);
 	ui->graphicsView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
-}
-
-void MainWindow::on_actionDestroy_All_Windows_triggered()
-{
-    cv::destroyAllWindows();
 }
 
 void MainWindow::resetParams()
