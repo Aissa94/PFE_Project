@@ -18,7 +18,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
 void MainWindow::on_firstImgBtn_pressed()
 {
     QString str = QFileDialog::getOpenFileName();
@@ -670,7 +669,7 @@ void MainWindow::runBRISK()
 	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
 	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
 	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
-	model->setHorizontalHeaderItem(4, new QStandardItem(QString("ERR")));
+	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
 
 	// Read Parameters ...
 	float patternScale = ui->briskPatternScaleText->text().toFloat();
@@ -731,11 +730,28 @@ void MainWindow::runBRISK()
 
 	// Descriptors for the First & Second Image ...
 	cv::Mat firstImgDescriptor, secondImgDescriptor;
+	cv::Mat firstImgDescriptorShow, secondImgDescriptorShow;
 
 	// Computing the descriptors
 	briskDetector.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
 	briskDetector.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
 
+	cv::drawKeypoints(firstImg, firstImgKeypoints, firstImgDescriptorShow, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
+	QGraphicsScene *imgKeypoints1 = new QGraphicsScene();
+	QImage imgKey1((const uchar *)firstImgDescriptorShow.data, firstImgDescriptorShow.cols, firstImgDescriptorShow.rows, firstImgDescriptorShow.step, QImage::Format_RGB888);
+	QPixmap piximg1 = QPixmap::fromImage(imgKey1);
+	imgKeypoints1->addPixmap(piximg1);
+	ui->graphicsView_2->setScene(imgKeypoints1);
+	ui->graphicsView_2->fitInView(imgKeypoints1->sceneRect(), Qt::KeepAspectRatio);
+
+	cv::drawKeypoints(secondImg, secondImgKeypoints, secondImgDescriptorShow, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
+	QGraphicsScene *imgKeypoints2 = new QGraphicsScene();
+	QImage imgKey2((const uchar *)secondImgDescriptorShow.data, secondImgDescriptorShow.cols, secondImgDescriptorShow.rows, secondImgDescriptorShow.step, QImage::Format_RGB888);
+	QPixmap piximg2 = QPixmap::fromImage(imgKey2);
+	imgKeypoints2->addPixmap(piximg2);
+	ui->graphicsView_3->setScene(imgKeypoints2);
+	ui->graphicsView_3->fitInView(imgKeypoints2->sceneRect(), Qt::KeepAspectRatio);
+		
 	// Find the matching points
 	cv::BFMatcher matcher(cv::NORM_HAMMING);
 	std::vector< cv::DMatch > firstMatches, secondMatches;
@@ -744,6 +760,7 @@ void MainWindow::runBRISK()
 
 	matcher.match(firstImgDescriptor, secondImgDescriptor, firstMatches);
 	matcher.match(secondImgDescriptor, firstImgDescriptor, secondMatches);
+
 
 	int bestMatchesCount = 0;
 	std::vector< cv::DMatch > bestMatches;
@@ -776,6 +793,8 @@ void MainWindow::runBRISK()
 			model->setItem(bestMatchesCount, 2, x2);
 			QStandardItem *y2 = new QStandardItem(QString::number(matchedPt2.y));
 			model->setItem(bestMatchesCount, 3, y2);
+			QStandardItem *dist = new QStandardItem(QString::number(firstMatches[i].distance));
+			model->setItem(bestMatchesCount, 4, dist);
 			ui->tableView->setModel(model);
 			bestMatches.push_back(firstMatches[i]);
 			bestMatchesCount++;
@@ -798,8 +817,14 @@ void MainWindow::runBRISK()
 		std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
 	cv::imwrite(QString(qApp->applicationDirPath() + "/output.png").toStdString(), bestImgMatches);
-	QDesktopServices::openUrl(QUrl::fromLocalFile(qApp->applicationDirPath() + "/output.png"));
-
+	
+	QGraphicsScene *scene = new QGraphicsScene();
+	QImage dest((const uchar *)bestImgMatches.data, bestImgMatches.cols, bestImgMatches.rows, bestImgMatches.step, QImage::Format_RGB888);
+	//dest.bits();
+	QPixmap pixmap = QPixmap::fromImage(dest);
+	scene->addPixmap(pixmap);
+	ui->graphicsView->setScene(scene);
+	ui->graphicsView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
 }
 
 void MainWindow::on_actionDestroy_All_Windows_triggered()
@@ -856,6 +881,6 @@ void MainWindow::on_actionAbout_Me_triggered()
                        "<br><br>This program uses OpenCV and Qt, and is provided as is, for educational purposes such as benchmarking of algorithms.<br>"
                        "<br>You may contact me for the source code of this program at <a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>"
                        "<br><br>Thanks"
-                       "<br><br>GHOUILA Nabil & BELKAID A�ssa"
+                       "<br><br>GHOUILA Nabil & BELKAID Aïssa"
 					   "<br><br><a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>");
 }
