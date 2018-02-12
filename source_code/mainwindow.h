@@ -47,6 +47,7 @@ private:
     Ui::MainWindow *ui;
 
     QString outputImagesPath;
+
 	void resetParams();
     void runSIFT();
     void runSURF();

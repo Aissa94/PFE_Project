@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1147</width>
-    <height>626</height>
+    <height>724</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -66,7 +66,7 @@
             <property name="text">
              <string>C:\Users\Nabil\Desktop\images\box2.png</string>
             </property>
-            <property name="buddy">
+            <property name="buddy" stdset="0">
              <cstring>label_4</cstring>
             </property>
            </widget>
@@ -131,7 +131,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tabSIFT">
        <attribute name="title">
@@ -585,7 +585,7 @@
         <item row="0" column="0">
          <widget class="QTabWidget" name="customTabs">
           <property name="currentIndex">
-           <number>2</number>
+           <number>3</number>
           </property>
           <widget class="QWidget" name="tabSegmentation">
            <attribute name="title">
@@ -1163,7 +1163,7 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="descriptorTabs">
               <property name="currentIndex">
-               <number>3</number>
+               <number>2</number>
               </property>
               <widget class="QWidget" name="tabDescriptorFreak">
                <attribute name="title">
@@ -1528,7 +1528,7 @@
                   </item>
                   <item row="1" column="0">
                    <widget class="QLabel" name="matcherBruteForceCrossCheckLabel">
-                   <property name="toolTip">
+                    <property name="toolTip">
                      <string>If it is false, this is will be default BFMatcher behaviour when it finds the k nearest neighbors for each query descriptor. If crossCheck==true, then the knnMatch() method with k=1 will only return pairs (i,j) such that for i-th query descriptor the j-th descriptor in the matcher’s collection is the nearest and vice versa, i.e. the BFMatcher will only return consistent pairs. Such technique usually produces best results with minimal number of outliers when there are enough matches. This is alternative to the ratio test, used by D. Lowe in SIFT paper.</string>
                     </property>
                     <property name="text">

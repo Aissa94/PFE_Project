@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 
 // Images Declaration
-	cv::Mat firstImg, cv::Mat secondImg;
+	cv::Mat firstImg, secondImg;
 	cv::Mat firstImgDescriptorShow, secondImgDescriptorShow;
 
 // Vectors Declaration
@@ -32,8 +32,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	//qApp->setStyleSheet("QToolTip { visibility: visible; width: 120px; background-color: #555; color: #fff; text-align: center; border-radius: 6px; padding: 5px 0; position: absolute; z-index: 1; bottom: 125 %; left: 50% ;margin-left: -60px; opacity: 1; transition: opacity 0.3s;}");
     //outputImagesPath = "/Users/elma/Desktop/FeaturePointsComparisonOutputImages";
     //outputImagesPath = QInputDialog::getText(this, "Output Images Path");
-	ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
-	ui->segmentationMethod1Param1Label->setToolTip("test");
+    ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
+    ui->segmentationMethod1Param1Label->setToolTip("test");
 }
 
 
@@ -341,7 +341,7 @@ void MainWindow::runCustom()
 	// Write the parameters
 	writeToFile("descriptor_" + descriptorName, ptrDescriptor);
 
-	if (ui->opponentColor->isChecked())
+    if (ui->opponentColore->isChecked())
 		//OpponentColor
 		ptrDescriptor = new cv::OpponentColorDescriptorExtractor(ptrDescriptor);
 	// Write the parameters
