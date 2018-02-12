@@ -856,6 +856,6 @@ void MainWindow::on_actionAbout_Me_triggered()
                        "<br><br>This program uses OpenCV and Qt, and is provided as is, for educational purposes such as benchmarking of algorithms.<br>"
                        "<br>You may contact me for the source code of this program at <a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>"
                        "<br><br>Thanks"
-                       "<br><br>GHOUILA Nabil & BELKAID Aïssa"
+                       "<br><br>GHOUILA Nabil & BELKAID Aï¿½ssa"
 					   "<br><br><a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>");
 }
