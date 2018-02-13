@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1147</width>
-    <height>724</height>
+    <height>626</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,7 +33,7 @@
           <item row="0" column="1">
            <widget class="QLineEdit" name="firstImgText">
             <property name="text">
-             <string>C:\Users\Nabil\Desktop\images\box1.png</string>
+             <string>C:\Users\Aissa\Documents\Visual Studio 2013\Projects\PFE_Project\source_code\images\box1.png</string>
             </property>
            </widget>
           </item>
@@ -57,7 +57,7 @@
           <item row="1" column="1">
            <widget class="QLineEdit" name="secondImgText">
             <property name="text">
-             <string>C:\Users\Nabil\Desktop\images\box2.png</string>
+             <string>C:\Users\Aissa\Documents\Visual Studio 2013\Projects\PFE_Project\source_code\images\box2.png</string>
             </property>
             <property name="buddy" stdset="0">
              <cstring>label_4</cstring>
@@ -1707,7 +1707,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_8">
        <attribute name="title">
@@ -1722,7 +1722,7 @@
           <x>0</x>
           <y>10</y>
           <width>551</width>
-          <height>541</height>
+          <height>551</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -1750,7 +1750,7 @@
           <x>0</x>
           <y>10</y>
           <width>551</width>
-          <height>541</height>
+          <height>551</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -1790,7 +1790,7 @@
           <x>0</x>
           <y>10</y>
           <width>551</width>
-          <height>541</height>
+          <height>551</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -1821,7 +1821,7 @@
           <x>0</x>
           <y>10</y>
           <width>551</width>
-          <height>541</height>
+          <height>551</height>
          </rect>
         </property>
         <property name="sizePolicy">
