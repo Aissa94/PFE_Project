@@ -269,12 +269,12 @@ void MainWindow::runCustom()
 		break;
 	case 3:
 		//SURF
-		// we didn't need the Extended param because it is related to the SURF descriptor
+		// we didn't need the Extended and Upright params because it is related to the SURF descriptor
 		ptrDetector = new cv::SurfFeatureDetector(ui->detectorSurfHessianThresholdText->text().toDouble(),
 			ui->detectorSurfNOctavesText->text().toInt(),
 			ui->detectorSurfNLayersText->text().toInt(),
 			true,
-			!ui->detectorSurfUprightText->isChecked());
+			false);
 		break;
 	case 4:
 		//Dense
@@ -343,8 +343,8 @@ void MainWindow::runCustom()
 		break;
 	case 3:
 		//SURF
-		// we just need the Extended param because others are related to the SURF detector
-		ptrDescriptor = new cv::SurfDescriptorExtractor(100, 4, 3, ui->descriptorSurfExtended->isChecked(), false);
+		// we just need the Extended and Upright params because others are related to the SURF detector
+		ptrDescriptor = new cv::SurfDescriptorExtractor(100, 4, 3, ui->descriptorSurfExtended->isChecked(), !ui->detectorSurfUprightText->isChecked());
 		break;
 	//....
 	default:
@@ -388,8 +388,11 @@ void MainWindow::runCustom()
 	}
 		break;
 	case 1:
+	{
 		// FlannBased
-		ptrMatcher = new cv::FlannBasedMatcher();
+		// using default values
+		ptrMatcher = new cv::FlannBasedMatcher(getFlannBasedIndexParamsType(), new cv::flann::SearchParams(32));
+	}
 		break;
 	// ...
 	default:
@@ -589,6 +592,18 @@ int MainWindow::getNormByText(std::string norm){
 	else if (norm == "NORM_TYPE_MASK") return cv::NORM_TYPE_MASK;
 	else if (norm == "NORM_RELATIVE") return cv::NORM_RELATIVE;
 	else if (norm == "NORM_MINMAX") return cv::NORM_MINMAX;
+	else return cv::NORM_L2;
+}
+
+cv::Ptr<cv::flann::IndexParams> MainWindow::getFlannBasedIndexParamsType(){
+	// Return the default constructur, for the select type
+	if (ui->matcherFlannBasedLinearIndexParams->isChecked()) return new cv::flann::LinearIndexParams();
+	else if (ui->matcherFlannBasedKDTreeIndexParams->isChecked()) return new cv::flann::KDTreeIndexParams();
+	else if (ui->matcherFlannBasedKMeansIndexParams->isChecked()) return new cv::flann::KMeansIndexParams();
+	else if (ui->matcherFlannBasedCompositeIndexParams->isChecked()) return new cv::flann::CompositeIndexParams();
+	else if (ui->matcherFlannBasedLshIndexParams->isChecked()) return new cv::flann::LshIndexParams(20,15,2);
+	else if (ui->matcherFlannBasedAutotunedIndexParams->isChecked()) return new cv::flann::AutotunedIndexParams();
+	else return new cv::flann::KDTreeIndexParams();
 }
 
 void MainWindow::writeToFile(std::string fileName, cv::Algorithm * algoToWrite){

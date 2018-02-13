@@ -716,7 +716,7 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="detectorTabs">
               <property name="currentIndex">
-               <number>4</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="tabDetectorStar">
                <attribute name="title">
@@ -1278,7 +1278,7 @@ So a 100x100 image, with an initImgBound of 10, would create keypoints in the ce
             <item row="0" column="0">
              <widget class="QTabWidget" name="descriptorTabs">
               <property name="currentIndex">
-               <number>2</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="tabDescriptorFreak">
                <attribute name="title">
@@ -1728,18 +1728,99 @@ This is alternative to the ratio test, used by D. Lowe in SIFT paper.</string>
                <attribute name="toolTip">
                 <string>FLANN stands for Fast Library for Approximate Nearest Neighbors.
 It contains a collection of algorithms optimized for fast nearest neighbor search in large datasets and for high dimensional features.
-It works more faster than BFMatcher for large datasets.</string>
+It works more faster than BFMatcher for large datasets. More information about FLANN can be found in [Muja2009].</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_13">
                 <item row="0" column="0">
                  <layout class="QGridLayout" name="matcherFlannBasedParams">
                   <item row="0" column="0">
-                   <widget class="QLabel" name="matcherFlannBasedParam1Label">
+                   <widget class="QLabel" name="matcherFlannBasedIndexParamsLabel">
                     <property name="text">
-                     <string>No parameters to load</string>
+                     <string>Index Parameters Type :</string>
+                    </property>
+                    <property name="toolTip">
+                    <string>The nearest neighbor search index type</string>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignCenter</set>
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QRadioButton" name="matcherFlannBasedLinearIndexParams">
+                    <property name="text">
+                     <string>Linear Index</string>
+                    </property>
+                    <property name="toolTip">
+                    <string>The index will perform a linear, brute-force search.</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QRadioButton" name="matcherFlannBasedKDTreeIndexParams">
+                    <property name="text">
+                     <string>KD Tree Index</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
+                    <property name="toolTip">
+                    <string>The index constructed will consist of a set of randomized kd-trees which will be searched in parallel.</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QRadioButton" name="matcherFlannBasedKMeansIndexParams">
+                    <property name="text">
+                     <string>K-Means Index</string>
+                    </property>               
+                    <property name="toolTip">
+                    <string>The index constructed will be a hierarchical k-means tree.</string>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QRadioButton" name="matcherFlannBasedCompositeIndexParams">
+                    <property name="text">
+                     <string>Composite Index</string>
+                    </property>
+                    <property name="toolTip">
+                    <string>The index created combines the randomized kd-trees and the hierarchical k-means tree.</string>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QRadioButton" name="matcherFlannBasedLshIndexParams">
+                    <property name="text">
+                     <string>LSH Index</string>
+                    </property>
+                    <property name="toolTip">
+                    <string>The index created uses multi-probe LSH (by Multi-Probe LSH: Efficient Indexing for High-Dimensional Similarity Search
+by Qin Lv, William Josephson, Zhe Wang, Moses Charikar, Kai Li.,
+Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB). Vienna, Austria. September 2007)</string>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1">
+                   <widget class="QRadioButton" name="matcherFlannBasedAutotunedIndexParams">
+                    <property name="text">
+                     <string>Auto tuned Index</string>
+                    </property>
+                    <property name="toolTip">
+                    <string>The index created is automatically tuned to offer the best performance,
+by choosing the optimal index type (randomized kd-trees, hierarchical kmeans, linear) and parameters for the dataset provided.</string>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
                     </property>
                    </widget>
                   </item>
