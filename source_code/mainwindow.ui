@@ -120,11 +120,8 @@
       <property name="acceptDrops">
        <bool>false</bool>
       </property>
-      <property name="toolTip">
-       <string/>
-      </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tabSIFT">
        <attribute name="title">
@@ -571,7 +568,7 @@
         <item row="0" column="0">
          <widget class="QTabWidget" name="customTabs">
           <property name="currentIndex">
-           <number>2</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tabSegmentation">
            <attribute name="title">
@@ -719,12 +716,12 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="detectorTabs">
               <property name="currentIndex">
-               <number>3</number>
+               <number>4</number>
               </property>
               <widget class="QWidget" name="tabDetectorStar">
-               <property name="toolTip">
+               <attribute name="toolTip">
                 <string>The keypoint detector introduced by [Agrawal08], synonym of StarDetector</string>
-               </property>
+               </attribute>
                <attribute name="title">
                 <string>STAR</string>
                </attribute>
@@ -821,9 +818,9 @@
                </layout>
               </widget>
               <widget class="QWidget" name="tabDetectorFast">
-               <property name="toolTip">
+               <attribute name="toolTip">
                 <string>Detects corners using the FAST algorithm by [Rosten06].</string>
-               </property>
+               </attribute>
                <attribute name="title">
                 <string>FAST</string>
                </attribute>
@@ -833,7 +830,7 @@
                   <item row="0" column="0">
                    <widget class="QLabel" name="detectorFastThresholdLabel">
                     <property name="toolTip">
-                     <string>threshold on difference between intensity of the central pixel and pixels of a circle around this pixel.</string>
+                     <string>Threshold on difference between intensity of the central pixel and pixels of a circle around this pixel.</string>
                     </property>
                     <property name="text">
                      <string>Threshold :</string>
@@ -942,15 +939,15 @@
                </layout>
               </widget>
               <widget class="QWidget" name="tabDetectorSift">
-               <property name="toolTip">
+               <attribute name="toolTip">
                 <string>Extracting keypoints using the Scale Invariant Feature Transform (SIFT) algorithm by D. Lowe [Lowe04].</string>
-               </property>
+               </attribute>
                <attribute name="title">
                 <string>SIFT</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_19">
                 <item row="0" column="0">
-                 <layout class="QGridLayout" name="detectorSIFTParams">
+                 <layout class="QGridLayout" name="detectorSiftParams">
                   <item row="1" column="0">
                    <widget class="QLabel" name="detectorSiftEdgeThresholdLab">
                     <property name="toolTip">
@@ -1056,6 +1053,9 @@
                </layout>
               </widget>
               <widget class="QWidget" name="tabDetectorSURF">
+               <attribute name="toolTip">
+                <string>Extracting Speeded Up Robust Features from an image [Bay06].</string>
+               </attribute>
                <attribute name="title">
                 <string>SURF</string>
                </attribute>
@@ -1130,6 +1130,122 @@
                     </property>
                     <property name="checked">
                      <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QWidget" name="tabDetectorDENSE">
+               <attribute name="title">
+                <string>Dense</string>
+               </attribute>
+               <attribute name="toolTip">
+                <string>Generation of image features which are distributed densely and regularly over the image. The detector generates several levels (in the amount of featureScaleLevels) of features. Features of each level are located in the nodes of a regular grid over the image (excluding the image boundary of given size). The level parameters (a feature scale, a node size, a size of boundary) are multiplied by featureScaleMul with level index growing depending on input flags: Feature scale is multiplied always.
+The grid node size is multiplied if varyXyStepWithScale is true.
+Size of image boundary is multiplied if varyImgBoundWithScale is true.</string>
+               </attribute>
+               <layout class="QGridLayout" name="gridLayout_17">
+                <item row="0" column="0">
+                 <layout class="QGridLayout" name="detectorDenseParams">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="detectorDenseInitFeatureScaleLabel">
+                    <property name="text">
+                     <string>Initial feature radius in pixels :</string>
+                    </property>
+               <property name="toolTip">
+                <string>Set the initial KeyPoint feature radius in pixels</string>
+               </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="detectorDenseInitFeatureScaleText">
+                    <property name="text">
+                     <string>1.0</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLineEdit" name="detectorDenseFeatureScaleLevelsText">
+                    <property name="text">
+                     <string>1</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="detectorDenseFeatureScaleLevelsLabel">
+                    <property name="text">
+                     <string>Feature Scale Levels :</string>
+                    </property>
+               <property name="toolTip">
+                <string>Number of scales overwhich we wish to make keypoints</string>
+               </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="detectorDenseFeatureScaleMulLabel">
+                    <property name="text">
+                     <string>Feature Scale Multiplier :</string>
+                    </property>
+               <property name="toolTip">
+                <string>Scale adjustment for initFeatureScale over featureScaleLevels, this scale adjustment can also be applied to the border (initImgBound) and the step size (initxystep). So when we set featureScaleLevels>1 then this multiplier will be applied to successive scales, to adjust feature scale, step and the boundary around the image.</string>
+               </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QLineEdit" name="detectorDenseFeatureScaleMulText">
+                    <property name="text">
+                     <string>0.1</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="detectorDenseInitXyStepLabel">
+                    <property name="text">
+                     <string>X,Y Step in pixels :</string>
+                    </property>
+               <property name="toolTip">
+                <string>Moving column and row step in pixels</string>
+               </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QLineEdit" name="detectorDenseInitXyStepText">
+                    <property name="text">
+                     <string>6</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QLabel" name="detectorDenseInitImgBoundLabel">
+                    <property name="text">
+                     <string>Bounding region to ignore in pixels :</string>
+                    </property>
+               <property name="toolTip">
+                <string>row/col bounding region to ignore around the image (pixels), So a 100x100 image, with an initImgBound of 10, would create keypoints in the central 80x80 portion of the image</string>
+               </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QLineEdit" name="detectorDenseInitImgBoundText">
+                    <property name="text">
+                     <string>0</string>
                     </property>
                    </widget>
                   </item>
@@ -1587,9 +1703,9 @@
                </layout>
               </widget>
               <widget class="QWidget" name="tabMatcherFlannBased">
-               <property name="toolTip">
+               <attribute name="toolTip">
                 <string>FLANN stands for Fast Library for Approximate Nearest Neighbors. It contains a collection of algorithms optimized for fast nearest neighbor search in large datasets and for high dimensional features. It works more faster than BFMatcher for large datasets.</string>
-               </property>
+               </attribute>
                <attribute name="title">
                 <string>Flann-Based</string>
                </attribute>
@@ -1686,6 +1802,9 @@
           <property name="text">
            <string>Use Opponent Color</string>
           </property>
+          <property name="toolTip">
+           <string>Adapting a descriptor extractor to compute descriptors in the Opponent Color Space (refer to Van de Sande et al., CGIV 2008 Color Descriptors for Object Category Recognition). Input RGB image is transformed in the Opponent Color Space. Then, an unadapted descriptor extractor (set in the constructor) computes descriptors on each of three channels and concatenates them into a single color descriptor.</string>
+           </property>
           <property name="checked">
            <bool>false</bool>
           </property>

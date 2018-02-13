@@ -276,6 +276,16 @@ void MainWindow::runCustom()
 			true,
 			!ui->detectorSurfUprightText->isChecked());
 		break;
+	case 4:
+		//Dense
+		ptrDetector = new cv::DenseFeatureDetector(ui->detectorDenseInitFeatureScaleText->text().toFloat(),
+			ui->detectorDenseFeatureScaleLevelsText->text().toInt(),
+			ui->detectorDenseFeatureScaleMulText->text().toFloat(),
+			ui->detectorDenseInitXyStepText->text().toInt(),
+			ui->detectorDenseInitImgBoundText->text().toInt(),
+			ui->detectorDenseInitXyStepText->text().toInt()>0,
+			ui->detectorDenseInitImgBoundText->text().toInt()>0);
+		break;
 	//....
 	default:
 		return;
@@ -285,13 +295,16 @@ void MainWindow::runCustom()
 	// Write the parameters
 	writeToFile("detector_" + detectorName, ptrDetector);
 	// fs in WRITE mode automatically released
-
-	// Detecting Keypoints ...
-	detectionTime = (double)cv::getTickCount();
-	ptrDetector->detect(firstImg, firstImgKeypoints);
-	ptrDetector->detect(secondImg, secondImgKeypoints);
-	detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
-
+	try{
+		// Detecting Keypoints ...
+		detectionTime = (double)cv::getTickCount();
+		ptrDetector->detect(firstImg, firstImgKeypoints);
+		ptrDetector->detect(secondImg, secondImgKeypoints);
+		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+	}catch (...){
+		ui->logPlainText->appendHtml("<b style='color:red'>Please select the right "+QString::fromStdString(detectorName)+" detector parameters, or use the defaults!.</b>");
+		return;
+	}
 	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
 	ui->logPlainText->appendPlainText("detection time: " + QString::number(detectionTime) + " (s)");
 
@@ -356,7 +369,8 @@ void MainWindow::runCustom()
 		ui->logPlainText->appendPlainText("description time: " + QString::number(descriptionTime) + " (s)");
 	}
 	catch (...){
-		ui->logPlainText->appendHtml("<b style='color:red'>Please select the right pair indexes within the FREAK descriptor, or just leave it!.</b><br>(For more details read Section(4.2) in: <i>A. Alahi, R. Ortiz, and P. Vandergheynst. FREAK: Fast Retina Keypoint. In IEEE Conference on Computer Vision and Pattern Recognition, 2012.</i>)");
+		if(descriptorName == "FREAK")ui->logPlainText->appendHtml("<b style='color:red'>Please select the right pair indexes within the FREAK descriptor, or just leave it!.</b><br>(For more details read Section(4.2) in: <i>A. Alahi, R. Ortiz, and P. Vandergheynst. FREAK: Fast Retina Keypoint. In IEEE Conference on Computer Vision and Pattern Recognition, 2012.</i>)");
+		else ui->logPlainText->appendHtml("<b style='color:red'>Please select the right " + QString::fromStdString(descriptorName) + " descriptor parameters, or use the defaults!.</b>");
 		return;
 	}
 
@@ -411,7 +425,7 @@ void MainWindow::runCustom()
 	catch (...){
 		// For example Flann-Based doesn't work with Brief desctiptor extractor
 		// And also, some descriptors must be used with specific NORM_s
-		ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one</b>");
+		ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one.</b>");
 		return;
 	}
 	
