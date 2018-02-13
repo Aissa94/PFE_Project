@@ -575,6 +575,7 @@ int MainWindow::getNormByText(std::string norm){
 	else if (norm == "NORM_TYPE_MASK") return cv::NORM_TYPE_MASK;
 	else if (norm == "NORM_RELATIVE") return cv::NORM_RELATIVE;
 	else if (norm == "NORM_MINMAX") return cv::NORM_MINMAX;
+	else return cv::NORM_L2;
 }
 
 void MainWindow::writeToFile(std::string fileName, cv::Algorithm * algoToWrite){
