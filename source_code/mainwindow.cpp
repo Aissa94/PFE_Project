@@ -596,6 +596,7 @@ void MainWindow::calculateBestMatches(){
 	imgKeypoints1->addPixmap(piximg1);
 	ui->graphicsView_2->setScene(imgKeypoints1);
 	ui->graphicsView_2->fitInView(imgKeypoints1->sceneRect(), Qt::KeepAspectRatio);
+	ui->graphicsView->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
 	cv::drawKeypoints(secondImg, secondImgKeypoints, secondImgDescriptorShow, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
 	QGraphicsScene *imgKeypoints2 = new QGraphicsScene();
@@ -604,6 +605,7 @@ void MainWindow::calculateBestMatches(){
 	imgKeypoints2->addPixmap(piximg2);
 	ui->graphicsView_3->setScene(imgKeypoints2);
 	ui->graphicsView_3->fitInView(imgKeypoints2->sceneRect(), Qt::KeepAspectRatio);
+	ui->graphicsView->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
 	// Calculate the number of best matches between two sets of matches
 	int bestMatchesCount = 0;
@@ -664,11 +666,33 @@ void MainWindow::calculateBestMatches(){
 	
 	QGraphicsScene *scene = new QGraphicsScene();
 	QImage dest((const uchar *)bestImgMatches.data, bestImgMatches.cols, bestImgMatches.rows, bestImgMatches.step, QImage::Format_RGB888);
-	//dest.bits();
+	dest.bits();
 	QPixmap pixmap = QPixmap::fromImage(dest);
 	scene->addPixmap(pixmap);
 	ui->graphicsView->setScene(scene);
 	ui->graphicsView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+	ui->graphicsView->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+}
+
+void MainWindow::wheelEvent(QWheelEvent *event){
+
+	ui->graphicsView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+	ui->graphicsView_2->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+	ui->graphicsView_3->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+	// Scale the view / do the zoom
+	double scaleFactor = 1.15;
+	if (event->delta() > 0) {
+		// Zoom in
+		ui->graphicsView->scale(scaleFactor, scaleFactor);
+		ui->graphicsView_2->scale(scaleFactor, scaleFactor);
+		ui->graphicsView_3->scale(scaleFactor, scaleFactor);
+	}
+	else {
+		// Zooming out
+		ui->graphicsView->scale(1.0 / scaleFactor, 1.0 / scaleFactor);
+		ui->graphicsView_2->scale(1.0 / scaleFactor, 1.0 / scaleFactor);
+		ui->graphicsView_3->scale(1.0 / scaleFactor, 1.0 / scaleFactor);
+	}
 }
 
 void MainWindow::resetParams()
