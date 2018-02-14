@@ -269,12 +269,22 @@ void MainWindow::runCustom()
 		break;
 	case 3:
 		//SURF
-		// we didn't need the Extended param because it is related to the SURF descriptor
+		// we didn't need the Extended and Upright params because it is related to the SURF descriptor
 		ptrDetector = new cv::SurfFeatureDetector(ui->detectorSurfHessianThresholdText->text().toDouble(),
 			ui->detectorSurfNOctavesText->text().toInt(),
 			ui->detectorSurfNLayersText->text().toInt(),
 			true,
-			!ui->detectorSurfUprightText->isChecked());
+			false);
+		break;
+	case 4:
+		//Dense
+		ptrDetector = new cv::DenseFeatureDetector(ui->detectorDenseInitFeatureScaleText->text().toFloat(),
+			ui->detectorDenseFeatureScaleLevelsText->text().toInt(),
+			ui->detectorDenseFeatureScaleMulText->text().toFloat(),
+			ui->detectorDenseInitXyStepText->text().toInt(),
+			ui->detectorDenseInitImgBoundText->text().toInt(),
+			ui->detectorDenseInitXyStepText->text().toInt()>0,
+			ui->detectorDenseInitImgBoundText->text().toInt()>0);
 		break;
 	//....
 	default:
@@ -285,13 +295,16 @@ void MainWindow::runCustom()
 	// Write the parameters
 	writeToFile("detector_" + detectorName, ptrDetector);
 	// fs in WRITE mode automatically released
-
-	// Detecting Keypoints ...
-	detectionTime = (double)cv::getTickCount();
-	ptrDetector->detect(firstImg, firstImgKeypoints);
-	ptrDetector->detect(secondImg, secondImgKeypoints);
-	detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
-
+	try{
+		// Detecting Keypoints ...
+		detectionTime = (double)cv::getTickCount();
+		ptrDetector->detect(firstImg, firstImgKeypoints);
+		ptrDetector->detect(secondImg, secondImgKeypoints);
+		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+	}catch (...){
+		ui->logPlainText->appendHtml("<b style='color:red'>Please select the right "+QString::fromStdString(detectorName)+" detector parameters, or use the defaults!.</b>");
+		return;
+	}
 	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
 	ui->logPlainText->appendPlainText("detection time: " + QString::number(detectionTime) + " (s)");
 
@@ -330,8 +343,8 @@ void MainWindow::runCustom()
 		break;
 	case 3:
 		//SURF
-		// we just need the Extended param because others are related to the SURF detector
-		ptrDescriptor = new cv::SurfDescriptorExtractor(100, 4, 3, ui->descriptorSurfExtended->isChecked(), false);
+		// we just need the Extended and Upright params because others are related to the SURF detector
+		ptrDescriptor = new cv::SurfDescriptorExtractor(100, 4, 3, ui->descriptorSurfExtended->isChecked(), !ui->detectorSurfUprightText->isChecked());
 		break;
 	//....
 	default:
@@ -356,7 +369,8 @@ void MainWindow::runCustom()
 		ui->logPlainText->appendPlainText("description time: " + QString::number(descriptionTime) + " (s)");
 	}
 	catch (...){
-		ui->logPlainText->appendHtml("<b style='color:red'>Please select the right pair indexes within the FREAK descriptor, or just leave it!.</b><br>(For more details read Section(4.2) in: <i>A. Alahi, R. Ortiz, and P. Vandergheynst. FREAK: Fast Retina Keypoint. In IEEE Conference on Computer Vision and Pattern Recognition, 2012.</i>)");
+		if(descriptorName == "FREAK")ui->logPlainText->appendHtml("<b style='color:red'>Please select the right pair indexes within the FREAK descriptor, or just leave it!.</b><br>(For more details read Section(4.2) in: <i>A. Alahi, R. Ortiz, and P. Vandergheynst. FREAK: Fast Retina Keypoint. In IEEE Conference on Computer Vision and Pattern Recognition, 2012.</i>)");
+		else ui->logPlainText->appendHtml("<b style='color:red'>Please select the right " + QString::fromStdString(descriptorName) + " descriptor parameters, or use the defaults!.</b>");
 		return;
 	}
 
@@ -374,8 +388,11 @@ void MainWindow::runCustom()
 	}
 		break;
 	case 1:
+	{
 		// FlannBased
-		ptrMatcher = new cv::FlannBasedMatcher();
+		// using default values
+		ptrMatcher = new cv::FlannBasedMatcher(getFlannBasedIndexParamsType(), new cv::flann::SearchParams(32));
+	}
 		break;
 	// ...
 	default:
@@ -411,7 +428,7 @@ void MainWindow::runCustom()
 	catch (...){
 		// For example Flann-Based doesn't work with Brief desctiptor extractor
 		// And also, some descriptors must be used with specific NORM_s
-		ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one</b>");
+		ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one.</b>");
 		return;
 	}
 	
@@ -576,6 +593,17 @@ int MainWindow::getNormByText(std::string norm){
 	else if (norm == "NORM_RELATIVE") return cv::NORM_RELATIVE;
 	else if (norm == "NORM_MINMAX") return cv::NORM_MINMAX;
 	else return cv::NORM_L2;
+}
+
+cv::Ptr<cv::flann::IndexParams> MainWindow::getFlannBasedIndexParamsType(){
+	// Return the default constructur, for the select type
+	if (ui->matcherFlannBasedLinearIndexParams->isChecked()) return new cv::flann::LinearIndexParams();
+	else if (ui->matcherFlannBasedKDTreeIndexParams->isChecked()) return new cv::flann::KDTreeIndexParams();
+	else if (ui->matcherFlannBasedKMeansIndexParams->isChecked()) return new cv::flann::KMeansIndexParams();
+	else if (ui->matcherFlannBasedCompositeIndexParams->isChecked()) return new cv::flann::CompositeIndexParams();
+	else if (ui->matcherFlannBasedLshIndexParams->isChecked()) return new cv::flann::LshIndexParams(20,15,2);
+	else if (ui->matcherFlannBasedAutotunedIndexParams->isChecked()) return new cv::flann::AutotunedIndexParams();
+	else return new cv::flann::KDTreeIndexParams();
 }
 
 void MainWindow::writeToFile(std::string fileName, cv::Algorithm * algoToWrite){

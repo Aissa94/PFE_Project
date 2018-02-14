@@ -120,11 +120,8 @@
       <property name="acceptDrops">
        <bool>false</bool>
       </property>
-      <property name="toolTip">
-       <string/>
-      </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tabSIFT">
        <attribute name="title">
@@ -571,7 +568,7 @@
         <item row="0" column="0">
          <widget class="QTabWidget" name="customTabs">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tabSegmentation">
            <attribute name="title">
@@ -719,14 +716,14 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="detectorTabs">
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="tabDetectorStar">
-               <property name="toolTip">
-                <string>The keypoint detector introduced by [Agrawal08], synonym of StarDetector</string>
-               </property>
                <attribute name="title">
                 <string>STAR</string>
+               </attribute>
+               <attribute name="toolTip">
+                <string>The keypoint detector introduced by [Agrawal08], synonym of StarDetector</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_13">
                 <item row="0" column="0">
@@ -821,11 +818,11 @@
                </layout>
               </widget>
               <widget class="QWidget" name="tabDetectorFast">
-               <property name="toolTip">
-                <string>Detects corners using the FAST algorithm by [Rosten06].</string>
-               </property>
                <attribute name="title">
                 <string>FAST</string>
+               </attribute>
+               <attribute name="toolTip">
+                <string>Detects corners using the FAST algorithm by [Rosten06].</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_13">
                 <item row="0" column="0">
@@ -833,7 +830,7 @@
                   <item row="0" column="0">
                    <widget class="QLabel" name="detectorFastThresholdLabel">
                     <property name="toolTip">
-                     <string>threshold on difference between intensity of the central pixel and pixels of a circle around this pixel.</string>
+                     <string>Threshold on difference between intensity of the central pixel and pixels of a circle around this pixel.</string>
                     </property>
                     <property name="text">
                      <string>Threshold :</string>
@@ -942,19 +939,21 @@
                </layout>
               </widget>
               <widget class="QWidget" name="tabDetectorSift">
-               <property name="toolTip">
-                <string>Extracting keypoints using the Scale Invariant Feature Transform (SIFT) algorithm by D. Lowe [Lowe04].</string>
-               </property>
                <attribute name="title">
                 <string>SIFT</string>
                </attribute>
+               <attribute name="toolTip">
+                <string>Extracting keypoints using the Scale Invariant Feature Transform (SIFT) algorithm by D. Lowe [Lowe04].</string>
+               </attribute>
                <layout class="QGridLayout" name="gridLayout_19">
                 <item row="0" column="0">
-                 <layout class="QGridLayout" name="detectorSIFTParams">
+                 <layout class="QGridLayout" name="detectorSiftParams">
                   <item row="1" column="0">
                    <widget class="QLabel" name="detectorSiftEdgeThresholdLab">
                     <property name="toolTip">
-                     <string>The threshold used to filter out edge-like features. Note that the its meaning is different from the contrastThreshold, i.e. the larger the edgeThreshold, the less features are filtered out (more features are retained).</string>
+                     <string>The threshold used to filter out edge-like features.
+Note that the its meaning is different from the contrastThreshold,
+i.e. the larger the edgeThreshold, the less features are filtered out (more features are retained).</string>
                     </property>
                     <property name="text">
                      <string>Edge Threshold :</string>
@@ -981,7 +980,8 @@
                   <item row="0" column="0">
                    <widget class="QLabel" name="detectorSiftContrastThresholdLabel">
                     <property name="toolTip">
-                     <string>The contrast threshold used to filter out weak features in semi-uniform (low-contrast) regions. The larger the threshold, the less features are produced by the detector.</string>
+                     <string>The contrast threshold used to filter out weak features in semi-uniform (low-contrast) regions.
+The larger the threshold, the less features are produced by the detector.</string>
                     </property>
                     <property name="text">
                      <string>Contrast Threshold :</string>
@@ -1014,7 +1014,8 @@
                   <item row="3" column="0">
                    <widget class="QLabel" name="detectorSiftNOctaveLayersLabel">
                     <property name="toolTip">
-                     <string>The number of layers in each octave. 3 is the value used in D. Lowe paper. The number of octaves is computed automatically from the image resolution.</string>
+                     <string>The number of layers in each octave. 3 is the value used in D. Lowe paper.
+The number of octaves is computed automatically from the image resolution.</string>
                     </property>
                     <property name="text">
                      <string>Number of Octave Layers :</string>
@@ -1041,7 +1042,8 @@
                   <item row="4" column="0">
                    <widget class="QLabel" name="detectorSiftSigmaLabel">
                     <property name="toolTip">
-                     <string>The sigma of the Gaussian applied to the input image at the octave #0. If your image is captured with a weak camera with soft lenses, you might want to reduce the number.</string>
+                     <string>The sigma of the Gaussian applied to the input image at the octave #0.
+If your image is captured with a weak camera with soft lenses, you might want to reduce the number.</string>
                     </property>
                     <property name="text">
                      <string>Sigma :</string>
@@ -1058,6 +1060,9 @@
               <widget class="QWidget" name="tabDetectorSURF">
                <attribute name="title">
                 <string>SURF</string>
+               </attribute>
+               <attribute name="toolTip">
+                <string>Extracting Speeded Up Robust Features from an image [Bay06].</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_17">
                 <item row="0" column="0">
@@ -1137,6 +1142,130 @@
                 </item>
                </layout>
               </widget>
+              <widget class="QWidget" name="tabDetectorDENSE">
+               <attribute name="title">
+                <string>Dense</string>
+               </attribute>
+               <attribute name="toolTip">
+                <string>Generation of image features which are distributed densely and regularly over the image.
+The detector generates several levels (in the amount of featureScaleLevels) of features.
+Features of each level are located in the nodes of a regular grid over the image (excluding the image boundary of given size).
+The level parameters (a feature scale, a node size, a size of boundary) are multiplied by featureScaleMul with level index growing depending on input flags:
+-Feature scale is multiplied always.
+-The grid node size is multiplied if varyXyStepWithScale is true. 
+-Size of image boundary is multiplied if varyImgBoundWithScale is true.</string>
+               </attribute>
+               <layout class="QGridLayout" name="gridLayout_17">
+                <item row="0" column="0">
+                 <layout class="QGridLayout" name="detectorDenseParams">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="detectorDenseInitFeatureScaleLabel">
+                    <property name="toolTip">
+                     <string>Set the initial KeyPoint feature radius in pixels</string>
+                    </property>
+                    <property name="text">
+                     <string>Initial feature radius in pixels :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="detectorDenseInitFeatureScaleText">
+                    <property name="text">
+                     <string>1.0</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLineEdit" name="detectorDenseFeatureScaleLevelsText">
+                    <property name="text">
+                     <string>1</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="detectorDenseFeatureScaleLevelsLabel">
+                    <property name="toolTip">
+                     <string>Number of scales overwhich we wish to make keypoints</string>
+                    </property>
+                    <property name="text">
+                     <string>Feature Scale Levels :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="detectorDenseFeatureScaleMulLabel">
+                    <property name="toolTip">
+                     <string>Scale adjustment for initFeatureScale over featureScaleLevels,
+this scale adjustment can also be applied to the border (initImgBound) and the step size (initxystep).
+So when we set featureScaleLevels&gt;1 then this multiplier will be applied to successive scales,
+to adjust feature scale, step and the boundary around the image.</string>
+                    </property>
+                    <property name="text">
+                     <string>Feature Scale Multiplier :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QLineEdit" name="detectorDenseFeatureScaleMulText">
+                    <property name="text">
+                     <string>0.1</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="detectorDenseInitXyStepLabel">
+                    <property name="toolTip">
+                     <string>Moving column and row step in pixels</string>
+                    </property>
+                    <property name="text">
+                     <string>X,Y Step in pixels :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QLineEdit" name="detectorDenseInitXyStepText">
+                    <property name="text">
+                     <string>6</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QLabel" name="detectorDenseInitImgBoundLabel">
+                    <property name="toolTip">
+                     <string>row/col bounding region to ignore around the image (pixels),
+So a 100x100 image, with an initImgBound of 10, would create keypoints in the central 80x80 portion of the image</string>
+                    </property>
+                    <property name="text">
+                     <string>Bounding region to ignore in pixels :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QLineEdit" name="detectorDenseInitImgBoundText">
+                    <property name="text">
+                     <string>0</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
              </widget>
             </item>
            </layout>
@@ -1149,7 +1278,7 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="descriptorTabs">
               <property name="currentIndex">
-               <number>0</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="tabDescriptorFreak">
                <attribute name="title">
@@ -1502,7 +1631,10 @@
                   <item row="0" column="0">
                    <widget class="QLabel" name="matcherBruteForceNormTypeLabel">
                     <property name="toolTip">
-                     <string>L1 and L2 norms are preferable choices for SIFT and SURF descriptors, NORM_HAMMING should be used with ORB, BRISK and BRIEF, NORM_HAMMING2 should be used with ORB when WTA_K==3 or 4.</string>
+                     <string>L1 and L2 norms are preferable choices for SIFT and SURF descriptors,
+NORM_HAMMING should be used with ORB,
+BRISK and BRIEF,
+NORM_HAMMING2 should be used with ORB when WTA_K==3 or 4.</string>
                     </property>
                     <property name="text">
                      <string>Norm Type :</string>
@@ -1515,7 +1647,10 @@
                   <item row="1" column="0">
                    <widget class="QLabel" name="matcherBruteForceCrossCheckLabel">
                     <property name="toolTip">
-                     <string>If it is false, this is will be default BFMatcher behaviour when it finds the k nearest neighbors for each query descriptor. If crossCheck==true, then the knnMatch() method with k=1 will only return pairs (i,j) such that for i-th query descriptor the j-th descriptor in the matcher’s collection is the nearest and vice versa, i.e. the BFMatcher will only return consistent pairs. Such technique usually produces best results with minimal number of outliers when there are enough matches. This is alternative to the ratio test, used by D. Lowe in SIFT paper.</string>
+                     <string>If it is false, this is will be default BFMatcher behaviour when it finds the k nearest neighbors for each query descriptor.
+If crossCheck==true, then the knnMatch() method with k=1 will only return pairs (i,j) such that for i-th query descriptor the j-th descriptor in the matcher’s collection is the nearest and vice versa,
+i.e. the BFMatcher will only return consistent pairs. Such technique usually produces best results with minimal number of outliers when there are enough matches.
+This is alternative to the ratio test, used by D. Lowe in SIFT paper.</string>
                     </property>
                     <property name="text">
                      <string>Cross Check :</string>
@@ -1587,22 +1722,105 @@
                </layout>
               </widget>
               <widget class="QWidget" name="tabMatcherFlannBased">
-               <property name="toolTip">
-                <string>FLANN stands for Fast Library for Approximate Nearest Neighbors. It contains a collection of algorithms optimized for fast nearest neighbor search in large datasets and for high dimensional features. It works more faster than BFMatcher for large datasets.</string>
-               </property>
                <attribute name="title">
                 <string>Flann-Based</string>
+               </attribute>
+               <attribute name="toolTip">
+                <string>FLANN stands for Fast Library for Approximate Nearest Neighbors.
+It contains a collection of algorithms optimized for fast nearest neighbor search in large datasets and for high dimensional features.
+It works more faster than BFMatcher for large datasets. More information about FLANN can be found in [Muja2009].</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_13">
                 <item row="0" column="0">
                  <layout class="QGridLayout" name="matcherFlannBasedParams">
                   <item row="0" column="0">
-                   <widget class="QLabel" name="matcherFlannBasedParam1Label">
+                   <widget class="QLabel" name="matcherFlannBasedIndexParamsLabel">
+                    <property name="toolTip">
+                     <string>The nearest neighbor search index type</string>
+                    </property>
                     <property name="text">
-                     <string>No parameters to load</string>
+                     <string>Index Parameters Type :</string>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignCenter</set>
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QRadioButton" name="matcherFlannBasedLinearIndexParams">
+                    <property name="toolTip">
+                     <string>The index will perform a linear, brute-force search.</string>
+                    </property>
+                    <property name="text">
+                     <string>Linear Index</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QRadioButton" name="matcherFlannBasedKDTreeIndexParams">
+                    <property name="toolTip">
+                     <string>The index constructed will consist of a set of randomized kd-trees which will be searched in parallel.</string>
+                    </property>
+                    <property name="text">
+                     <string>KD Tree Index</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QRadioButton" name="matcherFlannBasedKMeansIndexParams">
+                    <property name="toolTip">
+                     <string>The index constructed will be a hierarchical k-means tree.</string>
+                    </property>
+                    <property name="text">
+                     <string>K-Means Index</string>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QRadioButton" name="matcherFlannBasedCompositeIndexParams">
+                    <property name="toolTip">
+                     <string>The index created combines the randomized kd-trees and the hierarchical k-means tree.</string>
+                    </property>
+                    <property name="text">
+                     <string>Composite Index</string>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QRadioButton" name="matcherFlannBasedLshIndexParams">
+                    <property name="toolTip">
+                     <string>The index created uses multi-probe LSH (by Multi-Probe LSH: Efficient Indexing for High-Dimensional Similarity Search
+by Qin Lv, William Josephson, Zhe Wang, Moses Charikar, Kai Li.,
+Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB). Vienna, Austria. September 2007)</string>
+                    </property>
+                    <property name="text">
+                     <string>LSH Index</string>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1">
+                   <widget class="QRadioButton" name="matcherFlannBasedAutotunedIndexParams">
+                    <property name="toolTip">
+                     <string>The index created is automatically tuned to offer the best performance,
+by choosing the optimal index type (randomized kd-trees, hierarchical kmeans, linear) and parameters for the dataset provided.</string>
+                    </property>
+                    <property name="text">
+                     <string>Auto tuned Index</string>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
                     </property>
                    </widget>
                   </item>
@@ -1682,6 +1900,12 @@
          <widget class="QCheckBox" name="opponentColor">
           <property name="cursor">
            <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="toolTip">
+           <string>Adapting a descriptor extractor to compute descriptors in the Opponent Color Space (refer to Van de Sande et al.,
+CGIV 2008 Color Descriptors for Object Category Recognition).
+Input RGB image is transformed in the Opponent Color Space.
+Then, an unadapted descriptor extractor (set in the constructor) computes descriptors on each of three channels and concatenates them into a single color descriptor.</string>
           </property>
           <property name="text">
            <string>Use Opponent Color</string>
