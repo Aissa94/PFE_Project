@@ -60,6 +60,7 @@ private:
 	bool noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints);
 	int  getNormByText(std::string norm);
 	cv::Ptr<cv::flann::IndexParams> getFlannBasedIndexParamsType();
+	cv::Mat skeletonization(cv::Mat img);
 };
 
 #endif // MAINWINDOW_H

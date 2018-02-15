@@ -33,7 +33,7 @@
           <item row="0" column="1">
            <widget class="QLineEdit" name="firstImgText">
             <property name="text">
-             <string>C:\Users\Aissa\Documents\Visual Studio 2013\Projects\PFE_Project\source_code\images\box1.png</string>
+             <string>Resources/images/box1.png</string>
             </property>
            </widget>
           </item>
@@ -57,7 +57,7 @@
           <item row="1" column="1">
            <widget class="QLineEdit" name="secondImgText">
             <property name="text">
-             <string>C:\Users\Aissa\Documents\Visual Studio 2013\Projects\PFE_Project\source_code\images\box2.png</string>
+             <string>Resources/images/box2.png</string>
             </property>
             <property name="buddy" stdset="0">
              <cstring>label_4</cstring>
@@ -568,7 +568,7 @@
         <item row="0" column="0">
          <widget class="QTabWidget" name="customTabs">
           <property name="currentIndex">
-           <number>1</number>
+           <number>3</number>
           </property>
           <widget class="QWidget" name="tabSegmentation">
            <attribute name="title">
@@ -578,7 +578,7 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="segmentationTabs">
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="tabSegmentationMethod1">
                <attribute name="title">
@@ -642,9 +642,9 @@
                 </item>
                </layout>
               </widget>
-              <widget class="QWidget" name="tabSegmentationMethod2">
+              <widget class="QWidget" name="tabSegmentationMorphologicalSkeleton">
                <attribute name="title">
-                <string>Method2</string>
+                <string>Morphological Skeleton</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_13">
                 <item row="0" column="0">
@@ -1660,16 +1660,6 @@ This is alternative to the ratio test, used by D. Lowe in SIFT paper.</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="matcherBruteForceKBestLabel">
-                    <property name="text">
-                     <string>K-Best Matches (optional) :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="0" column="1">
                    <widget class="QComboBox" name="matcherBruteForceNormTypeText">
                     <property name="currentText">
@@ -1710,13 +1700,6 @@ This is alternative to the ratio test, used by D. Lowe in SIFT paper.</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="1">
-                   <widget class="QLineEdit" name="matcherBruteForceKBestText">
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
                  </layout>
                 </item>
                </layout>
@@ -1736,7 +1719,9 @@ It works more faster than BFMatcher for large datasets. More information about F
                   <item row="0" column="0">
                    <widget class="QLabel" name="matcherFlannBasedIndexParamsLabel">
                     <property name="toolTip">
-                     <string>The nearest neighbor search index type</string>
+                     <string>The nearest neighbor search index type.
+For algorithms like 'SIFT', 'SURF' etc. you can use 'KD Tree Index',
+for ORB use LSH Index.</string>
                     </property>
                     <property name="text">
                      <string>Index Parameters Type :</string>
@@ -1824,6 +1809,27 @@ by choosing the optimal index type (randomized kd-trees, hierarchical kmeans, li
                     </property>
                    </widget>
                   </item>
+                  <item row="6" column="0">
+                   <widget class="QLabel" name="matcherFlannBasedSearchParamsLabel">
+                    <property name="toolTip">
+                     <string>It specifies the number of times the trees in the index should be recursively traversed.
+Higher values gives better precision, but also takes more time.</string>
+                    </property>
+                    <property name="text">
+                     <string>Search Checks :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1">
+                   <widget class="QLineEdit" name="matcherFlannBasedSearchParamsText">
+                    <property name="text">
+                     <string>32</string>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </item>
                </layout>
@@ -1891,6 +1897,63 @@ by choosing the optimal index type (randomized kd-trees, hierarchical kmeans, li
                </layout>
               </widget>
              </widget>
+            </item>
+            <item row="1" column="0">
+             <layout class="QGridLayout" name="matcherKBestGridLayout">
+              <item row="0" column="0">
+               <widget class="QLabel" name="matcherKBestLabel">
+                <property name="toolTip">
+                 <string>Number of nearest neighbors to search for. This allows finding the k best matches for each descriptor.</string>
+                </property>
+                <property name="text">
+                 <string>Number of nearest neighbors :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="matcherKBestText">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="text">
+                 <string>2</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="0">
+             <layout class="QGridLayout" name="matcherInlierLayout">
+              <item row="0" column="1">
+               <widget class="QRadioButton" name="matcherInlierInversMatches">
+                <property name="text">
+                 <string>In reverse matching test</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QRadioButton" name="matcherInlierLoweRatio">
+                <property name="text">
+                 <string>Lowe's ratio test</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>
@@ -2149,5 +2212,73 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>matcherInlierInversMatches</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>matcherKBestText</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>330</x>
+     <y>445</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>343</x>
+     <y>420</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>detectorFastXCheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>detectorFastTypeText</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>194</x>
+     <y>360</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>222</x>
+     <y>404</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>detectorFastXCheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>detectorFastTypeLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>247</x>
+     <y>357</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>153</x>
+     <y>407</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matcherInlierInversMatches</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>matcherKBestLabel</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>321</x>
+     <y>446</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>122</x>
+     <y>421</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+ </buttongroups>
 </ui>

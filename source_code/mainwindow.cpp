@@ -10,8 +10,10 @@
 	std::vector<cv::KeyPoint> firstImgKeypoints, secondImgKeypoints;
 	// Descriptors for the First & Second Image ...
 	cv::Mat firstImgDescriptor, secondImgDescriptor;
-	// Matches for the First & Second Image ...
-	std::vector<cv::DMatch> firstMatches, secondMatches, bestMatches;
+	// Matches for the Direct & Invers matching ...
+	std::vector<cv::DMatch> directMatches, inverseMatches, bestMatches;
+	// Maches for knn > 1
+	std::vector<std::vector< cv::DMatch >> knnMatches;
 	cv::Mat bestImgMatches;
 
 // Operators Declaration
@@ -20,7 +22,9 @@
 	cv::DescriptorMatcher * ptrMatcher;
 
 // Times
-	double detectionTime, descriptionTime, firstMatchingTime, secondMatchingTime, bestMatchingTime;
+	double detectionTime, descriptionTime, directMatchingTime, inverseMatchingTime, bestMatchingTime;
+// Others
+	int kBestMatches;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -35,7 +39,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
     ui->segmentationMethod1Param1Label->setToolTip("test");
 }
-
 
 MainWindow::~MainWindow()
 {
@@ -83,8 +86,8 @@ void MainWindow::runSIFT()
     {
         ptrMatcher = new cv::FlannBasedMatcher();
     }
-    ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, firstMatches );
-    ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, secondMatches );
+    ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, directMatches );
+    ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
 
 	// Drowing best matches
 	calculateBestMatches();
@@ -130,8 +133,8 @@ void MainWindow::runSURF()
         ptrMatcher = new cv::FlannBasedMatcher();
     }
 
-    ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, firstMatches );
-    ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, secondMatches );
+    ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, directMatches );
+    ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!hena yebda le pblm de diffirence entre hada w ta3 custom !!! !!! !!! !!
 	calculateBestMatches();
@@ -177,8 +180,8 @@ void MainWindow::runORB()
 
     // Find the matching points
     ptrMatcher = new cv::BFMatcher(cv::NORM_HAMMING);
-	ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, firstMatches );
-    ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, secondMatches );
+	ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, directMatches );
+    ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
 
 	calculateBestMatches();
 }
@@ -219,8 +222,8 @@ void MainWindow::runBRISK()
 
 	// Find the matching points
 	ptrMatcher = new cv::BFMatcher(cv::NORM_HAMMING);
-	ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, firstMatches);
-	ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, secondMatches);
+	ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches);
+	ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches);
 
 	calculateBestMatches();
 }
@@ -228,14 +231,39 @@ void MainWindow::runBRISK()
 void MainWindow::runCustom()
 {
 	// Get choices
+	int segmentationIndex = ui->segmentationTabs->currentIndex();
 	int detectorIndex = ui->detectorTabs->currentIndex();
 	int descriptorIndex = ui->descriptorTabs->currentIndex();
 	int matcherIndex = ui->matcherTabs->currentIndex();
+	std::string segmentationName = ui->segmentationTabs->tabText(ui->segmentationTabs->currentIndex()).toStdString();
 	std::string detectorName = ui->detectorTabs->tabText(ui->detectorTabs->currentIndex()).toStdString();
 	std::string descriptorName = ui->descriptorTabs->tabText(ui->descriptorTabs->currentIndex()).toStdString();
 	std::string matcherName = ui->matcherTabs->tabText(ui->matcherTabs->currentIndex()).toStdString();
 
-	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + detectorName + ", " + descriptorName + ", " + matcherName + ") object detection!</b>"));
+	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + segmentationName +", "+ detectorName + ", " + descriptorName + ", " + matcherName + ") object detection!</b>"));
+
+	// Customising Segmentor...	
+	switch (segmentationIndex)
+	{
+	case 0:
+		break;
+	case 1:
+		// First load the image to process in grayscale and transform it to a binary image using thresholding:
+		// Binarization
+		// The Otsu thresholding will automatically choose the best generic threshold for the image to obtain a good contrast between foreground and background information.
+		// If you have only a single capturing device, then playing around with a fixed threshold value could result in a better image for that specific setup
+		cv::threshold(firstImg, firstImg, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU); //127, 255, cv::THRESH_BINARY);
+		cv::threshold(secondImg, secondImg, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU); //127, 255, cv::THRESH_BINARY);
+		// Skeletonization
+		// This will create more unique and stronger interest points
+		firstImg = skeletonization(firstImg);
+		secondImg = skeletonization(secondImg);
+		break;
+		//....
+	default:
+		return;
+		break;
+	}
 
 	// Customising Detector...	
 	switch (detectorIndex)
@@ -253,11 +281,6 @@ void MainWindow::runCustom()
 		// FAST
 		ptrDetector = new cv::FastFeatureDetector(ui->detectorFastThresholdText->text().toInt(),
 			ui->detectorFastNonmaxSuppressionCheck->isChecked());
-	/*case 2:
-		// FASTX
-		cv::FASTX(ui->detectorFastThresholdText->text().toInt(),
-			ui->detectorFastNonmaxSuppressionCheck->isChecked(),
-			ui->detectorFastTypeText->currentIndex());*/
 		break;
 	case 2:
 		// SIFT
@@ -297,10 +320,24 @@ void MainWindow::runCustom()
 	// fs in WRITE mode automatically released
 	try{
 		// Detecting Keypoints ...
-		detectionTime = (double)cv::getTickCount();
-		ptrDetector->detect(firstImg, firstImgKeypoints);
-		ptrDetector->detect(secondImg, secondImgKeypoints);
-		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+		if (detectorIndex==1 && ui->detectorFastXCheck->isChecked()){
+			// FASTX
+			detectionTime = (double)cv::getTickCount();
+			cv::FASTX(firstImg, firstImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
+				ui->detectorFastNonmaxSuppressionCheck->isChecked(),
+				ui->detectorFastTypeText->currentIndex());
+			cv::FASTX(secondImg, secondImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
+				ui->detectorFastNonmaxSuppressionCheck->isChecked(),
+				ui->detectorFastTypeText->currentIndex());
+			detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+		}
+		else {
+			// Others
+			detectionTime = (double)cv::getTickCount();
+			ptrDetector->detect(firstImg, firstImgKeypoints);
+			ptrDetector->detect(secondImg, secondImgKeypoints);
+			detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+		}
 	}catch (...){
 		ui->logPlainText->appendHtml("<b style='color:red'>Please select the right "+QString::fromStdString(detectorName)+" detector parameters, or use the defaults!.</b>");
 		return;
@@ -375,14 +412,12 @@ void MainWindow::runCustom()
 	}
 
 	// Customising Matcher...
-	int kBestMatches = 1;
-	// std::vector<std::vector< cv::DMatch >> firstSetMatches(), secondSetMatches();
+	kBestMatches = (ui->matcherKBestText->text().toInt() < 1) ? 1 : ui->matcherKBestText->text().toInt();
 	switch (matcherIndex)
 	{
 	case 0:
 	{
 		// BruteForce
-		kBestMatches = ui->matcherBruteForceKBestText->text().toInt();
 		int norm = getNormByText(ui->matcherBruteForceNormTypeText->currentText().toStdString());
 		ptrMatcher = new cv::BFMatcher(norm, ui->matcherBruteForceCrossCheckText->isChecked());
 	}
@@ -391,7 +426,8 @@ void MainWindow::runCustom()
 	{
 		// FlannBased
 		// using default values
-		ptrMatcher = new cv::FlannBasedMatcher(getFlannBasedIndexParamsType(), new cv::flann::SearchParams(32));
+		ptrMatcher = new cv::FlannBasedMatcher(getFlannBasedIndexParamsType(),
+			new cv::flann::SearchParams(ui->matcherFlannBasedSearchParamsText->text().toInt()));
 	}
 		break;
 	// ...
@@ -404,25 +440,25 @@ void MainWindow::runCustom()
 
 	// Find the matching points
 	try{
-		/*if (kBestMatches > 1){
-		// first and second set of the k best matches
-		firstMatchingTime = (double)cv::getTickCount();
-		ptrMatcher->knnMatch(firstImgDescriptor, secondImgDescriptor, firstSetMatches, kBestMatches, cv::Mat(), false);
-		firstMatchingTime = ((double)cv::getTickCount() - firstMatchingTime) / cv::getTickFrequency();
+		if (kBestMatches < 2 || ui->matcherInlierInversMatches->isChecked()){
+			// direct and reverse set of the best matches (simple match)
+			directMatchingTime = (double)cv::getTickCount();
+			ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches);
+			directMatchingTime = ((double)cv::getTickCount() - directMatchingTime) / cv::getTickFrequency();
 
-		secondMatchingTime = (double)cv::getTickCount();
-		ptrMatcher->knnMatch(secondImgDescriptor, firstImgDescriptor, secondSetMatches, kBestMatches, cv::Mat(), false);
-		secondMatchingTime = ((double)cv::getTickCount() - secondMatchingTime) / cv::getTickFrequency();
+			inverseMatchingTime = (double)cv::getTickCount();
+			ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches);
+			inverseMatchingTime = ((double)cv::getTickCount() - inverseMatchingTime) / cv::getTickFrequency();
+
+			bestMatchingTime = std::min(directMatchingTime, inverseMatchingTime);
 		}
-		else*/ {
-			// first and reverse set of the best matches (simple match)
-			firstMatchingTime = (double)cv::getTickCount();
-			ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, firstMatches);
-			firstMatchingTime = ((double)cv::getTickCount() - firstMatchingTime) / cv::getTickFrequency();
+		else { // ui->matcherInlierLoweRatio->isChecked()
+			// only direct set of the k best matches
+			directMatchingTime = (double)cv::getTickCount();
+			ptrMatcher->knnMatch(firstImgDescriptor, secondImgDescriptor, knnMatches, kBestMatches, cv::Mat(), false);
+			directMatchingTime = ((double)cv::getTickCount() - directMatchingTime) / cv::getTickFrequency();
 
-			secondMatchingTime = (double)cv::getTickCount();
-			ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, secondMatches);
-			secondMatchingTime = ((double)cv::getTickCount() - secondMatchingTime) / cv::getTickFrequency();
+			bestMatchingTime = directMatchingTime;
 		}
 	}
 	catch (...){
@@ -432,13 +468,11 @@ void MainWindow::runCustom()
 		return;
 	}
 	
-	bestMatchingTime = std::min(firstMatchingTime, secondMatchingTime);
 	ui->logPlainText->appendPlainText("matching time: " + QString::number(bestMatchingTime) + " (s)");
 	ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + bestMatchingTime) + " (s)");
 
 	calculateBestMatches();
 }
-
 
 void MainWindow::on_firstImgBtn_pressed()
 {
@@ -641,43 +675,66 @@ void MainWindow::calculateBestMatches(){
 	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
 	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
 	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
-	for (uint i = 0; i<firstMatches.size(); i++)
-	{
-		cv::Point matchedPt1 = firstImgKeypoints[i].pt;
-		cv::Point matchedPt2 = secondImgKeypoints[firstMatches[i].trainIdx].pt;
-
-		bool foundInReverse = false;
-
-		for (uint j = 0; j<secondMatches.size(); j++)
+	if (kBestMatches < 2 || ui->matcherInlierInversMatches->isChecked()) {
+		// in reverse matching test
+		for (uint i = 0; i < directMatches.size(); i++)
 		{
-			cv::Point tmpSecImgKeyPnt = secondImgKeypoints[j].pt;
-			cv::Point tmpFrstImgKeyPntTrn = firstImgKeypoints[secondMatches[j].trainIdx].pt;
-			if ((tmpSecImgKeyPnt == matchedPt2) && (tmpFrstImgKeyPntTrn == matchedPt1))
+			cv::Point matchedPt1 = firstImgKeypoints[i].pt;
+			cv::Point matchedPt2 = secondImgKeypoints[directMatches[i].trainIdx].pt;
+
+			bool foundInReverse = false;
+
+			for (uint j = 0; j < inverseMatches.size(); j++)
 			{
-				foundInReverse = true;
-				break;
+				cv::Point tmpSecImgKeyPnt = secondImgKeypoints[j].pt;
+				cv::Point tmpFrstImgKeyPntTrn = firstImgKeypoints[inverseMatches[j].trainIdx].pt;
+				if ((tmpSecImgKeyPnt == matchedPt2) && (tmpFrstImgKeyPntTrn == matchedPt1))
+				{
+					foundInReverse = true;
+					break;
+				}
+			}
+
+			if (foundInReverse)
+			{
+				QStandardItem *x1 = new QStandardItem(QString::number(matchedPt1.x));
+				model->setItem(bestMatchesCount, 0, x1);
+				QStandardItem *y1 = new QStandardItem(QString::number(matchedPt1.y));
+				model->setItem(bestMatchesCount, 1, y1);
+				QStandardItem *x2 = new QStandardItem(QString::number(matchedPt2.x));
+				model->setItem(bestMatchesCount, 2, x2);
+				QStandardItem *y2 = new QStandardItem(QString::number(matchedPt2.y));
+				model->setItem(bestMatchesCount, 3, y2);
+				QStandardItem *dist = new QStandardItem(QString::number(directMatches[i].distance));
+				model->setItem(bestMatchesCount, 4, dist);
+				ui->tableView->setModel(model);
+
+				bestMatches.push_back(directMatches[i]);
+				bestMatchesCount++;
 			}
 		}
-
-		if (foundInReverse)
+		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(std::min(directMatches.size(), inverseMatches.size())));
+	} else if (kBestMatches == 2 && ui->matcherInlierLoweRatio->isChecked()){
+		// knn = 2
+		// Lowe's ratio test = 0.7
+		ui->logPlainText->appendPlainText(QString::number(knnMatches.size()) + ","+ QString::number(knnMatches[0].size()));
+		for each (std::vector<cv::DMatch> match in knnMatches)
 		{
-			QStandardItem *x1 = new QStandardItem(QString::number(matchedPt1.x));
-			model->setItem(bestMatchesCount, 0, x1);
-			QStandardItem *y1 = new QStandardItem(QString::number(matchedPt1.y));
-			model->setItem(bestMatchesCount, 1, y1);
-			QStandardItem *x2 = new QStandardItem(QString::number(matchedPt2.x));
-			model->setItem(bestMatchesCount, 2, x2);
-			QStandardItem *y2 = new QStandardItem(QString::number(matchedPt2.y));
-			model->setItem(bestMatchesCount, 3, y2);
-			QStandardItem *dist = new QStandardItem(QString::number(firstMatches[i].distance));
-			model->setItem(bestMatchesCount, 4, dist);
-			ui->tableView->setModel(model);
-			bestMatches.push_back(firstMatches[i]);
+			if (match[0].distance < 0.7*match[1].distance){
+				bestMatches.push_back(match[0]);
+				bestMatchesCount++;
+			}
+		}
+		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(knnMatches.size()));
+	} else {// knn > 2
+		ui->logPlainText->appendPlainText(QString::number(knnMatches.size()) + "," + QString::number(knnMatches[0].size()));
+		for each (std::vector<cv::DMatch> match in knnMatches)
+		{
+			bestMatches.push_back(match[0]);
 			bestMatchesCount++;
 		}
-
+		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(knnMatches.size()));
 	}
-	ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount));
 	double minKeypoints = firstImgKeypoints.size() <= secondImgKeypoints.size() ?
 		firstImgKeypoints.size()
 		:
@@ -687,9 +744,9 @@ void MainWindow::calculateBestMatches(){
 	cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
 		bestMatches, bestImgMatches, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0),
 		std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-
 	cv::imwrite(QString(qApp->applicationDirPath() + "/output.png").toStdString(), bestImgMatches);
 	
+	//-- Draw only "good" matches
 	QGraphicsScene *scene = new QGraphicsScene();
 	QImage dest((const uchar *)bestImgMatches.data, bestImgMatches.cols, bestImgMatches.rows, bestImgMatches.step, QImage::Format_RGB888);
 	//dest.bits();
@@ -704,13 +761,38 @@ void MainWindow::resetParams()
 	try{
 		firstImgKeypoints.clear(); secondImgKeypoints.clear();
 		firstImgDescriptor.release(); secondImgDescriptor.release();
-		firstMatches.clear(); secondMatches.clear(); bestMatches.clear();
+		directMatches.clear(); inverseMatches.clear(); bestMatches.clear();
+		knnMatches.clear();
 		bestImgMatches.release();
-		delete ptrDetector;
-		delete ptrDescriptor;
-		delete ptrMatcher;
+		//delete ptrDetector;
+		//delete ptrDescriptor;
+		//delete ptrMatcher;
 	}
 	catch (...){
 		ui->logPlainText->appendHtml("<b style='color:yellow'>Enable to free some structures!</b>");
 	}
+}
+
+cv::Mat MainWindow::skeletonization(cv::Mat img){
+	// Image to store the skeleton and also a temporary image in order to store intermediate 
+	cv::Mat skel(img.size(), CV_8UC1, cv::Scalar(0)); //The skeleton image is filled with black at the beginning.
+	//cv::Mat temp(img.size(), CV_8UC1);
+	cv::Mat temp;
+	cv::Mat eroded;
+	//  structuring element we will use for our morphological operations
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(3, 3)); //here we use a 3x3 cross-shaped structure element (i.e. we use 4-connexity).
+
+	bool done;
+	do
+	{
+		cv::erode(img, eroded, element);
+		cv::dilate(eroded, temp, element); // temp = open(img)
+		cv::subtract(img, temp, temp);
+		cv::bitwise_or(skel, temp, skel);
+		eroded.copyTo(img);
+
+		done = (cv::countNonZero(img) == 0);
+	} while (!done);
+
+	return skel;
 }
