@@ -37,7 +37,6 @@ MainWindow::MainWindow(QWidget *parent) :
     //outputImagesPath = "/Users/elma/Desktop/FeaturePointsComparisonOutputImages";
     //outputImagesPath = QInputDialog::getText(this, "Output Images Path");
     ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
-    ui->segmentationMethod1Param1Label->setToolTip("test");
 }
 
 MainWindow::~MainWindow()
@@ -242,33 +241,43 @@ void MainWindow::runCustom()
 
 	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + segmentationName +", "+ detectorName + ", " + descriptorName + ", " + matcherName + ") object detection!</b>"));
 
-	// Customising Segmentor...	
-	switch (segmentationIndex)
-	{
-	case 0:
-		break;
-	case 1:
+	if (segmentationIndex != 0){
 		// First load the image to process in grayscale and transform it to a binary image using thresholding:
 		// Binarization
 		// The Otsu thresholding will automatically choose the best generic threshold for the image to obtain a good contrast between foreground and background information.
 		// If you have only a single capturing device, then playing around with a fixed threshold value could result in a better image for that specific setup
 		cv::threshold(firstImg, firstImg, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU); //127, 255, cv::THRESH_BINARY);
 		cv::threshold(secondImg, secondImg, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU); //127, 255, cv::THRESH_BINARY);
+	}
+	// Customising Segmentor...	
+	switch (segmentationIndex)
+	{
+	case 1:
+		// Thinning 
+		thinning(firstImg);
+		thinning(secondImg);
+		break;
+	case 2:
 		// Skeletonization
 		// This will create more unique and stronger interest points
 		firstImg = skeletonization(firstImg);
 		secondImg = skeletonization(secondImg);
 		break;
 		//....
-	default:
-		return;
-		break;
 	}
 
 	// Customising Detector...	
 	switch (detectorIndex)
 	{
 	case 0:{
+		// Harris-Corners
+		detectionTime = (double)cv::getTickCount();
+		harrisCorners(firstImg, firstImgKeypoints);
+		harrisCorners(secondImg, secondImgKeypoints);
+		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+	}
+		   break;
+	case 1:{
 		// STAR
 		ptrDetector = new cv::StarFeatureDetector(ui->detectorStarMaxSizeText->text().toInt(),
 			ui->detectorStarResponseThresholdText->text().toInt(),
@@ -277,12 +286,12 @@ void MainWindow::runCustom()
 			ui->detectorStarSuppressNonmaxSizeText->text().toInt());
 	}
 		break;
-	case 1:
+	case 2:
 		// FAST
 		ptrDetector = new cv::FastFeatureDetector(ui->detectorFastThresholdText->text().toInt(),
 			ui->detectorFastNonmaxSuppressionCheck->isChecked());
 		break;
-	case 2:
+	case 3:
 		// SIFT
 		ptrDetector = new cv::SiftFeatureDetector(ui->detectorSiftNfeaturesText->text().toInt(),
 			ui->detectorSiftNOctaveLayersText->text().toInt(),
@@ -290,7 +299,7 @@ void MainWindow::runCustom()
 			ui->detectorSiftEdgeThresholdText->text().toDouble(),
 			ui->detectorSiftSigmaText->text().toDouble());
 		break;
-	case 3:
+	case 4:
 		//SURF
 		// we didn't need the Extended and Upright params because it is related to the SURF descriptor
 		ptrDetector = new cv::SurfFeatureDetector(ui->detectorSurfHessianThresholdText->text().toDouble(),
@@ -299,7 +308,7 @@ void MainWindow::runCustom()
 			true,
 			false);
 		break;
-	case 4:
+	case 5:
 		//Dense
 		ptrDetector = new cv::DenseFeatureDetector(ui->detectorDenseInitFeatureScaleText->text().toFloat(),
 			ui->detectorDenseFeatureScaleLevelsText->text().toInt(),
@@ -312,35 +321,39 @@ void MainWindow::runCustom()
 	//....
 	default:
 		return;
+		ui->logPlainText->appendHtml("<i style='color:yellow'>No detector selected.</i>");
 		break;
 	}
 
-	// Write the parameters
-	writeToFile("detector_" + detectorName, ptrDetector);
-	// fs in WRITE mode automatically released
-	try{
-		// Detecting Keypoints ...
-		if (detectorIndex==1 && ui->detectorFastXCheck->isChecked()){
-			// FASTX
-			detectionTime = (double)cv::getTickCount();
-			cv::FASTX(firstImg, firstImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
-				ui->detectorFastNonmaxSuppressionCheck->isChecked(),
-				ui->detectorFastTypeText->currentIndex());
-			cv::FASTX(secondImg, secondImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
-				ui->detectorFastNonmaxSuppressionCheck->isChecked(),
-				ui->detectorFastTypeText->currentIndex());
-			detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+	if (detectorIndex != 0){
+		// Write the parameters
+		writeToFile("detector_" + detectorName, ptrDetector);
+		// fs in WRITE mode automatically released
+		try{
+			// Detecting Keypoints ...
+			if (detectorIndex == 1 && ui->detectorFastXCheck->isChecked()){
+				// FASTX
+				detectionTime = (double)cv::getTickCount();
+				cv::FASTX(firstImg, firstImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
+					ui->detectorFastNonmaxSuppressionCheck->isChecked(),
+					ui->detectorFastTypeText->currentIndex());
+				cv::FASTX(secondImg, secondImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
+					ui->detectorFastNonmaxSuppressionCheck->isChecked(),
+					ui->detectorFastTypeText->currentIndex());
+				detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+			}
+			else {
+				// Others
+				detectionTime = (double)cv::getTickCount();
+				ptrDetector->detect(firstImg, firstImgKeypoints);
+				ptrDetector->detect(secondImg, secondImgKeypoints);
+				detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+			}
 		}
-		else {
-			// Others
-			detectionTime = (double)cv::getTickCount();
-			ptrDetector->detect(firstImg, firstImgKeypoints);
-			ptrDetector->detect(secondImg, secondImgKeypoints);
-			detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+		catch (...){
+			ui->logPlainText->appendHtml("<b style='color:red'>Please select the right " + QString::fromStdString(detectorName) + " detector parameters, or use the defaults!.</b>");
+			return;
 		}
-	}catch (...){
-		ui->logPlainText->appendHtml("<b style='color:red'>Please select the right "+QString::fromStdString(detectorName)+" detector parameters, or use the defaults!.</b>");
-		return;
 	}
 	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
 	ui->logPlainText->appendPlainText("detection time: " + QString::number(detectionTime) + " (s)");
@@ -385,6 +398,8 @@ void MainWindow::runCustom()
 		break;
 	//....
 	default:
+		ui->logPlainText->appendHtml("<i style='color:yellow'>No descriptor selected.</i>");
+		return;
 		break;
 	}
 
@@ -432,6 +447,8 @@ void MainWindow::runCustom()
 		break;
 	// ...
 	default:
+		ui->logPlainText->appendHtml("<i style='color:yellow'>No matcher selected.</i>");
+		return;
 		break;
 	}
 
@@ -491,7 +508,7 @@ void MainWindow::on_secondImgBtn_pressed()
 void MainWindow::on_pushButton_pressed()
 {
 	// Read Images ...
-	if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex()==4)){
+	if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex() == 4)){
 		// Custom && OpponentColor
 		firstImg = cv::imread(ui->firstImgText->text().toStdString(), CV_LOAD_IMAGE_COLOR);
 		secondImg = cv::imread(ui->secondImgText->text().toStdString(), CV_LOAD_IMAGE_COLOR);
@@ -819,4 +836,80 @@ cv::Mat MainWindow::skeletonization(cv::Mat img){
 	} while (!done);
 
 	return skel;
+}
+
+void MainWindow::thinningIteration(cv::Mat& im, int iter){
+	// Perform a single thinning iteration, which is repeated until the skeletization is finalized
+	cv::Mat marker = cv::Mat::zeros(im.size(), CV_8UC1);
+	for (int i = 1; i < im.rows - 1; i++)
+	{
+		for (int j = 1; j < im.cols - 1; j++)
+		{
+			uchar p2 = im.at<uchar>(i - 1, j);
+			uchar p3 = im.at<uchar>(i - 1, j + 1);
+			uchar p4 = im.at<uchar>(i, j + 1);
+			uchar p5 = im.at<uchar>(i + 1, j + 1);
+			uchar p6 = im.at<uchar>(i + 1, j);
+			uchar p7 = im.at<uchar>(i + 1, j - 1);
+			uchar p8 = im.at<uchar>(i, j - 1);
+			uchar p9 = im.at<uchar>(i - 1, j - 1);
+
+			int A = (p2 == 0 && p3 == 1) + (p3 == 0 && p4 == 1) +
+				(p4 == 0 && p5 == 1) + (p5 == 0 && p6 == 1) +
+				(p6 == 0 && p7 == 1) + (p7 == 0 && p8 == 1) +
+				(p8 == 0 && p9 == 1) + (p9 == 0 && p2 == 1);
+			int B = p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9;
+			int m1 = iter == 0 ? (p2 * p4 * p6) : (p2 * p4 * p8);
+			int m2 = iter == 0 ? (p4 * p6 * p8) : (p2 * p6 * p8);
+
+			if (A == 1 && (B >= 2 && B <= 6) && m1 == 0 && m2 == 0)
+
+				marker.at<uchar>(i, j) = 1;
+		}
+	}
+	im &= ~marker;
+}
+
+void MainWindow::thinning(cv::Mat& im){
+	// Function for thinning any given binary image within the range of 0-255. If not you should first make sure that your image has this range preset and configured!
+	// Enforce the range tob e in between 0 - 255
+	im /= 255;
+
+	cv::Mat prev = cv::Mat::zeros(im.size(), CV_8UC1);
+	cv::Mat diff;
+
+	do {
+		thinningIteration(im, 0);
+		thinningIteration(im, 1);
+		absdiff(im, prev, diff);
+		im.copyTo(prev);
+	} while (countNonZero(diff) > 0);
+
+	im *= 255;
+}
+
+void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints){
+	cv::Mat harris_corners, harris_normalised;
+	harris_corners = cv::Mat::zeros(thinnedImage.size(), CV_32FC1);
+	cornerHarris(thinnedImage, harris_corners, 2, 3, 0.04, cv::BORDER_DEFAULT);
+	// get a map with all the available corner responses rescaled to the range of[0 255] and stored as float values
+	normalize(harris_corners, harris_normalised, 0, 255, cv::NORM_MINMAX, CV_32FC1, cv::Mat());
+
+	float threshold = 125.0;
+	cv::Mat rescaled;
+	convertScaleAbs(harris_normalised, rescaled);
+	cv::Mat harris_c(rescaled.rows, rescaled.cols, CV_8UC3);
+	cv::Mat in[] = { rescaled, rescaled, rescaled };
+	int from_to[] = { 0, 0, 1, 1, 2, 2 };
+	mixChannels(in, 3, &harris_c, 1, from_to, 3);
+	for (int x = 0; x<harris_normalised.cols; x++){
+		for (int y = 0; y<harris_normalised.rows; y++){
+			if ((int)harris_normalised.at<float>(y, x) > threshold){
+				// Draw or store the keypoint location here, just like you decide. In our case we will store the location of the keypoint
+				circle(harris_c, cv::Point(x, y), 5, cv::Scalar(0, 255, 0), 1);
+				circle(harris_c, cv::Point(x, y), 1, cv::Scalar(0, 0, 255), 1);
+				keypoints.push_back(cv::KeyPoint(x, y, 1));
+			}
+		}
+	}
 }

@@ -28,11 +28,11 @@ protected:
 	virtual void wheelEvent(QWheelEvent* event);
     
 private slots:
-    void on_firstImgBtn_pressed();
+	void on_firstImgBtn_pressed();
 
     void on_secondImgBtn_pressed();
 
-    void on_pushButton_pressed();
+	void on_pushButton_pressed();
 
     void on_actionDestroy_All_Windows_triggered();
 
@@ -64,6 +64,9 @@ private:
 	int  getNormByText(std::string norm);
 	cv::Ptr<cv::flann::IndexParams> getFlannBasedIndexParamsType();
 	cv::Mat skeletonization(cv::Mat img);
+	void thinningIteration(cv::Mat& im, int iter);
+	void thinning(cv::Mat& im);
+	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints);
 };
 
 #endif // MAINWINDOW_H
