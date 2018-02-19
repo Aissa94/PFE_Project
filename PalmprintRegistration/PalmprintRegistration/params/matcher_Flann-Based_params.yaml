@@ -3,11 +3,7 @@ indexParams:
    -
       name: algorithm
       type: 23
-      value: 1
-   -
-      name: trees
-      type: 4
-      value: 4
+      value: 0
 searchParams:
    -
       name: checks

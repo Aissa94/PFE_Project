@@ -12,6 +12,13 @@
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+// Additional libraries
+#include "lib/binarisation/AdaptiveLocalThreshold.h"
+#include "lib/optimisation/Ideka.h"
+#include "lib/thinning/GuoHall.h"
+#include "lib/extraction/CrossingNumber.h"
+#include "lib/extraction/Filter.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -66,7 +73,12 @@ private:
 	cv::Mat skeletonization(cv::Mat img);
 	void thinningIteration(cv::Mat& im, int iter);
 	void thinning(cv::Mat& im);
-	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints);
+	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold);
+	void clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k);
+	void visualizingMinutiae(cv::Mat img, std::vector<Minutiae> minutiae, std::string stepName = "3-minutiae");
+	void calculateMinutiaeMagnitudeAngle(std::vector<Minutiae> minutiaes, std::vector<float> &magnitudes, std::vector<float> &angles);
+	std::vector<cv::KeyPoint> getKeypointsFromMinutiae(std::vector<Minutiae> minutiaes);
+
 };
 
 #endif // MAINWINDOW_H

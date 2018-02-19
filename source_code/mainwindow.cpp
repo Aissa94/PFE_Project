@@ -22,9 +22,10 @@
 	cv::DescriptorMatcher * ptrMatcher;
 
 // Times
-	double detectionTime, descriptionTime, directMatchingTime, inverseMatchingTime, bestMatchingTime;
+	double detectionTime, descriptionTime, directMatchingTime, inverseMatchingTime, bestMatchingTime, conversionTime;
 // Others
 	int kBestMatches;
+	int cpt;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -240,7 +241,6 @@ void MainWindow::runCustom()
 	std::string matcherName = ui->matcherTabs->tabText(ui->matcherTabs->currentIndex()).toStdString();
 
 	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + segmentationName +", "+ detectorName + ", " + descriptorName + ", " + matcherName + ") object detection!</b>"));
-
 	if (segmentationIndex != 0){
 		// First load the image to process in grayscale and transform it to a binary image using thresholding:
 		// Binarization
@@ -248,20 +248,25 @@ void MainWindow::runCustom()
 		// If you have only a single capturing device, then playing around with a fixed threshold value could result in a better image for that specific setup
 		cv::threshold(firstImg, firstImg, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU); //127, 255, cv::THRESH_BINARY);
 		cv::threshold(secondImg, secondImg, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU); //127, 255, cv::THRESH_BINARY);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1-binarization.png").toStdString(), firstImg);
 	}
 	// Customising Segmentor...	
 	switch (segmentationIndex)
 	{
 	case 1:
-		// Thinning 
+		// Thinning
 		thinning(firstImg);
 		thinning(secondImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/2-thinning-1.png").toStdString(), firstImg);
+		cpt = 1;
 		break;
 	case 2:
 		// Skeletonization
 		// This will create more unique and stronger interest points
 		firstImg = skeletonization(firstImg);
 		secondImg = skeletonization(secondImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/2-skeltonization-2.png").toStdString(), firstImg);
+		cpt = 2;
 		break;
 		//....
 	}
@@ -270,14 +275,47 @@ void MainWindow::runCustom()
 	switch (detectorIndex)
 	{
 	case 0:{
-		// Harris-Corners
+		// Minutiae-detection
+		std::vector<Minutiae> firstMinutiae, secondMinutiae;
+		
 		detectionTime = (double)cv::getTickCount();
-		harrisCorners(firstImg, firstImgKeypoints);
-		harrisCorners(secondImg, secondImgKeypoints);
+		crossingNumber::getMinutiae(firstImg, firstMinutiae, ui->detectorMinutiaeBorderText->text().toInt());
+		crossingNumber::getMinutiae(secondImg, secondMinutiae, ui->detectorMinutiaeBorderText->text().toInt());
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+		
+		//visualizingMinutiae(firstImg, firstMinutiae);
+
+		//Minutiae-filtering
+		// slow with the second segmentation
+		Filter::filterMinutiae(firstMinutiae);
+		Filter::filterMinutiae(secondMinutiae);
+		
+		//visualizingMinutiae(secondImg, secondMinutiae, "4-filtering");
+
+		// images must be segmented if not Minutiae will be ampty
+		try{
+			// Transforming Minutiae to KeyPoints
+			firstImgKeypoints = getKeypointsFromMinutiae(firstMinutiae);
+			secondImgKeypoints = getKeypointsFromMinutiae(secondMinutiae);
+			// Add conversion time from minutiae to keypoints
+			detectionTime += conversionTime;
+		}
+		catch (...){
+			ui->logPlainText->appendHtml("<i style='color:red'>Before detecting Minutiaen you must select a segmentation method !</i>");
+			return;
+		}
+
 	}
 		   break;
 	case 1:{
+		// Harris-Corners
+		detectionTime = (double)cv::getTickCount();
+		harrisCorners(firstImg, firstImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
+		harrisCorners(secondImg, secondImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
+		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+	}
+		   break;
+	case 2:{
 		// STAR
 		ptrDetector = new cv::StarFeatureDetector(ui->detectorStarMaxSizeText->text().toInt(),
 			ui->detectorStarResponseThresholdText->text().toInt(),
@@ -286,12 +324,12 @@ void MainWindow::runCustom()
 			ui->detectorStarSuppressNonmaxSizeText->text().toInt());
 	}
 		break;
-	case 2:
+	case 3:
 		// FAST
 		ptrDetector = new cv::FastFeatureDetector(ui->detectorFastThresholdText->text().toInt(),
 			ui->detectorFastNonmaxSuppressionCheck->isChecked());
 		break;
-	case 3:
+	case 4:
 		// SIFT
 		ptrDetector = new cv::SiftFeatureDetector(ui->detectorSiftNfeaturesText->text().toInt(),
 			ui->detectorSiftNOctaveLayersText->text().toInt(),
@@ -299,7 +337,7 @@ void MainWindow::runCustom()
 			ui->detectorSiftEdgeThresholdText->text().toDouble(),
 			ui->detectorSiftSigmaText->text().toDouble());
 		break;
-	case 4:
+	case 5:
 		//SURF
 		// we didn't need the Extended and Upright params because it is related to the SURF descriptor
 		ptrDetector = new cv::SurfFeatureDetector(ui->detectorSurfHessianThresholdText->text().toDouble(),
@@ -308,7 +346,7 @@ void MainWindow::runCustom()
 			true,
 			false);
 		break;
-	case 5:
+	case 6:
 		//Dense
 		ptrDetector = new cv::DenseFeatureDetector(ui->detectorDenseInitFeatureScaleText->text().toFloat(),
 			ui->detectorDenseFeatureScaleLevelsText->text().toInt(),
@@ -320,12 +358,12 @@ void MainWindow::runCustom()
 		break;
 	//....
 	default:
-		return;
 		ui->logPlainText->appendHtml("<i style='color:yellow'>No detector selected.</i>");
+		return;
 		break;
 	}
 
-	if (detectorIndex != 0){
+	if (detectorIndex > 1){
 		// Write the parameters
 		writeToFile("detector_" + detectorName, ptrDetector);
 		// fs in WRITE mode automatically released
@@ -357,6 +395,11 @@ void MainWindow::runCustom()
 	}
 	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
 	ui->logPlainText->appendPlainText("detection time: " + QString::number(detectionTime) + " (s)");
+
+	if (true){ //Klustering
+		/*std::vector<cv::Mat> matrix = { firstImgKeypoints, secondImgKeypoints };
+		clusteringIntoKClusters(matrix, 1000);*/
+	}
 
 	// Customising Descriptor...
 	switch (descriptorIndex)
@@ -514,8 +557,8 @@ void MainWindow::on_pushButton_pressed()
 		secondImg = cv::imread(ui->secondImgText->text().toStdString(), CV_LOAD_IMAGE_COLOR);
 	}
 	else{
-		firstImg = cv::imread(ui->firstImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE);
-		secondImg = cv::imread(ui->secondImgText->text().toStdString(), CV_LOAD_IMAGE_GRAYSCALE);
+		firstImg = cv::imread(ui->firstImgText->text().toStdString(), cv::IMREAD_GRAYSCALE);//or CV_LOAD_IMAGE_GRAYSCALE
+		secondImg = cv::imread(ui->secondImgText->text().toStdString(), cv::IMREAD_GRAYSCALE); //or CV_LOAD_IMAGE_GRAYSCALE
 	}
 
 	// Check if the Images are loaded correctly ...
@@ -624,7 +667,6 @@ bool MainWindow::noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeyp
 {
 	ui->logPlainText->appendPlainText("Found " + QString::number(imgKeypoints.size()) + " key points in the " + QString::fromStdString(rank) + " image!");
 
-
 	if (imgKeypoints.size() <= 0)
 	{
 		ui->logPlainText->appendPlainText("Point matching can not be done because no key points detected in the " + QString::fromStdString(rank) + " image!");
@@ -688,12 +730,19 @@ void MainWindow::calculateBestMatches(){
 
 	// Calculate the number of best matches between two sets of matches
 	int bestMatchesCount = 0;
+	float sumDistances = 0;
 	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 3 Columns
 	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
 	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
 	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
 	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
 	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
+
+	/*if (use_ransac == false)
+		compute_inliers_homography(matches_surf, inliers_surf, H, MAX_H_ERROR);
+	else
+		compute_inliers_ransac(matches_surf, inliers_surf, MAX_H_ERROR, false);*/
+
 	if (kBestMatches < 2 || ui->matcherInlierInversMatches->isChecked()) {
 		// in reverse matching test
 		for (uint i = 0; i < directMatches.size(); i++)
@@ -728,6 +777,7 @@ void MainWindow::calculateBestMatches(){
 				model->setItem(bestMatchesCount, 4, dist);
 				ui->tableView->setModel(model);
 
+				sumDistances += directMatches[i].distance;
 				bestMatches.push_back(directMatches[i]);
 				bestMatchesCount++;
 			}
@@ -736,7 +786,6 @@ void MainWindow::calculateBestMatches(){
 	} else if (kBestMatches == 2 && ui->matcherInlierLoweRatio->isChecked()){
 		// knn = 2
 		// Lowe's ratio test = 0.7
-		ui->logPlainText->appendPlainText(QString::number(knnMatches.size()) + ","+ QString::number(knnMatches[0].size()));
 		for each (std::vector<cv::DMatch> match in knnMatches)
 		{
 			if (match[0].distance < 0.7*match[1].distance){
@@ -746,7 +795,6 @@ void MainWindow::calculateBestMatches(){
 		}
 		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(knnMatches.size()));
 	} else {// knn > 2
-		ui->logPlainText->appendPlainText(QString::number(knnMatches.size()) + "," + QString::number(knnMatches[0].size()));
 		for each (std::vector<cv::DMatch> match in knnMatches)
 		{
 			bestMatches.push_back(match[0]);
@@ -759,7 +807,8 @@ void MainWindow::calculateBestMatches(){
 		:
 		secondImgKeypoints.size();
 
-	ui->logPlainText->appendPlainText("Probability = " + QString::number((bestMatchesCount / minKeypoints) * 100));
+	ui->logPlainText->appendPlainText("Sum of distances = " + QString::number(sumDistances));
+	ui->logPlainText->appendPlainText("Probability = " + QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
 	cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
 		bestMatches, bestImgMatches, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0),
 		std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
@@ -838,6 +887,9 @@ cv::Mat MainWindow::skeletonization(cv::Mat img){
 	return skel;
 }
 
+// This code is part of the code supplied with the OpenCV Blueprints book. It was written by Steven Puttemans
+// https://github.com/OpenCVBlueprints/OpenCVBlueprints/blob/master/chapter_6/source_code/fingerprint/fingerprint_process/fingerprint_process.cpp
+// -------------->
 void MainWindow::thinningIteration(cv::Mat& im, int iter){
 	// Perform a single thinning iteration, which is repeated until the skeletization is finalized
 	cv::Mat marker = cv::Mat::zeros(im.size(), CV_8UC1);
@@ -888,14 +940,16 @@ void MainWindow::thinning(cv::Mat& im){
 	im *= 255;
 }
 
-void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints){
+void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold=125.0){
+// detect the strong minutiae using Haris corner detection (retrieved from 'OpenCV 3 Blueprints' book)
 	cv::Mat harris_corners, harris_normalised;
 	harris_corners = cv::Mat::zeros(thinnedImage.size(), CV_32FC1);
 	cornerHarris(thinnedImage, harris_corners, 2, 3, 0.04, cv::BORDER_DEFAULT);
 	// get a map with all the available corner responses rescaled to the range of[0 255] and stored as float values
 	normalize(harris_corners, harris_normalised, 0, 255, cv::NORM_MINMAX, CV_32FC1, cv::Mat());
 
-	float threshold = 125.0;
+	// Select the strongest corners that we want
+	// threshold = 125.0;
 	cv::Mat rescaled;
 	convertScaleAbs(harris_normalised, rescaled);
 	cv::Mat harris_c(rescaled.rows, rescaled.cols, CV_8UC3);
@@ -906,10 +960,83 @@ void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &
 		for (int y = 0; y<harris_normalised.rows; y++){
 			if ((int)harris_normalised.at<float>(y, x) > threshold){
 				// Draw or store the keypoint location here, just like you decide. In our case we will store the location of the keypoint
-				circle(harris_c, cv::Point(x, y), 5, cv::Scalar(0, 255, 0), 1);
-				circle(harris_c, cv::Point(x, y), 1, cv::Scalar(0, 0, 255), 1);
+				circle(harris_c, cv::Point(x, y), 5, cv::Scalar(0, 255, 0));
+				circle(harris_c, cv::Point(x, y), 1, cv::Scalar(0, 0, 255));
 				keypoints.push_back(cv::KeyPoint(x, y, 1));
 			}
 		}
 	}
+	//imshow("temp", harris_c); cv::waitKey(0);
+}
+
+void MainWindow::clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k){
+// K : The number of clusters to split the samples in rawFeatureData (retrieved from 'OpenCV 3 Blueprints' book)
+	cv::Mat rawFeatureData = cv::Mat::zeros(firstImgKeypoints.size() + secondImgKeypoints.size(), firstImgKeypoints[0].size, CV_32FC1);
+	// We need to copy the data from the vector of key points features_vector to imageFeatureData:
+	int cur_idx = 0;
+	for (int i = 0; i < features_vector.size(); i++){
+		features_vector[i].copyTo(rawFeatureData.rowRange(cur_idx, cur_idx + features_vector[i].rows));
+		cur_idx += features_vector[i].rows;
+	}
+	cv::Mat labels, centers;
+	double result;
+	result = cv::kmeans(rawFeatureData, k, labels, cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::COUNT, 100, 1.0),
+		3, cv::KMEANS_PP_CENTERS, centers);
+}
+
+// <--------------
+
+void MainWindow::visualizingMinutiae(cv::Mat img, std::vector<Minutiae> minutiae, std::string stepName){
+	//Visualisation
+	cv::Mat minutImg = img.clone();
+	cvtColor(img, minutImg, CV_GRAY2RGB);
+	for (std::vector<Minutiae>::size_type i = 0; i < minutiae.size(); i++){
+		//add an transparent square at each minutiae-location
+		int squareSize = 5;     //has to be uneven
+		cv::Mat roi = minutImg(cv::Rect(minutiae[i].getLocX() - squareSize / 2, minutiae[i].getLocY() - squareSize / 2, squareSize, squareSize));
+		double alpha = 0.3;
+		if (minutiae[i].getType() == Minutiae::Type::RIDGEENDING){
+			cv::Mat color(roi.size(), CV_8UC3, cv::Scalar(255, 0, 0));    //blue square for ridgeending
+			addWeighted(color, alpha, roi, 1.0 - alpha, 0.0, roi);
+		}
+		else if (minutiae[i].getType() == Minutiae::Type::BIFURCATION){
+			cv::Mat color(roi.size(), CV_8UC3, cv::Scalar(0, 0, 255));    //red square for bifurcation
+			addWeighted(color, alpha, roi, 1.0 - alpha, 0.0, roi);
+		}
+
+	}
+	//namedWindow("Minutiea", cv::WINDOW_AUTOSIZE);     // Create a window for display.
+	//imshow("Minutiea", minutImg);                 // Show our image inside it.
+	cv::imwrite(QString(qApp->applicationDirPath() + "/" + QString::fromStdString(stepName) + "-" + QString::number(cpt) + ".png").toStdString(), minutImg);
+}
+
+void MainWindow::calculateMinutiaeMagnitudeAngle(std::vector<Minutiae> minutiaes, std::vector<float> &magnitudes, std::vector<float> &angles){
+// Calculates the magnitude and angle of minutiaes.
+	// getting X and Y vecors of minutiaes
+	std::vector<float> minutiaeXs, minutiaeYs;
+	for each (Minutiae minutiae in minutiaes)
+	{
+		minutiaeXs.push_back(minutiae.getLocX());
+		minutiaeYs.push_back(minutiae.getLocY());
+	}
+	// The angles are calculated with accuracy about 0.3 degrees.For the point(0, 0), the angle is set to 0.
+	conversionTime = (double)cv::getTickCount();
+	cv::cartToPolar(minutiaeXs, minutiaeYs, magnitudes, angles, true);
+	conversionTime = ((double)cv::getTickCount() - conversionTime) / cv::getTickFrequency();
+}
+
+std::vector<cv::KeyPoint> MainWindow::getKeypointsFromMinutiae(std::vector<Minutiae> minutiaes){
+	std::vector<cv::KeyPoint> keypoints;
+	// Calculates the magnitude and angle of minutiaes.
+	std::vector<float> magnitudes, angles;
+	calculateMinutiaeMagnitudeAngle(minutiaes, magnitudes, angles);
+
+	// Minutiae to KeyPoint
+	int i = 0;
+	for each (Minutiae minutiae in minutiaes)
+	{
+		keypoints.push_back(cv::KeyPoint(minutiae.getLocX(), minutiae.getLocY(), magnitudes[i], angles[i]));
+		i++;
+	}
+	return keypoints;
 }

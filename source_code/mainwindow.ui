@@ -568,7 +568,7 @@
         <item row="0" column="0">
          <widget class="QTabWidget" name="customTabs">
           <property name="currentIndex">
-           <number>3</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tabSegmentation">
            <attribute name="title">
@@ -603,7 +603,10 @@
               </widget>
               <widget class="QWidget" name="tabSegmentationMethod1">
                <attribute name="title">
-                <string>Method1</string>
+                <string>Zhang-Suen</string>
+               </attribute>
+               <attribute name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;This skeletization is based on the Zhang-Suen line-thinning approach.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;(The code was retrieved from 'OpenCV 3 Blueprints' book)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_13">
                 <item row="0" column="0">
@@ -737,22 +740,19 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="detectorTabs">
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
-              <widget class="QWidget" name="tabDetectorStar">
+              <widget class="QWidget" name="tabDetectorMinutiae">
                <attribute name="title">
-                <string>Harris-Corners</string>
-               </attribute>
-               <attribute name="toolTip">
-                <string>The keypoint detector introduced by [Agrawal08], synonym of StarDetector</string>
+                <string>Minutiae</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_13">
                 <item row="0" column="0">
-                 <layout class="QGridLayout" name="detectorStarParams">
+                 <layout class="QGridLayout" name="detectorMinutiaeParams">
                   <item row="0" column="0">
-                   <widget class="QLabel" name="detectorStarMaxSizeLabel">
+                   <widget class="QLabel" name="detectorMinutiaeBorderLabel">
                     <property name="text">
-                     <string>Max Size :</string>
+                     <string>Border :</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -760,39 +760,9 @@
                    </widget>
                   </item>
                   <item row="1" column="0">
-                   <widget class="QLabel" name="detectorStarResponseThresholdLabel">
+                   <widget class="QLabel" name="detectorMinutiaeParamLabel">
                     <property name="text">
-                     <string>Response Threshold :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="detectorStarLineThresholdProjected Label">
-                    <property name="text">
-                     <string>Line Threshold Projected  :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="detectorStarLineThresholdBinarizedLabel">
-                    <property name="text">
-                     <string>Line Threshold Binarized :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="0">
-                   <widget class="QLabel" name="detectorStarSuppressNonmaxSizeLabel">
-                    <property name="text">
-                     <string>Non-maximum Suppression Size :</string>
+                     <string>param :</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -800,37 +770,61 @@
                    </widget>
                   </item>
                   <item row="0" column="1">
-                   <widget class="QLineEdit" name="detectorStarMaxSizeText">
-                    <property name="text">
-                     <string>45</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="detectorStarResponseThresholdText">
+                   <widget class="QLineEdit" name="detectorMinutiaeBorderText">
                     <property name="text">
                      <string>30</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="1">
-                   <widget class="QLineEdit" name="detectorStarThresholdProjectedText">
+                  <item row="1" column="1">
+                   <widget class="QLineEdit" name="detectorMinutiaeParamText">
                     <property name="text">
-                     <string>10</string>
+                     <string>0</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="1">
-                   <widget class="QLineEdit" name="detectorStarThresholdBinarizedText">
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QWidget" name="tabDetectorHarrisCorners">
+               <attribute name="title">
+                <string>Harris-Corners</string>
+               </attribute>
+               <layout class="QGridLayout" name="gridLayout_13">
+                <item row="0" column="0">
+                 <layout class="QGridLayout" name="detectorHarrisCornersParams">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="detectorHarrisThresholdLabel">
                     <property name="text">
-                     <string>8</string>
+                     <string>Harris Threshold :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="1">
-                   <widget class="QLineEdit" name="detectorStarSuppressNonmaxSizeText">
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="detectorHarrisParamLabel">
                     <property name="text">
-                     <string>5</string>
+                     <string>param :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="detectorHarrisThresholdText">
+                    <property name="text">
+                     <string>125.0</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLineEdit" name="detectorHarrisParamText">
+                    <property name="text">
+                     <string>0</string>
                     </property>
                    </widget>
                   </item>
