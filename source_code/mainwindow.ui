@@ -33,7 +33,7 @@
           <item row="0" column="1">
            <widget class="QLineEdit" name="firstImgText">
             <property name="text">
-             <string>Resources/images/box1.png</string>
+             <string>Resources/images/1.bmp</string>
             </property>
            </widget>
           </item>
@@ -57,7 +57,7 @@
           <item row="1" column="1">
            <widget class="QLineEdit" name="secondImgText">
             <property name="text">
-             <string>Resources/images/box2.png</string>
+             <string>Resources/images/2.tif</string>
             </property>
             <property name="buddy" stdset="0">
              <cstring>label_4</cstring>

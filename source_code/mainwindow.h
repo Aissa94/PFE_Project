@@ -73,12 +73,11 @@ private:
 	cv::Mat skeletonization(cv::Mat img);
 	void thinningIteration(cv::Mat& im, int iter);
 	void thinning(cv::Mat& im);
-	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold);
+	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold = 125.0);
 	void clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k);
 	void visualizingMinutiae(cv::Mat img, std::vector<Minutiae> minutiae, std::string stepName = "3-minutiae");
 	void calculateMinutiaeMagnitudeAngle(std::vector<Minutiae> minutiaes, std::vector<float> &magnitudes, std::vector<float> &angles);
 	std::vector<cv::KeyPoint> getKeypointsFromMinutiae(std::vector<Minutiae> minutiaes);
-
 };
 
 #endif // MAINWINDOW_H

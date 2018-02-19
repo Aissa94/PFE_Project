@@ -25,7 +25,6 @@
 	double detectionTime, descriptionTime, directMatchingTime, inverseMatchingTime, bestMatchingTime, conversionTime;
 // Others
 	int kBestMatches;
-	int cpt;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -246,27 +245,28 @@ void MainWindow::runCustom()
 		// Binarization
 		// The Otsu thresholding will automatically choose the best generic threshold for the image to obtain a good contrast between foreground and background information.
 		// If you have only a single capturing device, then playing around with a fixed threshold value could result in a better image for that specific setup
-		cv::threshold(firstImg, firstImg, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU); //127, 255, cv::THRESH_BINARY);
-		cv::threshold(secondImg, secondImg, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU); //127, 255, cv::THRESH_BINARY);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1-binarization.png").toStdString(), firstImg);
+		cv::threshold(firstImg, firstImg, 0, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
+		cv::threshold(secondImg, secondImg, 0, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1-1-Binarization.png").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/2-1-Binarization.png").toStdString(), secondImg);
 	}
 	// Customising Segmentor...	
 	switch (segmentationIndex)
 	{
 	case 1:
-		// Thinning
+		// Thinning of Zhang-Suen
 		thinning(firstImg);
 		thinning(secondImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/2-thinning-1.png").toStdString(), firstImg);
-		cpt = 1;
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Zhang-Suen Thinning.png").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Zhang-Suen Thinning.png").toStdString(), secondImg);
 		break;
 	case 2:
-		// Skeletonization
+		// Skeletonization of Morphological Skeleton
 		// This will create more unique and stronger interest points
 		firstImg = skeletonization(firstImg);
 		secondImg = skeletonization(secondImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/2-skeltonization-2.png").toStdString(), firstImg);
-		cpt = 2;
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Morphological Skeleton.png").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Morphological Skeleton.png").toStdString(), secondImg);
 		break;
 		//....
 	}
@@ -283,14 +283,16 @@ void MainWindow::runCustom()
 		crossingNumber::getMinutiae(secondImg, secondMinutiae, ui->detectorMinutiaeBorderText->text().toInt());
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 		
-		//visualizingMinutiae(firstImg, firstMinutiae);
+		visualizingMinutiae(firstImg, firstMinutiae, "1-3-Minutiae");
+		visualizingMinutiae(secondImg, secondMinutiae, "2-3-Minutiae");
 
 		//Minutiae-filtering
 		// slow with the second segmentation
 		Filter::filterMinutiae(firstMinutiae);
 		Filter::filterMinutiae(secondMinutiae);
-		
-		//visualizingMinutiae(secondImg, secondMinutiae, "4-filtering");
+
+		visualizingMinutiae(firstImg, firstMinutiae, "1-4-Filter");
+		visualizingMinutiae(secondImg, secondMinutiae, "2-4-Filter");
 
 		// images must be segmented if not Minutiae will be ampty
 		try{
@@ -709,7 +711,6 @@ void MainWindow::writeToFile(std::string fileName, cv::Algorithm * algoToWrite){
 }
 
 void MainWindow::calculateBestMatches(){
-    
 	cv::drawKeypoints(firstImg, firstImgKeypoints, firstImgDescriptorShow, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
 	QGraphicsScene *imgKeypoints1 = new QGraphicsScene();
 	QImage imgKey1((const uchar *)firstImgDescriptorShow.data, firstImgDescriptorShow.cols, firstImgDescriptorShow.rows, firstImgDescriptorShow.step, QImage::Format_RGB888);
@@ -915,10 +916,10 @@ void MainWindow::thinningIteration(cv::Mat& im, int iter){
 			int m2 = iter == 0 ? (p4 * p6 * p8) : (p2 * p6 * p8);
 
 			if (A == 1 && (B >= 2 && B <= 6) && m1 == 0 && m2 == 0)
-
 				marker.at<uchar>(i, j) = 1;
 		}
 	}
+
 	im &= ~marker;
 }
 
@@ -940,7 +941,7 @@ void MainWindow::thinning(cv::Mat& im){
 	im *= 255;
 }
 
-void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold=125.0){
+void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold){
 // detect the strong minutiae using Haris corner detection (retrieved from 'OpenCV 3 Blueprints' book)
 	cv::Mat harris_corners, harris_normalised;
 	harris_corners = cv::Mat::zeros(thinnedImage.size(), CV_32FC1);
@@ -949,7 +950,6 @@ void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &
 	normalize(harris_corners, harris_normalised, 0, 255, cv::NORM_MINMAX, CV_32FC1, cv::Mat());
 
 	// Select the strongest corners that we want
-	// threshold = 125.0;
 	cv::Mat rescaled;
 	convertScaleAbs(harris_normalised, rescaled);
 	cv::Mat harris_c(rescaled.rows, rescaled.cols, CV_8UC3);
@@ -960,13 +960,10 @@ void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &
 		for (int y = 0; y<harris_normalised.rows; y++){
 			if ((int)harris_normalised.at<float>(y, x) > threshold){
 				// Draw or store the keypoint location here, just like you decide. In our case we will store the location of the keypoint
-				circle(harris_c, cv::Point(x, y), 5, cv::Scalar(0, 255, 0));
-				circle(harris_c, cv::Point(x, y), 1, cv::Scalar(0, 0, 255));
 				keypoints.push_back(cv::KeyPoint(x, y, 1));
 			}
 		}
 	}
-	//imshow("temp", harris_c); cv::waitKey(0);
 }
 
 void MainWindow::clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k){
@@ -983,7 +980,6 @@ void MainWindow::clusteringIntoKClusters(std::vector<cv::Mat> features_vector, i
 	result = cv::kmeans(rawFeatureData, k, labels, cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::COUNT, 100, 1.0),
 		3, cv::KMEANS_PP_CENTERS, centers);
 }
-
 // <--------------
 
 void MainWindow::visualizingMinutiae(cv::Mat img, std::vector<Minutiae> minutiae, std::string stepName){
@@ -1005,9 +1001,9 @@ void MainWindow::visualizingMinutiae(cv::Mat img, std::vector<Minutiae> minutiae
 		}
 
 	}
-	//namedWindow("Minutiea", cv::WINDOW_AUTOSIZE);     // Create a window for display.
-	//imshow("Minutiea", minutImg);                 // Show our image inside it.
-	cv::imwrite(QString(qApp->applicationDirPath() + "/" + QString::fromStdString(stepName) + "-" + QString::number(cpt) + ".png").toStdString(), minutImg);
+	//namedWindow(stepName, cv::WINDOW_AUTOSIZE);     // Create a window for display.
+	//imshow(stepName, minutImg);                 // Show our image inside it.
+	cv::imwrite(QString(qApp->applicationDirPath() + "/" + QString::fromStdString(stepName) + ".png").toStdString(), minutImg);
 }
 
 void MainWindow::calculateMinutiaeMagnitudeAngle(std::vector<Minutiae> minutiaes, std::vector<float> &magnitudes, std::vector<float> &angles){
