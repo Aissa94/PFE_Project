@@ -5,6 +5,8 @@
 
 #include <QtWidgets>
 
+#include <iostream>
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/features2d/features2d.hpp>
@@ -13,6 +15,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 // Additional libraries
+// http://www.codelooker.com/id/217/1100103.html
 #include "lib/binarisation/AdaptiveLocalThreshold.h"
 #include "lib/optimisation/Ideka.h"
 #include "lib/thinning/GuoHall.h"

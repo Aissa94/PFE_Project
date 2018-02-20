@@ -276,6 +276,7 @@ void MainWindow::runCustom()
 	{
 	case 0:{
 		// Minutiae-detection
+		// http://www.codelooker.com/id/217/1100103.html
 		std::vector<Minutiae> firstMinutiae, secondMinutiae;
 		
 		detectionTime = (double)cv::getTickCount();
