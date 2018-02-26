@@ -18,6 +18,7 @@
 // http://www.codelooker.com/id/217/1100103.html
 #include "lib/binarisation/AdaptiveLocalThreshold.h"
 #include "lib/optimisation/Ideka.h"
+#include "lib/thinning/ZhangSuen.h"
 #include "lib/thinning/GuoHall.h"
 #include "lib/extraction/CrossingNumber.h"
 #include "lib/extraction/Filter.h"
@@ -74,8 +75,6 @@ private:
 	int  getNormByText(std::string norm);
 	cv::Ptr<cv::flann::IndexParams> getFlannBasedIndexParamsType();
 	cv::Mat skeletonization(cv::Mat img);
-	void thinningIteration(cv::Mat& im, int iter);
-	void thinning(cv::Mat& im);
 	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold = 125.0);
 	void clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k);
 	void visualizingMinutiae(cv::Mat img, std::vector<Minutiae> minutiae, std::string stepName = "3-minutiae");

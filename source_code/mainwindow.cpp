@@ -245,8 +245,9 @@ void MainWindow::runCustom()
 		// Binarization
 		// The Otsu thresholding will automatically choose the best generic threshold for the image to obtain a good contrast between foreground and background information.
 		// If you have only a single capturing device, then playing around with a fixed threshold value could result in a better image for that specific setup
-		cv::threshold(firstImg, firstImg, 0, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
-		cv::threshold(secondImg, secondImg, 0, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
+		double threshold = ui->segmentationThresholdText->text().toFloat();
+		cv::threshold(firstImg, firstImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
+		cv::threshold(secondImg, secondImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
 		cv::imwrite(QString(qApp->applicationDirPath() + "/1-1-Binarization.png").toStdString(), firstImg);
 		cv::imwrite(QString(qApp->applicationDirPath() + "/2-1-Binarization.png").toStdString(), secondImg);
 	}
@@ -255,8 +256,8 @@ void MainWindow::runCustom()
 	{
 	case 1:
 		// Thinning of Zhang-Suen
-		thinning(firstImg);
-		thinning(secondImg);
+		ZhangSuen::thinning(firstImg);
+		ZhangSuen::thinning(secondImg);
 		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Zhang-Suen Thinning.png").toStdString(), firstImg);
 		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Zhang-Suen Thinning.png").toStdString(), secondImg);
 		break;
@@ -268,9 +269,18 @@ void MainWindow::runCustom()
 		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Morphological Skeleton.png").toStdString(), firstImg);
 		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Morphological Skeleton.png").toStdString(), secondImg);
 		break;
+	case 3:
+		// Thinning of Guo-Hall
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Exception !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		GuoHall::thinning(firstImg);
+		GuoHall::thinning(secondImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-GuoHall Thinning.png").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-GuoHall Thinning.png").toStdString(), secondImg);
+		break;
+
 		//....
 	}
-
+	
 	// Customising Detector...	
 	switch (detectorIndex)
 	{
@@ -892,55 +902,6 @@ cv::Mat MainWindow::skeletonization(cv::Mat img){
 // This code is part of the code supplied with the OpenCV Blueprints book. It was written by Steven Puttemans
 // https://github.com/OpenCVBlueprints/OpenCVBlueprints/blob/master/chapter_6/source_code/fingerprint/fingerprint_process/fingerprint_process.cpp
 // -------------->
-void MainWindow::thinningIteration(cv::Mat& im, int iter){
-	// Perform a single thinning iteration, which is repeated until the skeletization is finalized
-	cv::Mat marker = cv::Mat::zeros(im.size(), CV_8UC1);
-	for (int i = 1; i < im.rows - 1; i++)
-	{
-		for (int j = 1; j < im.cols - 1; j++)
-		{
-			uchar p2 = im.at<uchar>(i - 1, j);
-			uchar p3 = im.at<uchar>(i - 1, j + 1);
-			uchar p4 = im.at<uchar>(i, j + 1);
-			uchar p5 = im.at<uchar>(i + 1, j + 1);
-			uchar p6 = im.at<uchar>(i + 1, j);
-			uchar p7 = im.at<uchar>(i + 1, j - 1);
-			uchar p8 = im.at<uchar>(i, j - 1);
-			uchar p9 = im.at<uchar>(i - 1, j - 1);
-
-			int A = (p2 == 0 && p3 == 1) + (p3 == 0 && p4 == 1) +
-				(p4 == 0 && p5 == 1) + (p5 == 0 && p6 == 1) +
-				(p6 == 0 && p7 == 1) + (p7 == 0 && p8 == 1) +
-				(p8 == 0 && p9 == 1) + (p9 == 0 && p2 == 1);
-			int B = p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9;
-			int m1 = iter == 0 ? (p2 * p4 * p6) : (p2 * p4 * p8);
-			int m2 = iter == 0 ? (p4 * p6 * p8) : (p2 * p6 * p8);
-
-			if (A == 1 && (B >= 2 && B <= 6) && m1 == 0 && m2 == 0)
-				marker.at<uchar>(i, j) = 1;
-		}
-	}
-
-	im &= ~marker;
-}
-
-void MainWindow::thinning(cv::Mat& im){
-	// Function for thinning any given binary image within the range of 0-255. If not you should first make sure that your image has this range preset and configured!
-	// Enforce the range tob e in between 0 - 255
-	im /= 255;
-
-	cv::Mat prev = cv::Mat::zeros(im.size(), CV_8UC1);
-	cv::Mat diff;
-
-	do {
-		thinningIteration(im, 0);
-		thinningIteration(im, 1);
-		absdiff(im, prev, diff);
-		im.copyTo(prev);
-	} while (countNonZero(diff) > 0);
-
-	im *= 255;
-}
 
 void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold){
 // detect the strong minutiae using Haris corner detection (retrieved from 'OpenCV 3 Blueprints' book)

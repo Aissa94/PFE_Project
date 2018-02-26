@@ -578,7 +578,7 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="segmentationTabs">
               <property name="currentIndex">
-               <number>1</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="tabSegmentationWithout">
                <attribute name="title">
@@ -601,7 +601,7 @@
                 </item>
                </layout>
               </widget>
-              <widget class="QWidget" name="tabSegmentationMethod1">
+              <widget class="QWidget" name="tabSegmentationZhangSuen">
                <attribute name="title">
                 <string>Zhang-Suen</string>
                </attribute>
@@ -610,9 +610,9 @@
                </attribute>
                <layout class="QGridLayout" name="gridLayout_13">
                 <item row="0" column="0">
-                 <layout class="QGridLayout" name="segmentationMethod1Params">
+                 <layout class="QGridLayout" name="segmentationZhangSuenParams">
                   <item row="0" column="0">
-                   <widget class="QLabel" name="segmentationMethod1Param1Label">
+                   <widget class="QLabel" name="segmentationZhangSuenParam1Label">
                     <property name="text">
                      <string>Parameter1 :</string>
                     </property>
@@ -622,7 +622,7 @@
                    </widget>
                   </item>
                   <item row="1" column="0">
-                   <widget class="QLabel" name="segmentationMethod1Param2Label">
+                   <widget class="QLabel" name="segmentationZhangSuenParam2Label">
                     <property name="text">
                      <string>Parameter2 :</string>
                     </property>
@@ -632,7 +632,7 @@
                    </widget>
                   </item>
                   <item row="2" column="0">
-                   <widget class="QLabel" name="segmentationMethod1Param3Label">
+                   <widget class="QLabel" name="segmentationZhangSuenParam3Label">
                     <property name="text">
                      <string>Parameter3 :</string>
                     </property>
@@ -642,21 +642,21 @@
                    </widget>
                   </item>
                   <item row="0" column="1">
-                   <widget class="QLineEdit" name="segmentationMethod1Param1Text">
+                   <widget class="QLineEdit" name="segmentationZhangSuenParam1Text">
                     <property name="text">
                      <string>10</string>
                     </property>
                    </widget>
                   </item>
                   <item row="1" column="1">
-                   <widget class="QLineEdit" name="segmentationMethod1Param2Text">
+                   <widget class="QLineEdit" name="segmentationZhangSuenParam2Text">
                     <property name="text">
                      <string>20</string>
                     </property>
                    </widget>
                   </item>
                   <item row="2" column="1">
-                   <widget class="QLineEdit" name="segmentationMethod1Param3Text">
+                   <widget class="QLineEdit" name="segmentationZhangSuenParam3Text">
                     <property name="text">
                      <string>30</string>
                     </property>
@@ -672,9 +672,9 @@
                </attribute>
                <layout class="QGridLayout" name="gridLayout_13">
                 <item row="0" column="0">
-                 <layout class="QGridLayout" name="segmentationMethod2Params">
+                 <layout class="QGridLayout" name="segmentationMorphologicalSkeletonParams">
                   <item row="0" column="0">
-                   <widget class="QLabel" name="segmentationMethod2Param1Label">
+                   <widget class="QLabel" name="segmentationMorphologicalSkeletonParam1Label">
                     <property name="text">
                      <string>Parameter1 :</string>
                     </property>
@@ -684,7 +684,7 @@
                    </widget>
                   </item>
                   <item row="1" column="0">
-                   <widget class="QLabel" name="segmentationMethod2Param2Label">
+                   <widget class="QLabel" name="segmentationMorphologicalSkeletonParam2Label">
                     <property name="text">
                      <string>Parameter2 :</string>
                     </property>
@@ -694,7 +694,7 @@
                    </widget>
                   </item>
                   <item row="2" column="0">
-                   <widget class="QLabel" name="segmentationMethod2Param3Label">
+                   <widget class="QLabel" name="segmentationMorphologicalSkeletonParam3Label">
                     <property name="text">
                      <string>Parameter3 :</string>
                     </property>
@@ -704,21 +704,83 @@
                    </widget>
                   </item>
                   <item row="0" column="1">
-                   <widget class="QLineEdit" name="segmentationMethod2Param1Text">
+                   <widget class="QLineEdit" name="segmentationMorphologicalSkeletonParam1Text">
                     <property name="text">
                      <string>10</string>
                     </property>
                    </widget>
                   </item>
                   <item row="1" column="1">
-                   <widget class="QLineEdit" name="segmentationMethod2Param2Text">
+                   <widget class="QLineEdit" name="segmentationMorphologicalSkeletonParam2Text">
                     <property name="text">
                      <string>20</string>
                     </property>
                    </widget>
                   </item>
                   <item row="2" column="1">
-                   <widget class="QLineEdit" name="segmentationMethod2Param3Text">
+                   <widget class="QLineEdit" name="segmentationMorphologicalSkeletonParam3Text">
+                    <property name="text">
+                     <string>30</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QWidget" name="tabSegmentationGuoHall">
+               <attribute name="title">
+                <string>Guo-Hall</string>
+               </attribute>
+               <layout class="QGridLayout" name="gridLayout_13">
+                <item row="0" column="0">
+                 <layout class="QGridLayout" name="segmentationGuoHallParams">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="segmentationGuoHallParam1Label">
+                    <property name="text">
+                     <string>Parameter1 :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="segmentationGuoHallParam2Label">
+                    <property name="text">
+                     <string>Parameter2 :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="segmentationGuoHallParam3Label">
+                    <property name="text">
+                     <string>Parameter3 :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="segmentationGuoHallParam1Text">
+                    <property name="text">
+                     <string>10</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLineEdit" name="segmentationGuoHallParam2Text">
+                    <property name="text">
+                     <string>20</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QLineEdit" name="segmentationGuoHallParam3Text">
                     <property name="text">
                      <string>30</string>
                     </property>
@@ -729,6 +791,27 @@
                </layout>
               </widget>
              </widget>
+            </item>
+            <item row="1" column="0">
+             <layout class="QGridLayout" name="segmentationThresholdParams">
+              <item row="0" column="0">
+               <widget class="QLabel" name="segmentationThresholdLabel">
+                <property name="text">
+                 <string>Threshold :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="segmentationThresholdText">
+                <property name="text">
+                 <string>127</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>
