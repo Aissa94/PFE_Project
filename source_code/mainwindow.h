@@ -15,13 +15,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 // Additional libraries
-// http://www.codelooker.com/id/217/1100103.html
-#include "lib/binarisation/AdaptiveLocalThreshold.h"
-#include "lib/optimisation/Ideka.h"
-#include "lib/thinning/ZhangSuen.h"
-#include "lib/thinning/GuoHall.h"
-#include "lib/extraction/CrossingNumber.h"
-#include "lib/extraction/Filter.h"
+#include "include_files.h"
 
 namespace Ui {
 class MainWindow;
