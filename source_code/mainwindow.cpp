@@ -240,7 +240,7 @@ void MainWindow::runCustom()
 	std::string matcherName = ui->matcherTabs->tabText(ui->matcherTabs->currentIndex()).toStdString();
 
 	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + segmentationName +", "+ detectorName + ", " + descriptorName + ", " + matcherName + ") object detection!</b>"));
-	if (segmentationIndex != 0){
+	if (segmentationIndex != 0 && segmentationIndex != 3){
 		// First load the image to process in grayscale and transform it to a binary image using thresholding:
 		// Binarization
 		// The Otsu thresholding will automatically choose the best generic threshold for the image to obtain a good contrast between foreground and background information.
@@ -255,13 +255,6 @@ void MainWindow::runCustom()
 	switch (segmentationIndex)
 	{
 	case 1:
-		// Thinning of Zhang-Suen
-		ZhangSuen::thinning(firstImg);
-		ZhangSuen::thinning(secondImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Zhang-Suen Thinning.png").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Zhang-Suen Thinning.png").toStdString(), secondImg);
-		break;
-	case 2:
 		// Skeletonization of Morphological Skeleton
 		// This will create more unique and stronger interest points
 		firstImg = skeletonization(firstImg);
@@ -269,13 +262,31 @@ void MainWindow::runCustom()
 		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Morphological Skeleton.png").toStdString(), firstImg);
 		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Morphological Skeleton.png").toStdString(), secondImg);
 		break;
-	case 3:
+	case 2:
+		// Thinning of Zhang-Suen
+		ZhangSuen::thinning(firstImg);
+		ZhangSuen::thinning(secondImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Zhang-Suen Thinning.png").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Zhang-Suen Thinning.png").toStdString(), secondImg);
+		break;
+	case 3:{
+		// Thinning of Lin-Hong implemented by Mrs. Faiçal
+		cv::Mat enhancedImage, segmentedImage;
+		firstImg = Image_processing::thinning(firstImg, enhancedImage, segmentedImage);
+		secondImg = Image_processing::thinning(secondImg, enhancedImage, segmentedImage);
+
+		firstImg.convertTo(firstImg, CV_8UC3, 255); secondImg.convertTo(secondImg, CV_8UC3, 255);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Lin-Hong Thinning.png").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Lin-Hong Thinning.png").toStdString(), secondImg);
+		break;
+	}
+	case 4:
 		// Thinning of Guo-Hall
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Exception !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		GuoHall::thinning(firstImg);
 		GuoHall::thinning(secondImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-GuoHall Thinning.png").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-GuoHall Thinning.png").toStdString(), secondImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Guo-Hall Thinning.png").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Guo-Hall Thinning.png").toStdString(), secondImg);
 		break;
 
 		//....

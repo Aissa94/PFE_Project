@@ -33,7 +33,7 @@
           <item row="0" column="1">
            <widget class="QLineEdit" name="firstImgText">
             <property name="text">
-             <string>Resources/images/1.bmp</string>
+             <string>Resources/images/2.png</string>
             </property>
            </widget>
           </item>
@@ -57,7 +57,7 @@
           <item row="1" column="1">
            <widget class="QLineEdit" name="secondImgText">
             <property name="text">
-             <string>Resources/images/2.tif</string>
+             <string>Resources/images/3.png</string>
             </property>
             <property name="buddy" stdset="0">
              <cstring>label_4</cstring>
@@ -601,6 +601,68 @@
                 </item>
                </layout>
               </widget>
+              <widget class="QWidget" name="tabSegmentationMorphologicalSkeleton">
+               <attribute name="title">
+                <string>Morphological Skeleton</string>
+               </attribute>
+               <layout class="QGridLayout" name="gridLayout_13">
+                <item row="0" column="0">
+                 <layout class="QGridLayout" name="segmentationMorphologicalSkeletonParams">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="segmentationMorphologicalSkeletonParam1Label">
+                    <property name="text">
+                     <string>Parameter1 :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="segmentationMorphologicalSkeletonParam2Label">
+                    <property name="text">
+                     <string>Parameter2 :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="segmentationMorphologicalSkeletonParam3Label">
+                    <property name="text">
+                     <string>Parameter3 :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="segmentationMorphologicalSkeletonParam1Text">
+                    <property name="text">
+                     <string>10</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLineEdit" name="segmentationMorphologicalSkeletonParam2Text">
+                    <property name="text">
+                     <string>20</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QLineEdit" name="segmentationMorphologicalSkeletonParam3Text">
+                    <property name="text">
+                     <string>30</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
               <widget class="QWidget" name="tabSegmentationZhangSuen">
                <attribute name="title">
                 <string>Zhang-Suen</string>
@@ -666,15 +728,15 @@
                 </item>
                </layout>
               </widget>
-              <widget class="QWidget" name="tabSegmentationMorphologicalSkeleton">
+              <widget class="QWidget" name="tabSegmentationLinHong">
                <attribute name="title">
-                <string>Morphological Skeleton</string>
+                <string>Lin-Hong</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_13">
                 <item row="0" column="0">
-                 <layout class="QGridLayout" name="segmentationMorphologicalSkeletonParams">
+                 <layout class="QGridLayout" name="segmentationLinHongParams">
                   <item row="0" column="0">
-                   <widget class="QLabel" name="segmentationMorphologicalSkeletonParam1Label">
+                   <widget class="QLabel" name="segmentationLinHongParam1Label">
                     <property name="text">
                      <string>Parameter1 :</string>
                     </property>
@@ -684,7 +746,7 @@
                    </widget>
                   </item>
                   <item row="1" column="0">
-                   <widget class="QLabel" name="segmentationMorphologicalSkeletonParam2Label">
+                   <widget class="QLabel" name="segmentationLinHongParam2Label">
                     <property name="text">
                      <string>Parameter2 :</string>
                     </property>
@@ -694,7 +756,7 @@
                    </widget>
                   </item>
                   <item row="2" column="0">
-                   <widget class="QLabel" name="segmentationMorphologicalSkeletonParam3Label">
+                   <widget class="QLabel" name="segmentationLinHongParam3Label">
                     <property name="text">
                      <string>Parameter3 :</string>
                     </property>
@@ -704,21 +766,21 @@
                    </widget>
                   </item>
                   <item row="0" column="1">
-                   <widget class="QLineEdit" name="segmentationMorphologicalSkeletonParam1Text">
+                   <widget class="QLineEdit" name="segmentationLinHongParam1Text">
                     <property name="text">
                      <string>10</string>
                     </property>
                    </widget>
                   </item>
                   <item row="1" column="1">
-                   <widget class="QLineEdit" name="segmentationMorphologicalSkeletonParam2Text">
+                   <widget class="QLineEdit" name="segmentationLinHongParam2Text">
                     <property name="text">
                      <string>20</string>
                     </property>
                    </widget>
                   </item>
                   <item row="2" column="1">
-                   <widget class="QLineEdit" name="segmentationMorphologicalSkeletonParam3Text">
+                   <widget class="QLineEdit" name="segmentationLinHongParam3Text">
                     <property name="text">
                      <string>30</string>
                     </property>
@@ -823,7 +885,7 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="detectorTabs">
               <property name="currentIndex">
-               <number>0</number>
+               <number>5</number>
               </property>
               <widget class="QWidget" name="tabDetectorMinutiae">
                <attribute name="title">

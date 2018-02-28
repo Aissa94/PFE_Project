@@ -15,4 +15,9 @@
 #include "thinning\GuoHall.h"
 #include "thinning\ZhangSuen.h"
 
+// Mme :
+#include "image-processing\image_processing.h"
+#include "image-processing\minutiae_features.h"
+#include "image-processing\minutie.h"
+
 #endif
