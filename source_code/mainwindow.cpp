@@ -245,11 +245,15 @@ void MainWindow::runCustom()
 		// Binarization
 		// The Otsu thresholding will automatically choose the best generic threshold for the image to obtain a good contrast between foreground and background information.
 		// If you have only a single capturing device, then playing around with a fixed threshold value could result in a better image for that specific setup
+		localThreshold::binarisation(firstImg, 41, 56);
+		localThreshold::binarisation(secondImg, 41, 56);
 		double threshold = ui->segmentationThresholdText->text().toFloat();
 		cv::threshold(firstImg, firstImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
 		cv::threshold(secondImg, secondImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1-1-Binarization.png").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/2-1-Binarization.png").toStdString(), secondImg);
+		ideka::binOptimisation(firstImg);
+		ideka::binOptimisation(secondImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1-1-Binarization.bmp").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/2-1-Binarization.bmp").toStdString(), secondImg);
 	}
 	// Customising Segmentor...	
 	switch (segmentationIndex)
@@ -259,15 +263,15 @@ void MainWindow::runCustom()
 		// This will create more unique and stronger interest points
 		firstImg = skeletonization(firstImg);
 		secondImg = skeletonization(secondImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Morphological Skeleton.png").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Morphological Skeleton.png").toStdString(), secondImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Morphological Skeleton.bmp").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Morphological Skeleton.bmp").toStdString(), secondImg);
 		break;
 	case 2:
 		// Thinning of Zhang-Suen
 		ZhangSuen::thinning(firstImg);
 		ZhangSuen::thinning(secondImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Zhang-Suen Thinning.png").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Zhang-Suen Thinning.png").toStdString(), secondImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Zhang-Suen Thinning.bmp").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Zhang-Suen Thinning.bmp").toStdString(), secondImg);
 		break;
 	case 3:{
 		// Thinning of Lin-Hong implemented by Mrs. Faiçal
@@ -276,8 +280,8 @@ void MainWindow::runCustom()
 		secondImg = Image_processing::thinning(secondImg, enhancedImage, segmentedImage);
 
 		firstImg.convertTo(firstImg, CV_8UC3, 255); secondImg.convertTo(secondImg, CV_8UC3, 255);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Lin-Hong Thinning.png").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Lin-Hong Thinning.png").toStdString(), secondImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Lin-Hong Thinning.bmp").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Lin-Hong Thinning.bmp").toStdString(), secondImg);
 		break;
 	}
 	case 4:
@@ -285,8 +289,8 @@ void MainWindow::runCustom()
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Exception !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		GuoHall::thinning(firstImg);
 		GuoHall::thinning(secondImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Guo-Hall Thinning.png").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Guo-Hall Thinning.png").toStdString(), secondImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Guo-Hall Thinning.bmp").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Guo-Hall Thinning.bmp").toStdString(), secondImg);
 		break;
 
 		//....
@@ -296,7 +300,7 @@ void MainWindow::runCustom()
 	switch (detectorIndex)
 	{
 	case 0:{
-		// Minutiae-detection
+		// Minutiae-detection using Crossing Number
 		// http://www.codelooker.com/id/217/1100103.html
 		std::vector<Minutiae> firstMinutiae, secondMinutiae;
 		
@@ -313,8 +317,8 @@ void MainWindow::runCustom()
 		Filter::filterMinutiae(firstMinutiae);
 		Filter::filterMinutiae(secondMinutiae);
 
-		visualizingMinutiae(firstImg, firstMinutiae, "1-4-Filter");
-		visualizingMinutiae(secondImg, secondMinutiae, "2-4-Filter");
+		visualizingMinutiae(firstImg, firstMinutiae, "1-4-Filtered");
+		visualizingMinutiae(secondImg, secondMinutiae, "2-4-Filtered");
 
 		// images must be segmented if not Minutiae will be ampty
 		try{
@@ -976,7 +980,7 @@ void MainWindow::visualizingMinutiae(cv::Mat img, std::vector<Minutiae> minutiae
 	}
 	//namedWindow(stepName, cv::WINDOW_AUTOSIZE);     // Create a window for display.
 	//imshow(stepName, minutImg);                 // Show our image inside it.
-	cv::imwrite(QString(qApp->applicationDirPath() + "/" + QString::fromStdString(stepName) + ".png").toStdString(), minutImg);
+	cv::imwrite(QString(qApp->applicationDirPath() + "/" + QString::fromStdString(stepName) + ".bmp").toStdString(), minutImg);
 }
 
 void MainWindow::calculateMinutiaeMagnitudeAngle(std::vector<Minutiae> minutiaes, std::vector<float> &magnitudes, std::vector<float> &angles){

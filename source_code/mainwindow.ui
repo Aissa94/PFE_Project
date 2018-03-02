@@ -568,7 +568,7 @@
         <item row="0" column="0">
          <widget class="QTabWidget" name="customTabs">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tabSegmentation">
            <attribute name="title">
@@ -885,11 +885,14 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="detectorTabs">
               <property name="currentIndex">
-               <number>5</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="tabDetectorMinutiae">
                <attribute name="title">
                 <string>Minutiae</string>
+               </attribute>
+               <attribute name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Crossing number methods is a really simple way to detect ridge endings and ridge bifurcations.&lt;/p&gt;&lt;p&gt;First, we need thinned (skeleton) image. Then the crossing number algorithm will look at 3x3 pixel blocks:&lt;/p&gt;&lt;p&gt;if middle pixel is black (represents ridge):&lt;/p&gt;&lt;p&gt;- if pixel on boundary are crossed with the ridge once, then we've found ridge ending.&lt;/p&gt;&lt;p&gt;- if pixel on boundary are crossed with the ridge three times, then we've found ridge bifurcation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_13">
                 <item row="0" column="0">

@@ -1,5 +1,6 @@
 #include "Ideka.h"
 #include "../thinning/GuoHall.h"
+#include "../thinning/ZhangSuen.h"
 
 #include <opencv2/core/core.hpp>        // Basic OpenCV structures (cv::Mat, Scalar)
 #include <opencv2/imgproc/imgproc.hpp>
@@ -26,7 +27,8 @@ namespace ideka {
         cv::bitwise_not(im, im);    //Inverse for bit-operations
 
         //skeletionizing
-        GuoHall::thinning(im);
+        //GuoHall::thinning(im);
+		ZhangSuen::thinning(im);
 
         //dilatation
         cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(3, 3));
@@ -76,7 +78,8 @@ namespace ideka {
         cv::bitwise_not(im, im);    //Inverse for bit-operations
 
         //skeletionizing
-        GuoHall::thinning(im);
+		//GuoHall::thinning(im);
+		ZhangSuen::thinning(im);
 
         //dilatation
         cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(3, 3));
@@ -94,9 +97,5 @@ namespace ideka {
         //opening
         //morphologyEx( im, im, MORPH_CLOSE, element, Point(-1,-1), numIterations, BORDER_CONSTANT, morphologyDefaultBorderValue() );
     }
-
-
-
-
 
 }

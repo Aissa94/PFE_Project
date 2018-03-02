@@ -1,10 +1,6 @@
-#include "minutie.h"
+// By Mrs. Faiçal
 
-int x; 
-int y;
-double or;
-double dir;
-bool end;
+#include "minutie.h"
 
 Minutie::Minutie()
 {

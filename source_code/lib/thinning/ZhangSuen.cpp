@@ -1,3 +1,5 @@
+// This is the same Thinning Algorithme used by BluePrints
+
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 

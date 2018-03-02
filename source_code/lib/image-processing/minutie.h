@@ -7,7 +7,7 @@
 
 class Minutie
 {
-public :
+public:
 	Minutie();
 	Minutie(int _x, int _y, double _or, double _dir, bool _end);
 	int get_x();
@@ -16,6 +16,12 @@ public :
 	double get_dir();
 	double Eucld_Distance(Minutie minutie);
 	bool isEnd();
+private:
+	int x;
+	int y;
+	double or;
+	double dir;
+	bool end;
 };
 
 #endif // MINUTIE_H
