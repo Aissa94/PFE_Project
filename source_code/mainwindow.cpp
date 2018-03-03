@@ -252,8 +252,8 @@ void MainWindow::runCustom()
 		cv::threshold(secondImg, secondImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
 		ideka::binOptimisation(firstImg);
 		ideka::binOptimisation(secondImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1-1-Binarization.bmp").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/2-1-Binarization.bmp").toStdString(), secondImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1_2-1-Binarization.bmp").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1_1-1-Binarization.bmp").toStdString(), secondImg);
 	}
 	// Customising Segmentor...	
 	switch (segmentationIndex)
@@ -263,15 +263,15 @@ void MainWindow::runCustom()
 		// This will create more unique and stronger interest points
 		firstImg = skeletonization(firstImg);
 		secondImg = skeletonization(secondImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Morphological Skeleton.bmp").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Morphological Skeleton.bmp").toStdString(), secondImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1_2-2-Morphological Skeleton.bmp").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1_1-2-Morphological Skeleton.bmp").toStdString(), secondImg);
 		break;
 	case 2:
 		// Thinning of Zhang-Suen
 		ZhangSuen::thinning(firstImg);
 		ZhangSuen::thinning(secondImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Zhang-Suen Thinning.bmp").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Zhang-Suen Thinning.bmp").toStdString(), secondImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1_2-2-Zhang-Suen Thinning.bmp").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1_1-2-Zhang-Suen Thinning.bmp").toStdString(), secondImg);
 		break;
 	case 3:{
 		// Thinning of Lin-Hong implemented by Mrs. Faiçal
@@ -280,8 +280,8 @@ void MainWindow::runCustom()
 		secondImg = Image_processing::thinning(secondImg, enhancedImage, segmentedImage);
 
 		firstImg.convertTo(firstImg, CV_8UC3, 255); secondImg.convertTo(secondImg, CV_8UC3, 255);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Lin-Hong Thinning.bmp").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Lin-Hong Thinning.bmp").toStdString(), secondImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1_2-2-Lin-Hong Thinning.bmp").toStdString(), firstImg);
+		cv::imwrite(QString(qApp->applicationDirPath() + "/1_1-2-Lin-Hong Thinning.bmp").toStdString(), secondImg);
 		break;
 	}
 	case 4:
@@ -300,42 +300,88 @@ void MainWindow::runCustom()
 	switch (detectorIndex)
 	{
 	case 0:{
-		// Minutiae-detection using Crossing Number
-		// http://www.codelooker.com/id/217/1100103.html
+		// Minutiae-detection using Crossing Number By Mrs. Faiçal
 		std::vector<Minutiae> firstMinutiae, secondMinutiae;
-		
+		Image_processing imgProcessing;
 		detectionTime = (double)cv::getTickCount();
-		crossingNumber::getMinutiae(firstImg, firstMinutiae, ui->detectorMinutiaeBorderText->text().toInt());
-		crossingNumber::getMinutiae(secondImg, secondMinutiae, ui->detectorMinutiaeBorderText->text().toInt());
+		// change this to Minutia_Extraction !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		firstMinutiae = imgProcessing.Final_Minutiae_Set_Extraction(firstImg);
+		secondMinutiae = imgProcessing.Final_Minutiae_Set_Extraction(secondImg);
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
-		
-		visualizingMinutiae(firstImg, firstMinutiae, "1-3-Minutiae");
-		visualizingMinutiae(secondImg, secondMinutiae, "2-3-Minutiae");
 
-		//Minutiae-filtering
-		// slow with the second segmentation
-		Filter::filterMinutiae(firstMinutiae);
-		Filter::filterMinutiae(secondMinutiae);
+		writeKeyPoints(firstImg, firstMinutiae, "1_2-4-Filtered");
+		writeKeyPoints(secondImg, secondMinutiae, "1_1-4-Filtered");
 
-		visualizingMinutiae(firstImg, firstMinutiae, "1-4-Filtered");
-		visualizingMinutiae(secondImg, secondMinutiae, "2-4-Filtered");
-
-		// images must be segmented if not Minutiae will be ampty
+		// images must be segmented if not Minutiae will be empty
 		try{
-			// Transforming Minutiae to KeyPoints
-			firstImgKeypoints = getKeypointsFromMinutiae(firstMinutiae);
-			secondImgKeypoints = getKeypointsFromMinutiae(secondMinutiae);
+			// Adapt Minutiaes to KeyPoints (this will affect magnitudes and angles to minutiaes)
+			MinutiaeToKeyPointAdapter adapter;
+			// also we must add the Adapting time to detection time
+			detectionTime += adapter.adapt(firstMinutiae);
+			detectionTime += adapter.adapt(secondMinutiae);
 			// Add conversion time from minutiae to keypoints
 			detectionTime += conversionTime;
+			for each (Minutiae minutiae in firstMinutiae)
+			{
+				firstImgKeypoints.push_back(minutiae);
+			}
+			for each (Minutiae minutiae in secondMinutiae)
+			{
+				secondImgKeypoints.push_back(minutiae);
+			}
 		}
 		catch (...){
-			ui->logPlainText->appendHtml("<i style='color:red'>Before detecting Minutiaen you must select a segmentation method !</i>");
+			ui->logPlainText->appendHtml("<i style='color:red'>Before detecting Minutiae you must select a segmentation method !</i>");
 			return;
 		}
 
 	}
 		   break;
 	case 1:{
+		// Minutiae-detection using Crossing Number
+		// http://www.codelooker.com/id/217/1100103.html
+		std::vector<Minutiae> firstMinutiae, secondMinutiae;
+
+		detectionTime = (double)cv::getTickCount();
+		firstMinutiae = crossingNumber::getMinutiae(firstImg, ui->detectorMinutiae2BorderText->text().toInt());
+		secondMinutiae = crossingNumber::getMinutiae(secondImg, ui->detectorMinutiae2BorderText->text().toInt());
+		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+
+		writeKeyPoints(firstImg, firstMinutiae, "1_2-3-Minutiae");
+		writeKeyPoints(secondImg, secondMinutiae, "1_1-3-Minutiae");
+
+		//Minutiae-filtering
+		// slow with the second segmentation
+		Filter::filterMinutiae(firstMinutiae);
+		Filter::filterMinutiae(secondMinutiae);
+
+		writeKeyPoints(firstImg, firstMinutiae, "1_2-4-Filtered");
+		writeKeyPoints(secondImg, secondMinutiae, "1_1-4-Filtered");
+
+		// images must be segmented if not Minutiae will be empty
+		try{
+			// Adapt Minutiaes to KeyPoints (this will affect magnitudes and angles to minutiaes)
+			MinutiaeToKeyPointAdapter adapter;
+			// also we must add the Adapting time to detection time
+			detectionTime += adapter.adapt(firstMinutiae);
+			detectionTime += adapter.adapt(secondMinutiae);
+			for each (Minutiae minutiae in firstMinutiae)
+			{
+				firstImgKeypoints.push_back(minutiae);
+			}
+			for each (Minutiae minutiae in secondMinutiae)
+			{
+				secondImgKeypoints.push_back(minutiae);
+			}
+		}
+		catch (...){
+			ui->logPlainText->appendHtml("<i style='color:red'>Before detecting Minutiae you must select a segmentation method !</i>");
+			return;
+		}
+
+	}
+		   break;
+	case 2:{
 		// Harris-Corners
 		detectionTime = (double)cv::getTickCount();
 		harrisCorners(firstImg, firstImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
@@ -343,7 +389,7 @@ void MainWindow::runCustom()
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 	}
 		   break;
-	case 2:{
+	case 3:{
 		// STAR
 		ptrDetector = new cv::StarFeatureDetector(ui->detectorStarMaxSizeText->text().toInt(),
 			ui->detectorStarResponseThresholdText->text().toInt(),
@@ -352,12 +398,12 @@ void MainWindow::runCustom()
 			ui->detectorStarSuppressNonmaxSizeText->text().toInt());
 	}
 		break;
-	case 3:
+	case 4:
 		// FAST
 		ptrDetector = new cv::FastFeatureDetector(ui->detectorFastThresholdText->text().toInt(),
 			ui->detectorFastNonmaxSuppressionCheck->isChecked());
 		break;
-	case 4:
+	case 5:
 		// SIFT
 		ptrDetector = new cv::SiftFeatureDetector(ui->detectorSiftNfeaturesText->text().toInt(),
 			ui->detectorSiftNOctaveLayersText->text().toInt(),
@@ -365,7 +411,7 @@ void MainWindow::runCustom()
 			ui->detectorSiftEdgeThresholdText->text().toDouble(),
 			ui->detectorSiftSigmaText->text().toDouble());
 		break;
-	case 5:
+	case 6:
 		//SURF
 		// we didn't need the Extended and Upright params because it is related to the SURF descriptor
 		ptrDetector = new cv::SurfFeatureDetector(ui->detectorSurfHessianThresholdText->text().toDouble(),
@@ -374,7 +420,7 @@ void MainWindow::runCustom()
 			true,
 			false);
 		break;
-	case 6:
+	case 7:
 		//Dense
 		ptrDetector = new cv::DenseFeatureDetector(ui->detectorDenseInitFeatureScaleText->text().toFloat(),
 			ui->detectorDenseFeatureScaleLevelsText->text().toInt(),
@@ -391,7 +437,7 @@ void MainWindow::runCustom()
 		break;
 	}
 
-	if (detectorIndex > 1){
+	if (detectorIndex > 2){
 		// Write the parameters
 		writeToFile("detector_" + detectorName, ptrDetector);
 		// fs in WRITE mode automatically released
@@ -428,6 +474,9 @@ void MainWindow::runCustom()
 		/*std::vector<cv::Mat> matrix = { firstImgKeypoints, secondImgKeypoints };
 		clusteringIntoKClusters(matrix, 1000);*/
 	}
+
+	// Only detection
+	return;
 
 	// Customising Descriptor...
 	switch (descriptorIndex)
@@ -959,57 +1008,33 @@ void MainWindow::clusteringIntoKClusters(std::vector<cv::Mat> features_vector, i
 }
 // <--------------
 
-void MainWindow::visualizingMinutiae(cv::Mat img, std::vector<Minutiae> minutiae, std::string stepName){
+template <typename T>
+void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> &keyPoints, std::string fileName){
 	//Visualisation
-	cv::Mat minutImg = img.clone();
-	cvtColor(img, minutImg, CV_GRAY2RGB);
-	for (std::vector<Minutiae>::size_type i = 0; i < minutiae.size(); i++){
-		//add an transparent square at each minutiae-location
+	cv::Mat outImg = img.clone();
+	cvtColor(img, outImg, CV_GRAY2RGB);
+	for (cv::KeyPoint &keyPoint : keyPoints){
+		//add a transparent square at each minutiae-location
 		int squareSize = 5;     //has to be uneven
-		cv::Mat roi = minutImg(cv::Rect(minutiae[i].getLocX() - squareSize / 2, minutiae[i].getLocY() - squareSize / 2, squareSize, squareSize));
+		cv::Mat roi = outImg(cv::Rect(keyPoint.pt.x - squareSize / 2, keyPoint.pt.y - squareSize / 2, squareSize, squareSize));
 		double alpha = 0.3;
-		if (minutiae[i].getType() == Minutiae::Type::RIDGEENDING){
-			cv::Mat color(roi.size(), CV_8UC3, cv::Scalar(255, 0, 0));    //blue square for ridgeending
-			addWeighted(color, alpha, roi, 1.0 - alpha, 0.0, roi);
+		cv::Mat color;
+		if (typeid(keyPoints) == typeid(std::vector<Minutiae>)){
+			// if minutiaes then distinguish between ridgeending and bifurcation
+			if (static_cast<Minutiae&>(keyPoint).getType() == Minutiae::Type::RIDGEENDING){
+				color = cv::Mat(roi.size(), CV_8UC3, cv::Scalar(255, 0, 0));    //blue square for ridgeending
+			}
+			else if (static_cast<Minutiae&>(keyPoint).getType() == Minutiae::Type::BIFURCATION){
+				color = cv::Mat(roi.size(), CV_8UC3, cv::Scalar(0, 0, 255));    //red square for bifurcation
+			}
 		}
-		else if (minutiae[i].getType() == Minutiae::Type::BIFURCATION){
-			cv::Mat color(roi.size(), CV_8UC3, cv::Scalar(0, 0, 255));    //red square for bifurcation
-			addWeighted(color, alpha, roi, 1.0 - alpha, 0.0, roi);
+		else {
+			//if simple keyPoints then use one color
+			color = cv::Mat(roi.size(), CV_8UC3, cv::Scalar(0, 128, 0));    //green square for simple keyPoint
 		}
-
+		addWeighted(color, alpha, roi, 1.0 - alpha, 0.0, roi);
 	}
-	//namedWindow(stepName, cv::WINDOW_AUTOSIZE);     // Create a window for display.
-	//imshow(stepName, minutImg);                 // Show our image inside it.
-	cv::imwrite(QString(qApp->applicationDirPath() + "/" + QString::fromStdString(stepName) + ".bmp").toStdString(), minutImg);
-}
-
-void MainWindow::calculateMinutiaeMagnitudeAngle(std::vector<Minutiae> minutiaes, std::vector<float> &magnitudes, std::vector<float> &angles){
-// Calculates the magnitude and angle of minutiaes.
-	// getting X and Y vecors of minutiaes
-	std::vector<float> minutiaeXs, minutiaeYs;
-	for each (Minutiae minutiae in minutiaes)
-	{
-		minutiaeXs.push_back(minutiae.getLocX());
-		minutiaeYs.push_back(minutiae.getLocY());
-	}
-	// The angles are calculated with accuracy about 0.3 degrees.For the point(0, 0), the angle is set to 0.
-	conversionTime = (double)cv::getTickCount();
-	cv::cartToPolar(minutiaeXs, minutiaeYs, magnitudes, angles, true);
-	conversionTime = ((double)cv::getTickCount() - conversionTime) / cv::getTickFrequency();
-}
-
-std::vector<cv::KeyPoint> MainWindow::getKeypointsFromMinutiae(std::vector<Minutiae> minutiaes){
-	std::vector<cv::KeyPoint> keypoints;
-	// Calculates the magnitude and angle of minutiaes.
-	std::vector<float> magnitudes, angles;
-	calculateMinutiaeMagnitudeAngle(minutiaes, magnitudes, angles);
-
-	// Minutiae to KeyPoint
-	int i = 0;
-	for each (Minutiae minutiae in minutiaes)
-	{
-		keypoints.push_back(cv::KeyPoint(minutiae.getLocX(), minutiae.getLocY(), magnitudes[i], angles[i]));
-		i++;
-	}
-	return keypoints;
+	//namedWindow(fileName, cv::WINDOW_AUTOSIZE);     // Create a window for display.
+	//imshow(fileName, outImg);                 // Show our image inside it.
+	if (fileName != "")cv::imwrite(QString(qApp->applicationDirPath() + "/" + QString::fromStdString(fileName) + ".bmp").toStdString(), outImg);
 }

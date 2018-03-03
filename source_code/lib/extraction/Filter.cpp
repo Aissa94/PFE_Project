@@ -16,7 +16,7 @@ namespace Filter{
                         same = true;
                     }
                     if((minutiae[j].getType() == Minutiae::Type::RIDGEENDING) && !same){ //(minutiae[j].getType() == Minutiae::Type::RIDGEENDING) &&
-                        double distance = euclideanDistance(minutiae[i].getLocX(), minutiae[i].getLocY(), minutiae[j].getLocX(), minutiae[j].getLocY());
+						double distance = euclideanDistance(minutiae[i].pt.x, minutiae[i].pt.y, minutiae[j].pt.x, minutiae[j].pt.y);
                         //if the distance is to low...
                         if(distance < minDistanceForMinutiae){
                             //... then mark minutiae for erasing

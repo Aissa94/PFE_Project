@@ -1,16 +1,14 @@
 #include "CrossingNumber.h"
-#include "Minutiae.h"
-
-#include <opencv2/core/core.hpp>
-#include <iostream>
 
 using namespace cv;
 
 namespace crossingNumber {
 
-void getMinutiae(Mat& im, std::vector<Minutiae>& minutiae, int border ){
-    if(border < 1){
-        std::cout<<"Randbereich zu klein gewählt!" << std::endl;
+std::vector<Minutiae> getMinutiae(Mat& im, int border){
+	std::vector<Minutiae> minutiae;
+
+	if(border < 1){
+        //std::cout<<"The border area chosen is too small!" << std::endl;
         border = 2;
     }
 
@@ -35,21 +33,20 @@ void getMinutiae(Mat& im, std::vector<Minutiae>& minutiae, int border ){
                 //std::cout<<"cn = " << cn << std::endl;
 
                 if(cn == 1){
-                    Minutiae minut(i, j, Minutiae::Type::RIDGEENDING);
+					Minutiae minut(i, j, 0, 0, Minutiae::Type::RIDGEENDING);
                     minutiae.push_back(minut);
                     ridgeEndingCount++;
                 }else if(cn == 3){
-                    Minutiae minut(i, j, Minutiae::Type::BIFURCATION);
+					Minutiae minut(i, j, 0, 0, Minutiae::Type::BIFURCATION);
                     minutiae.push_back(minut);
                     bifurcationCount++;
                 }
             }
         }
     }
-    std::cout<<"Anzahl gefundener Ridge-Endings: " << ridgeEndingCount << std::endl;
-    std::cout<<"Anzahl gefundener Bifurcations: " << bifurcationCount << std::endl;
+    /*std::cout<<"Number of Ridge ending found: " << ridgeEndingCount << std::endl;
+	std::cout << "Number of Bifurcation found: " << bifurcationCount << std::endl;*/
+	return minutiae;
 }
-
-
 
 }

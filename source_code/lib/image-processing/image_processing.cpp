@@ -6,8 +6,6 @@
 #include <fstream>
 #include <vector>
 
-#include "minutie.h"
-#include "minutiae_features.h"
 #include "iomanip"
 using namespace std;
 
@@ -1014,20 +1012,20 @@ cv::Mat Image_Thinnig(cv::Mat img, bool black){
 //---------------------------------------------------------------------------------
 //**************************   MINUTIA EXTRACTION  ********************************
 //---------------------------------------------------------------------------------
-Minutiae_Features Minutia_Extraction(cv::Mat img, cv::Mat oimg, int bloc_size){
+std::vector<Minutiae> Minutia_Extraction(cv::Mat img, cv::Mat oimg, int bloc_size){
 	/*
 	* img : thinned image
 	*/
 
-	Minutiae_Features Minutia_vec;
+	std::vector<Minutiae> Minutia_vec;
 	uchar _cross_number;
 	uchar _dir_number;
 	double _or, _dir;
-	Minutie *_m;
+	Minutiae *_m;
 
 
 	for (int i = 1; i< img.rows - 1; i++)
-		for (int j = 1; j< img.rows - 1; j++){
+		for (int j = 1; j< img.cols - 1; j++){
 			if (img.at<uchar>(i, j) == 0){
 				_dir_number = (img.at<uchar>(i + 1, j) != img.at<uchar>(i + 1, j - 1)) +
 					(img.at<uchar>(i + 1, j - 1) != img.at<uchar>(i, j - 1)) +
@@ -1054,11 +1052,11 @@ Minutiae_Features Minutia_Extraction(cv::Mat img, cv::Mat oimg, int bloc_size){
 						else _dir = _or;
 					}
 
-					_m = new Minutie(j, i, _or, _dir, true);
+					_m = new Minutiae(j, i, _or, _dir, Minutiae::RIDGEENDING);
 					Minutia_vec.push_back(*_m);
 					break;
 				case 3:  _or = (double)oimg.at<double>(i / bloc_size, j / bloc_size);
-					_m = new Minutie(j, i, _or, _or, false);
+					_m = new Minutiae(j, i, _or, _or, Minutiae::BIFURCATION);
 					Minutia_vec.push_back(*_m);
 					break;
 				default: break;
@@ -1071,7 +1069,7 @@ Minutiae_Features Minutia_Extraction(cv::Mat img, cv::Mat oimg, int bloc_size){
 	return Minutia_vec;
 }
 
-void Image_processing::Draw_minutiae_Features(bool col, cv::Mat &img, Minutiae_Features minutiae){
+void Image_processing::Draw_minutiae_Features(bool col, cv::Mat &img, std::vector<Minutiae> minutiae){
 
 	cv::Point2d a, b;
 	//cv::Scalar color(255,255,0);
@@ -1079,33 +1077,33 @@ void Image_processing::Draw_minutiae_Features(bool col, cv::Mat &img, Minutiae_F
 	cv::Scalar color2(0, 0, 255);
 
 	for (int i = 0; i< minutiae.size(); i++){
-		Minutie m = minutiae[i];
+		Minutiae m = minutiae[i];
 
-		cv::Point2d _center(m.get_x(), m.get_y());
+		cv::Point2d _center(m.pt.x, m.pt.y);
 		if (col){
 			cv::circle(img, _center, 3, color2, 1);
 		}
 		else{
 			cv::circle(img, _center, 3, color1, 1);
 		}
-		double theta = 0 - m.get_dir();
+		double theta = 0 - m.getDir();
 		if (theta > PI) theta = theta - 2 * PI;
 		if (theta <= -PI)theta = theta + 2 * PI;
 		if ((theta >= 0) && (theta <= PI_2)){
 
-			a.x = m.get_x();
-			a.y = m.get_y();
-			b.x = m.get_x() + (8 * cos(theta));
-			b.y = m.get_y() - (8 * sin(theta));
+			a.x = m.pt.x;
+			a.y = m.pt.y;
+			b.x = m.pt.x + (8 * cos(theta));
+			b.y = m.pt.y - (8 * sin(theta));
 
 			//      cv::line(img,a,b,color,2);
 		}
 		else {
 			if ((theta>PI_2) && (theta <= PI)){
-				a.x = m.get_x();
-				a.y = m.get_y();
-				b.x = m.get_x() - (8 * cos(PI - theta));
-				b.y = m.get_y() - (8 * sin(PI - theta));
+				a.x = m.pt.x;
+				a.y = m.pt.y;
+				b.x = m.pt.x - (8 * cos(PI - theta));
+				b.y = m.pt.y - (8 * sin(PI - theta));
 
 				//  cv::line(img,a,b,color,2);
 			}
@@ -1113,27 +1111,27 @@ void Image_processing::Draw_minutiae_Features(bool col, cv::Mat &img, Minutiae_F
 			else{
 				if ((theta <0) && (theta >= -PI_2)){
 
-					a.x = m.get_x();
-					a.y = m.get_y();
-					b.x = m.get_x() + (8 * cos(-theta));
-					b.y = m.get_y() + (8 * sin(-theta));
+					a.x = m.pt.x;
+					a.y = m.pt.y;
+					b.x = m.pt.x + (8 * cos(-theta));
+					b.y = m.pt.y + (8 * sin(-theta));
 					// cv::line(img,a,b,color,2);
 				}
 				else {
 					if ((theta <-PI_2) && (theta >= -PI)){
-						a.x = m.get_x();
-						a.y = m.get_y();
-						b.x = m.get_x() - (8 * cos(PI + theta));
-						b.y = m.get_y() + (8 * sin(PI + theta));
+						a.x = m.pt.x;
+						a.y = m.pt.y;
+						b.x = m.pt.x - (8 * cos(PI + theta));
+						b.y = m.pt.y + (8 * sin(PI + theta));
 						//cv::line(img,a,b,color,2);
 					}
 
 					else{
 						//cout << m.get_or() << "  error " << endl;
-						a.x = m.get_x();
-						a.y = m.get_y();
-						b.x = m.get_x() + 8;
-						b.y = m.get_y() + (8 * tan(theta));
+						a.x = m.pt.x;
+						a.y = m.pt.y;
+						b.x = m.pt.x + 8;
+						b.y = m.pt.y + (8 * tan(theta));
 						//   cv::line(img,a,b,CV_RGB(255,0,255),2);
 					}
 				}
@@ -1149,7 +1147,7 @@ void Image_processing::Draw_minutiae_Features(bool col, cv::Mat &img, Minutiae_F
 	}
 }
 
-void Minutiae_Validation(cv::Mat img, Minutiae_Features &minutiae, cv::Mat msk){
+void Minutiae_Validation(cv::Mat img, std::vector<Minutiae> &minutiae, cv::Mat msk){
 
 	//+++++++++++ elimination of bordary minutie +++++++++++++++++
 	//  ofstream myfile;
@@ -1162,13 +1160,13 @@ void Minutiae_Validation(cv::Mat img, Minutiae_Features &minutiae, cv::Mat msk){
 	cv::erode(msk, msk, _struct_elt_7, cv::Point(-1, -1), 1, cv::BORDER_CONSTANT, 1);
 
 
-	Minutiae_Features::iterator it = minutiae.begin();
+	std::vector<Minutiae>::iterator it = minutiae.begin();
 
 	while (it != minutiae.end())
 	{
-		Minutie& _m = *it;
-		if (msk.at<uchar>(_m.get_y(), _m.get_x()) == 0) {
-			//  myfile << "x: " << _m.get_x() << " | y:  " << _m.get_y() << "\n";
+		Minutiae& _m = *it;
+		if (msk.at<uchar>(_m.pt.y, _m.pt.x) == 0) {
+			//  myfile << "x: " << _m.pt.x << " | y:  " << _m.pt.y << "\n";
 			it = minutiae.erase(it);
 		}
 		else it++;
@@ -1182,14 +1180,14 @@ void Minutiae_Validation(cv::Mat img, Minutiae_Features &minutiae, cv::Mat msk){
 	//+++++++++++++++++++++++++ elimination of close minutie ++++++++++++++++++++++++++
 
 	it = minutiae.begin();
-	Minutiae_Features::iterator jt;
-	Minutie _m, _n;
+	std::vector<Minutiae>::iterator jt;
+	Minutiae _m, _n;
 	std::vector<int> inf_dist;
 	for (int i = 0; i< minutiae.size(); i++)   {
-		Minutie _m = minutiae[i];
+		Minutiae _m = minutiae[i];
 		for (int j = i + 1; j< minutiae.size(); j++){
-			Minutie _n = minutiae[j];
-			if ((_m.Eucld_Distance(_n)< 7) && (_m.isEnd() == _n.isEnd())){
+			Minutiae _n = minutiae[j];
+			if ((_m.euclideanDistance(_n)< 7) && (_m.getType() == _n.getType())){
 				if (std::find(inf_dist.begin(), inf_dist.end(), i) == inf_dist.end())
 				{
 					inf_dist.push_back(i);
@@ -1219,7 +1217,7 @@ void Minutiae_Validation(cv::Mat img, Minutiae_Features &minutiae, cv::Mat msk){
 
 }
 
-Minutiae_Features Image_processing::Final_Minutiae_Set_Extraction(cv::Mat img){
+std::vector<Minutiae> Image_processing::Final_Minutiae_Set_Extraction(cv::Mat img){
 
 	//cv::namedWindow("image Originale");
 	//cv::imshow("image Originale",img);
@@ -1258,7 +1256,7 @@ Minutiae_Features Image_processing::Final_Minutiae_Set_Extraction(cv::Mat img){
 
 	// ++++++++++++++++++Minutiae Extraction++++++++
 	cv::Mat oimg = Gradient_Orientation_Image(imge, 16);
-	Minutiae_Features minutiae = Minutia_Extraction(imgt, oimg, 16);
+	std::vector<Minutiae> minutiae = Minutia_Extraction(imgt, oimg, 16);
 
 	//    cv::Mat _imgt2=_imgt.clone();
 	//    Draw_minutiae_Features(1,_imgt2,minutiae);

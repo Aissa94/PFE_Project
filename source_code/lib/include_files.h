@@ -15,9 +15,10 @@
 #include "thinning\GuoHall.h"
 #include "thinning\ZhangSuen.h"
 
-// Mme :
+// Mrs :
 #include "image-processing\image_processing.h"
-#include "image-processing\minutiae_features.h"
-#include "image-processing\minutie.h"
+
+// Our
+#include "image-processing\MinutiaeToKeyPointAdapter.h"
 
 #endif

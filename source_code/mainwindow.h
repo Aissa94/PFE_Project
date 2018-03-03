@@ -70,10 +70,9 @@ private:
 	cv::Ptr<cv::flann::IndexParams> getFlannBasedIndexParamsType();
 	cv::Mat skeletonization(cv::Mat img);
 	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold = 125.0);
-	void clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k);
-	void visualizingMinutiae(cv::Mat img, std::vector<Minutiae> minutiae, std::string stepName = "3-minutiae");
-	void calculateMinutiaeMagnitudeAngle(std::vector<Minutiae> minutiaes, std::vector<float> &magnitudes, std::vector<float> &angles);
-	std::vector<cv::KeyPoint> getKeypointsFromMinutiae(std::vector<Minutiae> minutiaes);
+	void clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k); 
+	template <typename T>
+	void writeKeyPoints(cv::Mat img, std::vector<T> &keyPoints, std::string fileName = "");
 };
 
 #endif // MAINWINDOW_H

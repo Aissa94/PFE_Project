@@ -33,7 +33,7 @@
           <item row="0" column="1">
            <widget class="QLineEdit" name="firstImgText">
             <property name="text">
-             <string>Resources/images/2.png</string>
+             <string>Resources/images/1_2.jpg</string>
             </property>
            </widget>
           </item>
@@ -57,7 +57,7 @@
           <item row="1" column="1">
            <widget class="QLineEdit" name="secondImgText">
             <property name="text">
-             <string>Resources/images/3.png</string>
+             <string>Resources/images/1_1.jpg</string>
             </property>
             <property name="buddy" stdset="0">
              <cstring>label_4</cstring>
@@ -887,9 +887,9 @@
               <property name="currentIndex">
                <number>0</number>
               </property>
-              <widget class="QWidget" name="tabDetectorMinutiae">
+              <widget class="QWidget" name="tabDetectorMinutiaeMme">
                <attribute name="title">
-                <string>Minutiae</string>
+                <string>Minutiae (Mme)</string>
                </attribute>
                <attribute name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Crossing number methods is a really simple way to detect ridge endings and ridge bifurcations.&lt;/p&gt;&lt;p&gt;First, we need thinned (skeleton) image. Then the crossing number algorithm will look at 3x3 pixel blocks:&lt;/p&gt;&lt;p&gt;if middle pixel is black (represents ridge):&lt;/p&gt;&lt;p&gt;- if pixel on boundary are crossed with the ridge once, then we've found ridge ending.&lt;/p&gt;&lt;p&gt;- if pixel on boundary are crossed with the ridge three times, then we've found ridge bifurcation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -898,7 +898,58 @@
                 <item row="0" column="0">
                  <layout class="QGridLayout" name="detectorMinutiaeParams">
                   <item row="0" column="0">
-                   <widget class="QLabel" name="detectorMinutiaeBorderLabel">
+                   <widget class="QLabel" name="detectorMinutiaeParam1Label">
+                    <property name="text">
+                     <string>Param1 :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="detectorMinutiaeParam2Label">
+                    <property name="text">
+                     <string>param2 :</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="detectorMinutiaeParam1Text">
+                    <property name="text">
+                     <string>0</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLineEdit" name="detectorMinutiaeParam2Text">
+                    <property name="text">
+                     <string>0</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QWidget" name="tabDetectorMinutiae2">
+               <attribute name="title">
+                <string>Minutiae (2)</string>
+               </attribute>
+               <attribute name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Crossing number methods is a really simple way to detect ridge endings and ridge bifurcations.&lt;/p&gt;&lt;p&gt;First, we need thinned (skeleton) image. Then the crossing number algorithm will look at 3x3 pixel blocks:&lt;/p&gt;&lt;p&gt;if middle pixel is black (represents ridge):&lt;/p&gt;&lt;p&gt;- if pixel on boundary are crossed with the ridge once, then we've found ridge ending.&lt;/p&gt;&lt;p&gt;- if pixel on boundary are crossed with the ridge three times, then we've found ridge bifurcation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </attribute>
+               <layout class="QGridLayout" name="gridLayout_13">
+                <item row="0" column="0">
+                 <layout class="QGridLayout" name="detectorMinutiae2Params">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="detectorMinutiae2BorderLabel">
+                    <property name="toolTip">
+                     <string>Choose an Integer greater than 1</string>
+                    </property>
                     <property name="text">
                      <string>Border :</string>
                     </property>
@@ -908,7 +959,7 @@
                    </widget>
                   </item>
                   <item row="1" column="0">
-                   <widget class="QLabel" name="detectorMinutiaeParamLabel">
+                   <widget class="QLabel" name="detectorMinutiae2ParamLabel">
                     <property name="text">
                      <string>param :</string>
                     </property>
@@ -918,14 +969,14 @@
                    </widget>
                   </item>
                   <item row="0" column="1">
-                   <widget class="QLineEdit" name="detectorMinutiaeBorderText">
+                   <widget class="QLineEdit" name="detectorMinutiae2BorderText">
                     <property name="text">
                      <string>30</string>
                     </property>
                    </widget>
                   </item>
                   <item row="1" column="1">
-                   <widget class="QLineEdit" name="detectorMinutiaeParamText">
+                   <widget class="QLineEdit" name="detectorMinutiae2ParamText">
                     <property name="text">
                      <string>0</string>
                     </property>

@@ -1,24 +1,30 @@
 #include "Minutiae.h"
 
-Minutiae::Minutiae(int x, int y, Type t)
-         : locX(x), locY(y), type(t)
+Minutiae::~Minutiae()
 {
+	//dtor
+}
+
+Minutiae::Minutiae()
+{
+	
+}
+
+Minutiae::Minutiae(int x, int y, double or, double dir, Type type)
+         : or(or), dir(dir), type(type)
+{
+	pt.x = x;
+	pt.y = y;
     Minutiae::markedForErasing = false;
 }
 
-Minutiae::~Minutiae()
+double Minutiae::getOr()
 {
-    //dtor
+	return or;
 }
-
-int Minutiae::getLocX()
+double Minutiae::getDir()
 {
-    return locX;
-}
-
-int Minutiae::getLocY()
-{
-    return locY;
+	return dir;
 }
 
 Minutiae::Type Minutiae::getType()
@@ -34,4 +40,8 @@ void Minutiae::setMarkTrue()
 bool Minutiae::getMark()
 {
     return Minutiae::markedForErasing;
+}
+
+double Minutiae::euclideanDistance(Minutiae minutiae){
+	return sqrt(((pt.x - minutiae.pt.x)*(pt.x - minutiae.pt.x)) + ((pt.y - minutiae.pt.y)*(pt.y - minutiae.pt.y)));
 }
