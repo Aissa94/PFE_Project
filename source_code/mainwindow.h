@@ -72,7 +72,7 @@ private:
 	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold = 125.0);
 	void clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k); 
 	template <typename T>
-	void writeKeyPoints(cv::Mat img, std::vector<T> &keyPoints, std::string fileName = "");
+	void writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, std::string fileName = "");
 };
 
 #endif // MAINWINDOW_H

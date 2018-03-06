@@ -5,7 +5,8 @@ MinutiaeToKeyPointAdapter::MinutiaeToKeyPointAdapter()
 
 }
 
-void MinutiaeToKeyPointAdapter::calculateMinutiaeMagnitudeAngle(std::vector<Minutiae> minutiaes, std::vector<float> &magnitudes, std::vector<float> &angles){
+double MinutiaeToKeyPointAdapter::calculateMinutiaeMagnitudeAngle(std::vector<Minutiae> minutiaes, std::vector<float> &magnitudes, std::vector<float> &angles){
+		double adaptingTime;
 		// Calculates the magnitude and angle of minutiaes.
 		// getting X and Y vecors of minutiaes
 		std::vector<float> minutiaeXs, minutiaeYs;
@@ -18,13 +19,14 @@ void MinutiaeToKeyPointAdapter::calculateMinutiaeMagnitudeAngle(std::vector<Minu
 		adaptingTime = (double)cv::getTickCount();
 		cv::cartToPolar(minutiaeXs, minutiaeYs, magnitudes, angles, true);
 		adaptingTime = ((double)cv::getTickCount() - adaptingTime) / cv::getTickFrequency();
+		return adaptingTime;
 }
 
 double MinutiaeToKeyPointAdapter::adapt(std::vector<Minutiae> &minutiaes){
 	// Returns adpating time
 		// Calculates the magnitude and angle of minutiaes.
 		std::vector<float> magnitudes, angles;
-		calculateMinutiaeMagnitudeAngle(minutiaes, magnitudes, angles);
+		double adaptingTime = calculateMinutiaeMagnitudeAngle(minutiaes, magnitudes, angles);
 
 		// Affect magnitude and angle
 		for (int i = 0; i < minutiaes.size();i++)

@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include<iostream>
+#include<fstream>
 
 // Images Declaration
 	cv::Mat firstImg, secondImg;
@@ -22,9 +24,10 @@
 	cv::DescriptorMatcher * ptrMatcher;
 
 // Times
-	double detectionTime, descriptionTime, directMatchingTime, inverseMatchingTime, bestMatchingTime, conversionTime;
+	double detectionTime, descriptionTime, directMatchingTime, inverseMatchingTime, bestMatchingTime;
 // Others
 	int kBestMatches;
+	std::string directoryPath;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -250,12 +253,14 @@ void MainWindow::runCustom()
 		double threshold = ui->segmentationThresholdText->text().toFloat();
 		cv::threshold(firstImg, firstImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
 		cv::threshold(secondImg, secondImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
-		ideka::binOptimisation(firstImg);
-		ideka::binOptimisation(secondImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1_2-1-Binarization.bmp").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1_1-1-Binarization.bmp").toStdString(), secondImg);
+		//ideka::binOptimisation(firstImg);
+		//ideka::binOptimisation(secondImg);
+		cv::imwrite(directoryPath + "f-1_Binarization.bmp", firstImg);
+		cv::imwrite(directoryPath + "s-1_Binarization.bmp", secondImg);
 	}
-	// Customising Segmentor...	
+	// Customising Segmentor...
+	cv::Mat firstEnhancedImage, firstSegmentedImage; // used for Mrs. methods
+	cv::Mat secondEnhancedImage, secondSegmentedImage;
 	switch (segmentationIndex)
 	{
 	case 1:
@@ -263,25 +268,25 @@ void MainWindow::runCustom()
 		// This will create more unique and stronger interest points
 		firstImg = skeletonization(firstImg);
 		secondImg = skeletonization(secondImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1_2-2-Morphological Skeleton.bmp").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1_1-2-Morphological Skeleton.bmp").toStdString(), secondImg);
+		cv::imwrite(directoryPath + "f-2_Morphological Skeleton.bmp", firstImg);
+		cv::imwrite(directoryPath + "s-2_Morphological Skeleton.bmp", secondImg);
 		break;
 	case 2:
 		// Thinning of Zhang-Suen
+		//This is the same Thinning Algorithme used by BluePrints
 		ZhangSuen::thinning(firstImg);
 		ZhangSuen::thinning(secondImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1_2-2-Zhang-Suen Thinning.bmp").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1_1-2-Zhang-Suen Thinning.bmp").toStdString(), secondImg);
+		cv::imwrite(directoryPath + "f-2_Zhang-Suen Thinning.bmp", firstImg);
+		cv::imwrite(directoryPath + "s-2_Zhang-Suen Thinning.bmp", secondImg);
 		break;
 	case 3:{
 		// Thinning of Lin-Hong implemented by Mrs. Faiçal
-		cv::Mat enhancedImage, segmentedImage;
-		firstImg = Image_processing::thinning(firstImg, enhancedImage, segmentedImage);
-		secondImg = Image_processing::thinning(secondImg, enhancedImage, segmentedImage);
+		firstImg = Image_processing::thinning(firstImg, firstEnhancedImage, firstSegmentedImage);
+		secondImg = Image_processing::thinning(secondImg, secondEnhancedImage, secondSegmentedImage);
 
 		firstImg.convertTo(firstImg, CV_8UC3, 255); secondImg.convertTo(secondImg, CV_8UC3, 255);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1_2-2-Lin-Hong Thinning.bmp").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1_1-2-Lin-Hong Thinning.bmp").toStdString(), secondImg);
+		cv::imwrite(directoryPath + "f-2_Lin-Hong Thinning.bmp", firstImg);
+		cv::imwrite(directoryPath + "s-2_Lin-Hong Thinning.bmp", secondImg);
 		break;
 	}
 	case 4:
@@ -289,8 +294,8 @@ void MainWindow::runCustom()
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Exception !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		GuoHall::thinning(firstImg);
 		GuoHall::thinning(secondImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/1-2-Guo-Hall Thinning.bmp").toStdString(), firstImg);
-		cv::imwrite(QString(qApp->applicationDirPath() + "/2-2-Guo-Hall Thinning.bmp").toStdString(), secondImg);
+		cv::imwrite(directoryPath + "f-2_Guo-Hall Thinning.bmp", firstImg);
+		cv::imwrite(directoryPath + "s-2_Guo-Hall Thinning.bmp", secondImg);
 		break;
 
 		//....
@@ -302,15 +307,14 @@ void MainWindow::runCustom()
 	case 0:{
 		// Minutiae-detection using Crossing Number By Mrs. Faiçal
 		std::vector<Minutiae> firstMinutiae, secondMinutiae;
-		Image_processing imgProcessing;
 		detectionTime = (double)cv::getTickCount();
-		// change this to Minutia_Extraction !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		firstMinutiae = imgProcessing.Final_Minutiae_Set_Extraction(firstImg);
-		secondMinutiae = imgProcessing.Final_Minutiae_Set_Extraction(secondImg);
+		// change this to firstImage and originalInput !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		firstMinutiae = Image_processing::extracting(firstImg, firstEnhancedImage, firstSegmentedImage, firstImg);
+		secondMinutiae = Image_processing::extracting(secondImg, secondEnhancedImage, secondSegmentedImage, secondImg);
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
-		writeKeyPoints(firstImg, firstMinutiae, "1_2-4-Filtered");
-		writeKeyPoints(secondImg, secondMinutiae, "1_1-4-Filtered");
+		writeKeyPoints(firstImg, firstMinutiae, "f-3_Minutiae");
+		writeKeyPoints(secondImg, secondMinutiae, "s-3_Minutiae");
 
 		// images must be segmented if not Minutiae will be empty
 		try{
@@ -319,8 +323,6 @@ void MainWindow::runCustom()
 			// also we must add the Adapting time to detection time
 			detectionTime += adapter.adapt(firstMinutiae);
 			detectionTime += adapter.adapt(secondMinutiae);
-			// Add conversion time from minutiae to keypoints
-			detectionTime += conversionTime;
 			for each (Minutiae minutiae in firstMinutiae)
 			{
 				firstImgKeypoints.push_back(minutiae);
@@ -345,18 +347,14 @@ void MainWindow::runCustom()
 		detectionTime = (double)cv::getTickCount();
 		firstMinutiae = crossingNumber::getMinutiae(firstImg, ui->detectorMinutiae2BorderText->text().toInt());
 		secondMinutiae = crossingNumber::getMinutiae(secondImg, ui->detectorMinutiae2BorderText->text().toInt());
-		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
-
-		writeKeyPoints(firstImg, firstMinutiae, "1_2-3-Minutiae");
-		writeKeyPoints(secondImg, secondMinutiae, "1_1-3-Minutiae");
-
 		//Minutiae-filtering
 		// slow with the second segmentation
 		Filter::filterMinutiae(firstMinutiae);
 		Filter::filterMinutiae(secondMinutiae);
+		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
-		writeKeyPoints(firstImg, firstMinutiae, "1_2-4-Filtered");
-		writeKeyPoints(secondImg, secondMinutiae, "1_1-4-Filtered");
+		writeKeyPoints(firstImg, firstMinutiae, "f-3_Minutiae2");
+		writeKeyPoints(secondImg, secondMinutiae, "s-3_Minutiae2");
 
 		// images must be segmented if not Minutiae will be empty
 		try{
@@ -470,10 +468,10 @@ void MainWindow::runCustom()
 	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
 	ui->logPlainText->appendPlainText("detection time: " + QString::number(detectionTime) + " (s)");
 
-	if (true){ //Klustering
-		/*std::vector<cv::Mat> matrix = { firstImgKeypoints, secondImgKeypoints };
-		clusteringIntoKClusters(matrix, 1000);*/
-	}
+	/*if (true){ //Klustering
+		std::vector<cv::Mat> matrix = { firstImgKeypoints, secondImgKeypoints };
+		clusteringIntoKClusters(matrix, 1000);
+	}*/
 
 	// Only detection
 	return;
@@ -654,36 +652,87 @@ void MainWindow::on_pushButton_pressed()
 		cv::resize(secondImg, secondImg, cv::Size(), 200 / secondImg.rows, 200 / secondImg.cols);
 	}
 
-	// Rest parameters :
-	resetParams();
+	// create a new folder test
+	if (CreateDirectory(L"Tests", NULL) || ERROR_ALREADY_EXISTS == GetLastError()){
+		std::ifstream infile;
+		FILE *file;
+		/*first check if the file exists...*/
+		infile.open("Tests/next.txt");
+		int cpt;
+		/*...then open it in the appropriate way*/
+		if (infile.is_open()) {
+			// existing file
+			while (infile.eof() == false)infile >> cpt;
+			infile.close();
+			file = fopen("Tests/next.txt", "r+b");
+		}
+		else{ 
+			// new file
+			file = fopen("Tests/next.txt", "w+b");
+			cpt = 0; 
+			wchar_t* fileLPCWSTR = L"Tests/next.txt";
+			int attr = GetFileAttributes(fileLPCWSTR);
+			if ((attr & FILE_ATTRIBUTE_HIDDEN) == 0) {
+				SetFileAttributes(fileLPCWSTR, attr | FILE_ATTRIBUTE_HIDDEN);
+			}
+		}
 
-	// Launch the algorithm
-	switch (ui->allMethodsTabs->currentIndex())
+		if (file != NULL)
+		{
+			fprintf(file, std::to_string(cpt+1).c_str());
+			fclose(file);
+		}
+
+		wchar_t _directoryPath[256];
+		wsprintfW(_directoryPath, L"Tests/%d", cpt);
+		if (CreateDirectory(_directoryPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
+		{
+			// created with succes
+			// Rest parameters :
+			resetParams();
+			directoryPath = "Tests/" + std::to_string(cpt) + "/";
+
+			// Launch the algorithm
+			switch (ui->allMethodsTabs->currentIndex())
+			{
+			case 0:
+				// SIFT
+				runSIFT();
+				break;
+
+			case 1:
+				// SURF
+				runSURF();
+				break;
+
+			case 2:
+				// ORB
+				runORB();
+				break;
+
+			case 3:
+				// BRISK
+				runBRISK();
+				break;
+
+			default:
+				// custom
+				runCustom();
+				break;
+			}
+		}
+		else
+		{
+			// Failed to create directory.
+			ui->logPlainText->appendHtml("<b style='color:red'>Failed to create directory for the current test!</b>");
+			return;
+		}
+	}
+	else
 	{
-	case 0:
-		// SIFT
-		runSIFT();
-		break;
-
-	case 1:
-		// SURF
-		runSURF();
-		break;
-
-	case 2:
-		// ORB
-		runORB();
-		break;
-
-	case 3:
-		// BRISK
-		runBRISK();
-		break;
-
-	default:
-		// custom
-		runCustom();
-		break;
+		// Failed to create the root.
+		ui->logPlainText->appendHtml("<b style='color:red'>Failed to create directory for all tests!</b>");
+		return;
 	}
 }
 
@@ -1009,7 +1058,7 @@ void MainWindow::clusteringIntoKClusters(std::vector<cv::Mat> features_vector, i
 // <--------------
 
 template <typename T>
-void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> &keyPoints, std::string fileName){
+void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, std::string fileName){
 	//Visualisation
 	cv::Mat outImg = img.clone();
 	cvtColor(img, outImg, CV_GRAY2RGB);
@@ -1036,5 +1085,5 @@ void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> &keyPoints, std::str
 	}
 	//namedWindow(fileName, cv::WINDOW_AUTOSIZE);     // Create a window for display.
 	//imshow(fileName, outImg);                 // Show our image inside it.
-	if (fileName != "")cv::imwrite(QString(qApp->applicationDirPath() + "/" + QString::fromStdString(fileName) + ".bmp").toStdString(), outImg);
+	if (fileName != "")cv::imwrite(directoryPath + fileName + ".bmp", outImg);
 }

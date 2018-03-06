@@ -1,3 +1,4 @@
+// Fast thinning algorithm implmented from https://github.com/bsdnoobz/zhang-suen-thinning
 // This is the same Thinning Algorithme used by BluePrints
 
 #include <opencv2/imgproc/imgproc.hpp>

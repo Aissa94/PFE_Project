@@ -1355,3 +1355,13 @@ cv::Mat Image_processing::thinning(cv::Mat input, cv::Mat &enhancedImage, cv::Ma
 
 	return thinnedImage;
 }
+
+std::vector<Minutiae> Image_processing::extracting(cv::Mat input, cv::Mat enhancedImage, cv::Mat &segmentedImage, cv::Mat thinnedImage){
+	// ++++++++++++++++++Minutiae Extraction++++++++
+	cv::Mat oimg = Gradient_Orientation_Image(enhancedImage, 16);
+	std::vector<Minutiae> minutiae = Minutia_Extraction(thinnedImage, oimg, 16);
+	segmentedImage = 1 - segmentedImage;
+	Minutiae_Validation(input, minutiae, segmentedImage);
+
+	return minutiae;
+}

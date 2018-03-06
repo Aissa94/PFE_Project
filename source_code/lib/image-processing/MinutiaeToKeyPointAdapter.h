@@ -9,8 +9,7 @@ public:
 	double adapt(std::vector<Minutiae> &minutiaes);
 
 private:
-	double adaptingTime;
-	void calculateMinutiaeMagnitudeAngle(std::vector<Minutiae> minutiaes, std::vector<float> &magnitudes, std::vector<float> &angles);
+	double calculateMinutiaeMagnitudeAngle(std::vector<Minutiae> minutiaes, std::vector<float> &magnitudes, std::vector<float> &angles);
 };
 
 #endif // MINUTIAETOKEYPOINTADAPTER
