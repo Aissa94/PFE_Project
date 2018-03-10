@@ -15,7 +15,7 @@
 #include "thinning\GuoHall.h"
 #include "thinning\ZhangSuen.h"
 
-// Mrs :
+// Dr :
 #include "image-processing\image_processing.h"
 
 // Our

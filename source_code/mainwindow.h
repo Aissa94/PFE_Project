@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
 #include <QtWidgets>
 
 #include <iostream>
@@ -72,7 +71,8 @@ private:
 	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold = 125.0);
 	void clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k); 
 	template <typename T>
-	void writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, std::string fileName = "");
+	void writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first_second, std::string fileName = "", int squareSize = 5);
+	void displayFeature(cv::Mat featureMat, int first_second);
 };
 
 #endif // MAINWINDOW_H

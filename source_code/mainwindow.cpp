@@ -5,7 +5,7 @@
 
 // Images Declaration
 	cv::Mat firstImg, secondImg;
-	cv::Mat firstImgDescriptorShow, secondImgDescriptorShow;
+	//cv::Mat firstSavedImg, secondSavedImg;
 
 // Vectors Declaration
 	// Keypoints Vectors for the First & Second Image ...
@@ -36,10 +36,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 	// cusomizing ToolTips :
 	qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white;}");
-	//qApp->setStyleSheet("QToolTip { visibility: visible; width: 120px; background-color: #555; color: #fff; text-align: center; border-radius: 6px; padding: 5px 0; position: absolute; z-index: 1; bottom: 125 %; left: 50% ;margin-left: -60px; opacity: 1; transition: opacity 0.3s;}");
-    //outputImagesPath = "/Users/elma/Desktop/FeaturePointsComparisonOutputImages";
-    //outputImagesPath = QInputDialog::getText(this, "Output Images Path");
     ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
+
+	this->setWindowState(Qt::WindowMaximized);
 }
 
 MainWindow::~MainWindow()
@@ -313,8 +312,8 @@ void MainWindow::runCustom()
 		secondMinutiae = Image_processing::extracting(secondImg, secondEnhancedImage, secondSegmentedImage, secondImg);
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
-		writeKeyPoints(firstImg, firstMinutiae, "f-3_Minutiae");
-		writeKeyPoints(secondImg, secondMinutiae, "s-3_Minutiae");
+		writeKeyPoints(firstImg, firstMinutiae, 1, "f-3_Minutiae");
+		writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_Minutiae");
 
 		// images must be segmented if not Minutiae will be empty
 		try{
@@ -353,8 +352,8 @@ void MainWindow::runCustom()
 		Filter::filterMinutiae(secondMinutiae);
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
-		writeKeyPoints(firstImg, firstMinutiae, "f-3_Minutiae2");
-		writeKeyPoints(secondImg, secondMinutiae, "s-3_Minutiae2");
+		writeKeyPoints(firstImg, firstMinutiae, 1, "f-3_Minutiae2");
+		writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_Minutiae2");
 
 		// images must be segmented if not Minutiae will be empty
 		try{
@@ -458,6 +457,9 @@ void MainWindow::runCustom()
 				ptrDetector->detect(firstImg, firstImgKeypoints);
 				ptrDetector->detect(secondImg, secondImgKeypoints);
 				detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+
+				writeKeyPoints(firstImg, firstImgKeypoints, 1, "f-3_KeyPoints");
+				writeKeyPoints(secondImg, secondImgKeypoints, 2, "s-3_KeyPoints");
 			}
 		}
 		catch (...){
@@ -651,6 +653,8 @@ void MainWindow::on_pushButton_pressed()
 	{
 		cv::resize(secondImg, secondImg, cv::Size(), 200 / secondImg.rows, 200 / secondImg.cols);
 	}
+	//firstSavedImg = firstImg.clone();
+	//secondSavedImg = secondImg.clone();
 
 	// create a new folder test
 	if (CreateDirectory(L"Tests", NULL) || ERROR_ALREADY_EXISTS == GetLastError()){
@@ -835,28 +839,10 @@ void MainWindow::writeToFile(std::string fileName, cv::Algorithm * algoToWrite){
 }
 
 void MainWindow::calculateBestMatches(){
-	cv::drawKeypoints(firstImg, firstImgKeypoints, firstImgDescriptorShow, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
-	QGraphicsScene *imgKeypoints1 = new QGraphicsScene();
-	QImage imgKey1((const uchar *)firstImgDescriptorShow.data, firstImgDescriptorShow.cols, firstImgDescriptorShow.rows, firstImgDescriptorShow.step, QImage::Format_RGB888);
-	QPixmap piximg1 = QPixmap::fromImage(imgKey1);
-	imgKeypoints1->addPixmap(piximg1);
-	ui->graphicsView_2->setScene(imgKeypoints1);
-	ui->graphicsView_2->fitInView(imgKeypoints1->sceneRect(), Qt::KeepAspectRatio);
-	ui->graphicsView->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
-
-	cv::drawKeypoints(secondImg, secondImgKeypoints, secondImgDescriptorShow, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
-	QGraphicsScene *imgKeypoints2 = new QGraphicsScene();
-	QImage imgKey2((const uchar *)secondImgDescriptorShow.data, secondImgDescriptorShow.cols, secondImgDescriptorShow.rows, secondImgDescriptorShow.step, QImage::Format_RGB888);
-	QPixmap piximg2 = QPixmap::fromImage(imgKey2);
-	imgKeypoints2->addPixmap(piximg2);
-	ui->graphicsView_3->setScene(imgKeypoints2);
-	ui->graphicsView_3->fitInView(imgKeypoints2->sceneRect(), Qt::KeepAspectRatio);
-	ui->graphicsView->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
-
 	// Calculate the number of best matches between two sets of matches
 	int bestMatchesCount = 0;
 	float sumDistances = 0;
-	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 3 Columns
+	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 5 Columns
 	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
 	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
 	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
@@ -900,7 +886,7 @@ void MainWindow::calculateBestMatches(){
 				model->setItem(bestMatchesCount, 3, y2);
 				QStandardItem *dist = new QStandardItem(QString::number(directMatches[i].distance));
 				model->setItem(bestMatchesCount, 4, dist);
-				ui->tableView->setModel(model);
+				ui->viewTable->setModel(model);
 
 				sumDistances += directMatches[i].distance;
 				bestMatches.push_back(directMatches[i]);
@@ -942,33 +928,23 @@ void MainWindow::calculateBestMatches(){
 	//-- Draw only "good" matches
 	QGraphicsScene *scene = new QGraphicsScene();
 	QImage dest((const uchar *)bestImgMatches.data, bestImgMatches.cols, bestImgMatches.rows, bestImgMatches.step, QImage::Format_RGB888);
-	dest.bits();
-	QPixmap pixmap = QPixmap::fromImage(dest);
-	scene->addPixmap(pixmap);
-	ui->graphicsView->setScene(scene);
-	ui->graphicsView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
-	ui->graphicsView->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+	//dest.bits();
+	scene->addPixmap(QPixmap::fromImage(dest));
+	ui->viewMatches->setScene(scene);
+	ui->viewMatches->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+	ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 }
 
 void MainWindow::wheelEvent(QWheelEvent *event){
 
-	ui->graphicsView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-	ui->graphicsView_2->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-	ui->graphicsView_3->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 	// Scale the view / do the zoom
 	double scaleFactor = 1.15;
-	if (event->delta() > 0) {
-		// Zoom in
-		ui->graphicsView->scale(scaleFactor, scaleFactor);
-		ui->graphicsView_2->scale(scaleFactor, scaleFactor);
-		ui->graphicsView_3->scale(scaleFactor, scaleFactor);
-	}
-	else {
-		// Zooming out
-		ui->graphicsView->scale(1.0 / scaleFactor, 1.0 / scaleFactor);
-		ui->graphicsView_2->scale(1.0 / scaleFactor, 1.0 / scaleFactor);
-		ui->graphicsView_3->scale(1.0 / scaleFactor, 1.0 / scaleFactor);
-	}
+	if (event->delta() < 0) scaleFactor = 1.0 / scaleFactor; // Zoom out
+	
+	// Zoom in or Zoom out
+	ui->viewMatches->scale(scaleFactor, scaleFactor);
+	ui->viewKeyPoints1->scale(scaleFactor, scaleFactor);
+	ui->viewKeyPoints2->scale(scaleFactor, scaleFactor);
 }
 
 void MainWindow::resetParams()
@@ -1058,13 +1034,12 @@ void MainWindow::clusteringIntoKClusters(std::vector<cv::Mat> features_vector, i
 // <--------------
 
 template <typename T>
-void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, std::string fileName){
+void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first_second, std::string fileName, int squareSize){
 	//Visualisation
 	cv::Mat outImg = img.clone();
 	cvtColor(img, outImg, CV_GRAY2RGB);
 	for (cv::KeyPoint &keyPoint : keyPoints){
 		//add a transparent square at each minutiae-location
-		int squareSize = 5;     //has to be uneven
 		cv::Mat roi = outImg(cv::Rect(keyPoint.pt.x - squareSize / 2, keyPoint.pt.y - squareSize / 2, squareSize, squareSize));
 		double alpha = 0.3;
 		cv::Mat color;
@@ -1085,5 +1060,22 @@ void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, std::stri
 	}
 	//namedWindow(fileName, cv::WINDOW_AUTOSIZE);     // Create a window for display.
 	//imshow(fileName, outImg);                 // Show our image inside it.
+
+	displayFeature(outImg, first_second);  // Show our image inside the viewer.
 	if (fileName != "")cv::imwrite(directoryPath + fileName + ".bmp", outImg);
+}
+
+void MainWindow::displayFeature(cv::Mat featureMat, int first_second)
+{
+	//cv::Mat imgFeatureShow;
+	//cv::drawKeypoints(featureMat, (first_second == 1) ? firstImgKeypoints : secondImgKeypoints, imgFeatureShow, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
+	
+	QGraphicsScene *featureScene = new QGraphicsScene();
+	QImage featureImg((const uchar *)featureMat.data, featureMat.cols, featureMat.rows, featureMat.step, QImage::Format_RGB888);
+	//featureImg = featureImg.scaledToWidth((first_second == 1) ? ui->viewKeyPoints1->width() : ui->viewKeyPoints2->width(), Qt::SmoothTransformation);
+	featureScene->addPixmap(QPixmap::fromImage(featureImg));
+	
+	QGraphicsView *myUiScene = (first_second == 1) ? ui->viewKeyPoints1 : ui->viewKeyPoints2;
+	myUiScene->setScene(featureScene);
+	myUiScene->fitInView(featureScene->sceneRect(), Qt::KeepAspectRatio);
 }
