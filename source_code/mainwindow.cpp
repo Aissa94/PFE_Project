@@ -5,7 +5,6 @@
 
 // Images Declaration
 	cv::Mat firstImg, secondImg;
-	//cv::Mat firstSavedImg, secondSavedImg;
 
 // Vectors Declaration
 	// Keypoints Vectors for the First & Second Image ...
@@ -475,7 +474,7 @@ void MainWindow::runCustom()
 		clusteringIntoKClusters(matrix, 1000);
 	}*/
 
-	// Only detection
+	//Only detection
 	return;
 
 	// Customising Descriptor...
@@ -653,8 +652,10 @@ void MainWindow::on_pushButton_pressed()
 	{
 		cv::resize(secondImg, secondImg, cv::Size(), 200 / secondImg.rows, 200 / secondImg.cols);
 	}
-	//firstSavedImg = firstImg.clone();
-	//secondSavedImg = secondImg.clone();
+
+	for (int i = 0; i < 5; i++)ui->viewTabs->setCurrentIndex(i); // just to center contents
+	displayImage(firstImg, 1);
+	displayImage(secondImg, 2);
 
 	// create a new folder test
 	if (CreateDirectory(L"Tests", NULL) || ERROR_ALREADY_EXISTS == GetLastError()){
@@ -942,9 +943,11 @@ void MainWindow::wheelEvent(QWheelEvent *event){
 	if (event->delta() < 0) scaleFactor = 1.0 / scaleFactor; // Zoom out
 	
 	// Zoom in or Zoom out
-	ui->viewMatches->scale(scaleFactor, scaleFactor);
+	ui->viewImage1->scale(scaleFactor, scaleFactor);
+	ui->viewImage2->scale(scaleFactor, scaleFactor);
 	ui->viewKeyPoints1->scale(scaleFactor, scaleFactor);
 	ui->viewKeyPoints2->scale(scaleFactor, scaleFactor);
+	ui->viewMatches->scale(scaleFactor, scaleFactor);
 }
 
 void MainWindow::resetParams()
@@ -1033,6 +1036,63 @@ void MainWindow::clusteringIntoKClusters(std::vector<cv::Mat> features_vector, i
 }
 // <--------------
 
+QImage MainWindow::matToQImage(const cv::Mat& mat)
+{
+	// 8-bits unsigned, NO. OF CHANNELS=1
+	if (mat.type() == CV_8UC1)
+	{
+		// Set the color table (used to translate colour indexes to qRgb values)
+		QVector<QRgb> colorTable;
+		for (int i = 0; i<256; i++)
+			colorTable.push_back(qRgb(i, i, i));
+		// Copy input Mat
+		const uchar *qImageBuffer = (const uchar*)mat.data;
+		// Create QImage with same dimensions as input Mat
+		QImage img(qImageBuffer, mat.cols, mat.rows, mat.step, QImage::Format_Indexed8);
+		img.setColorTable(colorTable);
+		return img;
+	}
+	// 8-bits unsigned, NO. OF CHANNELS=3
+	if (mat.type() == CV_8UC3)
+	{
+		// Copy input Mat
+		const uchar *qImageBuffer = (const uchar*)mat.data;
+		// Create QImage with same dimensions as input Mat
+		QImage img(qImageBuffer, mat.cols, mat.rows, mat.step, QImage::Format_RGB888);
+		return img.rgbSwapped();
+	}
+	else
+	{
+		return QImage();
+	}
+}
+
+void MainWindow::displayImage(cv::Mat imageMat, int first_second)
+{
+	QGraphicsScene *featureScene = new QGraphicsScene();
+	QGraphicsView *myUiScene = (first_second == 1) ? ui->viewImage1 : ui->viewImage2;
+
+	QImage img = matToQImage(imageMat);
+	featureScene->addPixmap(QPixmap::fromImage(img));
+
+	myUiScene->setScene(featureScene);
+	myUiScene->fitInView(featureScene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
+}
+
+void MainWindow::displayFeature(cv::Mat featureMat, int first_second)
+{
+	//cv::Mat imgFeatureShow;
+	//cv::drawKeypoints(featureMat, (first_second == 1) ? firstImgKeypoints : secondImgKeypoints, imgFeatureShow, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
+
+	QGraphicsScene *featureScene = new QGraphicsScene();
+	QImage featureImg((const uchar *)featureMat.data, featureMat.cols, featureMat.rows, featureMat.step, QImage::Format_RGB888);
+	featureScene->addPixmap(QPixmap::fromImage(featureImg));
+
+	QGraphicsView *myUiScene = (first_second == 1) ? ui->viewKeyPoints1 : ui->viewKeyPoints2;
+	myUiScene->setScene(featureScene);
+	myUiScene->fitInView(featureScene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
+}
+
 template <typename T>
 void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first_second, std::string fileName, int squareSize){
 	//Visualisation
@@ -1065,17 +1125,3 @@ void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first
 	if (fileName != "")cv::imwrite(directoryPath + fileName + ".bmp", outImg);
 }
 
-void MainWindow::displayFeature(cv::Mat featureMat, int first_second)
-{
-	//cv::Mat imgFeatureShow;
-	//cv::drawKeypoints(featureMat, (first_second == 1) ? firstImgKeypoints : secondImgKeypoints, imgFeatureShow, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
-	
-	QGraphicsScene *featureScene = new QGraphicsScene();
-	QImage featureImg((const uchar *)featureMat.data, featureMat.cols, featureMat.rows, featureMat.step, QImage::Format_RGB888);
-	//featureImg = featureImg.scaledToWidth((first_second == 1) ? ui->viewKeyPoints1->width() : ui->viewKeyPoints2->width(), Qt::SmoothTransformation);
-	featureScene->addPixmap(QPixmap::fromImage(featureImg));
-	
-	QGraphicsView *myUiScene = (first_second == 1) ? ui->viewKeyPoints1 : ui->viewKeyPoints2;
-	myUiScene->setScene(featureScene);
-	myUiScene->fitInView(featureScene->sceneRect(), Qt::KeepAspectRatio);
-}

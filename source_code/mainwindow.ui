@@ -2297,18 +2297,55 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
     </item>
     <item row="0" column="1" rowspan="3">
      <widget class="QTabWidget" name="viewTabs">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="mouseTracking">
-       <bool>false</bool>
-      </property>
-      <property name="statusTip">
-       <string/>
-      </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>4</number>
       </property>
+      <widget class="QWidget" name="tab_7">
+       <attribute name="title">
+        <string>Image 1</string>
+       </attribute>
+       <layout class="QGridLayout" name="image1GridLayoutTab">
+        <item row="0" column="0">
+         <widget class="QGraphicsView" name="viewImage1">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="dragMode">
+           <enum>QGraphicsView::ScrollHandDrag</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_7">
+       <attribute name="title">
+        <string>Image 2</string>
+       </attribute>
+       <layout class="QGridLayout" name="image2GridLayoutTab">
+        <item row="0" column="0">
+         <widget class="QGraphicsView" name="viewImage2">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="dragMode">
+           <enum>QGraphicsView::ScrollHandDrag</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="tab_7">
        <attribute name="title">
         <string>Keypoints 1</string>
@@ -2319,14 +2356,14 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
           <property name="dragMode">
            <enum>QGraphicsView::ScrollHandDrag</enum>
-          </property>
-          <property name="transformationAnchor">
-           <enum>QGraphicsView::NoAnchor</enum>
-          </property>
-          <property name="resizeAnchor">
-           <enum>QGraphicsView::AnchorUnderMouse</enum>
           </property>
          </widget>
         </item>
@@ -2342,14 +2379,14 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
           <property name="dragMode">
            <enum>QGraphicsView::ScrollHandDrag</enum>
-          </property>
-          <property name="transformationAnchor">
-           <enum>QGraphicsView::NoAnchor</enum>
-          </property>
-          <property name="resizeAnchor">
-           <enum>QGraphicsView::AnchorUnderMouse</enum>
           </property>
          </widget>
         </item>
@@ -2365,14 +2402,14 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
           <property name="dragMode">
            <enum>QGraphicsView::ScrollHandDrag</enum>
-          </property>
-          <property name="transformationAnchor">
-           <enum>QGraphicsView::NoAnchor</enum>
-          </property>
-          <property name="resizeAnchor">
-           <enum>QGraphicsView::AnchorUnderMouse</enum>
           </property>
          </widget>
         </item>
