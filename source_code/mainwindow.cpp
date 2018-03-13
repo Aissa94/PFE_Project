@@ -13,6 +13,8 @@
 	std::vector<cv::KeyPoint> firstImgKeypoints, secondImgKeypoints;
 	// Descriptors for the First & Second Image ...
 	cv::Mat firstImgDescriptor, secondImgDescriptor;
+	// Clustering parameters ...
+	cv::Mat labels, centers;
 	// Matches for the Direct & Invers matching ...
 	std::vector<cv::DMatch> directMatches, inverseMatches, bestMatches;
 	// Maches for knn > 1
@@ -252,18 +254,25 @@ void MainWindow::runCustom()
 	
 	// Customising Detector...	
 	customisingDetector(detectorIndex, detectorName);
-	
-
-	/*if (true){ //Klustering
-		std::vector<cv::Mat> matrix = { firstImgKeypoints, secondImgKeypoints };
-		clusteringIntoKClusters(matrix, 1000);
-	}*/
 
 	//Only detection
 	//return;
 
 	// Customising Descriptor...
 	customisingDescriptor(descriptorIndex, descriptorName);
+
+	double compactness; //It is the returned value of the clustering function
+	if (true){ //Klustering
+		std::vector<cv::Mat> matrix = { firstImgDescriptor, secondImgDescriptor };
+		compactness = clusteringIntoKClusters(matrix, 1000);
+
+		// Write Kmeans parameters
+		cv::FileStorage fs("params/kmeans_params.yaml", cv::FileStorage::WRITE);
+		fs << "Labels" << labels;
+		fs << "=========================================";
+		fs << "Centers" << centers;
+		fs.release();
+	}
 
 	// Customising Matcher...
 	customisingMatcher(matcherIndex, matcherName);
@@ -565,7 +574,6 @@ cv::Mat MainWindow::skeletonization(cv::Mat img){
 // This code is part of the code supplied with the OpenCV Blueprints book. It was written by Steven Puttemans
 // https://github.com/OpenCVBlueprints/OpenCVBlueprints/blob/master/chapter_6/source_code/fingerprint/fingerprint_process/fingerprint_process.cpp
 // -------------->
-
 void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold){
 // detect the strong minutiae using Haris corner detection (retrieved from 'OpenCV 3 Blueprints' book)
 	cv::Mat harris_corners, harris_normalised;
@@ -591,19 +599,19 @@ void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &
 	}
 }
 
-void MainWindow::clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k){
+double MainWindow::clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k){
 // K : The number of clusters to split the samples in rawFeatureData (retrieved from 'OpenCV 3 Blueprints' book)
-	cv::Mat rawFeatureData = cv::Mat::zeros(firstImgKeypoints.size() + secondImgKeypoints.size(), firstImgKeypoints[0].size, CV_32FC1);
+	cv::Mat rawFeatureData = cv::Mat::zeros(firstImgDescriptor.rows + secondImgDescriptor.rows, firstImgDescriptor.cols, CV_32FC1);
 	// We need to copy the data from the vector of key points features_vector to imageFeatureData:
 	int cur_idx = 0;
 	for (int i = 0; i < features_vector.size(); i++){
 		features_vector[i].copyTo(rawFeatureData.rowRange(cur_idx, cur_idx + features_vector[i].rows));
 		cur_idx += features_vector[i].rows;
 	}
-	cv::Mat labels, centers;
-	double result;
+	double result; //This is the sum of the squared distance between each sample to the corresponding centroid;
 	result = cv::kmeans(rawFeatureData, k, labels, cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::COUNT, 100, 1.0),
 		3, cv::KMEANS_PP_CENTERS, centers);
+	return result;
 }
 // <--------------
 

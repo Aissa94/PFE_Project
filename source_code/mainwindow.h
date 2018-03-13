@@ -68,7 +68,7 @@ private:
 	cv::Ptr<cv::flann::IndexParams> getFlannBasedIndexParamsType();
 	cv::Mat skeletonization(cv::Mat img);
 	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold = 125.0);
-	void clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k); 
+	double clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k); 
 	template <typename T>
 	void writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first_second, std::string fileName = "", int squareSize = 5);
 	void displayImage(cv::Mat imageMat, int first_second);
