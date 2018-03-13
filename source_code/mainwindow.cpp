@@ -7,6 +7,8 @@
 	cv::Mat firstImg, secondImg;
 
 // Vectors Declaration
+	// Segmentation parameters for First and Second Image ...
+	cv::Mat firstEnhancedImage, firstSegmentedImage, secondEnhancedImage, secondSegmentedImage;
 	// Keypoints Vectors for the First & Second Image ...
 	std::vector<cv::KeyPoint> firstImgKeypoints, secondImgKeypoints;
 	// Descriptors for the First & Second Image ...
@@ -241,233 +243,16 @@ void MainWindow::runCustom()
 	std::string matcherName = ui->matcherTabs->tabText(ui->matcherTabs->currentIndex()).toStdString();
 
 	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + segmentationName +", "+ detectorName + ", " + descriptorName + ", " + matcherName + ") object detection!</b>"));
-	if (segmentationIndex != 0 && segmentationIndex != 3){
-		// First load the image to process in grayscale and transform it to a binary image using thresholding:
-		// Binarization
-		// The Otsu thresholding will automatically choose the best generic threshold for the image to obtain a good contrast between foreground and background information.
-		// If you have only a single capturing device, then playing around with a fixed threshold value could result in a better image for that specific setup
-		localThreshold::binarisation(firstImg, 41, 56);
-		localThreshold::binarisation(secondImg, 41, 56);
-		double threshold = ui->segmentationThresholdText->text().toFloat();
-		cv::threshold(firstImg, firstImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
-		cv::threshold(secondImg, secondImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
-		//ideka::binOptimisation(firstImg);
-		//ideka::binOptimisation(secondImg);
-		cv::imwrite(directoryPath + "f-1_Binarization.bmp", firstImg);
-		cv::imwrite(directoryPath + "s-1_Binarization.bmp", secondImg);
-	}
+	
+	// Binarization
+	customisingBinarization(segmentationIndex);
+
 	// Customising Segmentor...
-	cv::Mat firstEnhancedImage, firstSegmentedImage; // used for Mrs. methods
-	cv::Mat secondEnhancedImage, secondSegmentedImage;
-	switch (segmentationIndex)
-	{
-	case 1:
-		// Skeletonization of Morphological Skeleton
-		// This will create more unique and stronger interest points
-		firstImg = skeletonization(firstImg);
-		secondImg = skeletonization(secondImg);
-		cv::imwrite(directoryPath + "f-2_Morphological Skeleton.bmp", firstImg);
-		cv::imwrite(directoryPath + "s-2_Morphological Skeleton.bmp", secondImg);
-		break;
-	case 2:
-		// Thinning of Zhang-Suen
-		//This is the same Thinning Algorithme used by BluePrints
-		ZhangSuen::thinning(firstImg);
-		ZhangSuen::thinning(secondImg);
-		cv::imwrite(directoryPath + "f-2_Zhang-Suen Thinning.bmp", firstImg);
-		cv::imwrite(directoryPath + "s-2_Zhang-Suen Thinning.bmp", secondImg);
-		break;
-	case 3:{
-		// Thinning of Lin-Hong implemented by Mrs. Faiçal
-		firstImg = Image_processing::thinning(firstImg, firstEnhancedImage, firstSegmentedImage);
-		secondImg = Image_processing::thinning(secondImg, secondEnhancedImage, secondSegmentedImage);
-
-		firstImg.convertTo(firstImg, CV_8UC3, 255); secondImg.convertTo(secondImg, CV_8UC3, 255);
-		cv::imwrite(directoryPath + "f-2_Lin-Hong Thinning.bmp", firstImg);
-		cv::imwrite(directoryPath + "s-2_Lin-Hong Thinning.bmp", secondImg);
-		break;
-	}
-	case 4:
-		// Thinning of Guo-Hall
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Exception !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		GuoHall::thinning(firstImg);
-		GuoHall::thinning(secondImg);
-		cv::imwrite(directoryPath + "f-2_Guo-Hall Thinning.bmp", firstImg);
-		cv::imwrite(directoryPath + "s-2_Guo-Hall Thinning.bmp", secondImg);
-		break;
-
-		//....
-	}
+	customisingSegmentor(segmentationIndex);
 	
 	// Customising Detector...	
-	switch (detectorIndex)
-	{
-	case 0:{
-		// Minutiae-detection using Crossing Number By Mrs. Faiçal
-		std::vector<Minutiae> firstMinutiae, secondMinutiae;
-		detectionTime = (double)cv::getTickCount();
-		// change this to firstImage and originalInput !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		firstMinutiae = Image_processing::extracting(firstImg, firstEnhancedImage, firstSegmentedImage, firstImg);
-		secondMinutiae = Image_processing::extracting(secondImg, secondEnhancedImage, secondSegmentedImage, secondImg);
-		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
-
-		writeKeyPoints(firstImg, firstMinutiae, 1, "f-3_Minutiae");
-		writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_Minutiae");
-
-		// images must be segmented if not Minutiae will be empty
-		try{
-			// Adapt Minutiaes to KeyPoints (this will affect magnitudes and angles to minutiaes)
-			MinutiaeToKeyPointAdapter adapter;
-			// also we must add the Adapting time to detection time
-			detectionTime += adapter.adapt(firstMinutiae);
-			detectionTime += adapter.adapt(secondMinutiae);
-			for each (Minutiae minutiae in firstMinutiae)
-			{
-				firstImgKeypoints.push_back(minutiae);
-			}
-			for each (Minutiae minutiae in secondMinutiae)
-			{
-				secondImgKeypoints.push_back(minutiae);
-			}
-		}
-		catch (...){
-			ui->logPlainText->appendHtml("<i style='color:red'>Before detecting Minutiae you must select a segmentation method !</i>");
-			return;
-		}
-
-	}
-		   break;
-	case 1:{
-		// Minutiae-detection using Crossing Number
-		// http://www.codelooker.com/id/217/1100103.html
-		std::vector<Minutiae> firstMinutiae, secondMinutiae;
-
-		detectionTime = (double)cv::getTickCount();
-		firstMinutiae = crossingNumber::getMinutiae(firstImg, ui->detectorMinutiae2BorderText->text().toInt());
-		secondMinutiae = crossingNumber::getMinutiae(secondImg, ui->detectorMinutiae2BorderText->text().toInt());
-		//Minutiae-filtering
-		// slow with the second segmentation
-		Filter::filterMinutiae(firstMinutiae);
-		Filter::filterMinutiae(secondMinutiae);
-		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
-
-		writeKeyPoints(firstImg, firstMinutiae, 1, "f-3_Minutiae2");
-		writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_Minutiae2");
-
-		// images must be segmented if not Minutiae will be empty
-		try{
-			// Adapt Minutiaes to KeyPoints (this will affect magnitudes and angles to minutiaes)
-			MinutiaeToKeyPointAdapter adapter;
-			// also we must add the Adapting time to detection time
-			detectionTime += adapter.adapt(firstMinutiae);
-			detectionTime += adapter.adapt(secondMinutiae);
-			for each (Minutiae minutiae in firstMinutiae)
-			{
-				firstImgKeypoints.push_back(minutiae);
-			}
-			for each (Minutiae minutiae in secondMinutiae)
-			{
-				secondImgKeypoints.push_back(minutiae);
-			}
-		}
-		catch (...){
-			ui->logPlainText->appendHtml("<i style='color:red'>Before detecting Minutiae you must select a segmentation method !</i>");
-			return;
-		}
-
-	}
-		   break;
-	case 2:{
-		// Harris-Corners
-		detectionTime = (double)cv::getTickCount();
-		harrisCorners(firstImg, firstImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
-		harrisCorners(secondImg, secondImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
-		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
-	}
-		   break;
-	case 3:{
-		// STAR
-		ptrDetector = new cv::StarFeatureDetector(ui->detectorStarMaxSizeText->text().toInt(),
-			ui->detectorStarResponseThresholdText->text().toInt(),
-			ui->detectorStarThresholdProjectedText->text().toInt(),
-			ui->detectorStarThresholdBinarizedText->text().toInt(),
-			ui->detectorStarSuppressNonmaxSizeText->text().toInt());
-	}
-		break;
-	case 4:
-		// FAST
-		ptrDetector = new cv::FastFeatureDetector(ui->detectorFastThresholdText->text().toInt(),
-			ui->detectorFastNonmaxSuppressionCheck->isChecked());
-		break;
-	case 5:
-		// SIFT
-		ptrDetector = new cv::SiftFeatureDetector(ui->detectorSiftNfeaturesText->text().toInt(),
-			ui->detectorSiftNOctaveLayersText->text().toInt(),
-			ui->detectorSiftContrastThresholdText->text().toDouble(),
-			ui->detectorSiftEdgeThresholdText->text().toDouble(),
-			ui->detectorSiftSigmaText->text().toDouble());
-		break;
-	case 6:
-		//SURF
-		// we didn't need the Extended and Upright params because it is related to the SURF descriptor
-		ptrDetector = new cv::SurfFeatureDetector(ui->detectorSurfHessianThresholdText->text().toDouble(),
-			ui->detectorSurfNOctavesText->text().toInt(),
-			ui->detectorSurfNLayersText->text().toInt(),
-			true,
-			false);
-		break;
-	case 7:
-		//Dense
-		ptrDetector = new cv::DenseFeatureDetector(ui->detectorDenseInitFeatureScaleText->text().toFloat(),
-			ui->detectorDenseFeatureScaleLevelsText->text().toInt(),
-			ui->detectorDenseFeatureScaleMulText->text().toFloat(),
-			ui->detectorDenseInitXyStepText->text().toInt(),
-			ui->detectorDenseInitImgBoundText->text().toInt(),
-			ui->detectorDenseInitXyStepText->text().toInt()>0,
-			ui->detectorDenseInitImgBoundText->text().toInt()>0);
-		break;
-	//....
-	default:
-		ui->logPlainText->appendHtml("<i style='color:yellow'>No detector selected.</i>");
-		return;
-		break;
-	}
-
-	if (detectorIndex > 2){
-		// Write the parameters
-		writeToFile("detector_" + detectorName, ptrDetector);
-		// fs in WRITE mode automatically released
-		try{
-			// Detecting Keypoints ...
-			if (detectorIndex == 1 && ui->detectorFastXCheck->isChecked()){
-				// FASTX
-				detectionTime = (double)cv::getTickCount();
-				cv::FASTX(firstImg, firstImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
-					ui->detectorFastNonmaxSuppressionCheck->isChecked(),
-					ui->detectorFastTypeText->currentIndex());
-				cv::FASTX(secondImg, secondImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
-					ui->detectorFastNonmaxSuppressionCheck->isChecked(),
-					ui->detectorFastTypeText->currentIndex());
-				detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
-			}
-			else {
-				// Others
-				detectionTime = (double)cv::getTickCount();
-				ptrDetector->detect(firstImg, firstImgKeypoints);
-				ptrDetector->detect(secondImg, secondImgKeypoints);
-				detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
-
-				writeKeyPoints(firstImg, firstImgKeypoints, 1, "f-3_KeyPoints");
-				writeKeyPoints(secondImg, secondImgKeypoints, 2, "s-3_KeyPoints");
-			}
-		}
-		catch (...){
-			ui->logPlainText->appendHtml("<b style='color:red'>Please select the right " + QString::fromStdString(detectorName) + " detector parameters, or use the defaults!.</b>");
-			return;
-		}
-	}
-	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
-	ui->logPlainText->appendPlainText("detection time: " + QString::number(detectionTime) + " (s)");
+	customisingDetector(detectorIndex, detectorName);
+	
 
 	/*if (true){ //Klustering
 		std::vector<cv::Mat> matrix = { firstImgKeypoints, secondImgKeypoints };
@@ -475,136 +260,17 @@ void MainWindow::runCustom()
 	}*/
 
 	//Only detection
-	return;
+	//return;
 
 	// Customising Descriptor...
-	switch (descriptorIndex)
-	{
-	case 0:
-	{
-		// trait the descriptorFreakSelectedPairsIndexes
-		std::string descriptorFreakSelectedPairsText = ui->descriptorFreakSelectedPairsText->text().toStdString();
-		std::stringstream stringStream(descriptorFreakSelectedPairsText);
-		// get ints from a text
-		int number;
-		std::vector<int> descriptorFreakSelectedPairsIndexes;
-		while (stringStream >> number){
-			descriptorFreakSelectedPairsIndexes.push_back(number);
-		}
-		// FREAK	
-		ptrDescriptor = new cv::FREAK(ui->descriptorFreakOrientationNormalizedCheck->isChecked(),
-			ui->descriptorFreakScaleNormalizedCheck->isChecked(),
-			ui->descriptorFreakPatternScaleText->text().toFloat(),
-			ui->descriptorFreakNOctavesText->text().toFloat(),
-			descriptorFreakSelectedPairsIndexes);
-		/* Select Pairs
-		std::vector<std::vector<cv::KeyPoint>> test = { firstImgKeypoints, secondImgKeypoints };
-		descriptorFreakSelectedPairsIndexes = ((cv::FREAK)ptrDescriptor).selectPairs({ firstImg, secondImg }, test, 0.699999999999, true);*/
-	}
-		break;
-	case 1:
-		// BRIEF
-		ptrDescriptor = new cv::BriefDescriptorExtractor(ui->descriptorBriefLengthText->text().toInt());
-		break;
-	case 2:
-		// SIFT
-		ptrDescriptor = new cv::SiftDescriptorExtractor();
-		break;
-	case 3:
-		//SURF
-		// we just need the Extended and Upright params because others are related to the SURF detector
-		ptrDescriptor = new cv::SurfDescriptorExtractor(100, 4, 3, ui->descriptorSurfExtended->isChecked(), !ui->detectorSurfUprightText->isChecked());
-		break;
-	//....
-	default:
-		ui->logPlainText->appendHtml("<i style='color:yellow'>No descriptor selected.</i>");
-		return;
-		break;
-	}
-
-	// Write the parameters
-	writeToFile("descriptor_" + descriptorName, ptrDescriptor);
-
-    if (ui->opponentColor->isChecked())
-		//OpponentColor
-		ptrDescriptor = new cv::OpponentColorDescriptorExtractor(ptrDescriptor);
-	// Write the parameters
-	writeToFile("descriptorOppCol_" + descriptorName, ptrDescriptor);
-
-	try{
-		// Aissa !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! affichinna firstImgKeypoints avant et après pour voir c'est compute va les changer ou pas!!!!
-		descriptionTime = (double)cv::getTickCount();
-		ptrDescriptor->compute(firstImg, firstImgKeypoints, firstImgDescriptor);
-		ptrDescriptor->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
-		descriptionTime = ((double)cv::getTickCount() - descriptionTime) / cv::getTickFrequency();
-		ui->logPlainText->appendPlainText("description time: " + QString::number(descriptionTime) + " (s)");
-	}
-	catch (...){
-		if(descriptorName == "FREAK")ui->logPlainText->appendHtml("<b style='color:red'>Please select the right pair indexes within the FREAK descriptor, or just leave it!.</b><br>(For more details read Section(4.2) in: <i>A. Alahi, R. Ortiz, and P. Vandergheynst. FREAK: Fast Retina Keypoint. In IEEE Conference on Computer Vision and Pattern Recognition, 2012.</i>)");
-		else ui->logPlainText->appendHtml("<b style='color:red'>Please select the right " + QString::fromStdString(descriptorName) + " descriptor parameters, or use the defaults!.</b>");
-		return;
-	}
+	customisingDescriptor(descriptorIndex, descriptorName);
 
 	// Customising Matcher...
-	kBestMatches = (ui->matcherKBestText->text().toInt() < 1) ? 1 : ui->matcherKBestText->text().toInt();
-	switch (matcherIndex)
-	{
-	case 0:
-	{
-		// BruteForce
-		int norm = getNormByText(ui->matcherBruteForceNormTypeText->currentText().toStdString());
-		ptrMatcher = new cv::BFMatcher(norm, ui->matcherBruteForceCrossCheckText->isChecked());
-	}
-		break;
-	case 1:
-	{
-		// FlannBased
-		// using default values
-		ptrMatcher = new cv::FlannBasedMatcher(getFlannBasedIndexParamsType(),
-			new cv::flann::SearchParams(ui->matcherFlannBasedSearchParamsText->text().toInt()));
-	}
-		break;
-	// ...
-	default:
-		ui->logPlainText->appendHtml("<i style='color:yellow'>No matcher selected.</i>");
-		return;
-		break;
-	}
-
-	// Write the parameters
-	writeToFile("matcher_" + matcherName, ptrMatcher);
+	customisingMatcher(matcherIndex, matcherName);
 
 	// Find the matching points
-	try{
-		if (kBestMatches < 2 || ui->matcherInlierInversMatches->isChecked()){
-			// direct and reverse set of the best matches (simple match)
-			directMatchingTime = (double)cv::getTickCount();
-			ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches);
-			directMatchingTime = ((double)cv::getTickCount() - directMatchingTime) / cv::getTickFrequency();
+	matching();
 
-			inverseMatchingTime = (double)cv::getTickCount();
-			ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches);
-			inverseMatchingTime = ((double)cv::getTickCount() - inverseMatchingTime) / cv::getTickFrequency();
-
-			bestMatchingTime = std::min(directMatchingTime, inverseMatchingTime);
-		}
-		else { // ui->matcherInlierLoweRatio->isChecked()
-			// only direct set of the k best matches
-			directMatchingTime = (double)cv::getTickCount();
-			ptrMatcher->knnMatch(firstImgDescriptor, secondImgDescriptor, knnMatches, kBestMatches, cv::Mat(), false);
-			directMatchingTime = ((double)cv::getTickCount() - directMatchingTime) / cv::getTickFrequency();
-
-			bestMatchingTime = directMatchingTime;
-		}
-	}
-	catch (...){
-		// For example Flann-Based doesn't work with Brief desctiptor extractor
-		// And also, some descriptors must be used with specific NORM_s
-		ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one.</b>");
-		return;
-	}
-	
-	ui->logPlainText->appendPlainText("matching time: " + QString::number(bestMatchingTime) + " (s)");
 	ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + bestMatchingTime) + " (s)");
 
 	calculateBestMatches();
@@ -839,103 +505,6 @@ void MainWindow::writeToFile(std::string fileName, cv::Algorithm * algoToWrite){
 	// fs in WRITE mode automatically released
 }
 
-void MainWindow::calculateBestMatches(){
-	// Calculate the number of best matches between two sets of matches
-	int bestMatchesCount = 0;
-	float sumDistances = 0;
-	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 5 Columns
-	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
-	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
-	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
-	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
-	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
-
-	/*if (use_ransac == false)
-		compute_inliers_homography(matches_surf, inliers_surf, H, MAX_H_ERROR);
-	else
-		compute_inliers_ransac(matches_surf, inliers_surf, MAX_H_ERROR, false);*/
-
-	if (kBestMatches < 2 || ui->matcherInlierInversMatches->isChecked()) {
-		// in reverse matching test
-		for (uint i = 0; i < directMatches.size(); i++)
-		{
-			cv::Point matchedPt1 = firstImgKeypoints[i].pt;
-			cv::Point matchedPt2 = secondImgKeypoints[directMatches[i].trainIdx].pt;
-
-			bool foundInReverse = false;
-
-			for (uint j = 0; j < inverseMatches.size(); j++)
-			{
-				cv::Point tmpSecImgKeyPnt = secondImgKeypoints[j].pt;
-				cv::Point tmpFrstImgKeyPntTrn = firstImgKeypoints[inverseMatches[j].trainIdx].pt;
-				if ((tmpSecImgKeyPnt == matchedPt2) && (tmpFrstImgKeyPntTrn == matchedPt1))
-				{
-					foundInReverse = true;
-					break;
-				}
-			}
-
-			if (foundInReverse)
-			{
-				QStandardItem *x1 = new QStandardItem(QString::number(matchedPt1.x));
-				model->setItem(bestMatchesCount, 0, x1);
-				QStandardItem *y1 = new QStandardItem(QString::number(matchedPt1.y));
-				model->setItem(bestMatchesCount, 1, y1);
-				QStandardItem *x2 = new QStandardItem(QString::number(matchedPt2.x));
-				model->setItem(bestMatchesCount, 2, x2);
-				QStandardItem *y2 = new QStandardItem(QString::number(matchedPt2.y));
-				model->setItem(bestMatchesCount, 3, y2);
-				QStandardItem *dist = new QStandardItem(QString::number(directMatches[i].distance));
-				model->setItem(bestMatchesCount, 4, dist);
-				ui->viewTable->setModel(model);
-
-				sumDistances += directMatches[i].distance;
-				bestMatches.push_back(directMatches[i]);
-				bestMatchesCount++;
-			}
-		}
-		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(std::min(directMatches.size(), inverseMatches.size())));
-	} else if (kBestMatches == 2 && ui->matcherInlierLoweRatio->isChecked()){
-		// knn = 2
-		// Lowe's ratio test = 0.7
-		for each (std::vector<cv::DMatch> match in knnMatches)
-		{
-			if (match[0].distance < 0.7*match[1].distance){
-				bestMatches.push_back(match[0]);
-				bestMatchesCount++;
-			}
-		}
-		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(knnMatches.size()));
-	} else {// knn > 2
-		for each (std::vector<cv::DMatch> match in knnMatches)
-		{
-			bestMatches.push_back(match[0]);
-			bestMatchesCount++;
-		}
-		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(knnMatches.size()));
-	}
-	double minKeypoints = firstImgKeypoints.size() <= secondImgKeypoints.size() ?
-		firstImgKeypoints.size()
-		:
-		secondImgKeypoints.size();
-
-	ui->logPlainText->appendPlainText("Sum of distances = " + QString::number(sumDistances));
-	ui->logPlainText->appendPlainText("Probability = " + QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
-	cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
-		bestMatches, bestImgMatches, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0),
-		std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-	cv::imwrite(QString(qApp->applicationDirPath() + "/output.png").toStdString(), bestImgMatches);
-	
-	//-- Draw only "good" matches
-	QGraphicsScene *scene = new QGraphicsScene();
-	QImage dest((const uchar *)bestImgMatches.data, bestImgMatches.cols, bestImgMatches.rows, bestImgMatches.step, QImage::Format_RGB888);
-	//dest.bits();
-	scene->addPixmap(QPixmap::fromImage(dest));
-	ui->viewMatches->setScene(scene);
-	ui->viewMatches->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
-	ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
-}
-
 void MainWindow::wheelEvent(QWheelEvent *event){
 
 	// Scale the view / do the zoom
@@ -955,6 +524,8 @@ void MainWindow::resetParams()
 	try{
 		firstImgKeypoints.clear(); secondImgKeypoints.clear();
 		firstImgDescriptor.release(); secondImgDescriptor.release();
+		firstEnhancedImage.release(); firstSegmentedImage.release();
+		secondEnhancedImage.release(); secondSegmentedImage.release();
 		directMatches.clear(); inverseMatches.clear(); bestMatches.clear();
 		knnMatches.clear();
 		bestImgMatches.release();
@@ -1125,3 +696,471 @@ void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first
 	if (fileName != "")cv::imwrite(directoryPath + fileName + ".bmp", outImg);
 }
 
+void MainWindow::customisingBinarization(int segmentationIndex){
+	// Binarization
+	if (segmentationIndex != 0 && segmentationIndex != 3){
+		// First load the image to process in grayscale and transform it to a binary image using thresholding:
+		// Binarization
+		// The Otsu thresholding will automatically choose the best generic threshold for the image to obtain a good contrast between foreground and background information.
+		// If you have only a single capturing device, then playing around with a fixed threshold value could result in a better image for that specific setup
+		localThreshold::binarisation(firstImg, 41, 56);
+		localThreshold::binarisation(secondImg, 41, 56);
+		double threshold = ui->segmentationThresholdText->text().toFloat();
+		cv::threshold(firstImg, firstImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
+		cv::threshold(secondImg, secondImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
+		//ideka::binOptimisation(firstImg);
+		//ideka::binOptimisation(secondImg);
+		cv::imwrite(directoryPath + "f-1_Binarization.bmp", firstImg);
+		cv::imwrite(directoryPath + "s-1_Binarization.bmp", secondImg);
+	}
+}
+
+void MainWindow::customisingSegmentor(int segmentationIndex){
+	// Creating Segmentor...
+	switch (segmentationIndex)
+	{
+	case 1:
+		// Skeletonization of Morphological Skeleton
+		// This will create more unique and stronger interest points
+		firstImg = skeletonization(firstImg);
+		secondImg = skeletonization(secondImg);
+		cv::imwrite(directoryPath + "f-2_Morphological Skeleton.bmp", firstImg);
+		cv::imwrite(directoryPath + "s-2_Morphological Skeleton.bmp", secondImg);
+		break;
+	case 2:
+		// Thinning of Zhang-Suen
+		//This is the same Thinning Algorithme used by BluePrints
+		ZhangSuen::thinning(firstImg);
+		ZhangSuen::thinning(secondImg);
+		cv::imwrite(directoryPath + "f-2_Zhang-Suen Thinning.bmp", firstImg);
+		cv::imwrite(directoryPath + "s-2_Zhang-Suen Thinning.bmp", secondImg);
+		break;
+	case 3:{
+		// Thinning of Lin-Hong implemented by Mrs. Faiçal
+		firstImg = Image_processing::thinning(firstImg, firstEnhancedImage, firstSegmentedImage);
+		secondImg = Image_processing::thinning(secondImg, secondEnhancedImage, secondSegmentedImage);
+
+		firstImg.convertTo(firstImg, CV_8UC3, 255); secondImg.convertTo(secondImg, CV_8UC3, 255);
+		cv::imwrite(directoryPath + "f-2_Lin-Hong Thinning.bmp", firstImg);
+		cv::imwrite(directoryPath + "s-2_Lin-Hong Thinning.bmp", secondImg);
+		break;
+	}
+	case 4:
+		// Thinning of Guo-Hall
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Exception !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		GuoHall::thinning(firstImg);
+		GuoHall::thinning(secondImg);
+		cv::imwrite(directoryPath + "f-2_Guo-Hall Thinning.bmp", firstImg);
+		cv::imwrite(directoryPath + "s-2_Guo-Hall Thinning.bmp", secondImg);
+		break;
+
+		//....
+	}
+}
+
+void MainWindow::customisingDetector(int detectorIndex, std::string detectorName){
+	// Creating Detector...	
+	switch (detectorIndex)
+	{
+	case 0:{
+		// Minutiae-detection using Crossing Number By Dr. Faiçal
+		std::vector<Minutiae> firstMinutiae, secondMinutiae;
+		detectionTime = (double)cv::getTickCount();
+		// change this to firstImage and originalInput !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		firstMinutiae = Image_processing::extracting(firstImg, firstEnhancedImage, firstSegmentedImage, firstImg);
+		secondMinutiae = Image_processing::extracting(secondImg, secondEnhancedImage, secondSegmentedImage, secondImg);
+		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+
+		writeKeyPoints(firstImg, firstMinutiae, 1, "f-3_Minutiae");
+		writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_Minutiae");
+
+		// images must be segmented if not Minutiae will be empty
+		try{
+			// Adapt Minutiaes to KeyPoints (this will affect magnitudes and angles to minutiaes)
+			MinutiaeToKeyPointAdapter adapter;
+			// also we must add the Adapting time to detection time
+			detectionTime += adapter.adapt(firstMinutiae);
+			detectionTime += adapter.adapt(secondMinutiae);
+			for each (Minutiae minutiae in firstMinutiae)
+			{
+				firstImgKeypoints.push_back(minutiae);
+			}
+			for each (Minutiae minutiae in secondMinutiae)
+			{
+				secondImgKeypoints.push_back(minutiae);
+			}
+		}
+		catch (...){
+			ui->logPlainText->appendHtml("<i style='color:red'>Before detecting Minutiae you must select a segmentation method !</i>");
+			return;
+		}
+
+	}
+	break;
+	case 1:{
+		// Minutiae-detection using Crossing Number
+		// http://www.codelooker.com/id/217/1100103.html
+		std::vector<Minutiae> firstMinutiae, secondMinutiae;
+
+		detectionTime = (double)cv::getTickCount();
+		firstMinutiae = crossingNumber::getMinutiae(firstImg, ui->detectorMinutiae2BorderText->text().toInt());
+		secondMinutiae = crossingNumber::getMinutiae(secondImg, ui->detectorMinutiae2BorderText->text().toInt());
+		//Minutiae-filtering
+		// slow with the second segmentation
+		Filter::filterMinutiae(firstMinutiae);
+		Filter::filterMinutiae(secondMinutiae);
+		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+
+		writeKeyPoints(firstImg, firstMinutiae, 1, "f-3_Minutiae2");
+		writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_Minutiae2");
+
+		// images must be segmented if not Minutiae will be empty
+		try{
+			// Adapt Minutiaes to KeyPoints (this will affect magnitudes and angles to minutiaes)
+			MinutiaeToKeyPointAdapter adapter;
+			// also we must add the Adapting time to detection time
+			detectionTime += adapter.adapt(firstMinutiae);
+			detectionTime += adapter.adapt(secondMinutiae);
+			for each (Minutiae minutiae in firstMinutiae)
+			{
+				firstImgKeypoints.push_back(minutiae);
+			}
+			for each (Minutiae minutiae in secondMinutiae)
+			{
+				secondImgKeypoints.push_back(minutiae);
+			}
+		}
+		catch (...){
+			ui->logPlainText->appendHtml("<i style='color:red'>Before detecting Minutiae you must select a segmentation method !</i>");
+			return;
+		}
+
+	}
+	break;
+	case 2:{
+		// Harris-Corners
+		detectionTime = (double)cv::getTickCount();
+		harrisCorners(firstImg, firstImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
+		harrisCorners(secondImg, secondImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
+		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+	}
+		   break;
+	case 3:{
+		// STAR
+		ptrDetector = new cv::StarFeatureDetector(ui->detectorStarMaxSizeText->text().toInt(),
+			ui->detectorStarResponseThresholdText->text().toInt(),
+			ui->detectorStarThresholdProjectedText->text().toInt(),
+			ui->detectorStarThresholdBinarizedText->text().toInt(),
+			ui->detectorStarSuppressNonmaxSizeText->text().toInt());
+	}
+		   break;
+	case 4:
+		// FAST
+		ptrDetector = new cv::FastFeatureDetector(ui->detectorFastThresholdText->text().toInt(),
+			ui->detectorFastNonmaxSuppressionCheck->isChecked());
+		break;
+	case 5:
+		// SIFT
+		ptrDetector = new cv::SiftFeatureDetector(ui->detectorSiftNfeaturesText->text().toInt(),
+			ui->detectorSiftNOctaveLayersText->text().toInt(),
+			ui->detectorSiftContrastThresholdText->text().toDouble(),
+			ui->detectorSiftEdgeThresholdText->text().toDouble(),
+			ui->detectorSiftSigmaText->text().toDouble());
+		break;
+	case 6:
+		//SURF
+		// we didn't need the Extended and Upright params because it is related to the SURF descriptor
+		ptrDetector = new cv::SurfFeatureDetector(ui->detectorSurfHessianThresholdText->text().toDouble(),
+			ui->detectorSurfNOctavesText->text().toInt(),
+			ui->detectorSurfNLayersText->text().toInt(),
+			true,
+			false);
+		break;
+	case 7:
+		//Dense
+		ptrDetector = new cv::DenseFeatureDetector(ui->detectorDenseInitFeatureScaleText->text().toFloat(),
+			ui->detectorDenseFeatureScaleLevelsText->text().toInt(),
+			ui->detectorDenseFeatureScaleMulText->text().toFloat(),
+			ui->detectorDenseInitXyStepText->text().toInt(),
+			ui->detectorDenseInitImgBoundText->text().toInt(),
+			ui->detectorDenseInitXyStepText->text().toInt()>0,
+			ui->detectorDenseInitImgBoundText->text().toInt()>0);
+		break;
+		//....
+	default:
+		ui->logPlainText->appendHtml("<i style='color:yellow'>No detector selected.</i>");
+		return;
+		break;
+	}
+
+	if (detectorIndex > 2){
+		// Write the parameters
+		writeToFile("detector_" + detectorName, ptrDetector);
+		// fs in WRITE mode automatically released
+		try{
+			// Detecting Keypoints ...
+			if (detectorIndex == 1 && ui->detectorFastXCheck->isChecked()){
+				// FASTX
+				detectionTime = (double)cv::getTickCount();
+				cv::FASTX(firstImg, firstImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
+					ui->detectorFastNonmaxSuppressionCheck->isChecked(),
+					ui->detectorFastTypeText->currentIndex());
+				cv::FASTX(secondImg, secondImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
+					ui->detectorFastNonmaxSuppressionCheck->isChecked(),
+					ui->detectorFastTypeText->currentIndex());
+				detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+			}
+			else {
+				// Others
+				detectionTime = (double)cv::getTickCount();
+				ptrDetector->detect(firstImg, firstImgKeypoints);
+				ptrDetector->detect(secondImg, secondImgKeypoints);
+				detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+
+				writeKeyPoints(firstImg, firstImgKeypoints, 1, "f-3_KeyPoints");
+				writeKeyPoints(secondImg, secondImgKeypoints, 2, "s-3_KeyPoints");
+			}
+		}
+		catch (...){
+			ui->logPlainText->appendHtml("<b style='color:red'>Please select the right " + QString::fromStdString(detectorName) + " detector parameters, or use the defaults!.</b>");
+			return;
+		}
+	}
+	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
+	ui->logPlainText->appendPlainText("detection time: " + QString::number(detectionTime) + " (s)");
+}
+
+void MainWindow::customisingDescriptor(int descriptorIndex, std::string descriptorName){
+	// Creating Descriptor...
+	switch (descriptorIndex)
+	{
+	case 0:
+	{
+		// trait the descriptorFreakSelectedPairsIndexes
+		std::string descriptorFreakSelectedPairsText = ui->descriptorFreakSelectedPairsText->text().toStdString();
+		std::stringstream stringStream(descriptorFreakSelectedPairsText);
+		// get ints from a text
+		int number;
+		std::vector<int> descriptorFreakSelectedPairsIndexes;
+		while (stringStream >> number){
+			descriptorFreakSelectedPairsIndexes.push_back(number);
+		}
+		// FREAK	
+		ptrDescriptor = new cv::FREAK(ui->descriptorFreakOrientationNormalizedCheck->isChecked(),
+			ui->descriptorFreakScaleNormalizedCheck->isChecked(),
+			ui->descriptorFreakPatternScaleText->text().toFloat(),
+			ui->descriptorFreakNOctavesText->text().toFloat(),
+			descriptorFreakSelectedPairsIndexes);
+		/* Select Pairs
+		std::vector<std::vector<cv::KeyPoint>> test = { firstImgKeypoints, secondImgKeypoints };
+		descriptorFreakSelectedPairsIndexes = ((cv::FREAK)ptrDescriptor).selectPairs({ firstImg, secondImg }, test, 0.699999999999, true);*/
+	}
+	break;
+	case 1:
+		// BRIEF
+		ptrDescriptor = new cv::BriefDescriptorExtractor(ui->descriptorBriefLengthText->text().toInt());
+		break;
+	case 2:
+		// SIFT
+		ptrDescriptor = new cv::SiftDescriptorExtractor();
+		break;
+	case 3:
+		//SURF
+		// we just need the Extended and Upright params because others are related to the SURF detector
+		ptrDescriptor = new cv::SurfDescriptorExtractor(100, 4, 3, ui->descriptorSurfExtended->isChecked(), !ui->detectorSurfUprightText->isChecked());
+		break;
+		//....
+	default:
+		ui->logPlainText->appendHtml("<i style='color:yellow'>No descriptor selected.</i>");
+		return;
+		break;
+	}
+
+	// Write the parameters
+	writeToFile("descriptor_" + descriptorName, ptrDescriptor);
+
+	if (ui->opponentColor->isChecked())
+		//OpponentColor
+		ptrDescriptor = new cv::OpponentColorDescriptorExtractor(ptrDescriptor);
+	// Write the parameters
+	writeToFile("descriptorOppCol_" + descriptorName, ptrDescriptor);
+
+	try{
+		// Aissa !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! affichinna firstImgKeypoints avant et après pour voir c'est compute va les changer ou pas!!!!
+		descriptionTime = (double)cv::getTickCount();
+		ptrDescriptor->compute(firstImg, firstImgKeypoints, firstImgDescriptor);
+		ptrDescriptor->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
+		descriptionTime = ((double)cv::getTickCount() - descriptionTime) / cv::getTickFrequency();
+		ui->logPlainText->appendPlainText("description time: " + QString::number(descriptionTime) + " (s)");
+	}
+	catch (...){
+		if (descriptorName == "FREAK")ui->logPlainText->appendHtml("<b style='color:red'>Please select the right pair indexes within the FREAK descriptor, or just leave it!.</b><br>(For more details read Section(4.2) in: <i>A. Alahi, R. Ortiz, and P. Vandergheynst. FREAK: Fast Retina Keypoint. In IEEE Conference on Computer Vision and Pattern Recognition, 2012.</i>)");
+		else ui->logPlainText->appendHtml("<b style='color:red'>Please select the right " + QString::fromStdString(descriptorName) + " descriptor parameters, or use the defaults!.</b>");
+		return;
+	}
+}
+
+void MainWindow::customisingMatcher(int matcherIndex, std::string matcherName){
+	// creating Matcher...
+	kBestMatches = (ui->matcherKBestText->text().toInt() < 1) ? 1 : ui->matcherKBestText->text().toInt();
+	switch (matcherIndex)
+	{
+	case 0:
+	{
+		// BruteForce
+		int norm = getNormByText(ui->matcherBruteForceNormTypeText->currentText().toStdString());
+		ptrMatcher = new cv::BFMatcher(norm, ui->matcherBruteForceCrossCheckText->isChecked());
+	}
+	break;
+	case 1:
+	{
+		// FlannBased
+		// using default values
+		ptrMatcher = new cv::FlannBasedMatcher(getFlannBasedIndexParamsType(),
+			new cv::flann::SearchParams(ui->matcherFlannBasedSearchParamsText->text().toInt()));
+	}
+	break;
+	// ...
+	default:
+		ui->logPlainText->appendHtml("<i style='color:yellow'>No matcher selected.</i>");
+		return;
+		break;
+	}
+
+	// Write the parameters
+	writeToFile("matcher_" + matcherName, ptrMatcher);
+}
+
+void MainWindow::matching(){
+	// Start matching ...
+	try{
+		if (kBestMatches < 2 || ui->matcherInlierInversMatches->isChecked()){
+			// direct and reverse set of the best matches (simple match)
+			directMatchingTime = (double)cv::getTickCount();
+			ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches);
+			directMatchingTime = ((double)cv::getTickCount() - directMatchingTime) / cv::getTickFrequency();
+
+			inverseMatchingTime = (double)cv::getTickCount();
+			ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches);
+			inverseMatchingTime = ((double)cv::getTickCount() - inverseMatchingTime) / cv::getTickFrequency();
+
+			bestMatchingTime = std::min(directMatchingTime, inverseMatchingTime);
+		}
+		else { // ui->matcherInlierLoweRatio->isChecked()
+			// only direct set of the k best matches
+			directMatchingTime = (double)cv::getTickCount();
+			ptrMatcher->knnMatch(firstImgDescriptor, secondImgDescriptor, knnMatches, kBestMatches, cv::Mat(), false);
+			directMatchingTime = ((double)cv::getTickCount() - directMatchingTime) / cv::getTickFrequency();
+
+			bestMatchingTime = directMatchingTime;
+		}
+	}
+	catch (...){
+		// For example Flann-Based doesn't work with Brief desctiptor extractor
+		// And also, some descriptors must be used with specific NORM_s
+		ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one.</b>");
+		return;
+	}
+
+	ui->logPlainText->appendPlainText("matching time: " + QString::number(bestMatchingTime) + " (s)");
+
+}
+
+void MainWindow::calculateBestMatches(){
+	// Calculate the number of best matches between two sets of matches
+	int bestMatchesCount = 0;
+	float sumDistances = 0;
+	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 5 Columns
+	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
+	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
+	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
+	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
+	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
+
+	/*if (use_ransac == false)
+	compute_inliers_homography(matches_surf, inliers_surf, H, MAX_H_ERROR);
+	else
+	compute_inliers_ransac(matches_surf, inliers_surf, MAX_H_ERROR, false);*/
+
+	if (kBestMatches < 2 || ui->matcherInlierInversMatches->isChecked()) {
+		// in reverse matching test
+		for (uint i = 0; i < directMatches.size(); i++)
+		{
+			cv::Point matchedPt1 = firstImgKeypoints[i].pt;
+			cv::Point matchedPt2 = secondImgKeypoints[directMatches[i].trainIdx].pt;
+
+			bool foundInReverse = false;
+
+			for (uint j = 0; j < inverseMatches.size(); j++)
+			{
+				cv::Point tmpSecImgKeyPnt = secondImgKeypoints[j].pt;
+				cv::Point tmpFrstImgKeyPntTrn = firstImgKeypoints[inverseMatches[j].trainIdx].pt;
+				if ((tmpSecImgKeyPnt == matchedPt2) && (tmpFrstImgKeyPntTrn == matchedPt1))
+				{
+					foundInReverse = true;
+					break;
+				}
+			}
+
+			if (foundInReverse)
+			{
+				QStandardItem *x1 = new QStandardItem(QString::number(matchedPt1.x));
+				model->setItem(bestMatchesCount, 0, x1);
+				QStandardItem *y1 = new QStandardItem(QString::number(matchedPt1.y));
+				model->setItem(bestMatchesCount, 1, y1);
+				QStandardItem *x2 = new QStandardItem(QString::number(matchedPt2.x));
+				model->setItem(bestMatchesCount, 2, x2);
+				QStandardItem *y2 = new QStandardItem(QString::number(matchedPt2.y));
+				model->setItem(bestMatchesCount, 3, y2);
+				QStandardItem *dist = new QStandardItem(QString::number(directMatches[i].distance));
+				model->setItem(bestMatchesCount, 4, dist);
+				ui->viewTable->setModel(model);
+
+				sumDistances += directMatches[i].distance;
+				bestMatches.push_back(directMatches[i]);
+				bestMatchesCount++;
+			}
+		}
+		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(std::min(directMatches.size(), inverseMatches.size())));
+	}
+	else if (kBestMatches == 2 && ui->matcherInlierLoweRatio->isChecked()){
+		// knn = 2
+		// Lowe's ratio test = 0.7
+		for each (std::vector<cv::DMatch> match in knnMatches)
+		{
+			if (match[0].distance < 0.7*match[1].distance){
+				bestMatches.push_back(match[0]);
+				bestMatchesCount++;
+			}
+		}
+		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(knnMatches.size()));
+	}
+	else {// knn > 2
+		for each (std::vector<cv::DMatch> match in knnMatches)
+		{
+			bestMatches.push_back(match[0]);
+			bestMatchesCount++;
+		}
+		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(knnMatches.size()));
+	}
+	double minKeypoints = firstImgKeypoints.size() <= secondImgKeypoints.size() ?
+		firstImgKeypoints.size()
+		:
+		secondImgKeypoints.size();
+
+	ui->logPlainText->appendPlainText("Sum of distances = " + QString::number(sumDistances));
+	ui->logPlainText->appendPlainText("Probability = " + QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
+	cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
+		bestMatches, bestImgMatches, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0),
+		std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+	cv::imwrite(QString(qApp->applicationDirPath() + "/output.png").toStdString(), bestImgMatches);
+
+	//-- Draw only "good" matches
+	QGraphicsScene *scene = new QGraphicsScene();
+	QImage dest((const uchar *)bestImgMatches.data, bestImgMatches.cols, bestImgMatches.rows, bestImgMatches.step, QImage::Format_RGB888);
+	//dest.bits();
+	scene->addPixmap(QPixmap::fromImage(dest));
+	ui->viewMatches->setScene(scene);
+	ui->viewMatches->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+	ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+}

@@ -62,7 +62,6 @@ private:
 	void runBRISK();
 	void runCustom();
 	void runCustom_old();
-	void calculateBestMatches();
 	void writeToFile(std::string fileName, cv::Algorithm * algoToWrite);
 	bool noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints);
 	int  getNormByText(std::string norm);
@@ -75,6 +74,14 @@ private:
 	void displayImage(cv::Mat imageMat, int first_second);
 	void displayFeature(cv::Mat featureMat, int first_second);
 	QImage matToQImage(const cv::Mat& mat);
+
+	void customisingBinarization(int segmentationIndex);
+	void customisingSegmentor(int segmentationIndex);
+	void customisingDetector(int detectorIndex, std::string detectorName);
+	void customisingDescriptor(int descriptorIndex, std::string descriptorName);
+	void customisingMatcher(int matcherIndex, std::string matcherName);
+	void matching();
+	void calculateBestMatches();
 };
 
 #endif // MAINWINDOW_H
