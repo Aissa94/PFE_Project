@@ -1,18 +1,20 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include<iostream>
-#include<fstream>
 
 // Images Declaration
 	cv::Mat firstImg, secondImg;
+	std::vector<cv::Mat> setImgs;
 
 // Vectors Declaration
 	// Segmentation parameters for First and Second Image ...
 	cv::Mat firstEnhancedImage, firstSegmentedImage, secondEnhancedImage, secondSegmentedImage;
+	std::vector<cv::Mat> setEnhancedImages, setSegmentedImages;
 	// Keypoints Vectors for the First & Second Image ...
 	std::vector<cv::KeyPoint> firstImgKeypoints, secondImgKeypoints;
+	std::vector<std::vector<cv::KeyPoint>> setImgsKeypoints;
 	// Descriptors for the First & Second Image ...
 	cv::Mat firstImgDescriptor, secondImgDescriptor;
+	std::vector<cv::Mat> setImgsDescriptors;
 	// Clustering parameters ...
 	cv::Mat labels, centers;
 	// Matches for the Direct & Invers matching ...
@@ -27,10 +29,11 @@
 	cv::DescriptorMatcher * ptrMatcher;
 
 // Times
-	double detectionTime, descriptionTime, directMatchingTime, inverseMatchingTime, bestMatchingTime;
+	double /*segmentationTime,*/ detectionTime, descriptionTime, directMatchingTime, inverseMatchingTime, bestMatchingTime;
 // Others
 	int kBestMatches;
 	std::string directoryPath;
+	bool oneToN;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -256,23 +259,25 @@ void MainWindow::runCustom()
 	customisingDetector(detectorIndex, detectorName);
 
 	//Only detection
-	//return;
+	return;
 
 	// Customising Descriptor...
 	customisingDescriptor(descriptorIndex, descriptorName);
 
-	double compactness; //It is the returned value of the clustering function
+	// Clustering descriptor
+	double clusteringTime = (double)cv::getTickCount();
 	if (true){ //Klustering
 		std::vector<cv::Mat> matrix = { firstImgDescriptor, secondImgDescriptor };
-		compactness = clusteringIntoKClusters(matrix, 1000);
+		double compactness = clusteringIntoKClusters(matrix, 1000);
 
 		// Write Kmeans parameters
 		cv::FileStorage fs("params/kmeans_params.yaml", cv::FileStorage::WRITE);
 		fs << "Labels" << labels;
-		fs << "=========================================";
 		fs << "Centers" << centers;
 		fs.release();
 	}
+	clusteringTime = ((double)cv::getTickCount() - clusteringTime) / cv::getTickFrequency();
+	ui->logPlainText->appendPlainText("clustering time: " + QString::number(clusteringTime) + " (s)");
 
 	// Customising Matcher...
 	customisingMatcher(matcherIndex, matcherName);
@@ -287,14 +292,14 @@ void MainWindow::runCustom()
 
 void MainWindow::on_firstImgBtn_pressed()
 {
-	QString str = QFileDialog::getOpenFileName();
+	QString str = QFileDialog::getOpenFileName(0, ("Select the 1st Image"), QDir::currentPath());
 	if (!str.trimmed().isEmpty())
 		ui->firstImgText->setText(str);
 }
 
 void MainWindow::on_secondImgBtn_pressed()
 {
-	QString str = QFileDialog::getOpenFileName();
+	QString str = (ui->selectFolder->isChecked()) ? QFileDialog::getExistingDirectory(0, ("Select a Folder"), QDir::currentPath()) : QFileDialog::getOpenFileName(0, ("Select the 2nd Image"), QDir::currentPath());
 	if (!str.trimmed().isEmpty())
 		ui->secondImgText->setText(str);
 }
@@ -302,117 +307,45 @@ void MainWindow::on_secondImgBtn_pressed()
 void MainWindow::on_pushButton_pressed()
 {
 	// Read Images ...
-	if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex() == 4)){
-		// Custom && OpponentColor
-		firstImg = cv::imread(ui->firstImgText->text().toStdString(), CV_LOAD_IMAGE_COLOR);
-		secondImg = cv::imread(ui->secondImgText->text().toStdString(), CV_LOAD_IMAGE_COLOR);
+	if (!readFirstImage()) return;
+	oneToN = ui->selectFolder->isChecked();
+	if (oneToN){
+		if (!readSetOfImages()) return;
 	}
-	else{
-		firstImg = cv::imread(ui->firstImgText->text().toStdString(), cv::IMREAD_GRAYSCALE);//or CV_LOAD_IMAGE_GRAYSCALE
-		secondImg = cv::imread(ui->secondImgText->text().toStdString(), cv::IMREAD_GRAYSCALE); //or CV_LOAD_IMAGE_GRAYSCALE
+	else {
+		if (!readSecondImage()) return;
 	}
 
-	// Check if the Images are loaded correctly ...
-	if (firstImg.empty() || secondImg.empty())
+	// Create a test folder ...
+	if (!createTestFolder()) return;
+	
+	// Launch the algorithm
+	switch (ui->allMethodsTabs->currentIndex())
 	{
-		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read one of the input files!</b>");
-		return;
-	}
-	if ((firstImg.cols < 100) && (firstImg.rows < 100))
-	{
-		cv::resize(firstImg, firstImg, cv::Size(), 200 / firstImg.rows, 200 / firstImg.cols);
-	}
+	case 0:
+		// SIFT
+		runSIFT();
+		break;
 
-	if ((secondImg.cols < 100) && (secondImg.rows < 100))
-	{
-		cv::resize(secondImg, secondImg, cv::Size(), 200 / secondImg.rows, 200 / secondImg.cols);
-	}
+	case 1:
+		// SURF
+		runSURF();
+		break;
 
-	for (int i = 0; i < 5; i++)ui->viewTabs->setCurrentIndex(i); // just to center contents
-	displayImage(firstImg, 1);
-	displayImage(secondImg, 2);
+	case 2:
+		// ORB
+		runORB();
+		break;
 
-	// create a new folder test
-	if (CreateDirectory(L"Tests", NULL) || ERROR_ALREADY_EXISTS == GetLastError()){
-		std::ifstream infile;
-		FILE *file;
-		/*first check if the file exists...*/
-		infile.open("Tests/next.txt");
-		int cpt;
-		/*...then open it in the appropriate way*/
-		if (infile.is_open()) {
-			// existing file
-			while (infile.eof() == false)infile >> cpt;
-			infile.close();
-			file = fopen("Tests/next.txt", "r+b");
-		}
-		else{ 
-			// new file
-			file = fopen("Tests/next.txt", "w+b");
-			cpt = 0; 
-			wchar_t* fileLPCWSTR = L"Tests/next.txt";
-			int attr = GetFileAttributes(fileLPCWSTR);
-			if ((attr & FILE_ATTRIBUTE_HIDDEN) == 0) {
-				SetFileAttributes(fileLPCWSTR, attr | FILE_ATTRIBUTE_HIDDEN);
-			}
-		}
+	case 3:
+		// BRISK
+		runBRISK();
+		break;
 
-		if (file != NULL)
-		{
-			fprintf(file, std::to_string(cpt+1).c_str());
-			fclose(file);
-		}
-
-		wchar_t _directoryPath[256];
-		wsprintfW(_directoryPath, L"Tests/%d", cpt);
-		if (CreateDirectory(_directoryPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
-		{
-			// created with succes
-			// Rest parameters :
-			resetParams();
-			directoryPath = "Tests/" + std::to_string(cpt) + "/";
-
-			// Launch the algorithm
-			switch (ui->allMethodsTabs->currentIndex())
-			{
-			case 0:
-				// SIFT
-				runSIFT();
-				break;
-
-			case 1:
-				// SURF
-				runSURF();
-				break;
-
-			case 2:
-				// ORB
-				runORB();
-				break;
-
-			case 3:
-				// BRISK
-				runBRISK();
-				break;
-
-			default:
-				// custom
-				runCustom();
-				break;
-			}
-		}
-		else
-		{
-			// Failed to create directory.
-			ui->logPlainText->appendHtml("<b style='color:red'>Failed to create directory for the current test!</b>");
-			return;
-		}
-	}
-	else
-	{
-		// Failed to create the root.
-		ui->logPlainText->appendHtml("<b style='color:red'>Failed to create directory for all tests!</b>");
-		return;
+	default:
+		// custom
+		runCustom();
+		break;
 	}
 }
 
@@ -467,6 +400,149 @@ void MainWindow::on_actionAbout_Me_triggered()
                        "<br><br>Thanks"
                        "<br><br>GHOUILA Nabil & BELKAID Aïssa"
 					   "<br><br><a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>");
+}
+
+bool MainWindow::readFirstImage(){
+	// Read Image ...
+	if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex() == 4)){
+		// Custom && OpponentColor
+		firstImg = cv::imread(ui->firstImgText->text().toStdString(), CV_LOAD_IMAGE_COLOR);
+	}
+	else{
+		firstImg = cv::imread(ui->firstImgText->text().toStdString(), cv::IMREAD_GRAYSCALE);//or CV_LOAD_IMAGE_GRAYSCALE
+	}
+
+	// Check if the Images are loaded correctly ...
+	if (firstImg.empty())
+	{
+		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 1st input file!</b>");
+		return false;
+	}
+	if ((firstImg.cols < 100) && (firstImg.rows < 100))
+	{
+		cv::resize(firstImg, firstImg, cv::Size(), 200 / firstImg.rows, 200 / firstImg.cols);
+	}
+
+	for (int i = 0; i < 5; i++)ui->viewTabs->setCurrentIndex(i); // just to center contents
+	displayImage(firstImg, 1);
+	return true;
+}
+
+bool MainWindow::readSecondImage(){
+	// Read Image ...
+	if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex() == 4)){
+		// Custom && OpponentColor
+		secondImg = cv::imread(ui->secondImgText->text().toStdString(), CV_LOAD_IMAGE_COLOR);
+	}
+	else{
+		secondImg = cv::imread(ui->secondImgText->text().toStdString(), cv::IMREAD_GRAYSCALE); //or CV_LOAD_IMAGE_GRAYSCALE
+	}
+
+	// Check if the Images are loaded correctly ...
+	if (secondImg.empty())
+	{
+		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 2nd input file!</b>");
+		return false;
+	}
+
+	if ((secondImg.cols < 100) && (secondImg.rows < 100))
+	{
+		cv::resize(secondImg, secondImg, cv::Size(), 200 / secondImg.rows, 200 / secondImg.cols);
+	}
+	displayImage(secondImg, 2);
+
+	return true;
+}
+
+bool MainWindow::readSetOfImages(){
+	// Read Data Set of Images ...
+	std::string datapath = ui->secondImgText->text().toStdString()+"/";
+	int nbFile = fileCounter(datapath, "(", ")", ".jpg");
+	for (int f = 1; f <= nbFile; f++){
+		std::ostringstream filename;
+		filename << datapath << "(" << f << ").jpg";
+		//open the file
+		cv::Mat img;
+		if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex() == 4)){
+			// Custom && OpponentColor
+			img = cv::imread(filename.str(), CV_LOAD_IMAGE_COLOR);
+		}
+		else{
+			img = cv::imread(filename.str(), cv::IMREAD_GRAYSCALE); //or CV_LOAD_IMAGE_GRAYSCALE
+		}
+
+		// Check if the Images are loaded correctly ...
+		if (img.empty())
+		{
+			ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the " + QString::number(f) + "th input of '" + QString::fromStdString(datapath) + "' folder!</b>");
+			return false;
+		}
+		if ((img.cols < 100) && (img.rows < 100))
+		{
+			cv::resize(img, img, cv::Size(), 200 / img.rows, 200 / img.cols);
+		}
+		//displayImage(img, 2);
+		setImgs.push_back(img);
+	}
+	displayImage(setImgs[setImgs.size() - 1], 2);
+	return true;
+}
+
+bool MainWindow::createTestFolder(){
+	// create a new folder test
+	if (CreateDirectory(L"Tests", NULL) || ERROR_ALREADY_EXISTS == GetLastError()){
+		std::ifstream infile;
+		FILE *file;
+		/*first check if the file exists...*/
+		infile.open("Tests/next.txt");
+		int cpt;
+		/*...then open it in the appropriate way*/
+		if (infile.is_open()) {
+			// existing file
+			while (infile.eof() == false)infile >> cpt;
+			infile.close();
+			file = fopen("Tests/next.txt", "r+b");
+		}
+		else{
+			// new file
+			file = fopen("Tests/next.txt", "w+b");
+			cpt = 0;
+			wchar_t* fileLPCWSTR = L"Tests/next.txt";
+			int attr = GetFileAttributes(fileLPCWSTR);
+			if ((attr & FILE_ATTRIBUTE_HIDDEN) == 0) {
+				SetFileAttributes(fileLPCWSTR, attr | FILE_ATTRIBUTE_HIDDEN);
+			}
+		}
+
+		if (file != NULL)
+		{
+			fprintf(file, std::to_string(cpt + 1).c_str());
+			fclose(file);
+		}
+
+		wchar_t _directoryPath[256];
+		wsprintfW(_directoryPath, L"Tests/%d", cpt);
+		if (CreateDirectory(_directoryPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
+		{
+			// created with succes
+			// Rest parameters :
+			resetParams();
+			directoryPath = "Tests/" + std::to_string(cpt) + "/";
+			return true;
+		}
+		else
+		{
+			// Failed to create directory.
+			ui->logPlainText->appendHtml("<b style='color:red'>Failed to create directory for the current test!</b>");
+			return false;
+		}
+	}
+	else
+	{
+		// Failed to create the root.
+		ui->logPlainText->appendHtml("<b style='color:red'>Failed to create directory for all tests!</b>");
+		return false;
+	}
 }
 
 bool MainWindow::noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints)
@@ -712,14 +788,32 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 		// The Otsu thresholding will automatically choose the best generic threshold for the image to obtain a good contrast between foreground and background information.
 		// If you have only a single capturing device, then playing around with a fixed threshold value could result in a better image for that specific setup
 		localThreshold::binarisation(firstImg, 41, 56);
-		localThreshold::binarisation(secondImg, 41, 56);
+		if (oneToN)
+		{
+			int i = 0;
+			for each (cv::Mat img in setImgs){
+				i++;
+				try{ localThreshold::binarisation(img, 41, 56); }
+				catch (cv::Exception e){
+					ui->logPlainText->appendHtml("<b style='color:red'>"+ QString::number(i)+": "+QString::fromStdString(e.msg)+"</b>");
+				}
+			}
+		}
+		else localThreshold::binarisation(secondImg, 41, 56);
+
 		double threshold = ui->segmentationThresholdText->text().toFloat();
 		cv::threshold(firstImg, firstImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
-		cv::threshold(secondImg, secondImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
+		if (oneToN)
+			for each (cv::Mat img in setImgs) {
+				cv::threshold(img, img, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
+			}
+		else cv::threshold(secondImg, secondImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
+		
 		//ideka::binOptimisation(firstImg);
 		//ideka::binOptimisation(secondImg);
 		cv::imwrite(directoryPath + "f-1_Binarization.bmp", firstImg);
-		cv::imwrite(directoryPath + "s-1_Binarization.bmp", secondImg);
+		if (oneToN) cv::imwrite(directoryPath + "l-1_Binarization.bmp", setImgs[setImgs.size()-1]);
+		else cv::imwrite(directoryPath + "s-1_Binarization.bmp", secondImg);
 	}
 }
 
@@ -731,35 +825,78 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		// Skeletonization of Morphological Skeleton
 		// This will create more unique and stronger interest points
 		firstImg = skeletonization(firstImg);
-		secondImg = skeletonization(secondImg);
 		cv::imwrite(directoryPath + "f-2_Morphological Skeleton.bmp", firstImg);
-		cv::imwrite(directoryPath + "s-2_Morphological Skeleton.bmp", secondImg);
+		if (oneToN)
+		{
+			int i = 0;
+			for each (cv::Mat img in setImgs){
+				setImgs[i] = skeletonization(img);
+				i++;
+			}
+			cv::imwrite(directoryPath + "l-2_Morphological Skeleton.bmp", setImgs[setImgs.size() - 1]);
+		}
+		else {
+			secondImg = skeletonization(secondImg);
+			cv::imwrite(directoryPath + "s-2_Morphological Skeleton.bmp", secondImg);
+		}
 		break;
 	case 2:
 		// Thinning of Zhang-Suen
 		//This is the same Thinning Algorithme used by BluePrints
 		ZhangSuen::thinning(firstImg);
-		ZhangSuen::thinning(secondImg);
 		cv::imwrite(directoryPath + "f-2_Zhang-Suen Thinning.bmp", firstImg);
-		cv::imwrite(directoryPath + "s-2_Zhang-Suen Thinning.bmp", secondImg);
-		break;
+		if (oneToN)
+		{
+			for each (cv::Mat img in setImgs){
+				ZhangSuen::thinning(img);
+			}
+			cv::imwrite(directoryPath + "l-2_Zhang-Suen Thinning.bmp", setImgs[setImgs.size() - 1]);
+		}
+		else {
+			ZhangSuen::thinning(secondImg);
+			cv::imwrite(directoryPath + "s-2_Zhang-Suen Thinning.bmp", secondImg);
+		}
+	break;
 	case 3:{
 		// Thinning of Lin-Hong implemented by Mrs. Faiçal
 		firstImg = Image_processing::thinning(firstImg, firstEnhancedImage, firstSegmentedImage);
-		secondImg = Image_processing::thinning(secondImg, secondEnhancedImage, secondSegmentedImage);
-
-		firstImg.convertTo(firstImg, CV_8UC3, 255); secondImg.convertTo(secondImg, CV_8UC3, 255);
+		firstImg.convertTo(firstImg, CV_8UC3, 255);
 		cv::imwrite(directoryPath + "f-2_Lin-Hong Thinning.bmp", firstImg);
-		cv::imwrite(directoryPath + "s-2_Lin-Hong Thinning.bmp", secondImg);
+		if (oneToN)
+		{
+			setEnhancedImages = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
+			setSegmentedImages = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
+			int i = 0;
+			for each (cv::Mat img in setImgs){
+				setImgs[i] = Image_processing::thinning(img, setEnhancedImages[i], setSegmentedImages[i]);
+				setImgs[i].convertTo(setImgs[i], CV_8UC3, 255);
+				i++;
+			}
+			cv::imwrite(directoryPath + "l-2_Lin-Hong Thinning.bmp", setImgs[setImgs.size() - 1]);
+		}
+		else {
+			secondImg = Image_processing::thinning(secondImg, secondEnhancedImage, secondSegmentedImage);
+			secondImg.convertTo(secondImg, CV_8UC3, 255);
+			cv::imwrite(directoryPath + "s-2_Lin-Hong Thinning.bmp", secondImg);
+		}		
 		break;
 	}
 	case 4:
 		// Thinning of Guo-Hall
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Exception !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		GuoHall::thinning(firstImg);
-		GuoHall::thinning(secondImg);
 		cv::imwrite(directoryPath + "f-2_Guo-Hall Thinning.bmp", firstImg);
-		cv::imwrite(directoryPath + "s-2_Guo-Hall Thinning.bmp", secondImg);
+		if (oneToN)
+		{
+			for each (cv::Mat img in setImgs){
+				GuoHall::thinning(img);
+			}
+			cv::imwrite(directoryPath + "l-2_Guo-Hall Thinning.bmp", setImgs[setImgs.size() - 1]);
+		}
+		else {
+			GuoHall::thinning(secondImg);
+			cv::imwrite(directoryPath + "s-2_Guo-Hall Thinning.bmp", secondImg);
+		}
 		break;
 
 		//....
@@ -773,14 +910,25 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 	case 0:{
 		// Minutiae-detection using Crossing Number By Dr. Faiçal
 		std::vector<Minutiae> firstMinutiae, secondMinutiae;
+		std::vector<std::vector<Minutiae>> setMinutiaes;
 		detectionTime = (double)cv::getTickCount();
 		// change this to firstImage and originalInput !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		firstMinutiae = Image_processing::extracting(firstImg, firstEnhancedImage, firstSegmentedImage, firstImg);
-		secondMinutiae = Image_processing::extracting(secondImg, secondEnhancedImage, secondSegmentedImage, secondImg);
+		if (oneToN)
+		{
+			setMinutiaes = std::vector<std::vector<Minutiae>>(setImgs.size(), std::vector<Minutiae>());
+			int i = 0;
+			for each (cv::Mat img in setImgs){
+				setMinutiaes[i] = Image_processing::extracting(img, setEnhancedImages[i], setSegmentedImages[i], img);
+				i++;
+			}
+		}
+		else secondMinutiae = Image_processing::extracting(secondImg, secondEnhancedImage, secondSegmentedImage, secondImg);
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
 		writeKeyPoints(firstImg, firstMinutiae, 1, "f-3_Minutiae");
-		writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_Minutiae");
+		if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1], setMinutiaes[setMinutiaes.size() - 1], 2, "l-3_Minutiae");
+		else writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_Minutiae");
 
 		// images must be segmented if not Minutiae will be empty
 		try{
@@ -788,12 +936,30 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			MinutiaeToKeyPointAdapter adapter;
 			// also we must add the Adapting time to detection time
 			detectionTime += adapter.adapt(firstMinutiae);
-			detectionTime += adapter.adapt(secondMinutiae);
+			if (oneToN)
+			{
+				for each (std::vector<Minutiae> minutiaes in setMinutiaes){
+					detectionTime += adapter.adapt(minutiaes);
+				}
+			}
+			else detectionTime += adapter.adapt(secondMinutiae);
 			for each (Minutiae minutiae in firstMinutiae)
 			{
 				firstImgKeypoints.push_back(minutiae);
 			}
-			for each (Minutiae minutiae in secondMinutiae)
+			if (oneToN)
+			{
+				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
+				int i = 0;
+				for each (std::vector<Minutiae> minutiaes in setMinutiaes){
+					for each (Minutiae minutiae in minutiaes)
+					{
+						setImgsKeypoints[i].push_back(minutiae);
+					}
+					i++;
+				}
+			}
+			else for each (Minutiae minutiae in secondMinutiae)
 			{
 				secondImgKeypoints.push_back(minutiae);
 			}
@@ -809,18 +975,39 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		// Minutiae-detection using Crossing Number
 		// http://www.codelooker.com/id/217/1100103.html
 		std::vector<Minutiae> firstMinutiae, secondMinutiae;
+		std::vector<std::vector<Minutiae>> setMinutiaes;
 
 		detectionTime = (double)cv::getTickCount();
 		firstMinutiae = crossingNumber::getMinutiae(firstImg, ui->detectorMinutiae2BorderText->text().toInt());
-		secondMinutiae = crossingNumber::getMinutiae(secondImg, ui->detectorMinutiae2BorderText->text().toInt());
 		//Minutiae-filtering
 		// slow with the second segmentation
 		Filter::filterMinutiae(firstMinutiae);
-		Filter::filterMinutiae(secondMinutiae);
+		if (oneToN)
+		{
+			setMinutiaes = std::vector<std::vector<Minutiae>>(setImgs.size(), std::vector<Minutiae>());
+			int i = 0;
+			for each (cv::Mat img in setImgs){
+				setMinutiaes[i] = crossingNumber::getMinutiae(img, ui->detectorMinutiae2BorderText->text().toInt());
+				Filter::filterMinutiae(setMinutiaes[i]);
+				i++;
+			}
+		}
+		else {
+			secondMinutiae = crossingNumber::getMinutiae(secondImg, ui->detectorMinutiae2BorderText->text().toInt());
+			Filter::filterMinutiae(secondMinutiae);
+		}
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
 		writeKeyPoints(firstImg, firstMinutiae, 1, "f-3_Minutiae2");
-		writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_Minutiae2");
+		if (oneToN)
+		{
+			int i = 0;
+			for each (cv::Mat img in setImgs){
+				writeKeyPoints(img, setMinutiaes[i], 2, "l-3_Minutiae2");
+				i++;
+			}
+		}
+		else writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_Minutiae2");
 
 		// images must be segmented if not Minutiae will be empty
 		try{
@@ -828,12 +1015,30 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			MinutiaeToKeyPointAdapter adapter;
 			// also we must add the Adapting time to detection time
 			detectionTime += adapter.adapt(firstMinutiae);
-			detectionTime += adapter.adapt(secondMinutiae);
+			if (oneToN)
+			{
+				for each (std::vector<Minutiae> minutiaes in setMinutiaes){
+					detectionTime += adapter.adapt(minutiaes);
+				}
+			}
+			else detectionTime += adapter.adapt(secondMinutiae);
 			for each (Minutiae minutiae in firstMinutiae)
 			{
 				firstImgKeypoints.push_back(minutiae);
 			}
-			for each (Minutiae minutiae in secondMinutiae)
+			if (oneToN)
+			{
+				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
+				int i = 0;
+				for each (std::vector<Minutiae> minutiaes in setMinutiaes){
+					for each (Minutiae minutiae in minutiaes)
+					{
+						setImgsKeypoints[i].push_back(minutiae);
+					}
+					i++;
+				}
+			}
+			else for each (Minutiae minutiae in secondMinutiae)
 			{
 				secondImgKeypoints.push_back(minutiae);
 			}
@@ -922,11 +1127,19 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 				// Others
 				detectionTime = (double)cv::getTickCount();
 				ptrDetector->detect(firstImg, firstImgKeypoints);
-				ptrDetector->detect(secondImg, secondImgKeypoints);
+				if (oneToN){
+					setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
+					int i = 0;
+					for each (cv::Mat img in setImgs){
+						ptrDetector->detect(img, setImgsKeypoints[i]);
+						i++;
+					}
+				}else ptrDetector->detect(secondImg, secondImgKeypoints);
 				detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
 				writeKeyPoints(firstImg, firstImgKeypoints, 1, "f-3_KeyPoints");
-				writeKeyPoints(secondImg, secondImgKeypoints, 2, "s-3_KeyPoints");
+				if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1], setImgsKeypoints[setImgsKeypoints.size() - 1], 2, "l-3_KeyPoints");
+				else writeKeyPoints(secondImg, secondImgKeypoints, 2, "s-3_KeyPoints");
 			}
 		}
 		catch (...){
@@ -934,7 +1147,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			return;
 		}
 	}
-	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
+	if (noKeyPoints("first", firstImgKeypoints) || (!oneToN && noKeyPoints("second", secondImgKeypoints))) return;
 	ui->logPlainText->appendPlainText("detection time: " + QString::number(detectionTime) + " (s)");
 }
 
@@ -1171,4 +1384,31 @@ void MainWindow::calculateBestMatches(){
 	ui->viewMatches->setScene(scene);
 	ui->viewMatches->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
 	ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+}
+
+int MainWindow::fileCounter(std::string dir, std::string prefix, std::string suffix, std::string extension){
+	int returnedCount = 0;
+	int possibleMax = 5000000; //some number you can expect.
+
+	for (int istarter = 1; istarter < possibleMax; istarter++){
+		std::string fileName = "";
+		fileName.append(dir);
+		fileName.append(prefix);
+		fileName.append(std::to_string(istarter));
+		fileName.append(suffix);
+		fileName.append(extension);
+		bool status = FileExistenceCheck(fileName);
+
+		returnedCount = istarter;
+
+		if (!status)
+			break;
+	}
+
+	return returnedCount-1;
+}
+
+bool MainWindow::FileExistenceCheck(const std::string& name){
+	struct stat buffer;
+	return (stat(name.c_str(), &buffer) == 0);
 }

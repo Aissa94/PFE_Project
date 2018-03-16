@@ -30,10 +30,37 @@
           <string>Image &amp;&amp; Image</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_9">
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="firstImgText">
+          <item row="1" column="3">
+           <widget class="QPushButton" name="secondImgBtn">
             <property name="text">
-             <string>Resources/images/1_2.jpg</string>
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QPushButton" name="firstImgBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Second Image(s) :</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="secondImgText">
+            <property name="text">
+             <string>D:/ESI/Empreinte/Data/JPG-complet</string>
+            </property>
+            <property name="buddy" stdset="0">
+             <cstring>label_4</cstring>
             </property>
            </widget>
           </item>
@@ -47,37 +74,23 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QPushButton" name="firstImgBtn">
-            <property name="text">
-             <string>Browse</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="secondImgText">
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="firstImgText">
             <property name="text">
              <string>Resources/images/1_1.jpg</string>
             </property>
-            <property name="buddy" stdset="0">
-             <cstring>label_4</cstring>
-            </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="secondImgBtn">
-            <property name="text">
-             <string>Browse</string>
+          <item row="1" column="4">
+           <widget class="QCheckBox" name="selectFolder">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a folder for a dataset of images&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>Second Image :</string>
+             <string>Select Folder</string>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -568,7 +581,7 @@
         <item row="0" column="0">
          <widget class="QTabWidget" name="customTabs">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tabSegmentation">
            <attribute name="title">
@@ -578,7 +591,7 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="segmentationTabs">
               <property name="currentIndex">
-               <number>3</number>
+               <number>2</number>
               </property>
               <widget class="QWidget" name="tabSegmentationWithout">
                <attribute name="title">
@@ -885,7 +898,7 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="detectorTabs">
               <property name="currentIndex">
-               <number>0</number>
+               <number>6</number>
               </property>
               <widget class="QWidget" name="tabDetectorMinutiaeMme">
                <attribute name="title">
@@ -2325,11 +2338,11 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
       </widget>
       <widget class="QWidget" name="tab_7">
        <attribute name="title">
-        <string>Image 2</string>
+        <string>Keypoints 1</string>
        </attribute>
-       <layout class="QGridLayout" name="image2GridLayoutTab">
+       <layout class="QGridLayout" name="keyPoints1GridLayoutTab">
         <item row="0" column="0">
-         <widget class="QGraphicsView" name="viewImage2">
+         <widget class="QGraphicsView" name="viewKeyPoints1">
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>
@@ -2348,11 +2361,11 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
       </widget>
       <widget class="QWidget" name="tab_7">
        <attribute name="title">
-        <string>Keypoints 1</string>
+        <string>Image 2</string>
        </attribute>
-       <layout class="QGridLayout" name="keyPoints1GridLayoutTab">
+       <layout class="QGridLayout" name="image2GridLayoutTab">
         <item row="0" column="0">
-         <widget class="QGraphicsView" name="viewKeyPoints1">
+         <widget class="QGraphicsView" name="viewImage2">
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>

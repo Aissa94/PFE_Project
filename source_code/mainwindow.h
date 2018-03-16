@@ -5,6 +5,11 @@
 #include <QtWidgets>
 
 #include <iostream>
+#include <fstream>
+#include <iostream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -62,6 +67,10 @@ private:
 	void runBRISK();
 	void runCustom();
 	void runCustom_old();
+	bool readFirstImage();
+	bool readSecondImage();
+	bool readSetOfImages();
+	bool createTestFolder();
 	void writeToFile(std::string fileName, cv::Algorithm * algoToWrite);
 	bool noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints);
 	int  getNormByText(std::string norm);
@@ -82,6 +91,9 @@ private:
 	void customisingMatcher(int matcherIndex, std::string matcherName);
 	void matching();
 	void calculateBestMatches();
+
+	int fileCounter(std::string dir, std::string prefix, std::string suffix, std::string extension);
+	bool FileExistenceCheck(const std::string& name);
 };
 
 #endif // MAINWINDOW_H
