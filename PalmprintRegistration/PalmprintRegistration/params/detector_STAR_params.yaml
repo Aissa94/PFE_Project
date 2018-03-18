@@ -1,7 +1,0 @@
-%YAML:1.0
-name: "Feature2D.STAR"
-lineThresholdBinarized: 8
-lineThresholdProjected: 10
-maxSize: 45
-responseThreshold: 30
-suppressNonmaxSize: 5

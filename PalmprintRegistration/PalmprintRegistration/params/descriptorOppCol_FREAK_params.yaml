@@ -1,6 +1,0 @@
-%YAML:1.0
-name: "Feature2D.FREAK"
-nbOctave: 4
-orientationNormalized: 1
-patternScale: 22.
-scaleNormalized: 1

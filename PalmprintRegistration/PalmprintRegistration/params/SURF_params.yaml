@@ -1,7 +1,0 @@
-%YAML:1.0
-name: "Feature2D.SURF"
-extended: 0
-hessianThreshold: 200.
-nOctaveLayers: 2
-nOctaves: 3
-upright: 1
