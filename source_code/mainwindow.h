@@ -2,8 +2,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
 #include <QtWidgets>
+
+#include <iostream>
+#include <fstream>
+#include <iostream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -12,6 +18,7 @@
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+// Additional libraries
 #include <ActiveQt/qaxobject.h>
 #include <ActiveQt/qaxbase.h>
 #include <QString>
@@ -20,6 +27,7 @@
 #include <iomanip>
 #include <string>
 #include <ctime>
+#include "include_files.h"
 
 namespace Ui {
 class MainWindow;
@@ -37,11 +45,11 @@ protected:
 	virtual void wheelEvent(QWheelEvent* event);
     
 private slots:
-    void on_firstImgBtn_pressed();
+	void on_firstImgBtn_pressed();
 
     void on_secondImgBtn_pressed();
 
-    void on_pushButton_pressed();
+	void on_pushButton_pressed();
 
     void on_actionDestroy_All_Windows_triggered();
 
@@ -67,12 +75,34 @@ private:
 	void runBRISK();
 	void runCustom();
 	void runCustom_old();
-	void calculateBestMatches();
+	bool readFirstImage();
+	bool readSecondImage();
+	bool readSetOfImages();
+	bool createTestFolder();
 	void writeToFile(std::string fileName, cv::Algorithm * algoToWrite);
 	bool noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints);
 	int  getNormByText(std::string norm);
 	cv::Ptr<cv::flann::IndexParams> getFlannBasedIndexParamsType();
 	cv::Mat skeletonization(cv::Mat img);
+	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold = 125.0);
+	double clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k); 
+	template <typename T>
+	void writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first_second, std::string fileName = "", int squareSize = 5);
+	void displayImage(cv::Mat imageMat, int first_second);
+	void displayFeature(cv::Mat featureMat, int first_second);
+	QImage matToQImage(const cv::Mat& mat);
+
+	void customisingBinarization(int segmentationIndex);
+	void customisingSegmentor(int segmentationIndex);
+	void customisingDetector(int detectorIndex, std::string detectorName);
+	void customisingDescriptor(int descriptorIndex, std::string descriptorName);
+	void customisingMatcher(int matcherIndex, std::string matcherName);
+	void matching();
+	void calculateBestMatches();
+
+	int fileCounter(std::string dir, std::string prefix, std::string suffix, std::string extension);
+	bool fileExistenceCheck(const std::string& name);
+	void showError(std::string title, std::string text, std::string e_msg = "");
 };
 
 #endif // MAINWINDOW_H
