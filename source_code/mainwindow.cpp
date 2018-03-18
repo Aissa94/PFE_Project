@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "ExcelExportHelper.h"
 
 // Images Declaration
 	cv::Mat firstImg, secondImg;

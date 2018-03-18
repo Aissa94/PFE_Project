@@ -14,6 +14,8 @@
 #include "optimisation\Ideka.h"
 #include "thinning\GuoHall.h"
 #include "thinning\ZhangSuen.h"
+#include "ExcelExportHelper.h"
+
 
 // Dr :
 #include "image-processing\image_processing.h"

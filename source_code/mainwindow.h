@@ -10,6 +10,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <stdexcept>
+#include <iomanip>
+#include <string>
+#include <ctime>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -17,16 +21,6 @@
 #include <opencv2/nonfree/nonfree.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/highgui/highgui.hpp>
-
-// Additional libraries
-#include <ActiveQt/qaxobject.h>
-#include <ActiveQt/qaxbase.h>
-#include <QString>
-#include <QFile>
-#include <stdexcept>
-#include <iomanip>
-#include <string>
-#include <ctime>
 #include "include_files.h"
 
 namespace Ui {

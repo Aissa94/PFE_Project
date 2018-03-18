@@ -2,8 +2,6 @@
 #define EXCELHELPER_H
 
 #include <ActiveQt/qaxobject.h>
-#include <ActiveQt/qaxbase.h>
-#include <QString>
 
 //Expected in .pro file: QT += axcontainer
 //Application must be of UI type for ActiveX work.
