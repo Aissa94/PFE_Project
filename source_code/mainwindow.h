@@ -6,7 +6,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <iostream>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -21,6 +20,7 @@
 #include <opencv2/nonfree/nonfree.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/highgui/highgui.hpp>
+
 #include "include_files.h"
 
 namespace Ui {

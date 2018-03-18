@@ -259,7 +259,7 @@ void MainWindow::runCustom()
 	customisingDetector(detectorIndex, detectorName);
 
 	//Only detection
-	return;
+	//return;
 
 	// Customising Descriptor...
 	customisingDescriptor(descriptorIndex, descriptorName);
@@ -276,7 +276,12 @@ void MainWindow::runCustom()
 			matrix.insert(matrix.end(), setImgsDescriptors.begin(), setImgsDescriptors.end());
 		}
 		else matrix = { firstImgDescriptor, secondImgDescriptor };
-		double compactness = clusteringIntoKClusters(matrix, 1000);
+		try{
+			double compactness = clusteringIntoKClusters(matrix, 40);
+		}catch (...){
+			ui->logPlainText->appendHtml("<i style='color:red'>The number of clusters is too high, try another!</i>");
+			return;
+		}
 
 		// Write Kmeans parameters
 		cv::FileStorage fs("params/kmeans_params.yaml", cv::FileStorage::WRITE);
@@ -290,12 +295,12 @@ void MainWindow::runCustom()
 	// Customising Matcher...
 	customisingMatcher(matcherIndex, matcherName);
 
-	//return;
-
 	// Find the matching points
 	matching();
 
 	ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + bestMatchingTime) + " (s)");
+
+	return;
 
 	calculateBestMatches();
 }
@@ -702,6 +707,16 @@ bool MainWindow::readSetOfImages(){
 		//displayImage(img, 2);
 		setImgs.push_back(img);
 	}
+	if (setImgs.size() == 0) {
+		showError("Read Images", "There is no image in the folder: " + directoryPath, "Make sure that the folder contains one or more images with correct names!");
+		return false;
+	}
+	else if (setImgs.size() == 1){
+		// one to one image
+		secondImg = setImgs[setImgs.size() - 1];
+		oneToN = false;
+	}
+	// display the last image
 	displayImage(setImgs[setImgs.size() - 1], 2);
 	return true;
 }
@@ -897,7 +912,7 @@ double MainWindow::clusteringIntoKClusters(std::vector<cv::Mat> features_vector,
 // K : The number of clusters to split the samples in rawFeatureData (retrieved from 'OpenCV 3 Blueprints' book)
 	int nbRows = firstImgDescriptor.rows;
 	if (oneToN){
-		for each (cv::Mat descriptor in setImgsDescriptors)
+		for (cv::Mat descriptor : setImgsDescriptors)
 		{
 			nbRows += descriptor.rows;
 		}
@@ -1024,7 +1039,7 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 		if (oneToN)
 		{
 			int i = 0;
-			for each (cv::Mat img in setImgs){
+			for (cv::Mat &img : setImgs){
 				i++;
 				try{ localThreshold::binarisation(img, 41, 56); }
 				catch (cv::Exception e){
@@ -1037,7 +1052,7 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 		double threshold = ui->segmentationThresholdText->text().toFloat();
 		cv::threshold(firstImg, firstImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
 		if (oneToN)
-			for each (cv::Mat img in setImgs) {
+			for (cv::Mat &img : setImgs) {
 				cv::threshold(img, img, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
 			}
 		else cv::threshold(secondImg, secondImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
@@ -1062,7 +1077,7 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		if (oneToN)
 		{
 			int i = 0;
-			for each (cv::Mat img in setImgs){
+			for (cv::Mat img : setImgs){
 				setImgs[i] = skeletonization(img);
 				i++;
 			}
@@ -1080,7 +1095,7 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		cv::imwrite(directoryPath + "f-2_Zhang-Suen Thinning.bmp", firstImg);
 		if (oneToN)
 		{
-			for each (cv::Mat img in setImgs){
+			for (cv::Mat &img : setImgs){
 				ZhangSuen::thinning(img);
 			}
 			cv::imwrite(directoryPath + "l-2_Zhang-Suen Thinning.bmp", setImgs[setImgs.size() - 1]);
@@ -1100,7 +1115,7 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 			setEnhancedImages = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
 			setSegmentedImages = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
 			int i = 0;
-			for each (cv::Mat img in setImgs){
+			for (cv::Mat img : setImgs){
 				setImgs[i] = Image_processing::thinning(img, setEnhancedImages[i], setSegmentedImages[i]);
 				setImgs[i].convertTo(setImgs[i], CV_8UC3, 255);
 				i++;
@@ -1121,7 +1136,7 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		cv::imwrite(directoryPath + "f-2_Guo-Hall Thinning.bmp", firstImg);
 		if (oneToN)
 		{
-			for each (cv::Mat img in setImgs){
+			for (cv::Mat &img : setImgs){
 				GuoHall::thinning(img);
 			}
 			cv::imwrite(directoryPath + "l-2_Guo-Hall Thinning.bmp", setImgs[setImgs.size() - 1]);
@@ -1150,7 +1165,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		{
 			setMinutiaes = std::vector<std::vector<Minutiae>>(setImgs.size(), std::vector<Minutiae>());
 			int i = 0;
-			for each (cv::Mat img in setImgs){
+			for (cv::Mat &img : setImgs){
 				setMinutiaes[i] = Image_processing::extracting(img, setEnhancedImages[i], setSegmentedImages[i], img);
 				i++;
 			}
@@ -1175,7 +1190,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 				}
 			}
 			else detectionTime += adapter.adapt(secondMinutiae);
-			for each (Minutiae minutiae in firstMinutiae)
+			for (Minutiae minutiae : firstMinutiae)
 			{
 				firstImgKeypoints.push_back(minutiae);
 			}
@@ -1183,15 +1198,15 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			{
 				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
 				int i = 0;
-				for each (std::vector<Minutiae> minutiaes in setMinutiaes){
-					for each (Minutiae minutiae in minutiaes)
+				for (std::vector<Minutiae> minutiaes : setMinutiaes){
+					for (Minutiae minutiae : minutiaes)
 					{
 						setImgsKeypoints[i].push_back(minutiae);
 					}
 					i++;
 				}
 			}
-			else for each (Minutiae minutiae in secondMinutiae)
+			else for (Minutiae minutiae : secondMinutiae)
 			{
 				secondImgKeypoints.push_back(minutiae);
 			}
@@ -1218,7 +1233,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		{
 			setMinutiaes = std::vector<std::vector<Minutiae>>(setImgs.size(), std::vector<Minutiae>());
 			int i = 0;
-			for each (cv::Mat img in setImgs){
+			for (cv::Mat &img : setImgs){
 				setMinutiaes[i] = crossingNumber::getMinutiae(img, ui->detectorMinutiae2BorderText->text().toInt());
 				Filter::filterMinutiae(setMinutiaes[i]);
 				i++;
@@ -1234,7 +1249,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		if (oneToN)
 		{
 			int i = 0;
-			for each (cv::Mat img in setImgs){
+			for (cv::Mat img : setImgs){
 				writeKeyPoints(img, setMinutiaes[i], 2, "l-3_Minutiae2");
 				i++;
 			}
@@ -1249,12 +1264,12 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			detectionTime += adapter.adapt(firstMinutiae);
 			if (oneToN)
 			{
-				for each (std::vector<Minutiae> minutiaes in setMinutiaes){
+				for (std::vector<Minutiae> &minutiaes : setMinutiaes){
 					detectionTime += adapter.adapt(minutiaes);
 				}
 			}
 			else detectionTime += adapter.adapt(secondMinutiae);
-			for each (Minutiae minutiae in firstMinutiae)
+			for (Minutiae minutiae : firstMinutiae)
 			{
 				firstImgKeypoints.push_back(minutiae);
 			}
@@ -1262,15 +1277,15 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			{
 				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
 				int i = 0;
-				for each (std::vector<Minutiae> minutiaes in setMinutiaes){
-					for each (Minutiae minutiae in minutiaes)
+				for (std::vector<Minutiae> minutiaes : setMinutiaes){
+					for (Minutiae minutiae : minutiaes)
 					{
 						setImgsKeypoints[i].push_back(minutiae);
 					}
 					i++;
 				}
 			}
-			else for each (Minutiae minutiae in secondMinutiae)
+			else for (Minutiae minutiae : secondMinutiae)
 			{
 				secondImgKeypoints.push_back(minutiae);
 			}
@@ -1289,7 +1304,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		if (oneToN)
 		{
 			int i = 0;
-			for each (cv::Mat img in setImgs){
+			for (cv::Mat img : setImgs){
 				harrisCorners(img, setImgsKeypoints[i], ui->detectorHarrisThresholdText->text().toFloat());
 				i++;
 			}
@@ -1320,7 +1335,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			if (oneToN)
 			{
 				int i = 0;
-				for each (cv::Mat img in setImgs){
+				for (cv::Mat img : setImgs){
 					cv::FASTX(img, setImgsKeypoints[i], ui->detectorFastThresholdText->text().toInt(),
 						ui->detectorFastNonmaxSuppressionCheck->isChecked(),
 						ui->detectorFastTypeText->currentIndex());
@@ -1378,7 +1393,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			if (oneToN){
 				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
 				int i = 0;
-				for each (cv::Mat img in setImgs){
+				for (cv::Mat &img : setImgs){
 					ptrDetector->detect(img, setImgsKeypoints[i]);
 					i++;
 				}
@@ -1462,7 +1477,7 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 		{
 			setImgsDescriptors = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
 			int i = 0;
-			for each (cv::Mat img in setImgs){
+			for (cv::Mat &img : setImgs){
 				ptrDescriptor->compute(img, setImgsKeypoints[i], setImgsDescriptors[i]);
 				i++;
 			}
@@ -1549,7 +1564,6 @@ void MainWindow::matching(){
 		// For example Flann-Based doesn't work with Brief desctiptor extractor
 		// And also, some descriptors must be used with specific NORM_s
 		ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one.</b>");
-		showError("fd","dfdf",e.msg);
 		return;
 	}
 
@@ -1617,7 +1631,7 @@ void MainWindow::calculateBestMatches(){
 	else if (kBestMatches == 2 && ui->matcherInlierLoweRatio->isChecked()){
 		// knn = 2
 		// Lowe's ratio test = 0.7
-		for each (std::vector<cv::DMatch> match in knnMatches)
+		for (std::vector<cv::DMatch> match : knnMatches)
 		{
 			if (match[0].distance < 0.7*match[1].distance){
 				bestMatches.push_back(match[0]);
@@ -1627,7 +1641,7 @@ void MainWindow::calculateBestMatches(){
 		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(knnMatches.size()));
 	}
 	else {// knn > 2
-		for each (std::vector<cv::DMatch> match in knnMatches)
+		for (std::vector<cv::DMatch> match : knnMatches)
 		{
 			bestMatches.push_back(match[0]);
 			bestMatchesCount++;
