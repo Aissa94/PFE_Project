@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "ExcelExportHelper.h"
 
 // Images Declaration
 	cv::Mat firstImg, secondImg;
@@ -124,7 +125,7 @@ void MainWindow::runSURF()
     surfDetector.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
 
     // Find the matching points
-    if(ui->siftBruteForceCheck->isChecked())
+    if(ui->surfBruteForceCheck->isChecked())
     {
         ptrMatcher = new cv::BFMatcher(cv::NORM_L1);
     }
@@ -136,7 +137,7 @@ void MainWindow::runSURF()
     ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, directMatches );
     ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!hena yebda le pblm de diffirence entre hada w ta3 custom !!! !!! !!! !!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!hena yebda le pblm de difference entre hada w ta3 custom !!! !!! !!! !!
 	calculateBestMatches();
 }
 
@@ -567,9 +568,9 @@ void MainWindow::on_actionClear_Log_triggered()
 
 void MainWindow::on_actionSave_Log_File_As_triggered()
 {
-	QString fileName = QFileDialog::getSaveFileName(this,
+	/*QString fileName = QFileDialog::getSaveFileName(this,
 		tr("Save Log File"), "palmprint_registration_log_file",
-		tr("Txt File (*.txt);;All Files (*)"));
+		tr("Excel Workbook (*.xlsx);;All Files (*)"));
 	if (fileName.isEmpty())
 		return;
 	else {
@@ -583,6 +584,214 @@ void MainWindow::on_actionSave_Log_File_As_triggered()
 		out.setVersion(QDataStream::Qt_4_5);
 		// We must fix it !
 		out << ui->logPlainText->toPlainText();// .toStdString().c_str();
+	}*/
+
+	try
+	{
+        const QString fileName = "palmprint_registration_log_file.xlsx";
+
+        //ExcelExportHelper helper;
+
+        auto t = std::time(nullptr);
+        auto tm = *std::localtime(&t);
+        std::ostringstream oss;
+        oss << std::put_time(&tm, "%d-%m-%Y %H.%M");
+        auto str = oss.str();
+        QString curtime = QString::fromStdString(str);
+
+        /*helper.Open(fileName);
+        helper.SetCellValue(1, 1, ui->matcherTabs->tabText(ui->matcherTabs->currentIndex()));
+        helper.SetCellValue(1, 2, curtime);*/
+        QAxObject* excel = new QAxObject("Excel.Application");
+        QAxObject* workbooks = excel->querySubObject("Workbooks");
+        QAxObject* workbook = workbooks->querySubObject("Open(const QString&)", fileName);
+        QAxObject* worksheet = workbook->querySubObject("Worksheets(int)", 0);
+
+        switch (ui->allMethodsTabs->currentIndex())
+        {
+        case 0:
+        {
+            // SIFT
+            QAxObject* siftSheet = worksheet->querySubObject( "Item(int)", 1 );
+
+            QAxObject* siftUsedrange = siftSheet->querySubObject("UsedRange");
+
+            QAxObject* siftRows = siftUsedrange->querySubObject("Rows");
+
+            int intRows = siftRows->property("Count").toInt();
+
+            QAxObject* siftContThreshText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 1);
+            siftContThreshText->setProperty("Value", ui->siftContThreshText->text());
+
+            QAxObject* siftEdgeThreshText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 2);
+            siftEdgeThreshText->setProperty("Value", ui->siftEdgeThreshText->text());
+
+            QAxObject* siftNumFeatText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 3);
+            siftNumFeatText->setProperty("Value", ui->siftNumFeatText->text());
+
+            QAxObject* siftNumOctText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 4);
+            siftNumOctText->setProperty("Value", ui->siftNumOctText->text());
+
+            QAxObject* siftSigmaText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 5);
+            siftSigmaText->setProperty("Value", ui->siftSigmaText->text());
+
+            QAxObject* siftBruteForceCheck = excel->querySubObject("Cells(Int, Int)", intRows + 1, 6);
+            siftBruteForceCheck->setProperty("Value", ui->siftBruteForceCheck->isChecked());
+
+            break;
+        }
+        case 1:
+        {
+            // SURF
+            QAxObject* surfSheet = worksheet->querySubObject( "Item(int)", 2 );
+
+            QAxObject* surfUsedrange = surfSheet->querySubObject("UsedRange");
+
+            QAxObject* surfRows = surfUsedrange->querySubObject("Rows");
+
+            int intRows = surfRows->property("Count").toInt();
+
+            QAxObject* surfHessianThreshText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 1);
+            surfHessianThreshText->setProperty("Value", ui->surfHessianThreshText->text());
+
+            QAxObject* surfNumOctavesText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 2);
+            surfNumOctavesText->setProperty("Value", ui->surfNumOctavesText->text());
+
+            QAxObject* surfNumOctLayersText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 3);
+            surfNumOctLayersText->setProperty("Value", ui->surfNumOctLayersText->text());
+
+            QAxObject* surfExtendedText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 4);
+            surfExtendedText->setProperty("Value", ui->surfExtendedText->isChecked());
+
+            QAxObject* surfUprightText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 5);
+            surfUprightText->setProperty("Value", ui->surfUprightText->isChecked());
+
+            QAxObject* surfBruteForceCheck = excel->querySubObject("Cells(Int, Int)", intRows + 1, 6);
+            surfBruteForceCheck->setProperty("Value", ui->surfBruteForceCheck->isChecked());
+
+            break;
+        }
+
+        case 2:
+        {
+            // ORB
+            QAxObject* orbSheet = worksheet->querySubObject( "Item(int)", 3 );
+            qDebug () << orbSheet->property("Name");
+
+            QAxObject* orbUsedrange = orbSheet->querySubObject("UsedRange");
+
+            QAxObject* orbRows = orbUsedrange->querySubObject("Rows");
+
+            int intRows = orbRows->property("Count").toInt();
+
+            QAxObject* orbNumFeatText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 1);
+            orbNumFeatText->setProperty("Value", ui->orbNumFeatText->text());
+
+            QAxObject* orbScaleFactText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 2);
+            orbScaleFactText->setProperty("Value", ui->orbScaleFactText->text());
+
+            QAxObject* orbNumLevelsText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 3);
+            orbNumLevelsText->setProperty("Value", ui->orbNumLevelsText->text());
+
+            QAxObject* orbEdgeThreshText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 4);
+            orbEdgeThreshText->setProperty("Value", ui->orbEdgeThreshText->text());
+
+            QAxObject* orbFirstLevText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 5);
+            orbFirstLevText->setProperty("Value", ui->orbFirstLevText->text());
+
+            QAxObject* orbWTAKText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 6);
+            orbWTAKText->setProperty("Value", ui->orbWTAKText->text());
+
+            QAxObject* scoreType = excel->querySubObject("Cells(Int, Int)", intRows + 1, 7);
+            scoreType->setProperty("Value", ui->orbScoreHarrisRadioBtn->isChecked());
+
+            QAxObject* orbPatchSizeText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 8);
+            orbPatchSizeText->setProperty("Value", ui->orbPatchSizeText->text());
+
+            break;
+        }
+        case 3:
+        {
+            // BRISK
+            QAxObject* briskSheet = worksheet->querySubObject( "Item(int)", 4 );
+
+            QAxObject* briskUsedrange = briskSheet->querySubObject("UsedRange");
+
+            QAxObject* briskRows = briskUsedrange->querySubObject("Rows");
+
+            int intRows = briskRows->property("Count").toInt();
+
+            QAxObject* briskPatternScaleText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 1);
+            briskPatternScaleText->setProperty("Value", ui->briskPatternScaleText->text());
+
+            QAxObject* briskOctavesText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 2);
+            briskOctavesText->setProperty("Value", ui->briskOctavesText->text());
+
+            QAxObject* briskThreshText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 3);
+            briskThreshText->setProperty("Value", ui->briskThreshText->text());
+
+            break;
+        }
+        default:
+        {
+            // Custom
+            QAxObject* customSheet = worksheet->querySubObject( "Item(int)", 5 );
+
+            QAxObject* customUsedrange = customSheet->querySubObject("UsedRange");
+
+            QAxObject* customRows = customUsedrange->querySubObject("Rows");
+
+            int intRows = customRows->property("Count").toInt();
+
+            QAxObject* segmentationTabs = excel->querySubObject("Cells(Int, Int)", intRows + 1, 1);
+            segmentationTabs->setProperty("Value", ui->segmentationTabs->tabText(ui->segmentationTabs->currentIndex()));
+
+            int segmentationIndex = ui->segmentationTabs->currentIndex();
+            int detectorIndex = ui->detectorTabs->currentIndex();
+            int descriptorIndex = ui->descriptorTabs->currentIndex();
+            int matcherIndex = ui->matcherTabs->currentIndex();
+
+            // Customising Segmentor...
+            switch (segmentationIndex)
+            {
+            case 0:
+                break;
+            case 1:
+                cv::threshold(firstImg, firstImg, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU); //127, 255, cv::THRESH_BINARY);
+                cv::threshold(secondImg, secondImg, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU); //127, 255, cv::THRESH_BINARY);
+                // Skeletonization
+                // This will create more unique and stronger interest points
+                firstImg = skeletonization(firstImg);
+                secondImg = skeletonization(secondImg);
+                break;
+                //....
+           default:
+                return;
+                break;
+            }
+
+            QAxObject* detectorTabs = excel->querySubObject("Cells(Int, Int)", intRows + 1, 3);
+            detectorTabs->setProperty("Value", ui->detectorTabs->tabText(ui->detectorTabs->currentIndex()));
+
+            QAxObject* descriptorTabs = excel->querySubObject("Cells(Int, Int)", intRows + 1, 5);
+            descriptorTabs->setProperty("Value", ui->descriptorTabs->tabText(ui->descriptorTabs->currentIndex()));
+
+            QAxObject* matcherTabs = excel->querySubObject("Cells(Int, Int)", intRows + 1, 7);
+            matcherTabs->setProperty("Value", ui->matcherTabs->tabText(ui->matcherTabs->currentIndex()));
+
+            break;
+
+
+        }
+        }
+        excel->setProperty("Visible", true);
+        workbooks->querySubObject("SaveAs()");
+        workbooks->querySubObject("Close()");
+        excel->querySubObject("Quit()");
+	}
+	catch (const std::exception& e)
+	{
+		QMessageBox::critical(this, "Error - Demo", e.what());
 	}
 }
 
@@ -795,6 +1004,81 @@ void MainWindow::resetParams()
 	catch (...){
 		ui->logPlainText->appendHtml("<b style='color:yellow'>Enable to free some structures!</b>");
 	}
+}
+
+ExcelExportHelper::ExcelExportHelper(bool closeExcelOnExit)
+{
+	m_closeExcelOnExit = closeExcelOnExit;
+	m_excelApplication = nullptr;
+	m_sheet = nullptr;
+	m_sheets = nullptr;
+	m_workbook = nullptr;
+	m_workbooks = nullptr;
+	m_excelApplication = nullptr;
+
+	m_excelApplication = new QAxObject("Excel.Application", 0);//{00024500-0000-0000-C000-000000000046}
+
+	if (m_excelApplication == nullptr)
+		throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
+
+	m_excelApplication->dynamicCall("SetVisible(bool)", false); // hide excel
+	m_excelApplication->setProperty("DisplayAlerts", 0); // disable alerts
+
+	m_workbooks = m_excelApplication->querySubObject("Workbooks");
+	m_workbook = m_workbooks->querySubObject("Add");
+	m_sheets = m_workbook->querySubObject("Worksheets");
+	m_sheet = m_sheets->querySubObject("Add");
+}
+
+void ExcelExportHelper::SetCellValue(int lineIndex, int columnIndex, const QString& value)
+{
+    QAxObject *cell = m_sheet->querySubObject("Cells(int,int)", lineIndex, columnIndex);
+	cell->setProperty("Value", value);
+	delete cell;
+}
+
+void ExcelExportHelper::Open(const QString& fileName)
+{
+    if (fileName == "")
+		throw std::invalid_argument("'fileName' is empty!");
+	if (fileName.contains("/"))
+		throw std::invalid_argument("'/' character in 'fileName' is not supported by excel!");
+
+    if (!QFile::exists(fileName))
+	{
+        /*if (!QFile::remove(fileName))
+		{
+			throw new std::exception(QString("Failed to remove file '%1'").arg(fileName).toStdString().c_str());
+        }*/
+        m_workbooks->dynamicCall("Open (const QString&)", fileName);
+        m_sheets->querySubObject("Worksheets(int)", 1);
+    }
+
+    //m_workbook->dynamicCall("SaveAs (const QString&)", fileName);
+}
+
+ExcelExportHelper::~ExcelExportHelper()
+{
+	if (m_excelApplication != nullptr)
+	{
+		if (!m_closeExcelOnExit)
+		{
+			m_excelApplication->setProperty("DisplayAlerts", 1);
+			m_excelApplication->dynamicCall("SetVisible(bool)", true);
+		}
+
+		if (m_workbook != nullptr && m_closeExcelOnExit)
+		{
+			m_workbook->dynamicCall("Close (Boolean)", true);
+			m_excelApplication->dynamicCall("Quit (void)");
+		}
+	}
+
+	delete m_sheet;
+	delete m_sheets;
+	delete m_workbook;
+	delete m_workbooks;
+	delete m_excelApplication;
 }
 
 cv::Mat MainWindow::skeletonization(cv::Mat img){
