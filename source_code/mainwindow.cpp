@@ -264,10 +264,18 @@ void MainWindow::runCustom()
 	// Customising Descriptor...
 	customisingDescriptor(descriptorIndex, descriptorName);
 
+	//Only detection & description
+	//return;
+
 	// Clustering descriptor
 	double clusteringTime = (double)cv::getTickCount();
 	if (true){ //Klustering
-		std::vector<cv::Mat> matrix = { firstImgDescriptor, secondImgDescriptor };
+		std::vector<cv::Mat> matrix;
+		if (oneToN) {
+			matrix = { firstImgDescriptor };
+			matrix.insert(matrix.end(), setImgsDescriptors.begin(), setImgsDescriptors.end());
+		}
+		else matrix = { firstImgDescriptor, secondImgDescriptor };
 		double compactness = clusteringIntoKClusters(matrix, 1000);
 
 		// Write Kmeans parameters
@@ -281,6 +289,8 @@ void MainWindow::runCustom()
 
 	// Customising Matcher...
 	customisingMatcher(matcherIndex, matcherName);
+
+	//return;
 
 	// Find the matching points
 	matching();
@@ -607,10 +617,10 @@ void MainWindow::wheelEvent(QWheelEvent *event){
 void MainWindow::resetParams()
 {
 	try{
-		firstImgKeypoints.clear(); secondImgKeypoints.clear();
-		firstImgDescriptor.release(); secondImgDescriptor.release();
-		firstEnhancedImage.release(); firstSegmentedImage.release();
-		secondEnhancedImage.release(); secondSegmentedImage.release();
+		firstImgKeypoints.clear(); secondImgKeypoints.clear(); setImgsKeypoints.clear();
+		firstImgDescriptor.release(); secondImgDescriptor.release(); setImgsDescriptors.clear();
+		firstEnhancedImage.release(); secondEnhancedImage.release(); setEnhancedImages.clear();
+		firstSegmentedImage.release(); secondSegmentedImage.release(); setSegmentedImages.clear();
 		directMatches.clear(); inverseMatches.clear(); bestMatches.clear();
 		knnMatches.clear();
 		bestImgMatches.release();
@@ -677,7 +687,15 @@ void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &
 
 double MainWindow::clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k){
 // K : The number of clusters to split the samples in rawFeatureData (retrieved from 'OpenCV 3 Blueprints' book)
-	cv::Mat rawFeatureData = cv::Mat::zeros(firstImgDescriptor.rows + secondImgDescriptor.rows, firstImgDescriptor.cols, CV_32FC1);
+	int nbRows = firstImgDescriptor.rows;
+	if (oneToN){
+		for each (cv::Mat descriptor in setImgsDescriptors)
+		{
+			nbRows += descriptor.rows;
+		}
+	}
+	else nbRows += secondImgDescriptor.rows;
+	cv::Mat rawFeatureData = cv::Mat::zeros(nbRows, firstImgDescriptor.cols, CV_32FC1);
 	// We need to copy the data from the vector of key points features_vector to imageFeatureData:
 	int cur_idx = 0;
 	for (int i = 0; i < features_vector.size(); i++){
@@ -755,9 +773,15 @@ void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first
 	cvtColor(img, outImg, CV_GRAY2RGB);
 	for (cv::KeyPoint &keyPoint : keyPoints){
 		//add a transparent square at each minutiae-location
-		cv::Mat roi = outImg(cv::Rect(keyPoint.pt.x - squareSize / 2, keyPoint.pt.y - squareSize / 2, squareSize, squareSize));
-		double alpha = 0.3;
 		cv::Mat color;
+		cv::Mat roi;
+		try{
+			roi = outImg(cv::Rect(keyPoint.pt.x - squareSize / 2, keyPoint.pt.y - squareSize / 2, squareSize, squareSize));
+		}
+		catch (cv::Exception e){
+			goto EndDisplayingKeyPoint_LABEL;
+		}
+		double alpha = 0.3;
 		if (typeid(keyPoints) == typeid(std::vector<Minutiae>)){
 			// if minutiaes then distinguish between ridgeending and bifurcation
 			if (static_cast<Minutiae&>(keyPoint).getType() == Minutiae::Type::RIDGEENDING){
@@ -772,10 +796,9 @@ void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first
 			color = cv::Mat(roi.size(), CV_8UC3, cv::Scalar(0, 128, 0));    //green square for simple keyPoint
 		}
 		addWeighted(color, alpha, roi, 1.0 - alpha, 0.0, roi);
+	EndDisplayingKeyPoint_LABEL:
+		;
 	}
-	//namedWindow(fileName, cv::WINDOW_AUTOSIZE);     // Create a window for display.
-	//imshow(fileName, outImg);                 // Show our image inside it.
-
 	displayFeature(outImg, first_second);  // Show our image inside the viewer.
 	if (fileName != "")cv::imwrite(directoryPath + fileName + ".bmp", outImg);
 }
@@ -787,6 +810,8 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 		// Binarization
 		// The Otsu thresholding will automatically choose the best generic threshold for the image to obtain a good contrast between foreground and background information.
 		// If you have only a single capturing device, then playing around with a fixed threshold value could result in a better image for that specific setup
+
+		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Error !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!		
 		localThreshold::binarisation(firstImg, 41, 56);
 		if (oneToN)
 		{
@@ -795,7 +820,7 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 				i++;
 				try{ localThreshold::binarisation(img, 41, 56); }
 				catch (cv::Exception e){
-					ui->logPlainText->appendHtml("<b style='color:red'>"+ QString::number(i)+": "+QString::fromStdString(e.msg)+"</b>");
+					showError("Binarization", "Error in the " + std::to_string(i) + " image", e.msg);
 				}
 			}
 		}
@@ -905,8 +930,7 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 
 void MainWindow::customisingDetector(int detectorIndex, std::string detectorName){
 	// Creating Detector...	
-	switch (detectorIndex)
-	{
+	switch (detectorIndex){
 	case 0:{
 		// Minutiae-detection using Crossing Number By Dr. Faiçal
 		std::vector<Minutiae> firstMinutiae, secondMinutiae;
@@ -938,8 +962,8 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			detectionTime += adapter.adapt(firstMinutiae);
 			if (oneToN)
 			{
-				for each (std::vector<Minutiae> minutiaes in setMinutiaes){
-					detectionTime += adapter.adapt(minutiaes);
+				for (int i = 0; i < setImgs.size(); i++){
+					detectionTime += adapter.adapt(setMinutiaes[i]);
 				}
 			}
 			else detectionTime += adapter.adapt(secondMinutiae);
@@ -1054,7 +1078,15 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		// Harris-Corners
 		detectionTime = (double)cv::getTickCount();
 		harrisCorners(firstImg, firstImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
-		harrisCorners(secondImg, secondImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
+		if (oneToN)
+		{
+			int i = 0;
+			for each (cv::Mat img in setImgs){
+				harrisCorners(img, setImgsKeypoints[i], ui->detectorHarrisThresholdText->text().toFloat());
+				i++;
+			}
+		}
+		else harrisCorners(secondImg, secondImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 	}
 		   break;
@@ -1069,8 +1101,29 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		   break;
 	case 4:
 		// FAST
-		ptrDetector = new cv::FastFeatureDetector(ui->detectorFastThresholdText->text().toInt(),
-			ui->detectorFastNonmaxSuppressionCheck->isChecked());
+		if (!ui->detectorFastXCheck->isChecked())
+			ptrDetector = new cv::FastFeatureDetector(ui->detectorFastThresholdText->text().toInt(), ui->detectorFastNonmaxSuppressionCheck->isChecked()); 
+		else {
+			// FASTX
+			detectionTime = (double)cv::getTickCount();
+			cv::FASTX(firstImg, firstImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
+				ui->detectorFastNonmaxSuppressionCheck->isChecked(),
+				ui->detectorFastTypeText->currentIndex());
+			if (oneToN)
+			{
+				int i = 0;
+				for each (cv::Mat img in setImgs){
+					cv::FASTX(img, setImgsKeypoints[i], ui->detectorFastThresholdText->text().toInt(),
+						ui->detectorFastNonmaxSuppressionCheck->isChecked(),
+						ui->detectorFastTypeText->currentIndex());
+					i++;
+				}
+			}
+			else cv::FASTX(secondImg, secondImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
+				ui->detectorFastNonmaxSuppressionCheck->isChecked(),
+				ui->detectorFastTypeText->currentIndex());
+			detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+		}
 		break;
 	case 5:
 		// SIFT
@@ -1106,48 +1159,34 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		break;
 	}
 
-	if (detectorIndex > 2){
+	if (detectorIndex > 2 && (detectorIndex != 4 || !ui->detectorFastXCheck->isChecked())){
 		// Write the parameters
 		writeToFile("detector_" + detectorName, ptrDetector);
 		// fs in WRITE mode automatically released
 		try{
 			// Detecting Keypoints ...
-			if (detectorIndex == 1 && ui->detectorFastXCheck->isChecked()){
-				// FASTX
-				detectionTime = (double)cv::getTickCount();
-				cv::FASTX(firstImg, firstImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
-					ui->detectorFastNonmaxSuppressionCheck->isChecked(),
-					ui->detectorFastTypeText->currentIndex());
-				cv::FASTX(secondImg, secondImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
-					ui->detectorFastNonmaxSuppressionCheck->isChecked(),
-					ui->detectorFastTypeText->currentIndex());
-				detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
-			}
-			else {
-				// Others
-				detectionTime = (double)cv::getTickCount();
-				ptrDetector->detect(firstImg, firstImgKeypoints);
-				if (oneToN){
-					setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
-					int i = 0;
-					for each (cv::Mat img in setImgs){
-						ptrDetector->detect(img, setImgsKeypoints[i]);
-						i++;
-					}
-				}else ptrDetector->detect(secondImg, secondImgKeypoints);
-				detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
-
-				writeKeyPoints(firstImg, firstImgKeypoints, 1, "f-3_KeyPoints");
-				if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1], setImgsKeypoints[setImgsKeypoints.size() - 1], 2, "l-3_KeyPoints");
-				else writeKeyPoints(secondImg, secondImgKeypoints, 2, "s-3_KeyPoints");
-			}
+			detectionTime = (double)cv::getTickCount();
+			ptrDetector->detect(firstImg, firstImgKeypoints);
+			if (oneToN){
+				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
+				int i = 0;
+				for each (cv::Mat img in setImgs){
+					ptrDetector->detect(img, setImgsKeypoints[i]);
+					i++;
+				}
+			}else ptrDetector->detect(secondImg, secondImgKeypoints);
+			detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 		}
 		catch (...){
 			ui->logPlainText->appendHtml("<b style='color:red'>Please select the right " + QString::fromStdString(detectorName) + " detector parameters, or use the defaults!.</b>");
 			return;
 		}
+		writeKeyPoints(firstImg, firstImgKeypoints, 1, "f-3_KeyPoints");
+		if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1], setImgsKeypoints[setImgs.size() - 1], 2, "l-3_KeyPoints");
+		else writeKeyPoints(secondImg, secondImgKeypoints, 2, "s-3_KeyPoints");
 	}
 	if (noKeyPoints("first", firstImgKeypoints) || (!oneToN && noKeyPoints("second", secondImgKeypoints))) return;
+	if (oneToN) noKeyPoints("last", setImgsKeypoints[setImgs.size() - 1]);
 	ui->logPlainText->appendPlainText("detection time: " + QString::number(detectionTime) + " (s)");
 }
 
@@ -1157,6 +1196,7 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 	{
 	case 0:
 	{
+		// FREAK
 		// trait the descriptorFreakSelectedPairsIndexes
 		std::string descriptorFreakSelectedPairsText = ui->descriptorFreakSelectedPairsText->text().toStdString();
 		std::stringstream stringStream(descriptorFreakSelectedPairsText);
@@ -1166,7 +1206,7 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 		while (stringStream >> number){
 			descriptorFreakSelectedPairsIndexes.push_back(number);
 		}
-		// FREAK	
+		// create FREAK	descriptor 
 		ptrDescriptor = new cv::FREAK(ui->descriptorFreakOrientationNormalizedCheck->isChecked(),
 			ui->descriptorFreakScaleNormalizedCheck->isChecked(),
 			ui->descriptorFreakPatternScaleText->text().toFloat(),
@@ -1207,10 +1247,19 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 	writeToFile("descriptorOppCol_" + descriptorName, ptrDescriptor);
 
 	try{
-		// Aissa !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! affichinna firstImgKeypoints avant et après pour voir c'est compute va les changer ou pas!!!!
+		// Aissa !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! affichinna firstImgKeypoints avant et après pour voir si compute va les changer ou pas!!!!
 		descriptionTime = (double)cv::getTickCount();
 		ptrDescriptor->compute(firstImg, firstImgKeypoints, firstImgDescriptor);
-		ptrDescriptor->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
+		if (oneToN)
+		{
+			setImgsDescriptors = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
+			int i = 0;
+			for each (cv::Mat img in setImgs){
+				ptrDescriptor->compute(img, setImgsKeypoints[i], setImgsDescriptors[i]);
+				i++;
+			}
+		}
+		else ptrDescriptor->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
 		descriptionTime = ((double)cv::getTickCount() - descriptionTime) / cv::getTickFrequency();
 		ui->logPlainText->appendPlainText("description time: " + QString::number(descriptionTime) + " (s)");
 	}
@@ -1258,11 +1307,19 @@ void MainWindow::matching(){
 		if (kBestMatches < 2 || ui->matcherInlierInversMatches->isChecked()){
 			// direct and reverse set of the best matches (simple match)
 			directMatchingTime = (double)cv::getTickCount();
-			ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches);
+			if (oneToN){
+				ptrMatcher->add(setImgsDescriptors);
+				ptrMatcher->match(firstImgDescriptor, directMatches);
+			}
+			else ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches);
 			directMatchingTime = ((double)cv::getTickCount() - directMatchingTime) / cv::getTickFrequency();
 
 			inverseMatchingTime = (double)cv::getTickCount();
-			ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches);
+			if (oneToN){
+				/*ptrMatcher->add(setImgsDescriptors);
+				ptrMatcher->match(firstImgDescriptor, directMatches);*/
+			}
+			else ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches);
 			inverseMatchingTime = ((double)cv::getTickCount() - inverseMatchingTime) / cv::getTickFrequency();
 
 			bestMatchingTime = std::min(directMatchingTime, inverseMatchingTime);
@@ -1270,16 +1327,21 @@ void MainWindow::matching(){
 		else { // ui->matcherInlierLoweRatio->isChecked()
 			// only direct set of the k best matches
 			directMatchingTime = (double)cv::getTickCount();
-			ptrMatcher->knnMatch(firstImgDescriptor, secondImgDescriptor, knnMatches, kBestMatches, cv::Mat(), false);
+			if (oneToN){
+				ptrMatcher->add(setImgsDescriptors);
+				ptrMatcher->knnMatch(firstImgDescriptor, knnMatches, kBestMatches, cv::Mat(), false);
+			}
+			else ptrMatcher->knnMatch(firstImgDescriptor, secondImgDescriptor, knnMatches, kBestMatches, cv::Mat(), false);
 			directMatchingTime = ((double)cv::getTickCount() - directMatchingTime) / cv::getTickFrequency();
 
 			bestMatchingTime = directMatchingTime;
 		}
 	}
-	catch (...){
+	catch (cv::Exception e){
 		// For example Flann-Based doesn't work with Brief desctiptor extractor
 		// And also, some descriptors must be used with specific NORM_s
 		ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one.</b>");
+		showError("fd","dfdf",e.msg);
 		return;
 	}
 
@@ -1374,7 +1436,7 @@ void MainWindow::calculateBestMatches(){
 	cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
 		bestMatches, bestImgMatches, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0),
 		std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-	cv::imwrite(QString(qApp->applicationDirPath() + "/output.png").toStdString(), bestImgMatches);
+	cv::imwrite(directoryPath + "output.png", bestImgMatches);
 
 	//-- Draw only "good" matches
 	QGraphicsScene *scene = new QGraphicsScene();
@@ -1397,7 +1459,7 @@ int MainWindow::fileCounter(std::string dir, std::string prefix, std::string suf
 		fileName.append(std::to_string(istarter));
 		fileName.append(suffix);
 		fileName.append(extension);
-		bool status = FileExistenceCheck(fileName);
+		bool status = fileExistenceCheck(fileName);
 
 		returnedCount = istarter;
 
@@ -1408,7 +1470,16 @@ int MainWindow::fileCounter(std::string dir, std::string prefix, std::string suf
 	return returnedCount-1;
 }
 
-bool MainWindow::FileExistenceCheck(const std::string& name){
+bool MainWindow::fileExistenceCheck(const std::string& name){
 	struct stat buffer;
 	return (stat(name.c_str(), &buffer) == 0);
+}
+
+void MainWindow::showError(std::string title, std::string text, std::string e_msg){
+// Display a message box
+	QMessageBox error;
+	error.setWindowTitle(QString::fromStdString(title));
+	error.setText(QString::fromStdString(text));
+	error.exec();
+	if(e_msg!="")ui->logPlainText->appendHtml("<b style='color:red'>Code Error: " + QString::fromStdString(e_msg) + " </b>");
 }

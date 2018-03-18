@@ -93,7 +93,8 @@ private:
 	void calculateBestMatches();
 
 	int fileCounter(std::string dir, std::string prefix, std::string suffix, std::string extension);
-	bool FileExistenceCheck(const std::string& name);
+	bool fileExistenceCheck(const std::string& name);
+	void showError(std::string title, std::string text, std::string e_msg = "");
 };
 
 #endif // MAINWINDOW_H

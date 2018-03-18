@@ -591,7 +591,7 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="segmentationTabs">
               <property name="currentIndex">
-               <number>2</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="tabSegmentationWithout">
                <attribute name="title">
@@ -898,7 +898,7 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="detectorTabs">
               <property name="currentIndex">
-               <number>6</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="tabDetectorMinutiaeMme">
                <attribute name="title">
@@ -2232,7 +2232,7 @@ Higher values gives better precision, but also takes more time.</string>
                  <string>Number of nearest neighbors to search for. This allows finding the k best matches for each descriptor.</string>
                 </property>
                 <property name="text">
-                 <string>Number of nearest neighbors :</string>
+                 <string>Number of nearest neighbors (knn):</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -2255,6 +2255,9 @@ Higher values gives better precision, but also takes more time.</string>
              <layout class="QGridLayout" name="matcherInlierLayout">
               <item row="0" column="1">
                <widget class="QRadioButton" name="matcherInlierInversMatches">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep only matches found in both direct and reverse matching.&lt;/p&gt;&lt;p&gt;(In case of 1 to N images this will be equivalent to Lowe's ratio test with knn=2)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="text">
                  <string>In reverse matching test</string>
                 </property>
@@ -2268,6 +2271,9 @@ Higher values gives better precision, but also takes more time.</string>
               </item>
               <item row="0" column="0">
                <widget class="QRadioButton" name="matcherInlierLoweRatio">
+                <property name="toolTip">
+                 <string>Performs the 0.7 Lowe's test</string>
+                </property>
                 <property name="text">
                  <string>Lowe's ratio test</string>
                 </property>
