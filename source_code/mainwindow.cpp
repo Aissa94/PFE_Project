@@ -18,10 +18,10 @@
 	// Clustering parameters ...
 	cv::Mat labels, centers;
 	// Matches for the Direct & Invers matching ...
-	std::vector<cv::DMatch> directMatches, inverseMatches, bestMatches;
+	std::vector<cv::DMatch> matches, inverseMatches, bestMatches;
 	// Maches for knn > 1
-	std::vector<std::vector< cv::DMatch >> knnMatches;
-	cv::Mat bestImgMatches;
+	std::vector<std::vector< cv::DMatch >> twoMatches;
+	cv::Mat bestMatchesImg;
 
 // Operators Declaration
 	cv::FeatureDetector * ptrDetector;
@@ -29,9 +29,8 @@
 	cv::DescriptorMatcher * ptrMatcher;
 
 // Times
-	double /*segmentationTime,*/ detectionTime, descriptionTime, directMatchingTime, inverseMatchingTime, bestMatchingTime;
+	double /*segmentationTime = 0,*/ detectionTime = 0, descriptionTime = 0, clusteringTime = 0, matchingTime = 0;
 // Others
-	int kBestMatches;
 	std::string directoryPath;
 	bool oneToN;
 
@@ -93,11 +92,11 @@ void MainWindow::runSIFT()
     {
         ptrMatcher = new cv::FlannBasedMatcher();
     }
-    ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, directMatches );
+    ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, matches );
     ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
 
 	// Drowing best matches
-	calculateBestMatches();
+	outlierElimination();
 }
 
 void MainWindow::runSURF()
@@ -140,11 +139,11 @@ void MainWindow::runSURF()
         ptrMatcher = new cv::FlannBasedMatcher();
     }
 
-    ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, directMatches );
+    ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, matches );
     ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!hena yebda le pblm de difference entre hada w ta3 custom !!! !!! !!! !!
-	calculateBestMatches();
+	outlierElimination();
 }
 
 void MainWindow::runORB()
@@ -187,10 +186,10 @@ void MainWindow::runORB()
 
     // Find the matching points
     ptrMatcher = new cv::BFMatcher(cv::NORM_HAMMING);
-	ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, directMatches );
+	ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, matches );
     ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
 
-	calculateBestMatches();
+	outlierElimination();
 }
 
 void MainWindow::runBRISK()
@@ -229,10 +228,10 @@ void MainWindow::runBRISK()
 
 	// Find the matching points
 	ptrMatcher = new cv::BFMatcher(cv::NORM_HAMMING);
-	ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches);
+	ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, matches);
 	ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches);
 
-	calculateBestMatches();
+	outlierElimination();
 }
 
 void MainWindow::runCustom()
@@ -268,29 +267,9 @@ void MainWindow::runCustom()
 	//return;
 
 	// Clustering descriptor
-	double clusteringTime = (double)cv::getTickCount();
-	if (true){ //Klustering
-		std::vector<cv::Mat> matrix;
-		if (oneToN) {
-			matrix = { firstImgDescriptor };
-			matrix.insert(matrix.end(), setImgsDescriptors.begin(), setImgsDescriptors.end());
-		}
-		else matrix = { firstImgDescriptor, secondImgDescriptor };
-		try{
-			double compactness = clusteringIntoKClusters(matrix, 40);
-		}catch (...){
-			ui->logPlainText->appendHtml("<i style='color:red'>The number of clusters is too high, try another!</i>");
-			return;
-		}
-
-		// Write Kmeans parameters
-		cv::FileStorage fs("params/kmeans_params.yaml", cv::FileStorage::WRITE);
-		fs << "Labels" << labels;
-		fs << "Centers" << centers;
-		fs.release();
+	if (false){
+		clustering();
 	}
-	clusteringTime = ((double)cv::getTickCount() - clusteringTime) / cv::getTickFrequency();
-	ui->logPlainText->appendPlainText("clustering time: " + QString::number(clusteringTime) + " (s)");
 
 	// Customising Matcher...
 	customisingMatcher(matcherIndex, matcherName);
@@ -298,11 +277,13 @@ void MainWindow::runCustom()
 	// Find the matching points
 	matching();
 
-	ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + bestMatchingTime) + " (s)");
+	ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + clusteringTime + matchingTime) + " (s)");
 
-	return;
+	// Keep only best matching according to the selected test
+	outlierElimination();
 
-	calculateBestMatches();
+	// View results
+	displayMatches();
 }
 
 void MainWindow::on_firstImgBtn_pressed()
@@ -844,9 +825,8 @@ void MainWindow::resetParams()
 		firstImgDescriptor.release(); secondImgDescriptor.release(); setImgsDescriptors.clear();
 		firstEnhancedImage.release(); secondEnhancedImage.release(); setEnhancedImages.clear();
 		firstSegmentedImage.release(); secondSegmentedImage.release(); setSegmentedImages.clear();
-		directMatches.clear(); inverseMatches.clear(); bestMatches.clear();
-		knnMatches.clear();
-		bestImgMatches.release();
+		matches.clear(); inverseMatches.clear(); twoMatches.clear(); bestMatches.clear();
+		bestMatchesImg.release();
 		//delete ptrDetector;
 		//delete ptrDescriptor;
 		//delete ptrMatcher;
@@ -908,7 +888,7 @@ void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &
 	}
 }
 
-double MainWindow::clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k){
+double MainWindow::kMeans(std::vector<cv::Mat> features_vector, int k){
 // K : The number of clusters to split the samples in rawFeatureData (retrieved from 'OpenCV 3 Blueprints' book)
 	int nbRows = firstImgDescriptor.rows;
 	if (oneToN){
@@ -931,6 +911,30 @@ double MainWindow::clusteringIntoKClusters(std::vector<cv::Mat> features_vector,
 	return result;
 }
 // <--------------
+void MainWindow::clustering(){
+	// use kmeans algorithme to cluster descriptors
+	clusteringTime = (double)cv::getTickCount();
+	std::vector<cv::Mat> matrix;
+	if (oneToN) {
+		matrix = { firstImgDescriptor };
+		matrix.insert(matrix.end(), setImgsDescriptors.begin(), setImgsDescriptors.end());
+	}
+	else matrix = { firstImgDescriptor, secondImgDescriptor };
+	try{
+		double compactness = kMeans(matrix, 40);
+	}
+	catch (...){
+		ui->logPlainText->appendHtml("<i style='color:red'>The number of clusters is too high, try another!</i>");
+		return;
+	}
+	// Write Kmeans parameters
+	cv::FileStorage fs("params/kmeans_params.yaml", cv::FileStorage::WRITE);
+	fs << "Labels" << labels;
+	fs << "Centers" << centers;
+	fs.release();
+	clusteringTime = ((double)cv::getTickCount() - clusteringTime) / cv::getTickFrequency();
+	ui->logPlainText->appendPlainText("clustering time: " + QString::number(clusteringTime) + " (s)");
+}
 
 QImage MainWindow::matToQImage(const cv::Mat& mat)
 {
@@ -987,6 +991,47 @@ void MainWindow::displayFeature(cv::Mat featureMat, int first_second)
 	QGraphicsView *myUiScene = (first_second == 1) ? ui->viewKeyPoints1 : ui->viewKeyPoints2;
 	myUiScene->setScene(featureScene);
 	myUiScene->fitInView(featureScene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
+}
+
+void MainWindow::displayMatches(){
+	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 5 Columns
+	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
+	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
+	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
+	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
+	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
+
+	int i = 0;
+	for (cv::DMatch match : bestMatches){
+		// Add information to the table
+		QStandardItem *x1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.x));
+		model->setItem(i, 0, x1);
+		QStandardItem *y1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.y));
+		model->setItem(i, 1, y1);
+		QStandardItem *x2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.x));
+		model->setItem(i, 2, x2);
+		QStandardItem *y2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.y));
+		model->setItem(i, 3, y2);
+		QStandardItem *dist = new QStandardItem(QString::number(match.distance));
+		model->setItem(i, 4, dist);
+		i++;
+		ui->viewTable->setModel(model);
+	}
+
+	//-- Draw only "good" matches
+	cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
+		bestMatches, bestMatchesImg, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0),
+		std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+	cv::imwrite(directoryPath + "output.png", bestMatchesImg);
+
+	// Add the image to the viewer
+	QGraphicsScene *scene = new QGraphicsScene();
+	QImage dest((const uchar *)bestMatchesImg.data, bestMatchesImg.cols, bestMatchesImg.rows, bestMatchesImg.step, QImage::Format_RGB888);
+	//dest.bits();
+	scene->addPixmap(QPixmap::fromImage(dest));
+	ui->viewMatches->setScene(scene);
+	ui->viewMatches->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+	ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 }
 
 template <typename T>
@@ -1495,7 +1540,6 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 
 void MainWindow::customisingMatcher(int matcherIndex, std::string matcherName){
 	// creating Matcher...
-	kBestMatches = (ui->matcherKBestText->text().toInt() < 1) ? 1 : ui->matcherKBestText->text().toInt();
 	switch (matcherIndex)
 	{
 	case 0:
@@ -1527,37 +1571,34 @@ void MainWindow::customisingMatcher(int matcherIndex, std::string matcherName){
 void MainWindow::matching(){
 	// Start matching ...
 	try{
-		if (kBestMatches < 2 || ui->matcherInlierInversMatches->isChecked()){
-			// direct and reverse set of the best matches (simple match)
-			directMatchingTime = (double)cv::getTickCount();
+		if (ui->matcherInlierNoTest->isChecked() || ui->matcherInlierInversMatches->isChecked()){
+			// Only the best direct match
+			matchingTime = (double)cv::getTickCount();
 			if (oneToN){
 				ptrMatcher->add(setImgsDescriptors);
-				ptrMatcher->match(firstImgDescriptor, directMatches);
+				ptrMatcher->match(firstImgDescriptor, matches);
 			}
-			else ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches);
-			directMatchingTime = ((double)cv::getTickCount() - directMatchingTime) / cv::getTickFrequency();
+			else ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, matches);
 
-			inverseMatchingTime = (double)cv::getTickCount();
-			if (oneToN){
-				/*ptrMatcher->add(setImgsDescriptors);
-				ptrMatcher->match(firstImgDescriptor, directMatches);*/
+			if (ui->matcherInlierInversMatches->isChecked()){
+				// Also the best match in reverse
+				if (oneToN){
+					/*ptrMatcher->add(setImgsDescriptors);
+					ptrMatcher->match(firstImgDescriptor, inverseMatches);*/
+				}
+				else ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches);
 			}
-			else ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches);
-			inverseMatchingTime = ((double)cv::getTickCount() - inverseMatchingTime) / cv::getTickFrequency();
-
-			bestMatchingTime = std::min(directMatchingTime, inverseMatchingTime);
+			matchingTime = ((double)cv::getTickCount() - matchingTime) / cv::getTickFrequency();
 		}
-		else { // ui->matcherInlierLoweRatio->isChecked()
-			// only direct set of the k best matches
-			directMatchingTime = (double)cv::getTickCount();
+		else if (ui->matcherInlierLoweRatio->isChecked()){
+			// Best two set of matches
+			matchingTime = (double)cv::getTickCount();
 			if (oneToN){
 				ptrMatcher->add(setImgsDescriptors);
-				ptrMatcher->knnMatch(firstImgDescriptor, knnMatches, kBestMatches, cv::Mat(), false);
+				ptrMatcher->knnMatch(firstImgDescriptor, twoMatches, 2, cv::Mat(), false);
 			}
-			else ptrMatcher->knnMatch(firstImgDescriptor, secondImgDescriptor, knnMatches, kBestMatches, cv::Mat(), false);
-			directMatchingTime = ((double)cv::getTickCount() - directMatchingTime) / cv::getTickFrequency();
-
-			bestMatchingTime = directMatchingTime;
+			else ptrMatcher->knnMatch(firstImgDescriptor, secondImgDescriptor, twoMatches, 2, cv::Mat(), false);
+			matchingTime = ((double)cv::getTickCount() - matchingTime) / cv::getTickFrequency();
 		}
 	}
 	catch (cv::Exception e){
@@ -1566,108 +1607,72 @@ void MainWindow::matching(){
 		ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one.</b>");
 		return;
 	}
-
-	ui->logPlainText->appendPlainText("matching time: " + QString::number(bestMatchingTime) + " (s)");
-
+	ui->logPlainText->appendPlainText("matching time: " + QString::number(matchingTime) + " (s)");
 }
 
-void MainWindow::calculateBestMatches(){
-	// Calculate the number of best matches between two sets of matches
-	int bestMatchesCount = 0;
+void MainWindow::outlierElimination(){
+	// Eliminate outliers, and calculate the sum of best matches distance
 	float sumDistances = 0;
-	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 5 Columns
-	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
-	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
-	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
-	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
-	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
 
 	/*if (use_ransac == false)
 	compute_inliers_homography(matches_surf, inliers_surf, H, MAX_H_ERROR);
 	else
 	compute_inliers_ransac(matches_surf, inliers_surf, MAX_H_ERROR, false);*/
+	if (oneToN){
 
-	if (kBestMatches < 2 || ui->matcherInlierInversMatches->isChecked()) {
-		// in reverse matching test
-		for (uint i = 0; i < directMatches.size(); i++)
-		{
-			cv::Point matchedPt1 = firstImgKeypoints[i].pt;
-			cv::Point matchedPt2 = secondImgKeypoints[directMatches[i].trainIdx].pt;
-
-			bool foundInReverse = false;
-
-			for (uint j = 0; j < inverseMatches.size(); j++)
-			{
-				cv::Point tmpSecImgKeyPnt = secondImgKeypoints[j].pt;
-				cv::Point tmpFrstImgKeyPntTrn = firstImgKeypoints[inverseMatches[j].trainIdx].pt;
-				if ((tmpSecImgKeyPnt == matchedPt2) && (tmpFrstImgKeyPntTrn == matchedPt1))
-				{
-					foundInReverse = true;
-					break;
+	}
+	else{
+		if (ui->matcherInlierLoweRatio->isChecked()){
+			// Lowe's ratio test = 0.7 by default
+			float lowesRatio = ui->matcherInlierLoweRatioText->text().toFloat();
+			if (lowesRatio <= 0 || 1 <= lowesRatio) {
+				ui->logPlainText->appendHtml("<b style='color:red'>Invalid Lowe's Ratio: " + QString::number(lowesRatio) + ", the default value is maintained!</b>");
+				lowesRatio = 0.7;
+			}
+			for (std::vector<cv::DMatch> matches : twoMatches){
+				if (matches[0].distance < lowesRatio*matches[1].distance){
+					sumDistances += matches[0].distance;
+					bestMatches.push_back(matches[0]);
 				}
 			}
-
-			if (foundInReverse)
-			{
-				QStandardItem *x1 = new QStandardItem(QString::number(matchedPt1.x));
-				model->setItem(bestMatchesCount, 0, x1);
-				QStandardItem *y1 = new QStandardItem(QString::number(matchedPt1.y));
-				model->setItem(bestMatchesCount, 1, y1);
-				QStandardItem *x2 = new QStandardItem(QString::number(matchedPt2.x));
-				model->setItem(bestMatchesCount, 2, x2);
-				QStandardItem *y2 = new QStandardItem(QString::number(matchedPt2.y));
-				model->setItem(bestMatchesCount, 3, y2);
-				QStandardItem *dist = new QStandardItem(QString::number(directMatches[i].distance));
-				model->setItem(bestMatchesCount, 4, dist);
-				ui->viewTable->setModel(model);
-
-				sumDistances += directMatches[i].distance;
-				bestMatches.push_back(directMatches[i]);
-				bestMatchesCount++;
+			float probability = static_cast<float>(bestMatches.size()) / static_cast<float>(twoMatches.size()) * 100;
+			ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatches.size()) + "/" + QString::number(twoMatches.size())
+				+ " = " + QString::number(probability) + "%");
+		}
+		else if (ui->matcherInlierInversMatches->isChecked()){
+			// in reverse matching test
+			int i = 0;
+			for (cv::DMatch match : matches){
+				// Check if the match is the same in reverse
+				int j = 0;
+				for (cv::DMatch inverseMatch : inverseMatches)
+				{
+					if ((secondImgKeypoints[j].pt == secondImgKeypoints[match.trainIdx].pt) 
+						&& (firstImgKeypoints[inverseMatch.trainIdx].pt == firstImgKeypoints[i].pt))
+					{
+						sumDistances += match.distance;
+						bestMatches.push_back(match);
+					}
+					j++;
+				}
+				i++;
 			}
+			float probability = static_cast<float>(bestMatches.size()) / static_cast<float>(std::max(matches.size(), inverseMatches.size())) * 100;
+			ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatches.size()) + "/" + QString::number(std::max(matches.size(), inverseMatches.size())) 
+				+ " = " + QString::number(probability) + "%");
 		}
-		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(std::min(directMatches.size(), inverseMatches.size())));
-	}
-	else if (kBestMatches == 2 && ui->matcherInlierLoweRatio->isChecked()){
-		// knn = 2
-		// Lowe's ratio test = 0.7
-		for (std::vector<cv::DMatch> match : knnMatches)
-		{
-			if (match[0].distance < 0.7*match[1].distance){
-				bestMatches.push_back(match[0]);
-				bestMatchesCount++;
+		else {
+			// No elimination test
+			for (cv::DMatch match : matches){
+				sumDistances += match.distance;
+				bestMatches.push_back(match);
 			}
+			ui->logPlainText->appendPlainText("Number of key point matches = " + QString::number(bestMatches.size()));
 		}
-		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(knnMatches.size()));
 	}
-	else {// knn > 2
-		for (std::vector<cv::DMatch> match : knnMatches)
-		{
-			bestMatches.push_back(match[0]);
-			bestMatchesCount++;
-		}
-		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(knnMatches.size()));
-	}
-	double minKeypoints = firstImgKeypoints.size() <= secondImgKeypoints.size() ?
-		firstImgKeypoints.size()
-		:
-		secondImgKeypoints.size();
-
-	ui->logPlainText->appendPlainText("Sum of distances = " + QString::number(sumDistances));
-	ui->logPlainText->appendPlainText("Probability = " + QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
-	cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
-		bestMatches, bestImgMatches, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0),
-		std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-	cv::imwrite(directoryPath + "output.png", bestImgMatches);
-
-	//-- Draw only "good" matches
-	QGraphicsScene *scene = new QGraphicsScene();
-	QImage dest((const uchar *)bestImgMatches.data, bestImgMatches.cols, bestImgMatches.rows, bestImgMatches.step, QImage::Format_RGB888);
-	//dest.bits();
-	scene->addPixmap(QPixmap::fromImage(dest));
-	ui->viewMatches->setScene(scene);
-	ui->viewMatches->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
-	ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+	//ui->logPlainText->appendPlainText("Sum of distances = " + QString::number(sumDistances));
+	float average = static_cast<float>(sumDistances) / static_cast<float>(bestMatches.size());
+	ui->logPlainText->appendPlainText("Average of distances = " + QString::number(average));
 }
 
 int MainWindow::fileCounter(std::string dir, std::string prefix, std::string suffix, std::string extension){
@@ -1765,8 +1770,6 @@ ExcelExportHelper::~ExcelExportHelper()
 	delete m_workbooks;
 	delete m_excelApplication;
 }
-
-
 
 bool MainWindow::fileExistenceCheck(const std::string& name){
 	struct stat buffer;

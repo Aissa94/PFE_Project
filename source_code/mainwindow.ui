@@ -84,7 +84,7 @@
           <item row="1" column="4">
            <widget class="QCheckBox" name="selectFolder">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a folder for a dataset of images&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a folder for a dataset of images (1 to N)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; If this folder contains only one image it will be considered as (1 to 1).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>Select Folder</string>
@@ -2225,27 +2225,8 @@ Higher values gives better precision, but also takes more time.</string>
              <layout class="QGridLayout" name="matcherKBestGridLayout">
               <item row="0" column="0">
                <widget class="QLabel" name="matcherKBestLabel">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip">
-                 <string>Number of nearest neighbors to search for. This allows finding the k best matches for each descriptor.</string>
-                </property>
                 <property name="text">
-                 <string>Number of nearest neighbors (knn):</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="matcherKBestText">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="text">
-                 <string>2</string>
+                 <string>Outliers Elimination:</string>
                 </property>
                </widget>
               </item>
@@ -2253,13 +2234,29 @@ Higher values gives better precision, but also takes more time.</string>
             </item>
             <item row="2" column="0">
              <layout class="QGridLayout" name="matcherInlierLayout">
-              <item row="0" column="1">
-               <widget class="QRadioButton" name="matcherInlierInversMatches">
+              <item row="0" column="0">
+               <widget class="QRadioButton" name="matcherInlierNoTest">
                 <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep only matches found in both direct and reverse matching.&lt;/p&gt;&lt;p&gt;(In case of 1 to N images this will be equivalent to Lowe's ratio test with knn=2)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Be content with one best match&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
-                 <string>In reverse matching test</string>
+                 <string>Without elimination</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QRadioButton" name="matcherInlierLoweRatio">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Performs Lowe's test (default ratio is 0.7)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; Two sets of matches will be found.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Lowe's ratio test</string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
@@ -2269,13 +2266,20 @@ Higher values gives better precision, but also takes more time.</string>
                 </attribute>
                </widget>
               </item>
-              <item row="0" column="0">
-               <widget class="QRadioButton" name="matcherInlierLoweRatio">
+              <item row="0" column="2">
+               <widget class="QLineEdit" name="matcherInlierLoweRatioText">
+                <property name="text">
+                 <string>0.7</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QRadioButton" name="matcherInlierInversMatches">
                 <property name="toolTip">
-                 <string>Performs the 0.7 Lowe's test</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep only matches found in both direct and reverse matching.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; In case of 1 to N images this will can take a long time.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
-                 <string>Lowe's ratio test</string>
+                 <string>In reverse matching test</string>
                 </property>
                 <property name="checked">
                  <bool>false</bool>
@@ -2456,6 +2460,9 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
           <property name="sortingEnabled">
            <bool>true</bool>
           </property>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
          </widget>
         </item>
        </layout>
@@ -2556,22 +2563,6 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    </hints>
   </connection>
   <connection>
-   <sender>matcherInlierInversMatches</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>matcherKBestLabel</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>321</x>
-     <y>446</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>122</x>
-     <y>421</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>detectorFastXCheck</sender>
    <signal>toggled(bool)</signal>
    <receiver>detectorFastTypeLabel</receiver>
@@ -2588,18 +2579,18 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    </hints>
   </connection>
   <connection>
-   <sender>matcherInlierInversMatches</sender>
+   <sender>matcherInlierLoweRatio</sender>
    <signal>toggled(bool)</signal>
-   <receiver>matcherKBestText</receiver>
-   <slot>setDisabled(bool)</slot>
+   <receiver>matcherInlierLoweRatioText</receiver>
+   <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>330</x>
-     <y>445</y>
+     <x>214</x>
+     <y>439</y>
     </hint>
     <hint type="destinationlabel">
-     <x>343</x>
-     <y>420</y>
+     <x>276</x>
+     <y>441</y>
     </hint>
    </hints>
   </connection>

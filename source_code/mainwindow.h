@@ -79,11 +79,13 @@ private:
 	cv::Ptr<cv::flann::IndexParams> getFlannBasedIndexParamsType();
 	cv::Mat skeletonization(cv::Mat img);
 	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold = 125.0);
-	double clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k); 
+	double kMeans(std::vector<cv::Mat> features_vector, int k);
+	void MainWindow::clustering();
 	template <typename T>
 	void writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first_second, std::string fileName = "", int squareSize = 5);
 	void displayImage(cv::Mat imageMat, int first_second);
 	void displayFeature(cv::Mat featureMat, int first_second);
+	void displayMatches();
 	QImage matToQImage(const cv::Mat& mat);
 
 	void customisingBinarization(int segmentationIndex);
@@ -92,7 +94,7 @@ private:
 	void customisingDescriptor(int descriptorIndex, std::string descriptorName);
 	void customisingMatcher(int matcherIndex, std::string matcherName);
 	void matching();
-	void calculateBestMatches();
+	void outlierElimination();
 
 	int fileCounter(std::string dir, std::string prefix, std::string suffix, std::string extension);
 	bool fileExistenceCheck(const std::string& name);
