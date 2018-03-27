@@ -57,6 +57,8 @@ private slots:
 
     void on_actionAbout_Me_triggered();
 
+	void displayMatches(int bestImgIndex = 0);
+
 private:
     Ui::MainWindow *ui;
 
@@ -83,9 +85,9 @@ private:
 	void MainWindow::clustering();
 	template <typename T>
 	void writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first_second, std::string fileName = "", int squareSize = 5);
+	void writeMatches();
 	void displayImage(cv::Mat imageMat, int first_second);
 	void displayFeature(cv::Mat featureMat, int first_second);
-	void displayMatches();
 	QImage matToQImage(const cv::Mat& mat);
 
 	void customisingBinarization(int segmentationIndex);
@@ -95,6 +97,7 @@ private:
 	void customisingMatcher(int matcherIndex, std::string matcherName);
 	void matching();
 	void outlierElimination();
+	void maskMatchesByTrainImgIdx(const std::vector<cv::DMatch> matches, int trainImgIdx, std::vector<char>& mask);
 
 	int fileCounter(std::string dir, std::string prefix, std::string suffix, std::string extension);
 	bool fileExistenceCheck(const std::string& name);
