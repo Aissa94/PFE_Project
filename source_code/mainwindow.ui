@@ -2239,7 +2239,7 @@ Higher values gives better precision, but also takes more time.</string>
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Be content with one best match&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
-                 <string>Without elimination</string>
+                 <string>Without test</string>
                 </property>
                 <property name="checked">
                  <bool>false</bool>
@@ -2339,9 +2339,6 @@ Higher values gives better precision, but also takes more time.</string>
                 <property name="checked">
                  <bool>false</bool>
                 </property>
-                <attribute name="buttonGroup">
-                 <string notr="true">matcher1toNtypeButtonGroup</string>
-                </attribute>
                </widget>
               </item>
               <item row="0" column="2">
@@ -2352,9 +2349,6 @@ Higher values gives better precision, but also takes more time.</string>
                 <property name="checked">
                  <bool>true</bool>
                 </property>
-                <attribute name="buttonGroup">
-                 <string notr="true">matcher1toNtypeButtonGroup</string>
-                </attribute>
                </widget>
               </item>
              </layout>

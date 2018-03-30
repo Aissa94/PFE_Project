@@ -1801,7 +1801,7 @@ void MainWindow::matching(){
 
 void MainWindow::outlierElimination(){
 	// Eliminate outliers, and calculate the sum of best matches distance
-
+	float limitDistance = ui->matcherInlierLimitDistanceText->text().toFloat();
 	/*if (use_ransac == false)
 	compute_inliers_homography(matches_surf, inliers_surf, H, MAX_H_ERROR);
 	else
@@ -1819,7 +1819,7 @@ void MainWindow::outlierElimination(){
 				lowesRatio = 0.7;
 			}
 			for (int i = 0; i < setImgs.size(); i++){
-				sumSetDistances[i] = testOfLowe(twoMatchesSet[i], lowesRatio, bestMatchesSet[i], badMatchesSet[i]);
+				sumSetDistances[i] = testOfLowe(twoMatchesSet[i], lowesRatio, limitDistance, bestMatchesSet[i], badMatchesSet[i]);
 				
 				ui->logPlainText->appendHtml(QString::number(static_cast<int>(i)) + ")");
 				float probability = static_cast<float>(bestMatchesSet[i].size()) / static_cast<float>(twoMatchesSet[i].size()) * 100;
@@ -1831,7 +1831,7 @@ void MainWindow::outlierElimination(){
 		else if (ui->matcherInlierInversMatches->isEnabled() && ui->matcherInlierInversMatches->isChecked()){
 			// in reverse matching test
 			for (int i = 0; i < setImgs.size(); i++){
-				sumSetDistances[i] = testInReverse(directMatchesSet[i], inverseMatchesSet[i], firstImgKeypoints, setImgsKeypoints[i], bestMatchesSet[i], badMatchesSet[i]);
+				sumSetDistances[i] = testInReverse(directMatchesSet[i], inverseMatchesSet[i], firstImgKeypoints, setImgsKeypoints[i], limitDistance, bestMatchesSet[i], badMatchesSet[i]);
 				
 				ui->logPlainText->appendHtml(QString::number(static_cast<int>(i)) + ")"); 
 				float probability = static_cast<float>(bestMatchesSet[i].size()) / static_cast<float>(directMatchesSet[i].size()) * 100;
@@ -1844,12 +1844,22 @@ void MainWindow::outlierElimination(){
 			// No elimination test
 			for (int i = 0; i < setImgs.size(); i++){
 				for (int j = 0; j < directMatchesSet[i].size(); j++){
-					sumSetDistances[i] += directMatchesSet[i][j].distance;
-					bestMatchesSet[i].push_back(directMatchesSet[i][j]);
+					if (directMatchesSet[i][j].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
+						sumSetDistances[i] += directMatchesSet[i][j].distance;
+						bestMatchesSet[i].push_back(directMatchesSet[i][j]);
+					}
+					else {
+						badMatchesSet[i].push_back(directMatchesSet[i][j]);
+					}
 				}
+				ui->logPlainText->appendHtml(QString::number(i) + ")");
+				float probability = static_cast<float>(bestMatchesSet[i].size()) / static_cast<float>(directMatchesSet[i].size()) * 100;
+				ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(bestMatchesSet[i].size()) + "</b>/" + QString::number(directMatchesSet[i].size()) + " = <b style='color:green'>" + QString::number(probability) + "</b>%");
+				probability = static_cast<float>(badMatchesSet[i].size()) / static_cast<float>(directMatchesSet[i].size()) * 100;
+				ui->logPlainText->appendHtml("Number of Rejected matches = <b style='color:red'>" + QString::number(badMatchesSet[i].size()) + "</b>/" + QString::number(directMatchesSet[i].size()) + " = <b style='color:red'>" + QString::number(probability) + "</b>%");
+
 			}
 		}
-		ui->logPlainText->appendPlainText("Number of last key point matches = " + QString::number(bestMatchesSet[setImgs.size()-1].size()));
 		float average = static_cast<float>(sumSetDistances[setImgs.size() - 1]) / static_cast<float>(bestMatchesSet[setImgs.size() - 1].size());
 		ui->logPlainText->appendPlainText("Average of last distances (Accepted) = " + QString::number(sumSetDistances[setImgs.size() - 1]) + "/" + QString::number(bestMatchesSet[setImgs.size() - 1].size()) + " = " + QString::number(average));
 	}
@@ -1861,7 +1871,7 @@ void MainWindow::outlierElimination(){
 				ui->logPlainText->appendHtml("<b style='color:red'>Invalid Lowe's Ratio: " + QString::number(lowesRatio) + ", the default value is maintained!</b>");
 				lowesRatio = 0.7;
 			}
-			sumDistances = testOfLowe(twoMatches, lowesRatio, bestMatches, badMatches);
+			sumDistances = testOfLowe(twoMatches, lowesRatio, limitDistance, bestMatches, badMatches);
 			float probability = static_cast<float>(bestMatches.size()) / static_cast<float>(twoMatches.size()) * 100;
 			ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(bestMatches.size()) + "</b>/" + QString::number(twoMatches.size()) + " = <b style='color:green'>" + QString::number(probability) + "</b>%");
 			probability = static_cast<float>(badMatches.size()) / static_cast<float>(twoMatches.size()) * 100;
@@ -1869,7 +1879,7 @@ void MainWindow::outlierElimination(){
 		}
 		else if (ui->matcherInlierInversMatches->isChecked()){
 			// in reverse matching test
-			sumDistances = testInReverse(directMatches, inverseMatches, firstImgKeypoints, secondImgKeypoints, bestMatches, badMatches);
+			sumDistances = testInReverse(directMatches, inverseMatches, firstImgKeypoints, secondImgKeypoints, limitDistance, bestMatches, badMatches);
 			float probability = static_cast<float>(bestMatches.size()) / static_cast<float>(directMatches.size()) * 100;
 			ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(bestMatches.size()) + "</b>/" + QString::number(directMatches.size()) + " = <b style='color:green'>" + QString::number(probability) + "</b>%");
 			probability = static_cast<float>(badMatches.size()) / static_cast<float>(directMatches.size()) * 100;
@@ -1878,10 +1888,19 @@ void MainWindow::outlierElimination(){
 		else {
 			// No elimination test
 			for (int i = 0; i < directMatches.size(); i++){
-				sumDistances += directMatches[i].distance;
-				bestMatches.push_back(directMatches[i]);
+				if (directMatches[i].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
+					sumDistances += directMatches[i].distance;
+					bestMatches.push_back(directMatches[i]);
+				}
+				else{
+					badMatches.push_back(directMatches[i]);
+				}
 			}
-			ui->logPlainText->appendPlainText("Number of key point matches = " + QString::number(bestMatches.size()));
+			float probability = static_cast<float>(bestMatches.size()) / static_cast<float>(directMatches.size()) * 100;
+			ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(bestMatches.size()) + "</b>/" + QString::number(directMatches.size()) + " = <b style='color:green'>" + QString::number(probability) + "</b>%");
+			probability = static_cast<float>(badMatches.size()) / static_cast<float>(directMatches.size()) * 100;
+			ui->logPlainText->appendHtml("Number of Rejected matches = <b style='color:red'>" + QString::number(badMatches.size()) + "</b>/" + QString::number(directMatches.size()) + " = <b style='color:red'>" + QString::number(probability) + "</b>%");
+
 		}
 		float average = static_cast<float>(sumDistances) / static_cast<float>(bestMatches.size());
 		ui->logPlainText->appendPlainText("Average of distances (Accepted) = " + QString::number(sumDistances) + "/" + QString::number(bestMatches.size()) + " = " + QString::number(average));
@@ -2009,13 +2028,14 @@ void MainWindow::showError(std::string title, std::string text, std::string e_ms
 	if(e_msg!="")ui->logPlainText->appendHtml("<b style='color:red'>Code Error: " + QString::fromStdString(e_msg) + " </b>");
 }
 
-float MainWindow::testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, double lowesRatio, std::vector<cv::DMatch> &bestMatches, std::vector<cv::DMatch> &badMatches){
+float MainWindow::testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, float lowesRatio, float limitDistance, std::vector<cv::DMatch> &bestMatches, std::vector<cv::DMatch> &badMatches){
 	// put matches that accept the Lowe's test in bestMatches
 	// and put the other matches in badMatches
 	// and return sum of distances of bestMatches
 	double sumDistances = 0; 
 	for (int i = 0; i < twoMatches.size(); i++){
-		if (twoMatches[i][0].distance < lowesRatio*twoMatches[i][1].distance){
+		if ((twoMatches[i][0].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked())
+		  &&(twoMatches[i][0].distance <= lowesRatio*twoMatches[i][1].distance)){
 			sumDistances += twoMatches[i][0].distance;
 			bestMatches.push_back(twoMatches[i][0]);
 		}
@@ -2026,22 +2046,24 @@ float MainWindow::testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, do
 	return sumDistances;
 }
 
-float MainWindow::testInReverse(std::vector<cv::DMatch> directMatches, std::vector<cv::DMatch> inverseMatches, std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints, std::vector<cv::DMatch> &bestMatches, std::vector<cv::DMatch> &badMatches){
+float MainWindow::testInReverse(std::vector<cv::DMatch> directMatches, std::vector<cv::DMatch> inverseMatches, std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints, float limitDistance, std::vector<cv::DMatch> &bestMatches, std::vector<cv::DMatch> &badMatches){
 	// put matches that are in direct and reverse Matches in bestMatches
 	// and put the other matches in badMatches
 	// and return sum of distances of bestMatches
  	double sumDistances = 0;
 	for (int i = 0; i < directMatches.size(); i++){
-		// Check if the match is the same in reverse
-		for (int j = 0; j < inverseMatches.size(); j++)
-		{
-			if ((secondImgKeypoints[j].pt == secondImgKeypoints[directMatches[i].trainIdx].pt)
-			 && (firstImgKeypoints[inverseMatches[j].trainIdx].pt == firstImgKeypoints[i].pt))
+		if (directMatches[i].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
+			// Check if the match is the same in reverse
+			for (int j = 0; j < inverseMatches.size(); j++)
 			{
-				sumDistances += directMatches[i].distance;
-				bestMatches.push_back(directMatches[i]);
-				// go out the loop
-				goto AfterFindingAcceptedMatch_testInReverse_LABEL;
+				if ((secondImgKeypoints[j].pt == secondImgKeypoints[directMatches[i].trainIdx].pt)
+					&& (firstImgKeypoints[inverseMatches[j].trainIdx].pt == firstImgKeypoints[i].pt))
+				{
+					sumDistances += directMatches[i].distance;
+					bestMatches.push_back(directMatches[i]);
+					// go out the loop
+					goto AfterFindingAcceptedMatch_testInReverse_LABEL;
+				}
 			}
 		}
 		badMatches.push_back(directMatches[i]);
