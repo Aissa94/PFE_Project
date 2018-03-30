@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.ui": "xml",
+        "xlocale": "cpp",
+        "xstring": "cpp",
+        "xutility": "cpp"
+    }
+}

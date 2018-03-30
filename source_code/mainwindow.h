@@ -82,7 +82,9 @@ private:
 	cv::Mat skeletonization(cv::Mat img);
 	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold = 125.0);
 	double kMeans(std::vector<cv::Mat> features_vector, int k);
-	void MainWindow::clustering();
+	void clustering();
+	float testInReverse(std::vector<cv::DMatch> directMatches, std::vector<cv::DMatch> inverseMatches, std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints, std::vector<cv::DMatch> &bestMatches, std::vector<cv::DMatch> &badMatches);
+	float testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, double lowesRatio, std::vector<cv::DMatch> &bestMatches, std::vector<cv::DMatch> &badMatches);
 	template <typename T>
 	void writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first_second, std::string fileName = "", int squareSize = 5);
 	void writeMatches();

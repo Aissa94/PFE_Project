@@ -14,6 +14,7 @@
 #include "optimisation\Ideka.h"
 #include "thinning\GuoHall.h"
 #include "thinning\ZhangSuen.h"
+#include "QtableWidget\QtableWidget_CopyPaste.h"
 #include "ExcelExportHelper.h"
 
 
