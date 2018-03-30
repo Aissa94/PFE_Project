@@ -2339,6 +2339,9 @@ Higher values gives better precision, but also takes more time.</string>
                 <property name="checked">
                  <bool>false</bool>
                 </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">typeButtonGroup</string>
+                </attribute>
                </widget>
               </item>
               <item row="0" column="2">
@@ -2348,6 +2351,74 @@ Higher values gives better precision, but also takes more time.</string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">typeButtonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tabDecisionStage">
+           <attribute name="title">
+            <string>Decision Stage</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_131">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="decisionStageParams">
+              <item row="0" column="0">
+               <widget class="QLabel" name="decisionStageParam1Label">
+                <property name="text">
+                 <string>Threshold :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="decisionStageParam2Label">
+                <property name="text">
+                 <string>Parameter2 :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="sdecisionStageParam3Label">
+                <property name="text">
+                 <string>Parameter3 :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="decisionStageParam1Text">
+                <property name="text">
+                 <string>75</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="decisionStageParam2Text">
+                <property name="text">
+                 <string>20</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="decisionStageParam3Text">
+                <property name="text">
+                 <string>30</string>
                 </property>
                </widget>
               </item>
@@ -2481,8 +2552,22 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
        <attribute name="title">
         <string>Matching</string>
        </attribute>
-       <layout class="QGridLayout" name="viewMatchesGridLayoutTab">
+       <layout class="QGridLayout" name="viewMatchesGridLayoutTab">   
         <item row="0" column="0">
+         <layout class="QGridLayout" name="viewMatchesGridSubLayoutTab">
+         <item row="0" column="0">
+           <widget class="QLabel" name="viewMatchesIndexLabel">
+            <property name="text">
+             <string>Train Image Index :</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="viewMatchesIndexText"/>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
          <widget class="QGraphicsView" name="viewMatches">
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
@@ -2506,7 +2591,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
        </attribute>
        <layout class="QGridLayout" name="viewTableGridLayoutTab">
         <item row="0" column="0">
-         <layout class="QGridLayout" name="viewMatchesGridSubLayoutTab">
+         <layout class="QGridLayout" name="viewTableGridSubLayoutTab">
           <item row="0" column="0">
            <widget class="QLabel" name="viewTableIndexLabel">
             <property name="text">

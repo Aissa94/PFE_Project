@@ -87,7 +87,7 @@ private:
 	float testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, float lowesRatio, float limitDistance, std::vector<cv::DMatch> &bestMatches, std::vector<cv::DMatch> &badMatches);
 	template <typename T>
 	void writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first_second, std::string fileName = "", int squareSize = 5);
-	void writeMatches();
+	void writeMatches(int imgIndex = 0);
 	void displayImage(cv::Mat imageMat, int first_second);
 	void displayFeature(cv::Mat featureMat, int first_second);
 	QImage matToQImage(const cv::Mat& mat);

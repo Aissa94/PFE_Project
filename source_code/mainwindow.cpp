@@ -20,13 +20,13 @@
 	
 	// 1 to 1 ...
 	// Matches for the Direct & Invers matching
-	std::vector<cv::DMatch> directMatches, inverseMatches, bestMatches, badMatches;
+	std::vector<cv::DMatch> directMatches, inverseMatches, goodMatches, badMatches;
 	// Maches for knn = 2
 	std::vector<std::vector<cv::DMatch>> twoMatches;
 	
 	// 1 to N ...
 	// Matches for the Direct & Invers matching
-	std::vector<std::vector<cv::DMatch>> directMatchesSet, inverseMatchesSet, bestMatchesSet, badMatchesSet;
+	std::vector<std::vector<cv::DMatch>> directMatchesSet, inverseMatchesSet, goodMatchesSet, badMatchesSet;
 	// Maches for knn = 2
 	std::vector<std::vector<std::vector<cv::DMatch>>> twoMatchesSet;
 
@@ -39,7 +39,9 @@
 	double /*segmentationTime = 0,*/ detectionTime = 0, descriptionTime = 0, clusteringTime = 0, matchingTime = 0;
 // Others
 	float sumDistances = 0;
-	std::vector<float> sumSetDistances;
+	std::vector<float> sumDistancesSet;
+	std::vector<float> scoreSet;
+	int bestScoreIndex = -1;
 	std::string directoryPath;
 	bool oneToN;
 
@@ -106,8 +108,8 @@ void MainWindow::runSIFT()
     //              double contrastThreshold=0.04, double edgeThreshold=10,
     //              double sigma=1.6);
 
-    //ui->logPlainText->appendPlainText("Starting SIFT object detection!");
-	ui->logPlainText->appendHtml("<b>Starting SIFT object detection!</b>");
+    //ui->logPlainText->appendPlainText("Starting SIFT based identification!");
+	ui->logPlainText->appendHtml("<b>Starting SIFT based identification!</b>");
 
 
     // Read Parameters ...
@@ -154,7 +156,7 @@ void MainWindow::runSURF()
     //                      int nOctaves=4, int nOctaveLayers=2,
     //                      bool extended=true, bool upright=false);
 
-	ui->logPlainText->appendHtml("<b>Starting SURF object detection!</b>");
+	ui->logPlainText->appendHtml("<b>Starting SURF based identification!</b>");
 
     // Read Parameters ...
     double hessainThreshold = ui->surfHessianThreshText->text().toDouble();
@@ -200,8 +202,8 @@ void MainWindow::runORB()
     //    ORB(int nfeatures = 500, float scaleFactor = 1.2f, int nlevels = 8, int edgeThreshold = 31,
     //                     int firstLevel = 0, int WTA_K=2, int scoreType=HARRIS_SCORE, int patchSize=31 );
 
-    //ui->logPlainText->appendPlainText("Starting ORB object detection!");
-	ui->logPlainText->appendHtml("<b>Starting ORB object detection!</b>");
+    //ui->logPlainText->appendPlainText("Starting ORB based identification!");
+	ui->logPlainText->appendHtml("<b>Starting ORB based identification!</b>");
 
     // Read Parameters ...
     int  nfeatures = ui->orbNumFeatText->text().toInt();
@@ -245,8 +247,8 @@ void MainWindow::runBRISK()
 
 	//    BRISK(int thresh = 30, int octaves = 3,float patternScale = 1.0f);
 
-	//ui->logPlainText->appendPlainText("Starting BRISK object detection!");
-	ui->logPlainText->appendHtml("<b>Starting BRISK object detection!</b>");
+	//ui->logPlainText->appendPlainText("Starting BRISK based identification!");
+	ui->logPlainText->appendHtml("<b>Starting BRISK based identification!</b>");
 
 	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 3 Columns
 	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
@@ -293,7 +295,7 @@ void MainWindow::runCustom()
 	std::string descriptorName = ui->descriptorTabs->tabText(ui->descriptorTabs->currentIndex()).toStdString();
 	std::string matcherName = ui->matcherTabs->tabText(ui->matcherTabs->currentIndex()).toStdString();
 
-	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + segmentationName +", "+ detectorName + ", " + descriptorName + ", " + matcherName + ") object detection!</b>"));
+	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + segmentationName +", "+ detectorName + ", " + descriptorName + ", " + matcherName + ") based identification!</b>"));
 	
 	// Binarization
 	customisingBinarization(segmentationIndex);
@@ -330,10 +332,14 @@ void MainWindow::runCustom()
 	outlierElimination();
 
 	// View results
-	if (oneToN) displayMatches(0);
-	else displayMatches();
-
-	writeMatches();
+	if (oneToN){
+		displayMatches(bestScoreIndex);
+		writeMatches(bestScoreIndex);
+	}
+	else {
+		displayMatches();
+		writeMatches();
+	}
 }
 
 void MainWindow::on_firstImgBtn_pressed()
@@ -713,7 +719,7 @@ bool MainWindow::readSetOfImages(){
 	// Read Data Set of Images ...
 	std::string datapath = ui->secondImgText->text().toStdString()+"/";
 	int nbFile = fileCounter(datapath, "(", ")", ".jpg");
-	for (int f = 1; f <= nbFile; f++){
+	for (int f = 0; f < nbFile; f++){
 		std::ostringstream filename;
 		filename << datapath << "(" << f << ").jpg";
 		//open the file
@@ -888,8 +894,9 @@ void MainWindow::resetParams()
 		firstImgDescriptor.release(); secondImgDescriptor.release(); setImgsDescriptors.clear();
 		firstEnhancedImage.release(); secondEnhancedImage.release(); setEnhancedImages.clear();
 		firstSegmentedImage.release(); secondSegmentedImage.release(); setSegmentedImages.clear();
-		directMatches.clear(); inverseMatches.clear(); twoMatches.clear(); bestMatches.clear(); badMatches.clear();
-		directMatchesSet.clear(); inverseMatchesSet.clear(); twoMatchesSet.clear(); bestMatchesSet.clear(); badMatchesSet.clear();
+		directMatches.clear(); inverseMatches.clear(); twoMatches.clear(); goodMatches.clear(); badMatches.clear();
+		directMatchesSet.clear(); inverseMatchesSet.clear(); twoMatchesSet.clear(); goodMatchesSet.clear(); badMatchesSet.clear();
+		sumDistancesSet.clear(); scoreSet.clear();
 		//delete ptrDetector;
 		//delete ptrDescriptor;
 		//delete ptrMatcher;
@@ -1068,73 +1075,82 @@ void MainWindow::displayMatches(int imgIndex){
 	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
 	model->setHorizontalHeaderItem(5, new QStandardItem(QString("Accepted/Rejected")));
 
+	disconnect(ui->viewMatchesIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	disconnect(ui->viewTableIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	ui->viewMatchesIndexText->setCurrentIndex(imgIndex);
 	ui->viewTableIndexText->setCurrentIndex(imgIndex);
+	connect(ui->viewMatchesIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	connect(ui->viewTableIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+
 	int i = 0;
-	if (oneToN && ui->matcher1toNtype2->isChecked()) bestMatches = bestMatchesSet[imgIndex];
-	for (cv::DMatch match : bestMatches){
-		if (oneToN && ui->matcher1toNtype1->isChecked() && (match.imgIdx != imgIndex)){
-			//nothing
+	if (oneToN) goodMatches = goodMatchesSet[imgIndex];
+	for (cv::DMatch match : goodMatches){
+		// Add information to the table
+		QStandardItem *x1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.x));
+		model->setItem(i, 0, x1);
+		QStandardItem *y1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.y));
+		model->setItem(i, 1, y1);
+		if (oneToN){
+			QStandardItem *x2 = new QStandardItem(QString::number(setImgsKeypoints[match.imgIdx][match.trainIdx].pt.x));
+			model->setItem(i, 2, x2);
+			QStandardItem *y2 = new QStandardItem(QString::number(setImgsKeypoints[match.imgIdx][match.trainIdx].pt.y));
+			model->setItem(i, 3, y2);
 		}
 		else{
-			// Add information to the table
-			QStandardItem *x1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.x));
-			model->setItem(i, 0, x1);
-			QStandardItem *y1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.y));
-			model->setItem(i, 1, y1);
-			if (oneToN){
-				QStandardItem *x2 = new QStandardItem(QString::number(setImgsKeypoints[match.imgIdx][match.trainIdx].pt.x));
-				model->setItem(i, 2, x2);
-				QStandardItem *y2 = new QStandardItem(QString::number(setImgsKeypoints[match.imgIdx][match.trainIdx].pt.y));
-				model->setItem(i, 3, y2);
-			}
-			else{
-				QStandardItem *x2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.x));
-				model->setItem(i, 2, x2);
-				QStandardItem *y2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.y));
-				model->setItem(i, 3, y2);
-			}
-			QStandardItem *dist = new QStandardItem(QString::number(match.distance));
-			model->setItem(i, 4, dist);
-
-			QStandardItem *accepted = new QStandardItem("Accepted");
-			accepted->setData(QColor(Qt::green), Qt::BackgroundRole);
-			model->setItem(i, 5, accepted);
-			i++;
+			QStandardItem *x2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.x));
+			model->setItem(i, 2, x2);
+			QStandardItem *y2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.y));
+			model->setItem(i, 3, y2);
 		}
+		QStandardItem *dist = new QStandardItem(QString::number(match.distance));
+		model->setItem(i, 4, dist);
+
+		QStandardItem *accepted = new QStandardItem("Accepted");
+		accepted->setData(QColor(Qt::green), Qt::BackgroundRole);
+		model->setItem(i, 5, accepted);
+		i++;
 	}
-	if (oneToN && ui->matcher1toNtype2->isChecked()) badMatches = badMatchesSet[imgIndex];
+	if (oneToN) badMatches = badMatchesSet[imgIndex];
 	for (cv::DMatch match : badMatches){
-		if (oneToN && ui->matcher1toNtype1->isChecked() && (match.imgIdx != imgIndex)){
-			//nothing
+		// Add information to the table
+		QStandardItem *x1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.x));
+		model->setItem(i, 0, x1);
+		QStandardItem *y1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.y));
+		model->setItem(i, 1, y1);
+		if (oneToN){
+			QStandardItem *x2 = new QStandardItem(QString::number(setImgsKeypoints[match.imgIdx][match.trainIdx].pt.x));
+			model->setItem(i, 2, x2);
+			QStandardItem *y2 = new QStandardItem(QString::number(setImgsKeypoints[match.imgIdx][match.trainIdx].pt.y));
+			model->setItem(i, 3, y2);
 		}
 		else{
-			// Add information to the table
-			QStandardItem *x1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.x));
-			model->setItem(i, 0, x1);
-			QStandardItem *y1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.y));
-			model->setItem(i, 1, y1);
-			if (oneToN){
-				QStandardItem *x2 = new QStandardItem(QString::number(setImgsKeypoints[match.imgIdx][match.trainIdx].pt.x));
-				model->setItem(i, 2, x2);
-				QStandardItem *y2 = new QStandardItem(QString::number(setImgsKeypoints[match.imgIdx][match.trainIdx].pt.y));
-				model->setItem(i, 3, y2);
-			}
-			else{
-				QStandardItem *x2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.x));
-				model->setItem(i, 2, x2);
-				QStandardItem *y2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.y));
-				model->setItem(i, 3, y2);
-			}
-			QStandardItem *dist = new QStandardItem(QString::number(match.distance));
-			model->setItem(i, 4, dist);
-
-			QStandardItem *rejected = new QStandardItem("Rejected");
-			rejected->setData(QColor(Qt::red), Qt::BackgroundRole);
-			model->setItem(i, 5, rejected);
-			i++;
+			QStandardItem *x2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.x));
+			model->setItem(i, 2, x2);
+			QStandardItem *y2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.y));
+			model->setItem(i, 3, y2);
 		}
+		QStandardItem *dist = new QStandardItem(QString::number(match.distance));
+		model->setItem(i, 4, dist);
+
+		QStandardItem *rejected = new QStandardItem("Rejected");
+		rejected->setData(QColor(Qt::red), Qt::BackgroundRole);
+		model->setItem(i, 5, rejected);
+		i++;
 	}
 	ui->viewTable->setModel(model);
+
+	// Add the image to the viewer
+	QGraphicsScene *matchingScene = new QGraphicsScene();
+
+	cv::Mat drawImg;
+	if (oneToN) drawImg = cv::imread(directoryPath + "/all matches/" + std::to_string(imgIndex) + ".jpg");
+	else drawImg = cv::imread(directoryPath + "output.jpg");
+	QImage img = matToQImage(drawImg);
+	matchingScene->addPixmap(QPixmap::fromImage(img));
+
+	ui->viewMatches->setScene(matchingScene);
+	ui->viewMatches->fitInView(matchingScene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
+	//ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 }
 
 template <typename T>
@@ -1174,49 +1190,42 @@ void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first
 	if (fileName != "")cv::imwrite(directoryPath + fileName + ".bmp", outImg);
 }
 
-void MainWindow::writeMatches(){
+void MainWindow::writeMatches(int imgIndex){
 // Write and Shows matches
 	cv::Mat drawImg;
+	disconnect(ui->viewMatchesIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
 	disconnect(ui->viewTableIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+
+	ui->viewMatchesIndexText->clear();
 	ui->viewTableIndexText->clear();
 	if (oneToN){
-		if (ui->matcher1toNtype1->isChecked()){
-			// 1 to N and type 2 and There is a best match 
-			for (size_t imgIndex = 0; imgIndex < setImgs.size(); imgIndex++)
-			{
-				ui->viewTableIndexText->addItem(QString::number(imgIndex));
-				std::vector<char> mask;
-				maskMatchesByTrainImgIdx(badMatches, (int)imgIndex, mask);
-				// Draw and Store bad matches
-				cv::drawMatches(firstImg, firstImgKeypoints, setImgs[imgIndex], setImgsKeypoints[imgIndex],
-					badMatches, drawImg, cv::Scalar(0, 0, 255), cv::Scalar(0, 255, 255), mask, cv::DrawMatchesFlags::DEFAULT);
+		// 1 to N and There is a best match  
+		for (size_t i = 0; i < setImgs.size(); i++)
+		{
+			ui->viewMatchesIndexText->addItem(QString::number(i));
+			ui->viewTableIndexText->addItem(QString::number(i));
+			// Draw and Store bad matches
+			cv::drawMatches(firstImg, firstImgKeypoints, setImgs[i], setImgsKeypoints[i],
+				badMatchesSet[i], drawImg, cv::Scalar(0, 0, 255), cv::Scalar(0, 255, 255));
 
-				maskMatchesByTrainImgIdx(bestMatches, (int)imgIndex, mask);
-				// Draw and Store best matches
-				cv::drawMatches(firstImg, firstImgKeypoints, setImgs[imgIndex], setImgsKeypoints[imgIndex],
-					bestMatches, drawImg, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 255), mask, cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
+			// Draw and Store best matches
+			cv::drawMatches(firstImg, firstImgKeypoints, setImgs[i], setImgsKeypoints[i],
+				goodMatchesSet[i], drawImg, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 255), std::vector<char>(), cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
 
-				std::string filename = directoryPath + "/all matches/" + std::to_string(imgIndex) + ".jpg";
-				if (!cv::imwrite(filename, drawImg))
-					ui->logPlainText->appendHtml("<b style='color:orange'>Image " + QString::fromStdString(filename) + "  can not be saved (may be because directory " + QString::fromStdString(directoryPath) + "  does not exist) !</b>");
-			}
-		}
-		else{
-			// 1 to N and type 2 and There is a best match  
-			for (size_t imgIndex = 0; imgIndex < setImgs.size(); imgIndex++)
-			{
-				ui->viewTableIndexText->addItem(QString::number(imgIndex));
-				// Draw and Store bad matches
-				cv::drawMatches(firstImg, firstImgKeypoints, setImgs[imgIndex], setImgsKeypoints[imgIndex],
-					badMatchesSet[imgIndex], drawImg, cv::Scalar(0, 0, 255), cv::Scalar(0, 255, 255));
+			std::string filename = directoryPath + "/all matches/" + std::to_string(i) + ".jpg";
+			if (!cv::imwrite(filename, drawImg))
+				ui->logPlainText->appendHtml("<b style='color:orange'>Image " + QString::fromStdString(filename) + "  can not be saved (may be because directory " + QString::fromStdString(directoryPath) + "  does not exist) !</b>");
+				
+			if (i == bestScoreIndex){
+				// Add the image to the viewer
+				QGraphicsScene *matchingScene = new QGraphicsScene();
 
-				// Draw and Store best matches
-				cv::drawMatches(firstImg, firstImgKeypoints, setImgs[imgIndex], setImgsKeypoints[imgIndex],
-					bestMatchesSet[imgIndex], drawImg, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 255), std::vector<char>(), cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
+				QImage img = matToQImage(drawImg);
+				matchingScene->addPixmap(QPixmap::fromImage(img));
 
-				std::string filename = directoryPath + "/all matches/" + std::to_string(imgIndex) + ".jpg";
-				if (!cv::imwrite(filename, drawImg))
-					ui->logPlainText->appendHtml("<b style='color:orange'>Image " + QString::fromStdString(filename) + "  can not be saved (may be because directory " + QString::fromStdString(directoryPath) + "  does not exist) !</b>");
+				ui->viewMatches->setScene(matchingScene);
+				ui->viewMatches->fitInView(matchingScene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
+				//ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 			}
 		}
 	}
@@ -1227,22 +1236,28 @@ void MainWindow::writeMatches(){
 			badMatches, drawImg, cv::Scalar(0, 0, 255), cv::Scalar(0, 255, 255));
 		// Draw and Store best matches
 		cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
-			bestMatches, drawImg, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 255), std::vector<char>(), cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
+			goodMatches, drawImg, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 255), std::vector<char>(), cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
 		if (!cv::imwrite(directoryPath + "output.jpg", drawImg))
 			ui->logPlainText->appendHtml("<b style='color:orange'>Matches mage can not be saved (may be because directory " + QString::fromStdString(directoryPath) + "  does not exist) !</b>");
+		
+		// Add the image to the viewer
+		QGraphicsScene *matchingScene = new QGraphicsScene();
+
+		QImage img = matToQImage(drawImg);
+		matchingScene->addPixmap(QPixmap::fromImage(img));
+
+		ui->viewMatches->setScene(matchingScene);
+		ui->viewMatches->fitInView(matchingScene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
+		//ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 	}
 	// Choose matches to display
+	ui->viewMatchesIndexText->setItemData(imgIndex, QBrush(Qt::green), Qt::TextColorRole);
+	ui->viewTableIndexText->setItemData(imgIndex, QBrush(Qt::green), Qt::TextColorRole);
+	ui->viewMatchesIndexText->setCurrentIndex(imgIndex);
+	ui->viewTableIndexText->setCurrentIndex(imgIndex);
+
+	connect(ui->viewMatchesIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
 	connect(ui->viewTableIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
-
-	// Add the image to the viewer
-	QGraphicsScene *matchingScene = new QGraphicsScene();
-
-	QImage img = matToQImage(drawImg);
-	matchingScene->addPixmap(QPixmap::fromImage(img));
-
-	ui->viewMatches->setScene(matchingScene);
-	ui->viewMatches->fitInView(matchingScene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
-	//ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 }
 
 void MainWindow::customisingBinarization(int segmentationIndex){
@@ -1802,13 +1817,20 @@ void MainWindow::matching(){
 void MainWindow::outlierElimination(){
 	// Eliminate outliers, and calculate the sum of best matches distance
 	float limitDistance = ui->matcherInlierLimitDistanceText->text().toFloat();
+	if (ui->matcherInlierLimitDistance->isChecked() && limitDistance < 0) {
+		ui->logPlainText->appendHtml("<b style='color:red'>Invalid Limit Distance: " + QString::number(limitDistance) + ", the default value is maintained!</b>");
+		limitDistance = 0.4;
+	}
 	/*if (use_ransac == false)
 	compute_inliers_homography(matches_surf, inliers_surf, H, MAX_H_ERROR);
 	else
 	compute_inliers_ransac(matches_surf, inliers_surf, MAX_H_ERROR, false);*/
-	if (oneToN && ui->matcher1toNtype2->isChecked()){
-		sumSetDistances = std::vector<float>(setImgs.size());
-		bestMatchesSet = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
+	if (oneToN){
+		sumDistancesSet = std::vector<float>(setImgs.size());
+		scoreSet = std::vector<float>(setImgs.size());
+		float bestScore = 0;
+
+		goodMatchesSet = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
 		badMatchesSet  = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
 
 		if (ui->matcherInlierLoweRatio->isEnabled() && ui->matcherInlierLoweRatio->isChecked()){
@@ -1819,51 +1841,101 @@ void MainWindow::outlierElimination(){
 				lowesRatio = 0.7;
 			}
 			for (int i = 0; i < setImgs.size(); i++){
-				sumSetDistances[i] = testOfLowe(twoMatchesSet[i], lowesRatio, limitDistance, bestMatchesSet[i], badMatchesSet[i]);
+				sumDistancesSet[i] = testOfLowe(twoMatchesSet[i], lowesRatio, limitDistance, goodMatchesSet[i], badMatchesSet[i]);
 				
 				ui->logPlainText->appendHtml(QString::number(static_cast<int>(i)) + ")");
-				float probability = static_cast<float>(bestMatchesSet[i].size()) / static_cast<float>(twoMatchesSet[i].size()) * 100;
-				ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(bestMatchesSet[i].size()) + "</b>/" + QString::number(twoMatchesSet[i].size()) + " = <b style='color:green'>" + QString::number(probability) + "</b>%");
-				probability = static_cast<float>(badMatchesSet[i].size()) / static_cast<float>(twoMatchesSet[i].size()) * 100;
-				ui->logPlainText->appendHtml("Number of Rejected matches = <b style='color:red'>" + QString::number(badMatchesSet[i].size()) + "</b>/" + QString::number(twoMatchesSet[i].size()) + " = <b style='color:red'>" + QString::number(probability) + "</b>%");
+				float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(twoMatchesSet[i].size()) * 100;
+				ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(goodMatchesSet[i].size()) + "</b>/" + QString::number(twoMatchesSet[i].size()) + " = <b style='color:green'>" + QString::number(goodProbability) + "</b>%");
+				float badProbability = static_cast<float>(badMatchesSet[i].size()) / static_cast<float>(twoMatchesSet[i].size()) * 100;
+				ui->logPlainText->appendHtml("Number of Rejected matches = <b style='color:red'>" + QString::number(badMatchesSet[i].size()) + "</b>/" + QString::number(twoMatchesSet[i].size()) + " = <b style='color:red'>" + QString::number(badProbability) + "</b>%");
+				
+				float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
+				scoreSet[i] = 1.0 / (average * goodProbability) * 100;
+				// update the best score index
+				if (scoreSet[i] > bestScore) {
+					bestScoreIndex = i;
+					bestScore = scoreSet[i];
+				}
 			}
 		}
 		else if (ui->matcherInlierInversMatches->isEnabled() && ui->matcherInlierInversMatches->isChecked()){
 			// in reverse matching test
 			for (int i = 0; i < setImgs.size(); i++){
-				sumSetDistances[i] = testInReverse(directMatchesSet[i], inverseMatchesSet[i], firstImgKeypoints, setImgsKeypoints[i], limitDistance, bestMatchesSet[i], badMatchesSet[i]);
+				sumDistancesSet[i] = testInReverse(directMatchesSet[i], inverseMatchesSet[i], firstImgKeypoints, setImgsKeypoints[i], limitDistance, goodMatchesSet[i], badMatchesSet[i]);
 				
 				ui->logPlainText->appendHtml(QString::number(static_cast<int>(i)) + ")"); 
-				float probability = static_cast<float>(bestMatchesSet[i].size()) / static_cast<float>(directMatchesSet[i].size()) * 100;
-				ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(bestMatchesSet[i].size()) + "</b>/" + QString::number(directMatchesSet[i].size()) + " = <b style='color:green'>" + QString::number(probability) + "</b>%");
-				probability = static_cast<float>(badMatchesSet[i].size()) / static_cast<float>(directMatchesSet[i].size()) * 100;
-				ui->logPlainText->appendHtml("Number of Rejected matches = <b style='color:red'>" + QString::number(badMatchesSet[i].size()) + "</b>/" + QString::number(directMatchesSet[i].size()) + " = <b style='color:red'>" + QString::number(probability) + "</b>%");
+				float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(directMatchesSet[i].size()) * 100;
+				ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(goodMatchesSet[i].size()) + "</b>/" + QString::number(directMatchesSet[i].size()) + " = <b style='color:green'>" + QString::number(goodProbability) + "</b>%");
+				float badProbability = static_cast<float>(badMatchesSet[i].size()) / static_cast<float>(directMatchesSet[i].size()) * 100;
+				ui->logPlainText->appendHtml("Number of Rejected matches = <b style='color:red'>" + QString::number(badMatchesSet[i].size()) + "</b>/" + QString::number(directMatchesSet[i].size()) + " = <b style='color:red'>" + QString::number(badProbability) + "</b>%");
+				
+				float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
+				scoreSet[i] = 1.0 / (average * goodProbability) * 100;
+				// update the best score index
+				if (scoreSet[i] > bestScore) {
+					bestScoreIndex = i;
+					bestScore = scoreSet[i];
+				}
 			}
 		}
 		else {
 			// No elimination test
-			for (int i = 0; i < setImgs.size(); i++){
-				for (int j = 0; j < directMatchesSet[i].size(); j++){
-					if (directMatchesSet[i][j].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
-						sumSetDistances[i] += directMatchesSet[i][j].distance;
-						bestMatchesSet[i].push_back(directMatchesSet[i][j]);
+			if (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()){// Type1
+				for (int i = 0; i < directMatches.size(); i++){
+					if (directMatches[i].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
+						sumDistancesSet[directMatches[i].imgIdx] += directMatches[i].distance;
+						goodMatchesSet[directMatches[i].imgIdx].push_back(directMatches[i]);
 					}
-					else {
-						badMatchesSet[i].push_back(directMatchesSet[i][j]);
+					else{
+						badMatchesSet[directMatches[i].imgIdx].push_back(directMatches[i]);
 					}
 				}
-				ui->logPlainText->appendHtml(QString::number(i) + ")");
-				float probability = static_cast<float>(bestMatchesSet[i].size()) / static_cast<float>(directMatchesSet[i].size()) * 100;
-				ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(bestMatchesSet[i].size()) + "</b>/" + QString::number(directMatchesSet[i].size()) + " = <b style='color:green'>" + QString::number(probability) + "</b>%");
-				probability = static_cast<float>(badMatchesSet[i].size()) / static_cast<float>(directMatchesSet[i].size()) * 100;
-				ui->logPlainText->appendHtml("Number of Rejected matches = <b style='color:red'>" + QString::number(badMatchesSet[i].size()) + "</b>/" + QString::number(directMatchesSet[i].size()) + " = <b style='color:red'>" + QString::number(probability) + "</b>%");
+				for (int i = 0; i < setImgs.size(); i++){
+					ui->logPlainText->appendHtml(QString::number(static_cast<int>(i)) + ")");
+					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
+					ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(goodMatchesSet[i].size()) + "</b>/" + QString::number(goodMatchesSet[i].size() + badMatchesSet[i].size()) + " = <b style='color:green'>" + QString::number(goodProbability) + "</b>%");
+					float badProbability = static_cast<float>(badMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
+					ui->logPlainText->appendHtml("Number of Rejected matches = <b style='color:red'>" + QString::number(badMatchesSet[i].size()) + "</b>/" + QString::number(goodMatchesSet[i].size() + badMatchesSet[i].size()) + " = <b style='color:red'>" + QString::number(badProbability) + "</b>%");
 
+					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
+					scoreSet[i] = 1.0 / (average * goodProbability) * 100;
+					// update the best score index
+					if (scoreSet[i] > bestScore) {
+						bestScoreIndex = i;
+						bestScore = scoreSet[i];
+					}
+				}
+			}
+			else {// Type2
+				for (int i = 0; i < setImgs.size(); i++){
+					for (int j = 0; j < directMatchesSet[i].size(); j++){
+						if (directMatchesSet[i][j].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
+							sumDistancesSet[i] += directMatchesSet[i][j].distance;
+							goodMatchesSet[i].push_back(directMatchesSet[i][j]);
+						}
+						else {
+							badMatchesSet[i].push_back(directMatchesSet[i][j]);
+						}
+					}
+					ui->logPlainText->appendHtml(QString::number(i) + ")");
+					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(directMatchesSet[i].size()) * 100;
+					ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(goodMatchesSet[i].size()) + "</b>/" + QString::number(directMatchesSet[i].size()) + " = <b style='color:green'>" + QString::number(goodProbability) + "</b>%");
+					float badProbability = static_cast<float>(badMatchesSet[i].size()) / static_cast<float>(directMatchesSet[i].size()) * 100;
+					ui->logPlainText->appendHtml("Number of Rejected matches = <b style='color:red'>" + QString::number(badMatchesSet[i].size()) + "</b>/" + QString::number(directMatchesSet[i].size()) + " = <b style='color:red'>" + QString::number(badProbability) + "</b>%");
+
+					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
+					scoreSet[i] = 1.0 / (average * goodProbability) * 100;
+					// update the best score index
+					if (scoreSet[i] > bestScore) {
+						bestScoreIndex = i;
+						bestScore = scoreSet[i];
+					}
+				}
 			}
 		}
-		float average = static_cast<float>(sumSetDistances[setImgs.size() - 1]) / static_cast<float>(bestMatchesSet[setImgs.size() - 1].size());
-		ui->logPlainText->appendPlainText("Average of last distances (Accepted) = " + QString::number(sumSetDistances[setImgs.size() - 1]) + "/" + QString::number(bestMatchesSet[setImgs.size() - 1].size()) + " = " + QString::number(average));
+		ui->logPlainText->appendHtml("Identification: <b>" + QString::number(bestScoreIndex) + "     </b> Best score = <b>" + QString::number(bestScore) + "</b>");
 	}
-	else{// 1 to 1 || ui->matcher1toNtype1->isChecked()
+	else{// 1 to 1
 		if (ui->matcherInlierLoweRatio->isChecked()){
 			// Lowe's ratio test = 0.7 by default
 			float lowesRatio = ui->matcherInlierLoweRatioText->text().toFloat();
@@ -1871,39 +1943,44 @@ void MainWindow::outlierElimination(){
 				ui->logPlainText->appendHtml("<b style='color:red'>Invalid Lowe's Ratio: " + QString::number(lowesRatio) + ", the default value is maintained!</b>");
 				lowesRatio = 0.7;
 			}
-			sumDistances = testOfLowe(twoMatches, lowesRatio, limitDistance, bestMatches, badMatches);
-			float probability = static_cast<float>(bestMatches.size()) / static_cast<float>(twoMatches.size()) * 100;
-			ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(bestMatches.size()) + "</b>/" + QString::number(twoMatches.size()) + " = <b style='color:green'>" + QString::number(probability) + "</b>%");
-			probability = static_cast<float>(badMatches.size()) / static_cast<float>(twoMatches.size()) * 100;
-			ui->logPlainText->appendHtml("Number of Rejected matches = <b style='color:red'>" + QString::number(badMatches.size()) + "</b>/" + QString::number(twoMatches.size()) + " = <b style='color:red'>" + QString::number(probability) + "</b>%");
+			sumDistances = testOfLowe(twoMatches, lowesRatio, limitDistance, goodMatches, badMatches);
+			float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(twoMatches.size()) * 100;
+			ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(goodMatches.size()) + "</b>/" + QString::number(twoMatches.size()) + " = <b style='color:green'>" + QString::number(goodProbability) + "</b>%");
+			float badProbability = static_cast<float>(badMatches.size()) / static_cast<float>(twoMatches.size()) * 100;
+			ui->logPlainText->appendHtml("Number of Rejected matches = <b style='color:red'>" + QString::number(badMatches.size()) + "</b>/" + QString::number(twoMatches.size()) + " = <b style='color:red'>" + QString::number(badProbability) + "</b>%");
 		}
 		else if (ui->matcherInlierInversMatches->isChecked()){
 			// in reverse matching test
-			sumDistances = testInReverse(directMatches, inverseMatches, firstImgKeypoints, secondImgKeypoints, limitDistance, bestMatches, badMatches);
-			float probability = static_cast<float>(bestMatches.size()) / static_cast<float>(directMatches.size()) * 100;
-			ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(bestMatches.size()) + "</b>/" + QString::number(directMatches.size()) + " = <b style='color:green'>" + QString::number(probability) + "</b>%");
-			probability = static_cast<float>(badMatches.size()) / static_cast<float>(directMatches.size()) * 100;
-			ui->logPlainText->appendHtml("Number of Rejected matches = <b style='color:red'>" + QString::number(badMatches.size()) + "</b>/" + QString::number(directMatches.size()) + " = <b style='color:red'>" + QString::number(probability) + "</b>%");
+			sumDistances = testInReverse(directMatches, inverseMatches, firstImgKeypoints, secondImgKeypoints, limitDistance, goodMatches, badMatches);
+			float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(directMatches.size()) * 100;
+			ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(goodMatches.size()) + "</b>/" + QString::number(directMatches.size()) + " = <b style='color:green'>" + QString::number(goodProbability) + "</b>%");
+			float badProbability = static_cast<float>(badMatches.size()) / static_cast<float>(directMatches.size()) * 100;
+			ui->logPlainText->appendHtml("Number of Rejected matches = <b style='color:red'>" + QString::number(badMatches.size()) + "</b>/" + QString::number(directMatches.size()) + " = <b style='color:red'>" + QString::number(badProbability) + "</b>%");
 		}
 		else {
 			// No elimination test
+			// 1 to 1
 			for (int i = 0; i < directMatches.size(); i++){
 				if (directMatches[i].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
 					sumDistances += directMatches[i].distance;
-					bestMatches.push_back(directMatches[i]);
+					goodMatches.push_back(directMatches[i]);
 				}
 				else{
 					badMatches.push_back(directMatches[i]);
 				}
 			}
-			float probability = static_cast<float>(bestMatches.size()) / static_cast<float>(directMatches.size()) * 100;
-			ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(bestMatches.size()) + "</b>/" + QString::number(directMatches.size()) + " = <b style='color:green'>" + QString::number(probability) + "</b>%");
-			probability = static_cast<float>(badMatches.size()) / static_cast<float>(directMatches.size()) * 100;
-			ui->logPlainText->appendHtml("Number of Rejected matches = <b style='color:red'>" + QString::number(badMatches.size()) + "</b>/" + QString::number(directMatches.size()) + " = <b style='color:red'>" + QString::number(probability) + "</b>%");
+			float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(directMatches.size()) * 100;
+			ui->logPlainText->appendHtml("Number of Accepted matches = <b style='color:green'>" + QString::number(goodMatches.size()) + "</b>/" + QString::number(directMatches.size()) + " = <b style='color:green'>" + QString::number(goodProbability) + "</b>%");
+			float badProbability = static_cast<float>(badMatches.size()) / static_cast<float>(directMatches.size()) * 100;
+			ui->logPlainText->appendHtml("Number of Rejected matches = <b style='color:red'>" + QString::number(badMatches.size()) + "</b>/" + QString::number(directMatches.size()) + " = <b style='color:red'>" + QString::number(badProbability) + "</b>%");
 
 		}
-		float average = static_cast<float>(sumDistances) / static_cast<float>(bestMatches.size());
-		ui->logPlainText->appendPlainText("Average of distances (Accepted) = " + QString::number(sumDistances) + "/" + QString::number(bestMatches.size()) + " = " + QString::number(average));
+		float average = sumDistances / static_cast<float>(goodMatches.size());
+		ui->logPlainText->appendPlainText("Average of distances (Accepted) = " + QString::number(sumDistances) + "/" + QString::number(goodMatches.size()) + " = " + QString::number(average));
+		float score;
+		if (ui->matcherInlierLoweRatio->isChecked()) score = 1.0 / (average * static_cast<float>(goodMatches.size()) / static_cast<float>(twoMatches.size()));
+		else score = 1.0 / (average * static_cast<float>(goodMatches.size()) / static_cast<float>(directMatches.size()));
+		ui->logPlainText->appendHtml("Matching Score = <b>" + QString::number(score) + "</b>");
 	}
 }
 
@@ -1922,7 +1999,7 @@ int MainWindow::fileCounter(std::string dir, std::string prefix, std::string suf
 	int returnedCount = 0;
 	int possibleMax = 5000000; //some number you can expect.
 
-	for (int istarter = 1; istarter < possibleMax; istarter++){
+	for (int istarter = 0; istarter < possibleMax; istarter++){
 		std::string fileName = "";
 		fileName.append(dir);
 		fileName.append(prefix);
@@ -1930,13 +2007,11 @@ int MainWindow::fileCounter(std::string dir, std::string prefix, std::string suf
 		fileName.append(suffix);
 		fileName.append(extension);
 		bool status = fileExistenceCheck(fileName);
-		returnedCount = istarter;
-
-		if (!status)
-			break;
+		if (!status) break;
+		returnedCount = istarter + 1;
 	}
 
-	return returnedCount-1;
+	return returnedCount;
 }
 
 ExcelExportHelper::ExcelExportHelper(bool closeExcelOnExit)
@@ -2028,16 +2103,16 @@ void MainWindow::showError(std::string title, std::string text, std::string e_ms
 	if(e_msg!="")ui->logPlainText->appendHtml("<b style='color:red'>Code Error: " + QString::fromStdString(e_msg) + " </b>");
 }
 
-float MainWindow::testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, float lowesRatio, float limitDistance, std::vector<cv::DMatch> &bestMatches, std::vector<cv::DMatch> &badMatches){
-	// put matches that accept the Lowe's test in bestMatches
+float MainWindow::testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, float lowesRatio, float limitDistance, std::vector<cv::DMatch> &goodMatches, std::vector<cv::DMatch> &badMatches){
+	// put matches that accept the Lowe's test in goodMatches
 	// and put the other matches in badMatches
-	// and return sum of distances of bestMatches
+	// and return sum of distances of goodMatches
 	double sumDistances = 0; 
 	for (int i = 0; i < twoMatches.size(); i++){
 		if ((twoMatches[i][0].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked())
 		  &&(twoMatches[i][0].distance <= lowesRatio*twoMatches[i][1].distance)){
 			sumDistances += twoMatches[i][0].distance;
-			bestMatches.push_back(twoMatches[i][0]);
+			goodMatches.push_back(twoMatches[i][0]);
 		}
 		else{
 			badMatches.push_back(twoMatches[i][0]);
@@ -2046,10 +2121,10 @@ float MainWindow::testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, fl
 	return sumDistances;
 }
 
-float MainWindow::testInReverse(std::vector<cv::DMatch> directMatches, std::vector<cv::DMatch> inverseMatches, std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints, float limitDistance, std::vector<cv::DMatch> &bestMatches, std::vector<cv::DMatch> &badMatches){
-	// put matches that are in direct and reverse Matches in bestMatches
+float MainWindow::testInReverse(std::vector<cv::DMatch> directMatches, std::vector<cv::DMatch> inverseMatches, std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints, float limitDistance, std::vector<cv::DMatch> &goodMatches, std::vector<cv::DMatch> &badMatches){
+	// put matches that are in direct and reverse Matches in goodMatches
 	// and put the other matches in badMatches
-	// and return sum of distances of bestMatches
+	// and return sum of distances of goodMatches
  	double sumDistances = 0;
 	for (int i = 0; i < directMatches.size(); i++){
 		if (directMatches[i].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
@@ -2060,7 +2135,7 @@ float MainWindow::testInReverse(std::vector<cv::DMatch> directMatches, std::vect
 					&& (firstImgKeypoints[inverseMatches[j].trainIdx].pt == firstImgKeypoints[i].pt))
 				{
 					sumDistances += directMatches[i].distance;
-					bestMatches.push_back(directMatches[i]);
+					goodMatches.push_back(directMatches[i]);
 					// go out the loop
 					goto AfterFindingAcceptedMatch_testInReverse_LABEL;
 				}
