@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <string>
 #include <ctime>
+#include <functional>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -57,6 +58,10 @@ private slots:
 
     void on_actionAbout_Me_triggered();
 
+	void on_displayRankKbutton_pressed();
+
+	void on_computeRankKbutton_pressed();
+
 	void displayMatches(int bestImgIndex = 0);
 
 private:
@@ -90,6 +95,7 @@ private:
 	void writeMatches(int imgIndex = 0);
 	void displayImage(cv::Mat imageMat, int first_second);
 	void displayFeature(cv::Mat featureMat, int first_second);
+
 	QImage matToQImage(const cv::Mat& mat);
 
 	void customisingBinarization(int segmentationIndex);

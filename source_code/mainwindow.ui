@@ -2340,7 +2340,7 @@ Higher values gives better precision, but also takes more time.</string>
                  <bool>false</bool>
                 </property>
                 <attribute name="buttonGroup">
-                 <string notr="true">typeButtonGroup</string>
+                 <string notr="true">typeOfMatchButtonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -2352,11 +2352,8 @@ Higher values gives better precision, but also takes more time.</string>
                 <property name="checked">
                  <bool>true</bool>
                 </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
                 <attribute name="buttonGroup">
-                 <string notr="true">typeButtonGroup</string>
+                 <string notr="true">typeOfMatchButtonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -2372,7 +2369,10 @@ Higher values gives better precision, but also takes more time.</string>
             <item row="0" column="0">
              <layout class="QGridLayout" name="decisionStageParams">
               <item row="0" column="0">
-               <widget class="QLabel" name="decisionStageParam1Label">
+               <widget class="QLabel" name="decisionStageThresholdLabel">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Threshold for which the score is accepted.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; Image is accepted only if &lt;span style=&quot; font-style:italic;&quot;&gt;Score &amp;gt;= Threshold&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="text">
                  <string>Threshold :</string>
                 </property>
@@ -2381,44 +2381,10 @@ Higher values gives better precision, but also takes more time.</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="decisionStageParam2Label">
-                <property name="text">
-                 <string>Parameter2 :</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="sdecisionStageParam3Label">
-                <property name="text">
-                 <string>Parameter3 :</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="decisionStageParam1Text">
+               <widget class="QLineEdit" name="decisionStageThresholdText">
                 <property name="text">
-                 <string>75</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="decisionStageParam2Text">
-                <property name="text">
-                 <string>20</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QLineEdit" name="decisionStageParam3Text">
-                <property name="text">
-                 <string>30</string>
+                 <string>250</string>
                 </property>
                </widget>
               </item>
@@ -2552,18 +2518,74 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
        <attribute name="title">
         <string>Matching</string>
        </attribute>
-       <layout class="QGridLayout" name="viewMatchesGridLayoutTab">   
+       <layout class="QGridLayout" name="viewMatchesGridLayoutTab">
         <item row="0" column="0">
          <layout class="QGridLayout" name="viewMatchesGridSubLayoutTab">
-         <item row="0" column="0">
+          <item row="0" column="0">
            <widget class="QLabel" name="viewMatchesIndexLabel">
             <property name="text">
              <string>Train Image Index :</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="2" colspan="2">
            <widget class="QComboBox" name="viewMatchesIndexText"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="viewMatchesGoodMatchesLab">
+            <property name="text">
+             <string>Nb of accepted matches :</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="viewMatchesGoodMatchesText">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="viewMatchesBadMatchesLab">
+            <property name="text">
+             <string>Nb of rejected  matches :</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLabel" name="viewMatchesBadMatchesText">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="viewMatchesAverage">
+            <property name="text">
+             <string>Average :</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QLabel" name="viewMatchesAverageMatchesText">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLabel" name="viewMatchesScore">
+            <property name="text">
+             <string>Score :</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QLabel" name="viewMatchesScoreMatchesText">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -2606,6 +2628,70 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
         </item>
         <item row="1" column="0">
          <widget class="QTableView" name="viewTable">
+          <property name="autoFillBackground">
+           <bool>true</bool>
+          </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::NoEditTriggers</set>
+          </property>
+          <property name="showDropIndicator" stdset="0">
+           <bool>true</bool>
+          </property>
+          <property name="showGrid">
+           <bool>true</bool>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="rankKWidget">
+       <attribute name="title">
+        <string>Rank-k</string>
+       </attribute>
+       <layout class="QGridLayout" name="viewRankKGridLayoutTab">
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="viewRankKGridSubLayoutTab">
+          <item row="0" column="0">
+           <widget class="QLabel" name="decisionStageRankKLabel">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The best k results to perform the Rank-k identification with 1 to N image identication.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; choose an integer in [1 .. number of images].&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Rank-k</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="decisionStageRankKText">
+            <property name="text">
+             <string>1</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QPushButton" name="computeRankKbutton">
+            <property name="text">
+             <string>compute</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="displayRankKbutton">
+            <property name="text">
+             <string>display</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
+         <widget class="QTableView" name="viewRankK">
           <property name="autoFillBackground">
            <bool>true</bool>
           </property>
@@ -2853,6 +2939,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
   </connection>
  </connections>
  <buttongroups>
+  <buttongroup name="typeOfMatchButtonGroup"/>
   <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>
