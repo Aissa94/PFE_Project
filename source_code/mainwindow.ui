@@ -82,12 +82,15 @@
            </widget>
           </item>
           <item row="1" column="4">
-           <widget class="QCheckBox" name="selectFolder">
+           <widget class="QComboBox" name="bddImageNames"/>
+          </item>
+          <item row="0" column="4">
+           <widget class="QCheckBox" name="oneToN">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a folder to an image set (1 to N)&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; If this folder contains only one image it will be considered as (1 to 1).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of choosing the second image, select a folder to an image set.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; If the folder contains only one image it will be considered as (1 to 1).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Select Folder</string>
+             <string>1 to N images</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -2522,14 +2525,14 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
         <item row="0" column="0">
          <layout class="QGridLayout" name="viewMatchesGridSubLayoutTab">
           <item row="0" column="0">
-           <widget class="QLabel" name="viewMatchesIndexLabel">
+           <widget class="QLabel" name="viewMatchesImageNameLabel">
             <property name="text">
-             <string>Train Image Index :</string>
+             <string>Train Image Name :</string>
             </property>
            </widget>
           </item>
           <item row="0" column="2" colspan="2">
-           <widget class="QComboBox" name="viewMatchesIndexText"/>
+           <widget class="QComboBox" name="viewMatchesImageNameText"/>
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="viewMatchesGoodMatchesLab">
@@ -2615,83 +2618,19 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
         <item row="0" column="0">
          <layout class="QGridLayout" name="viewTableGridSubLayoutTab">
           <item row="0" column="0">
-           <widget class="QLabel" name="viewTableIndexLabel">
+           <widget class="QLabel" name="viewTableImageNameLabel">
             <property name="text">
-             <string>Train Image Index :</string>
+             <string>Train Image Name :</string>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QComboBox" name="viewTableIndexText"/>
+           <widget class="QComboBox" name="viewTableImageNameText"/>
           </item>
          </layout>
         </item>
         <item row="1" column="0">
          <widget class="QTableView" name="viewTable">
-          <property name="autoFillBackground">
-           <bool>true</bool>
-          </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
-          </property>
-          <property name="showDropIndicator" stdset="0">
-           <bool>true</bool>
-          </property>
-          <property name="showGrid">
-           <bool>true</bool>
-          </property>
-          <property name="sortingEnabled">
-           <bool>true</bool>
-          </property>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>true</bool>
-          </attribute>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="rankKWidget">
-       <attribute name="title">
-        <string>Rank-k</string>
-       </attribute>
-       <layout class="QGridLayout" name="viewRankKGridLayoutTab">
-        <item row="0" column="0">
-         <layout class="QGridLayout" name="viewRankKGridSubLayoutTab">
-          <item row="0" column="0">
-           <widget class="QLabel" name="decisionStageRankKLabel">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The best k results to perform the Rank-k identification with 1 to N image identication.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; choose an integer in [1 .. number of images].&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string>Rank-k</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="decisionStageRankKText">
-            <property name="text">
-             <string>1</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QPushButton" name="computeRankKbutton">
-            <property name="text">
-             <string>compute</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QPushButton" name="displayRankKbutton">
-            <property name="text">
-             <string>display</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="1" column="0">
-         <widget class="QTableView" name="viewRankK">
           <property name="autoFillBackground">
            <bool>true</bool>
           </property>
@@ -2858,7 +2797,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    </hints>
   </connection>
   <connection>
-   <sender>selectFolder</sender>
+   <sender>oneToN</sender>
    <signal>toggled(bool)</signal>
    <receiver>matcher1toNtypeLabel</receiver>
    <slot>setEnabled(bool)</slot>
@@ -2874,7 +2813,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    </hints>
   </connection>
   <connection>
-   <sender>selectFolder</sender>
+   <sender>oneToN</sender>
    <signal>toggled(bool)</signal>
    <receiver>matcher1toNtype1</receiver>
    <slot>setEnabled(bool)</slot>
@@ -2890,7 +2829,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    </hints>
   </connection>
   <connection>
-   <sender>selectFolder</sender>
+   <sender>oneToN</sender>
    <signal>toggled(bool)</signal>
    <receiver>matcher1toNtype2</receiver>
    <slot>setEnabled(bool)</slot>

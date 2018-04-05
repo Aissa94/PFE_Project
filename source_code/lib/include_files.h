@@ -14,6 +14,7 @@
 #include "optimisation\Ideka.h"
 #include "thinning\GuoHall.h"
 #include "thinning\ZhangSuen.h"
+#include "file-reader\tinydir.h"
 #include "ExcelExportHelper.h"
 
 

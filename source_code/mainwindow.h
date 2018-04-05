@@ -44,6 +44,8 @@ private slots:
 
     void on_secondImgBtn_pressed();
 
+	void on_secondImgText_textChanged();
+
 	void on_pushButton_pressed();
 
     void on_actionDestroy_All_Windows_triggered();
@@ -57,10 +59,6 @@ private slots:
     void on_actionAbout_Qt_triggered();
 
     void on_actionAbout_Me_triggered();
-
-	void on_displayRankKbutton_pressed();
-
-	void on_computeRankKbutton_pressed();
 
 	void displayMatches(int bestImgIndex = 0);
 
@@ -106,6 +104,7 @@ private:
 	void matching();
 	void outlierElimination();
 	void maskMatchesByTrainImgIdx(const std::vector<cv::DMatch> matches, int trainImgIdx, std::vector<char>& mask);
+	int computeRankK(float scoreThreshold);
 
 	int fileCounter(std::string dir, std::string prefix, std::string suffix, std::string extension);
 	bool fileExistenceCheck(const std::string& name);

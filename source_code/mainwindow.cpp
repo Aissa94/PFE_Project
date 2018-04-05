@@ -3,7 +3,7 @@
 
 // Images Declaration
 	cv::Mat firstImg, secondImg;
-	std::vector<cv::Mat> setImgs;
+	std::vector<std::pair<std::string, cv::Mat>> setImgs;
 
 // Vectors Declaration
 	// Segmentation parameters for First and Second Image ...
@@ -38,12 +38,11 @@
 // Times
 	double /*segmentationTime = 0,*/ detectionTime = 0, descriptionTime = 0, clusteringTime = 0, matchingTime = 0;
 // Others
-	QWidget* savedTab;
 	float sumDistances = 0;
 	float score;
 	std::vector<float> sumDistancesSet;
 	std::vector<float> scoreSet;
-	int bestScoreIndex = -1;
+	int bestScoreIndex = -1, bestImageIndex = -1;
 	std::string directoryPath;
 	bool oneToN;
 	int prev_cursor_position;
@@ -57,12 +56,12 @@ MainWindow::MainWindow(QWidget *parent) :
 	qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white;}");
     ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
 
-	savedTab = ui->viewTabs->widget(6);
-	ui->viewTabs->removeTab(6);
-
 	// Control check boxes
-	connect(ui->selectFolder, &QCheckBox::toggled, [=](bool checked) {
+	connect(ui->oneToN, &QCheckBox::toggled, [=](bool checked) {
 		if (checked){
+			ui->bddImageNames->setEnabled(true);
+			ui->viewMatchesImageNameText->setEnabled(true);
+			ui->viewTableImageNameText->setEnabled(true);
 			ui->matcherBruteForceCrossCheckLabel->setEnabled(false);
 			ui->matcherBruteForceCrossCheckText->setEnabled(false);
 			if (ui->matcher1toNtype1->isChecked()){
@@ -71,9 +70,12 @@ MainWindow::MainWindow(QWidget *parent) :
 				ui->matcherInlierInversMatches->setEnabled(false);
 				ui->matcherInlierNoTest->setChecked(true);
 			}
-			ui->viewTabs->addTab(savedTab, "Rank-k");
+			ui->secondImgText->textChanged(ui->secondImgText->text());
 		}
 		else {
+			ui->bddImageNames->setEnabled(false);
+			ui->viewMatchesImageNameText->setEnabled(false);
+			ui->viewTableImageNameText->setEnabled(false);
 			if (ui->matcherInlierNoTest->isChecked()){
 				ui->matcherBruteForceCrossCheckLabel->setEnabled(true);
 				ui->matcherBruteForceCrossCheckText->setEnabled(true);
@@ -81,14 +83,11 @@ MainWindow::MainWindow(QWidget *parent) :
 			ui->matcherInlierLoweRatio->setEnabled(true);
 			ui->matcherInlierLoweRatioText->setEnabled(true);
 			ui->matcherInlierInversMatches->setEnabled(true);
-
-			savedTab = ui->viewTabs->widget(6);
-			ui->viewTabs->removeTab(6);
 		}
 	});
 	connect(ui->matcherInlierNoTest, &QCheckBox::toggled, [=](bool checked) {
 		if (checked){
-			if (!ui->selectFolder->isChecked()){
+			if (!ui->oneToN->isChecked()){
 				ui->matcherBruteForceCrossCheckLabel->setEnabled(true);
 				ui->matcherBruteForceCrossCheckText->setEnabled(true);
 			}
@@ -356,14 +355,14 @@ void MainWindow::runCustom()
 		writeMatches();
 	}
 
-	std::string decision;
-	if (oneToN) decision = scoreSet[bestScoreIndex] >= ui->decisionStageThresholdText->text().toFloat() ? "image <b>(" + std::to_string(bestScoreIndex) + ").jpg</b> is <b style='color:green'>Accepted</b> ": "all images are <b style='color:red'>Rejected</b> ";
-	else decision = score >= ui->decisionStageThresholdText->text().toFloat() ? "<b style='color:green'>Accepted</b> " : "<b style='color:red'>Rejected</b> ";
-	ui->logPlainText->appendHtml("Decision: " + QString::fromStdString(decision));
+	float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
+	if (oneToN)ui->logPlainText->appendHtml("The image <b>" + ui->bddImageNames->currentText() + "</b> is Rank-<b>" + QString::number(computeRankK(scoreThreshold)) + "</b>");
+
 }
 
 void MainWindow::on_firstImgBtn_pressed()
 {
+	// Read First Image ...
 	QString str = QFileDialog::getOpenFileName(0, ("Select the 1st Image"), QDir::currentPath());
 	if (!str.trimmed().isEmpty())
 		ui->firstImgText->setText(str);
@@ -371,22 +370,47 @@ void MainWindow::on_firstImgBtn_pressed()
 
 void MainWindow::on_secondImgBtn_pressed()
 {
-	QString str = (ui->selectFolder->isChecked()) ? QFileDialog::getExistingDirectory(0, ("Select a Folder"), QDir::currentPath()) : QFileDialog::getOpenFileName(0, ("Select the 2nd Image"), QDir::currentPath());
-	if (!str.trimmed().isEmpty())
+	// Read Second Image(s) ...
+	QString str = (ui->oneToN->isChecked()) ? QFileDialog::getExistingDirectory(0, ("Select a Folder"), QDir::currentPath()) : QFileDialog::getOpenFileName(0, ("Select the 2nd Image"), QDir::currentPath());
+	if (!str.trimmed().isEmpty()){
 		ui->secondImgText->setText(str);
+		/*if (ui->oneToN->isChecked()){
+			setImgs.clear();
+			if (!readSetOfImages()) return;
+		}*/
+	}
+}
+
+void MainWindow::on_secondImgText_textChanged()
+{
+	// Reload image names ...
+	if (ui->oneToN->isChecked()){
+		setImgs.clear();
+		ui->bddImageNames->clear();
+		readSetOfImages();
+	}
 }
 
 void MainWindow::on_pushButton_pressed()
 {
 	// Read Images ...
-	if (!readFirstImage()) return;
-	oneToN = ui->selectFolder->isChecked();
-	if (oneToN){
-		setImgs.clear();
-		if (!readSetOfImages()) return;
+	if (!readFirstImage()){
+		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 1st input file!</b>"); 
+		return;
+	}
+	oneToN = ui->oneToN->isChecked();
+
+	if (oneToN) {
+		if (setImgs.size() == 0){
+			showError("Read Images", "There is no image in the folder: " + ui->secondImgText->text().toStdString(), "Make sure that the folder '<i>" + ui->secondImgText->text().toStdString() + "'</i>  contains one or more images with correct extension!");
+			return;
+		}
 	}
 	else {
-		if (!readSecondImage()) return;
+		if (!readSecondImage()) {
+			ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 2nd input file!</b>");
+			return;
+		}
 	}
 
 	// Create a test folder ...
@@ -419,10 +443,6 @@ void MainWindow::on_pushButton_pressed()
 		// custom
 		runCustom();
 		break;
-	}
-
-	if (ui->selectFolder->isChecked()){
-		ui->viewTabs->addTab(savedTab, "Rank-k");
 	}
 }
 
@@ -687,59 +707,20 @@ void MainWindow::on_actionAbout_Me_triggered()
 					   "<br><br><a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>");
 }
 
-void MainWindow::on_displayRankKbutton_pressed(){
-// Displays k best scores in the table and let user accepte or refuse each image 
-	int k = ui->decisionStageRankKText->text().toInt();
-	if (k < 1){
-		ui->logPlainText->appendHtml("<b style='color:red'>Invalid Rank-k value: " + QString::number(k) + ", the minimal value is maintained!</b>");
-		k = 1; 
-		ui->decisionStageRankKText->setText(QString::number(k));
-	}
-	else if (setImgs.size() < k){
-		ui->logPlainText->appendHtml("<b style='color:red'>Invalid Rank-k value: " + QString::number(k) + ", the maximal value is maintained!</b>");
-		k = setImgs.size();
-		ui->decisionStageRankKText->setText(QString::number(k));
-	}
-
+int MainWindow::computeRankK(float scoreThreshold){
+	int rankK = 0;
 	std::vector<std::pair<float, int>> scoreSetCollection;
 	for (int i = 0; i < scoreSet.size(); i++) scoreSetCollection.push_back(std::make_pair(scoreSet[i], i));
 	// Sort from the best score to the least
 	std::sort(scoreSetCollection.begin(), scoreSetCollection.end(), std::greater<std::pair<float, int>>());
-
-	QStandardItemModel *model = new QStandardItemModel(0, 3, this); //0 Rows and 6 Columns
-	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Image")));
-	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Score")));
-	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Accept/Reject")));
-
-	for (int i = 0; i < k; i++){
-		// Add information to the table
-		if (scoreSetCollection[i].first >= ui->decisionStageThresholdText->text().toFloat()){
-			QStandardItem *name = new QStandardItem("(" + QString::number(scoreSetCollection[i].second) + ").jpg");
-			model->setItem(i, 0, name);
-			QStandardItem *score = new QStandardItem(QString::number(scoreSetCollection[i].first));
-			model->setItem(i, 1, score);
-
-			QStandardItem *checkbox = new QStandardItem(true);
-			checkbox->setCheckable(true);
-			checkbox->setCheckState(Qt::Checked);
-			model->setItem(i, 2, checkbox);
-		}
-		else break;
-	}
-	ui->viewRankK->setModel(model);
-}
-
-void MainWindow::on_computeRankKbutton_pressed(){
-	float rankK = 0;
-	for (int i = 0; i < ui->viewRankK->model()->rowCount(); i++){
-		QModelIndex index;
-		index = ui->viewRankK->model()->index(i, 2, QModelIndex());
-		if (index.data(Qt::CheckStateRole) == Qt::Checked){
+	while ((rankK < scoreSetCollection.size()) && (scoreSetCollection[rankK].first > scoreThreshold)){
+		if (scoreSetCollection[rankK].second == ui->bddImageNames->currentIndex()){
 			rankK++;
+			return rankK; 
 		}
+		else rankK++;
 	}
-	rankK = rankK / ui->decisionStageRankKText->text().toInt() * 100;
-	ui->logPlainText->appendHtml("Rank-" + QString::number(ui->decisionStageRankKText->text().toInt()) + " = " + QString::number(rankK)+"%");
+	return 0;
 }
 
 bool MainWindow::readFirstImage(){
@@ -755,7 +736,6 @@ bool MainWindow::readFirstImage(){
 	// Check if the Images are loaded correctly ...
 	if (firstImg.empty())
 	{
-		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 1st input file!</b>");
 		return false;
 	}
 	if ((firstImg.cols < 100) && (firstImg.rows < 100))
@@ -781,7 +761,6 @@ bool MainWindow::readSecondImage(){
 	// Check if the Images are loaded correctly ...
 	if (secondImg.empty())
 	{
-		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 2nd input file!</b>");
 		return false;
 	}
 
@@ -796,45 +775,61 @@ bool MainWindow::readSecondImage(){
 
 bool MainWindow::readSetOfImages(){
 	// Read Data Set of Images ...
-	std::string datapath = ui->secondImgText->text().toStdString()+"/";
-	int nbFile = fileCounter(datapath, "(", ")", ".jpg");
-	for (int f = 0; f < nbFile; f++){
-		std::ostringstream filename;
-		filename << datapath << "(" << f << ").jpg";
-		//open the file
-		cv::Mat img;
-		if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex() == 4)){
-			// Custom && OpponentColor
-			img = cv::imread(filename.str(), CV_LOAD_IMAGE_COLOR);
-		}
-		else{
-			img = cv::imread(filename.str(), cv::IMREAD_GRAYSCALE); //or CV_LOAD_IMAGE_GRAYSCALE
-		}
+	std::wstring wdatapath = ui->secondImgText->text().toStdWString();
+	
+	tinydir_dir dir;
+	tinydir_open(&dir, (const TCHAR*)wdatapath.c_str());
 
-		// Check if the Images are loaded correctly ...
-		if (img.empty())
-		{
-			ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the " + QString::number(f) + "th input of '" + QString::fromStdString(datapath) + "' folder!</b>");
-			return false;
+	while (dir.has_next)
+	{
+		tinydir_file file;
+		tinydir_readfile(&dir, &file);
+
+		if (!file.is_dir)
+		{   // this is a file
+			// get its name
+			std::wstring wfilename = file.name;
+			std::string datapath(wdatapath.begin(), wdatapath.end());
+			std::string filename(wfilename.begin(), wfilename.end());
+			std::string datapath_filename = datapath + "/" + filename;
+
+			cv::Mat img;
+			if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex() == 4)){
+				// Custom && OpponentColor
+				img = cv::imread(datapath_filename, CV_LOAD_IMAGE_COLOR);
+			}
+			else{
+				img = cv::imread(datapath_filename, cv::IMREAD_GRAYSCALE); //or CV_LOAD_IMAGE_GRAYSCALE
+			}
+
+			// Check if the Images are loaded correctly ...
+			if (!img.empty())
+			{
+				if ((img.cols < 100) && (img.rows < 100))
+				{
+					cv::resize(img, img, cv::Size(), 200 / img.rows, 200 / img.cols);
+				}
+				// store the name and the image
+				setImgs.push_back(std::make_pair(filename, img));
+
+				// show names in the combobox
+				ui->bddImageNames->addItem(QString::fromStdString(filename));
+			}
 		}
-		if ((img.cols < 100) && (img.rows < 100))
-		{
-			cv::resize(img, img, cv::Size(), 200 / img.rows, 200 / img.cols);
-		}
-		//displayImage(img, 2);
-		setImgs.push_back(img);
+		tinydir_next(&dir);
 	}
+	tinydir_close(&dir);
+
 	if (setImgs.size() == 0) {
-		showError("Read Images", "There is no image in the folder: " + ui->secondImgText->text().toStdString(), "Make sure that the folder " + ui->secondImgText->text().toStdString()+ " contains one or more images with correct names!");
 		return false;
 	}
 	else if (setImgs.size() == 1){
 		// one to one image
-		secondImg = setImgs[setImgs.size() - 1];
+		secondImg = setImgs[setImgs.size() - 1].second;
 		oneToN = false;
 	}
 	// display the last image
-	displayImage(setImgs[setImgs.size() - 1], 2);
+	displayImage(setImgs[setImgs.size() - 1].second, 2);
 	return true;
 }
 
@@ -1154,12 +1149,12 @@ void MainWindow::displayMatches(int imgIndex){
 	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
 	model->setHorizontalHeaderItem(5, new QStandardItem(QString("Accepted/Rejected")));
 
-	disconnect(ui->viewMatchesIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
-	disconnect(ui->viewTableIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
-	ui->viewMatchesIndexText->setCurrentIndex(imgIndex);
-	ui->viewTableIndexText->setCurrentIndex(imgIndex);
-	connect(ui->viewMatchesIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
-	connect(ui->viewTableIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	disconnect(ui->viewMatchesImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	disconnect(ui->viewTableImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	ui->viewMatchesImageNameText->setCurrentIndex(imgIndex);
+	ui->viewTableImageNameText->setCurrentIndex(imgIndex);
+	connect(ui->viewMatchesImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	connect(ui->viewTableImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
 
 	if (oneToN) {
 		goodMatches = goodMatchesSet[imgIndex];
@@ -1286,23 +1281,23 @@ void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first
 void MainWindow::writeMatches(int imgIndex){
 // Write and Shows matches
 	cv::Mat drawImg;
-	disconnect(ui->viewMatchesIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
-	disconnect(ui->viewTableIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	disconnect(ui->viewMatchesImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	disconnect(ui->viewTableImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
 
-	ui->viewMatchesIndexText->clear();
-	ui->viewTableIndexText->clear();
+	ui->viewMatchesImageNameText->clear();
+	ui->viewTableImageNameText->clear();
 	if (oneToN){
 		// 1 to N and There is a best match  
 		for (size_t i = 0; i < setImgs.size(); i++)
 		{
-			ui->viewMatchesIndexText->addItem(QString::number(i));
-			ui->viewTableIndexText->addItem(QString::number(i));
+			ui->viewMatchesImageNameText->addItem(QString::fromStdString(setImgs[i].first));
+			ui->viewTableImageNameText->addItem(QString::fromStdString(setImgs[i].first));
 			// Draw and Store bad matches
-			cv::drawMatches(firstImg, firstImgKeypoints, setImgs[i], setImgsKeypoints[i],
+			cv::drawMatches(firstImg, firstImgKeypoints, setImgs[i].second, setImgsKeypoints[i],
 				badMatchesSet[i], drawImg, cv::Scalar(0, 0, 255), cv::Scalar(0, 255, 255));
 
 			// Draw and Store best matches
-			cv::drawMatches(firstImg, firstImgKeypoints, setImgs[i], setImgsKeypoints[i],
+			cv::drawMatches(firstImg, firstImgKeypoints, setImgs[i].second, setImgsKeypoints[i],
 				goodMatchesSet[i], drawImg, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 255), std::vector<char>(), cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
 
 			std::string filename = directoryPath + "/all matches/" + std::to_string(i) + ".jpg";
@@ -1344,13 +1339,13 @@ void MainWindow::writeMatches(int imgIndex){
 		//ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 	}
 	// Choose matches to display
-	ui->viewMatchesIndexText->setItemData(imgIndex, QBrush(Qt::green), Qt::BackgroundRole);
-	ui->viewTableIndexText->setItemData(imgIndex, QBrush(Qt::green), Qt::BackgroundRole);
-	ui->viewMatchesIndexText->setCurrentIndex(imgIndex);
-	ui->viewTableIndexText->setCurrentIndex(imgIndex);
+	ui->viewMatchesImageNameText->setItemData(imgIndex, QBrush(Qt::green), Qt::BackgroundRole);
+	ui->viewTableImageNameText->setItemData(imgIndex, QBrush(Qt::green), Qt::BackgroundRole);
+	ui->viewMatchesImageNameText->setCurrentIndex(imgIndex);
+	ui->viewTableImageNameText->setCurrentIndex(imgIndex);
 
-	connect(ui->viewMatchesIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
-	connect(ui->viewTableIndexText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	connect(ui->viewMatchesImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	connect(ui->viewTableImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
 }
 
 void MainWindow::customisingBinarization(int segmentationIndex){
@@ -1365,12 +1360,10 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 		localThreshold::binarisation(firstImg, 41, 56);
 		if (oneToN)
 		{
-			int i = 0;
-			for (cv::Mat &img : setImgs){
-				i++;
-				try{ localThreshold::binarisation(img, 41, 56); }
+			for (int i = 0; i < setImgs.size(); i++){
+				try{ localThreshold::binarisation(setImgs[i].second, 41, 56); }
 				catch (cv::Exception e){
-					showError("Binarization", "Error in the " + std::to_string(i) + " image", e.msg);
+					showError("Binarization", "Error in the image '" + setImgs[i].first + "'", e.msg);
 				}
 			}
 		}
@@ -1379,15 +1372,18 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 		double threshold = ui->segmentationThresholdText->text().toFloat();
 		cv::threshold(firstImg, firstImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
 		if (oneToN)
-			for (cv::Mat &img : setImgs) {
-				cv::threshold(img, img, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
+			for (int i = 0; i < setImgs.size(); i++){
+				try{ cv::threshold(setImgs[i].second, setImgs[i].second, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU); }
+				catch (cv::Exception e){
+					showError("Thresholding", "Error in the image '" + setImgs[i].first + "'", e.msg);
+				}
 			}
 		else cv::threshold(secondImg, secondImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
 		
 		//ideka::binOptimisation(firstImg);
 		//ideka::binOptimisation(secondImg);
 		cv::imwrite(directoryPath + "f-1_Binarization.bmp", firstImg);
-		if (oneToN) cv::imwrite(directoryPath + "l-1_Binarization.bmp", setImgs[setImgs.size()-1]);
+		if (oneToN) cv::imwrite(directoryPath + "l-1_Binarization.bmp", setImgs[setImgs.size() - 1].second);
 		else cv::imwrite(directoryPath + "s-1_Binarization.bmp", secondImg);
 	}
 }
@@ -1403,12 +1399,10 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		cv::imwrite(directoryPath + "f-2_Morphological Skeleton.bmp", firstImg);
 		if (oneToN)
 		{
-			int i = 0;
-			for (cv::Mat img : setImgs){
-				setImgs[i] = skeletonization(img);
-				i++;
+			for (int i = 0; i < setImgs.size();i++){
+				setImgs[i].second = skeletonization(setImgs[i].second);
 			}
-			cv::imwrite(directoryPath + "l-2_Morphological Skeleton.bmp", setImgs[setImgs.size() - 1]);
+			cv::imwrite(directoryPath + "l-2_Morphological Skeleton.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			secondImg = skeletonization(secondImg);
@@ -1422,10 +1416,10 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		cv::imwrite(directoryPath + "f-2_Zhang-Suen Thinning.bmp", firstImg);
 		if (oneToN)
 		{
-			for (cv::Mat &img : setImgs){
-				ZhangSuen::thinning(img);
+			for (int i = 0; i < setImgs.size(); i++){
+				ZhangSuen::thinning(setImgs[i].second);
 			}
-			cv::imwrite(directoryPath + "l-2_Zhang-Suen Thinning.bmp", setImgs[setImgs.size() - 1]);
+			cv::imwrite(directoryPath + "l-2_Zhang-Suen Thinning.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			ZhangSuen::thinning(secondImg);
@@ -1441,13 +1435,11 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		{
 			setEnhancedImages = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
 			setSegmentedImages = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
-			int i = 0;
-			for (cv::Mat img : setImgs){
-				setImgs[i] = Image_processing::thinning(img, setEnhancedImages[i], setSegmentedImages[i]);
-				setImgs[i].convertTo(setImgs[i], CV_8UC3, 255);
-				i++;
+			for (int i = 0; i < setImgs.size(); i++){
+				setImgs[i].second = Image_processing::thinning(setImgs[i].second, setEnhancedImages[i], setSegmentedImages[i]);
+				setImgs[i].second.convertTo(setImgs[i].second, CV_8UC3, 255);
 			}
-			cv::imwrite(directoryPath + "l-2_Lin-Hong Thinning.bmp", setImgs[setImgs.size() - 1]);
+			cv::imwrite(directoryPath + "l-2_Lin-Hong Thinning.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			secondImg = Image_processing::thinning(secondImg, secondEnhancedImage, secondSegmentedImage);
@@ -1463,10 +1455,10 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		cv::imwrite(directoryPath + "f-2_Guo-Hall Thinning.bmp", firstImg);
 		if (oneToN)
 		{
-			for (cv::Mat &img : setImgs){
-				GuoHall::thinning(img);
+			for (int i = 0; i < setImgs.size(); i++){
+				GuoHall::thinning(setImgs[i].second);
 			}
-			cv::imwrite(directoryPath + "l-2_Guo-Hall Thinning.bmp", setImgs[setImgs.size() - 1]);
+			cv::imwrite(directoryPath + "l-2_Guo-Hall Thinning.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			GuoHall::thinning(secondImg);
@@ -1491,17 +1483,15 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		if (oneToN)
 		{
 			setMinutiaes = std::vector<std::vector<Minutiae>>(setImgs.size(), std::vector<Minutiae>());
-			int i = 0;
-			for (cv::Mat &img : setImgs){
-				setMinutiaes[i] = Image_processing::extracting(img, setEnhancedImages[i], setSegmentedImages[i], img);
-				i++;
+			for (int i = 0; i < setImgs.size(); i++){
+				setMinutiaes[i] = Image_processing::extracting(setImgs[i].second, setEnhancedImages[i], setSegmentedImages[i], setImgs[i].second);
 			}
 		}
 		else secondMinutiae = Image_processing::extracting(secondImg, secondEnhancedImage, secondSegmentedImage, secondImg);
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
 		writeKeyPoints(firstImg, firstMinutiae, 1, "f-3_Minutiae");
-		if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1], setMinutiaes[setMinutiaes.size() - 1], 2, "l-3_Minutiae");
+		if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1].second, setMinutiaes[setMinutiaes.size() - 1], 2, "l-3_Minutiae");
 		else writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_Minutiae");
 
 		// images must be segmented if not Minutiae will be empty
@@ -1559,11 +1549,9 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		if (oneToN)
 		{
 			setMinutiaes = std::vector<std::vector<Minutiae>>(setImgs.size(), std::vector<Minutiae>());
-			int i = 0;
-			for (cv::Mat &img : setImgs){
-				setMinutiaes[i] = crossingNumber::getMinutiae(img, ui->detectorMinutiae2BorderText->text().toInt());
+			for (int i = 0; i < setImgs.size(); i++){
+				setMinutiaes[i] = crossingNumber::getMinutiae(setImgs[i].second, ui->detectorMinutiae2BorderText->text().toInt());
 				Filter::filterMinutiae(setMinutiaes[i]);
-				i++;
 			}
 		}
 		else {
@@ -1575,10 +1563,8 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		writeKeyPoints(firstImg, firstMinutiae, 1, "f-3_Minutiae2");
 		if (oneToN)
 		{
-			int i = 0;
-			for (cv::Mat img : setImgs){
-				writeKeyPoints(img, setMinutiaes[i], 2, "l-3_Minutiae2");
-				i++;
+			for (int i = 0; i < setImgs.size(); i++){
+				writeKeyPoints(setImgs[i].second, setMinutiaes[i], 2, "l-3_Minutiae2");
 			}
 		}
 		else writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_Minutiae2");
@@ -1630,10 +1616,8 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		harrisCorners(firstImg, firstImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
 		if (oneToN)
 		{
-			int i = 0;
-			for (cv::Mat img : setImgs){
-				harrisCorners(img, setImgsKeypoints[i], ui->detectorHarrisThresholdText->text().toFloat());
-				i++;
+			for (int i = 0; i < setImgs.size(); i++){
+				harrisCorners(setImgs[i].second, setImgsKeypoints[i], ui->detectorHarrisThresholdText->text().toFloat());
 			}
 		}
 		else harrisCorners(secondImg, secondImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
@@ -1661,12 +1645,10 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 				ui->detectorFastTypeText->currentIndex());
 			if (oneToN)
 			{
-				int i = 0;
-				for (cv::Mat img : setImgs){
-					cv::FASTX(img, setImgsKeypoints[i], ui->detectorFastThresholdText->text().toInt(),
+				for (int i = 0; i < setImgs.size(); i++){
+					cv::FASTX(setImgs[i].second, setImgsKeypoints[i], ui->detectorFastThresholdText->text().toInt(),
 						ui->detectorFastNonmaxSuppressionCheck->isChecked(),
 						ui->detectorFastTypeText->currentIndex());
-					i++;
 				}
 			}
 			else cv::FASTX(secondImg, secondImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
@@ -1719,10 +1701,8 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			ptrDetector->detect(firstImg, firstImgKeypoints);
 			if (oneToN){
 				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
-				int i = 0;
-				for (cv::Mat &img : setImgs){
-					ptrDetector->detect(img, setImgsKeypoints[i]);
-					i++;
+				for (int i = 0; i < setImgs.size(); i++){
+					ptrDetector->detect(setImgs[i].second, setImgsKeypoints[i]);
 				}
 			}else ptrDetector->detect(secondImg, secondImgKeypoints);
 			detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
@@ -1732,7 +1712,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			return;
 		}
 		writeKeyPoints(firstImg, firstImgKeypoints, 1, "f-3_KeyPoints");
-		if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1], setImgsKeypoints[setImgs.size() - 1], 2, "l-3_KeyPoints");
+		if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1].second, setImgsKeypoints[setImgs.size() - 1], 2, "l-3_KeyPoints");
 		else writeKeyPoints(secondImg, secondImgKeypoints, 2, "s-3_KeyPoints");
 	}
 	if (noKeyPoints("first", firstImgKeypoints) || (!oneToN && noKeyPoints("second", secondImgKeypoints))) return;
@@ -1793,11 +1773,12 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 	// Write the parameters
 	writeToFile("descriptor_" + descriptorName, ptrDescriptor);
 
-	if (ui->opponentColor->isChecked())
+	if (ui->opponentColor->isChecked()){
 		//OpponentColor
 		ptrDescriptor = new cv::OpponentColorDescriptorExtractor(ptrDescriptor);
-	// Write the parameters
-	writeToFile("descriptorOppCol_" + descriptorName, ptrDescriptor);
+		// Write the parameters
+		writeToFile("descriptorOppCol_" + descriptorName, ptrDescriptor);
+	}
 
 	try{
 		// Aissa !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! affichinna firstImgKeypoints avant et après pour voir si compute va les changer ou pas!!!!
@@ -1806,10 +1787,8 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 		if (oneToN)
 		{
 			setImgsDescriptors = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
-			int i = 0;
-			for (cv::Mat &img : setImgs){
-				ptrDescriptor->compute(img, setImgsKeypoints[i], setImgsDescriptors[i]);
-				i++;
+			for (int i = 0; i < setImgs.size(); i++){
+				ptrDescriptor->compute(setImgs[i].second, setImgsKeypoints[i], setImgsDescriptors[i]);
 			}
 		}
 		else ptrDescriptor->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
@@ -1913,6 +1892,7 @@ void MainWindow::matching(){
 void MainWindow::outlierElimination(){
 	// Eliminate outliers, and calculate the sum of best matches distance
 	float limitDistance = ui->matcherInlierLimitDistanceText->text().toFloat();
+	float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
 	if (ui->matcherInlierLimitDistance->isChecked() && limitDistance < 0) {
 		ui->logPlainText->appendHtml("<b style='color:red'>Invalid Limit Distance: " + QString::number(limitDistance) + ", the default value is maintained!</b>");
 		limitDistance = 0.4;
@@ -2009,7 +1989,9 @@ void MainWindow::outlierElimination(){
 				}
 			}
 		}
-		ui->logPlainText->appendHtml("</b>Best matching score = <b>" + QString::number(bestScore) + "</b> ");
+		if (scoreSet[bestScoreIndex] >= scoreThreshold) 
+			 ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(bestScore) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
+		else ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(bestScore) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
 	}
 	else{// 1 to 1
 		if (ui->matcherInlierLoweRatio->isChecked()){
@@ -2041,7 +2023,9 @@ void MainWindow::outlierElimination(){
 		float average = sumDistances / static_cast<float>(goodMatches.size());
 		float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size() + badMatches.size()) * 100;
 		score = 1.0 / average * goodProbability;
-		ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(score) + "</b>");
+		if (score >= scoreThreshold) 
+			ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(score) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
+		else ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(score) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
 	}
 }
 
