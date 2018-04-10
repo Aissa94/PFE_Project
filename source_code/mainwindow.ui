@@ -15,6 +15,24 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_6">
+    <item row="2" column="0">
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="1" column="0">
+       <widget class="QPlainTextEdit" name="logPlainText">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Log :</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
@@ -30,17 +48,13 @@
           <string>Image &amp;&amp; Image</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_9">
-          <item row="1" column="3">
-           <widget class="QPushButton" name="secondImgBtn">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>Browse</string>
+             <string>First Image :</string>
             </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QPushButton" name="firstImgBtn">
-            <property name="text">
-             <string>Browse</string>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -64,13 +78,23 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>First Image :</string>
+          <item row="0" column="5">
+           <widget class="QCheckBox" name="oneToN">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of choosing the second image, select a folder to an image set.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; If the folder contains only one image it will be considered as (1 to 1).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <property name="text">
+             <string>1 to N images</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="5">
+           <widget class="QComboBox" name="bddImageNames">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the image which is similar to the First image&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; this will be used to calculate Rank-k.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -81,19 +105,33 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="4">
-           <widget class="QComboBox" name="bddImageNames"/>
+          <item row="0" column="3">
+           <widget class="QPushButton" name="firstImgBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
           </item>
-          <item row="0" column="4">
-           <widget class="QCheckBox" name="oneToN">
+          <item row="1" column="3">
+           <widget class="QPushButton" name="secondImgBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QPushButton" name="refreshBddImageNames">
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of choosing the second image, select a folder to an image set.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; If the folder contains only one image it will be considered as (1 to 1).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Refresh the list of images&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
             </property>
             <property name="text">
-             <string>1 to N images</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
+             <string/>
             </property>
            </widget>
           </item>
@@ -110,24 +148,6 @@
       </item>
      </layout>
     </item>
-    <item row="2" column="0">
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="1" column="0">
-       <widget class="QPlainTextEdit" name="logPlainText">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Log :</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
     <item row="1" column="0">
      <widget class="QTabWidget" name="allMethodsTabs">
       <property name="enabled">
@@ -137,442 +157,456 @@
        <bool>false</bool>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>1</number>
       </property>
-      <widget class="QWidget" name="tabSIFT">
+      <widget class="QWidget" name="tabDefault">
        <attribute name="title">
-        <string>SIFT</string>
+        <string>Default</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_4">
+       <layout class="QGridLayout" name="gridLayout_default">
         <item row="0" column="0">
-         <layout class="QGridLayout" name="siftTabs_2">
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Edge Threshold :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="siftEdgeThreshText">
-            <property name="text">
-             <string>10</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="siftContThreshText">
-            <property name="text">
-             <string>0.04</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Contrast Threshold :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Number of Features :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="siftNumFeatText">
-            <property name="text">
-             <string>0</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>Number of Octave Layers :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="siftNumOctText">
-            <property name="text">
-             <string>3</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="siftSigmaText">
-            <property name="text">
-             <string>1.6</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_8">
-            <property name="text">
-             <string>Sigma :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="1" column="0">
-         <widget class="QCheckBox" name="siftBruteForceCheck">
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
+         <widget class="QTabWidget" name="defaultTabs">
+          <property name="currentIndex">
+           <number>0</number>
           </property>
-          <property name="text">
-           <string>Use Brute Force Matching</string>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
+          <widget class="QWidget" name="tabSIFT">
+           <attribute name="title">
+            <string>SIFT</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="siftTabs_2">
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Edge Threshold :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="siftEdgeThreshText">
+                <property name="text">
+                 <string>10</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="siftContThreshText">
+                <property name="text">
+                 <string>0.04</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>Contrast Threshold :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>Number of Features :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="siftNumFeatText">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>Number of Octave Layers :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLineEdit" name="siftNumOctText">
+                <property name="text">
+                 <string>3</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QLineEdit" name="siftSigmaText">
+                <property name="text">
+                 <string>1.6</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>Sigma :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="siftBruteForceCheck">
+              <property name="cursor">
+               <cursorShape>PointingHandCursor</cursorShape>
+              </property>
+              <property name="text">
+               <string>Use Brute Force Matching</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tabSURF">
+           <attribute name="title">
+            <string>SURF</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_8">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="surfTabs">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>Hessian Threshold :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="surfHessianThreshText">
+                <property name="text">
+                 <string>100</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="surfNumOctavesText">
+                <property name="text">
+                 <string>4</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_9">
+                <property name="text">
+                 <string>Number of Octaves :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_11">
+                <property name="text">
+                 <string>Number of Octave Layers :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="surfNumOctLayersText">
+                <property name="text">
+                 <string>3</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="surfExtendedLabel">
+                <property name="text">
+                 <string>Extended :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QCheckBox" name="surfExtendedText">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="surfUprightLabel">
+                <property name="text">
+                 <string>Features Orientation :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QCheckBox" name="surfUprightText">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="surfBruteForceCheck">
+              <property name="text">
+               <string>Use Brute Force Matching</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tabORB">
+           <attribute name="title">
+            <string>ORB</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_13">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="orbTabs">
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_18">
+                <property name="text">
+                 <string>Scale Factor :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_20">
+                <property name="text">
+                 <string>Number of Levels :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0">
+               <widget class="QLabel" name="label_24">
+                <property name="text">
+                 <string>Score Type :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>Number of Features :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="0">
+               <widget class="QLabel" name="label_25">
+                <property name="text">
+                 <string>Patch Size :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="label_23">
+                <property name="text">
+                 <string>WTA K :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_21">
+                <property name="text">
+                 <string>Edge Threshold :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1">
+               <widget class="QRadioButton" name="orbScoreHarrisRadioBtn">
+                <property name="text">
+                 <string>Harris</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_22">
+                <property name="text">
+                 <string>First Level :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="2">
+               <widget class="QRadioButton" name="orbScoreFastRadioBtn">
+                <property name="text">
+                 <string>FAST</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1" colspan="2">
+               <widget class="QLineEdit" name="orbFirstLevText">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" colspan="2">
+               <widget class="QLineEdit" name="orbEdgeThreshText">
+                <property name="text">
+                 <string>31</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1" colspan="2">
+               <widget class="QLineEdit" name="orbNumLevelsText">
+                <property name="text">
+                 <string>8</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" colspan="2">
+               <widget class="QLineEdit" name="orbScaleFactText">
+                <property name="text">
+                 <string>1.2</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" colspan="2">
+               <widget class="QLineEdit" name="orbNumFeatText">
+                <property name="text">
+                 <string>500</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1" colspan="2">
+               <widget class="QLineEdit" name="orbWTAKText">
+                <property name="text">
+                 <string>2</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="1" colspan="2">
+               <widget class="QLineEdit" name="orbPatchSizeText">
+                <property name="text">
+                 <string>31</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tabBRISK">
+           <attribute name="title">
+            <string>BRISK</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_13">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="briskTabs">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_18">
+                <property name="text">
+                 <string>Pattern Scale :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_20">
+                <property name="text">
+                 <string>Number of Octaves :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>Threshold :</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="briskPatternScaleText">
+                <property name="text">
+                 <string>1.0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="briskOctavesText">
+                <property name="text">
+                 <string>3</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="briskThreshText">
+                <property name="text">
+                 <string>30</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
          </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tabSURF">
-       <attribute name="title">
-        <string>SURF</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_8">
-        <item row="0" column="0">
-         <layout class="QGridLayout" name="surfTabs">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_10">
-            <property name="text">
-             <string>Hessian Threshold :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="surfHessianThreshText">
-            <property name="text">
-             <string>100</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="surfNumOctavesText">
-            <property name="text">
-             <string>4</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_9">
-            <property name="text">
-             <string>Number of Octaves :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_11">
-            <property name="text">
-             <string>Number of Octave Layers :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="surfNumOctLayersText">
-            <property name="text">
-             <string>3</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="surfExtendedLabel">
-            <property name="text">
-             <string>Extended :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QCheckBox" name="surfExtendedText">
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="surfUprightLabel">
-            <property name="text">
-             <string>Features Orientation :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QCheckBox" name="surfUprightText">
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="1" column="0">
-         <widget class="QCheckBox" name="surfBruteForceCheck">
-          <property name="text">
-           <string>Use Brute Force Matching</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tabORB">
-       <attribute name="title">
-        <string>ORB</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_13">
-        <item row="0" column="0">
-         <layout class="QGridLayout" name="orbTabs">
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_18">
-            <property name="text">
-             <string>Scale Factor :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_20">
-            <property name="text">
-             <string>Number of Levels :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0">
-           <widget class="QLabel" name="label_24">
-            <property name="text">
-             <string>Score Type :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_19">
-            <property name="text">
-             <string>Number of Features :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="label_25">
-            <property name="text">
-             <string>Patch Size :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="label_23">
-            <property name="text">
-             <string>WTA K :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_21">
-            <property name="text">
-             <string>Edge Threshold :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="1">
-           <widget class="QRadioButton" name="orbScoreHarrisRadioBtn">
-            <property name="text">
-             <string>Harris</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_22">
-            <property name="text">
-             <string>First Level :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="2">
-           <widget class="QRadioButton" name="orbScoreFastRadioBtn">
-            <property name="text">
-             <string>FAST</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1" colspan="2">
-           <widget class="QLineEdit" name="orbFirstLevText">
-            <property name="text">
-             <string>0</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1" colspan="2">
-           <widget class="QLineEdit" name="orbEdgeThreshText">
-            <property name="text">
-             <string>31</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" colspan="2">
-           <widget class="QLineEdit" name="orbNumLevelsText">
-            <property name="text">
-             <string>8</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1" colspan="2">
-           <widget class="QLineEdit" name="orbScaleFactText">
-            <property name="text">
-             <string>1.2</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" colspan="2">
-           <widget class="QLineEdit" name="orbNumFeatText">
-            <property name="text">
-             <string>500</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="1" colspan="2">
-           <widget class="QLineEdit" name="orbWTAKText">
-            <property name="text">
-             <string>2</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="1" colspan="2">
-           <widget class="QLineEdit" name="orbPatchSizeText">
-            <property name="text">
-             <string>31</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tabBRISK">
-       <attribute name="title">
-        <string>BRISK</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_13">
-        <item row="0" column="0">
-         <layout class="QGridLayout" name="briskTabs">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_18">
-            <property name="text">
-             <string>Pattern Scale :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_20">
-            <property name="text">
-             <string>Number of Octaves :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_19">
-            <property name="text">
-             <string>Threshold :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="briskPatternScaleText">
-            <property name="text">
-             <string>1.0</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="briskOctavesText">
-            <property name="text">
-             <string>3</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="briskThreshText">
-            <property name="text">
-             <string>30</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
        </layout>
       </widget>
@@ -580,7 +614,7 @@
        <attribute name="title">
         <string>Custom</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_15">
+       <layout class="QGridLayout" name="gridLayout_custom">
         <item row="0" column="0">
          <widget class="QTabWidget" name="customTabs">
           <property name="currentIndex">
@@ -951,18 +985,18 @@
                 </item>
                </layout>
               </widget>
-              <widget class="QWidget" name="tabDetectorMinutiae2">
+              <widget class="QWidget" name="tabDetectorCrossingNumber">
                <attribute name="title">
-                <string>Minutiae (2)</string>
+                <string>Crossing-Number</string>
                </attribute>
                <attribute name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Crossing number methods is a really simple way to detect ridge endings and ridge bifurcations.&lt;/p&gt;&lt;p&gt;First, we need thinned (skeleton) image. Then the crossing number algorithm will look at 3x3 pixel blocks:&lt;/p&gt;&lt;p&gt;if middle pixel is black (represents ridge):&lt;/p&gt;&lt;p&gt;- if pixel on boundary are crossed with the ridge once, then we've found ridge ending.&lt;/p&gt;&lt;p&gt;- if pixel on boundary are crossed with the ridge three times, then we've found ridge bifurcation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_13">
                 <item row="0" column="0">
-                 <layout class="QGridLayout" name="detectorMinutiae2Params">
+                 <layout class="QGridLayout" name="detectorCrossingNumberParams">
                   <item row="0" column="0">
-                   <widget class="QLabel" name="detectorMinutiae2BorderLabel">
+                   <widget class="QLabel" name="detectorCrossingNumberBorderLabel">
                     <property name="toolTip">
                      <string>Choose an Integer greater than 1</string>
                     </property>
@@ -975,7 +1009,7 @@
                    </widget>
                   </item>
                   <item row="1" column="0">
-                   <widget class="QLabel" name="detectorMinutiae2ParamLabel">
+                   <widget class="QLabel" name="detectorCrossingNumberParamLabel">
                     <property name="text">
                      <string>param :</string>
                     </property>
@@ -985,14 +1019,14 @@
                    </widget>
                   </item>
                   <item row="0" column="1">
-                   <widget class="QLineEdit" name="detectorMinutiae2BorderText">
+                   <widget class="QLineEdit" name="detectorCrossingNumberBorderText">
                     <property name="text">
                      <string>30</string>
                     </property>
                    </widget>
                   </item>
                   <item row="1" column="1">
-                   <widget class="QLineEdit" name="detectorMinutiae2ParamText">
+                   <widget class="QLineEdit" name="detectorCrossingNumberParamText">
                     <property name="text">
                      <string>0</string>
                     </property>
@@ -2730,6 +2764,135 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>tabWidget_2</tabstop>
+  <tabstop>firstImgText</tabstop>
+  <tabstop>secondImgText</tabstop>
+  <tabstop>firstImgBtn</tabstop>
+  <tabstop>secondImgBtn</tabstop>
+  <tabstop>oneToN</tabstop>
+  <tabstop>bddImageNames</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>logPlainText</tabstop>
+  <tabstop>allMethodsTabs</tabstop>
+  <tabstop>siftEdgeThreshText</tabstop>
+  <tabstop>siftContThreshText</tabstop>
+  <tabstop>siftNumFeatText</tabstop>
+  <tabstop>siftNumOctText</tabstop>
+  <tabstop>siftSigmaText</tabstop>
+  <tabstop>siftBruteForceCheck</tabstop>
+  <tabstop>surfHessianThreshText</tabstop>
+  <tabstop>surfNumOctavesText</tabstop>
+  <tabstop>surfNumOctLayersText</tabstop>
+  <tabstop>surfExtendedText</tabstop>
+  <tabstop>surfUprightText</tabstop>
+  <tabstop>surfBruteForceCheck</tabstop>
+  <tabstop>orbScoreHarrisRadioBtn</tabstop>
+  <tabstop>orbScoreFastRadioBtn</tabstop>
+  <tabstop>orbFirstLevText</tabstop>
+  <tabstop>orbEdgeThreshText</tabstop>
+  <tabstop>orbNumLevelsText</tabstop>
+  <tabstop>orbScaleFactText</tabstop>
+  <tabstop>orbNumFeatText</tabstop>
+  <tabstop>orbWTAKText</tabstop>
+  <tabstop>orbPatchSizeText</tabstop>
+  <tabstop>briskPatternScaleText</tabstop>
+  <tabstop>briskOctavesText</tabstop>
+  <tabstop>briskThreshText</tabstop>
+  <tabstop>customTabs</tabstop>
+  <tabstop>segmentationTabs</tabstop>
+  <tabstop>segmentationMorphologicalSkeletonParam1Text</tabstop>
+  <tabstop>segmentationMorphologicalSkeletonParam2Text</tabstop>
+  <tabstop>segmentationMorphologicalSkeletonParam3Text</tabstop>
+  <tabstop>segmentationZhangSuenParam1Text</tabstop>
+  <tabstop>segmentationZhangSuenParam2Text</tabstop>
+  <tabstop>segmentationZhangSuenParam3Text</tabstop>
+  <tabstop>segmentationLinHongParam1Text</tabstop>
+  <tabstop>segmentationLinHongParam2Text</tabstop>
+  <tabstop>segmentationLinHongParam3Text</tabstop>
+  <tabstop>segmentationGuoHallParam1Text</tabstop>
+  <tabstop>segmentationGuoHallParam2Text</tabstop>
+  <tabstop>segmentationGuoHallParam3Text</tabstop>
+  <tabstop>segmentationThresholdText</tabstop>
+  <tabstop>detectorTabs</tabstop>
+  <tabstop>detectorMinutiaeParam1Text</tabstop>
+  <tabstop>detectorMinutiaeParam2Text</tabstop>
+  <tabstop>detectorCrossingNumberBorderText</tabstop>
+  <tabstop>detectorCrossingNumberParamText</tabstop>
+  <tabstop>detectorHarrisThresholdText</tabstop>
+  <tabstop>detectorHarrisParamText</tabstop>
+  <tabstop>detectorStarMaxSizeText</tabstop>
+  <tabstop>detectorStarResponseThresholdText</tabstop>
+  <tabstop>detectorStarThresholdProjectedText</tabstop>
+  <tabstop>detectorStarThresholdBinarizedText</tabstop>
+  <tabstop>detectorStarSuppressNonmaxSizeText</tabstop>
+  <tabstop>detectorFastThresholdText</tabstop>
+  <tabstop>detectorFastNonmaxSuppressionCheck</tabstop>
+  <tabstop>detectorFastXCheck</tabstop>
+  <tabstop>detectorFastTypeText</tabstop>
+  <tabstop>detectorSiftEdgeThresholdText</tabstop>
+  <tabstop>detectorSiftContrastThresholdText</tabstop>
+  <tabstop>detectorSiftNfeaturesText</tabstop>
+  <tabstop>detectorSiftNOctaveLayersText</tabstop>
+  <tabstop>detectorSiftSigmaText</tabstop>
+  <tabstop>detectorSurfNOctavesText</tabstop>
+  <tabstop>detectorSurfHessianThresholdText</tabstop>
+  <tabstop>detectorSurfNLayersText</tabstop>
+  <tabstop>detectorSurfUprightText</tabstop>
+  <tabstop>detectorDenseInitFeatureScaleText</tabstop>
+  <tabstop>detectorDenseFeatureScaleLevelsText</tabstop>
+  <tabstop>detectorDenseFeatureScaleMulText</tabstop>
+  <tabstop>detectorDenseInitXyStepText</tabstop>
+  <tabstop>detectorDenseInitImgBoundText</tabstop>
+  <tabstop>descriptorTabs</tabstop>
+  <tabstop>descriptorFreakOrientationNormalizedCheck</tabstop>
+  <tabstop>descriptorFreakScaleNormalizedCheck</tabstop>
+  <tabstop>descriptorFreakPatternScaleText</tabstop>
+  <tabstop>descriptorFreakNOctavesText</tabstop>
+  <tabstop>descriptorFreakSelectedPairsText</tabstop>
+  <tabstop>descriptorBriefPATCH_SIZEText</tabstop>
+  <tabstop>descriptorBriefKERNEL_SIZEText</tabstop>
+  <tabstop>descriptorBriefLengthText</tabstop>
+  <tabstop>descriptorSiftLengthText</tabstop>
+  <tabstop>descriptorSurfNotExtended</tabstop>
+  <tabstop>descriptorSurfExtended</tabstop>
+  <tabstop>descriptorMethod2Param1Text</tabstop>
+  <tabstop>descriptorMethod2Param2Text</tabstop>
+  <tabstop>descriptorMethod2Param3Text</tabstop>
+  <tabstop>descriptorMethod2LengthText</tabstop>
+  <tabstop>matcherTabs</tabstop>
+  <tabstop>matcherBruteForceNormTypeText</tabstop>
+  <tabstop>matcherBruteForceCrossCheckText</tabstop>
+  <tabstop>matcherFlannBasedLinearIndexParams</tabstop>
+  <tabstop>matcherFlannBasedKDTreeIndexParams</tabstop>
+  <tabstop>matcherFlannBasedKMeansIndexParams</tabstop>
+  <tabstop>matcherFlannBasedCompositeIndexParams</tabstop>
+  <tabstop>matcherFlannBasedLshIndexParams</tabstop>
+  <tabstop>matcherFlannBasedAutotunedIndexParams</tabstop>
+  <tabstop>matcherFlannBasedSearchParamsText</tabstop>
+  <tabstop>matcherMethodParam1Text</tabstop>
+  <tabstop>matcherMethodParam2Text</tabstop>
+  <tabstop>matcherMethodParam3Text</tabstop>
+  <tabstop>matcherInlierNoTest</tabstop>
+  <tabstop>matcherInlierLoweRatio</tabstop>
+  <tabstop>matcherInlierLoweRatioText</tabstop>
+  <tabstop>matcherInlierInversMatches</tabstop>
+  <tabstop>matcherInlierLimitDistance</tabstop>
+  <tabstop>matcherInlierLimitDistanceText</tabstop>
+  <tabstop>matcher1toNtype1</tabstop>
+  <tabstop>matcher1toNtype2</tabstop>
+  <tabstop>decisionStageThresholdText</tabstop>
+  <tabstop>opponentColor</tabstop>
+  <tabstop>viewTabs</tabstop>
+  <tabstop>viewImage1</tabstop>
+  <tabstop>viewKeyPoints1</tabstop>
+  <tabstop>viewImage2</tabstop>
+  <tabstop>viewKeyPoints2</tabstop>
+  <tabstop>viewMatchesImageNameText</tabstop>
+  <tabstop>viewMatches</tabstop>
+  <tabstop>viewTableImageNameText</tabstop>
+  <tabstop>viewTable</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -2771,11 +2934,11 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>284</x>
+     <x>264</x>
      <y>472</y>
     </hint>
     <hint type="destinationlabel">
-     <x>423</x>
+     <x>403</x>
      <y>474</y>
     </hint>
    </hints>
@@ -2787,11 +2950,11 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>145</x>
+     <x>125</x>
      <y>498</y>
     </hint>
     <hint type="destinationlabel">
-     <x>284</x>
+     <x>264</x>
      <y>500</y>
     </hint>
    </hints>
@@ -2803,8 +2966,8 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>435</x>
-     <y>108</y>
+     <x>482</x>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
      <x>153</x>
@@ -2819,8 +2982,8 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>435</x>
-     <y>108</y>
+     <x>482</x>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
      <x>349</x>
@@ -2835,8 +2998,8 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>435</x>
-     <y>108</y>
+     <x>482</x>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
      <x>530</x>
@@ -2873,6 +3036,70 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
     <hint type="destinationlabel">
      <x>488</x>
      <y>469</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>oneToN</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>refreshBddImageNames</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>449</x>
+     <y>69</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>364</x>
+     <y>107</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>oneToN</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>bddImageNames</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>472</x>
+     <y>69</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>467</x>
+     <y>100</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>oneToN</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>viewMatchesImageNameText</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>430</x>
+     <y>74</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>902</x>
+     <y>76</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>oneToN</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>viewTableImageNameText</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>430</x>
+     <y>69</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>941</x>
+     <y>76</y>
     </hint>
    </hints>
   </connection>

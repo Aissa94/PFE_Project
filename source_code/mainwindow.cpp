@@ -55,13 +55,23 @@ MainWindow::MainWindow(QWidget *parent) :
 	// cusomizing ToolTips :
 	qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white;}");
     ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
+	
+	QPixmap pixmap1(":/start-img.png");
+	QIcon ButtonIcon1(pixmap1);
+	ui->pushButton->setIcon(ButtonIcon1);
+
+	QPixmap pixmap2(":/refresh-img.png");
+	QIcon ButtonIcon2(pixmap2);
+	ui->refreshBddImageNames->setIcon(ButtonIcon2);
+
+	if (ui->oneToN->isChecked()) on_refreshBddImageNames_pressed();
 
 	// Control check boxes
 	connect(ui->oneToN, &QCheckBox::toggled, [=](bool checked) {
 		if (checked){
-			ui->bddImageNames->setEnabled(true);
+			/*ui->bddImageNames->setEnabled(true);
 			ui->viewMatchesImageNameText->setEnabled(true);
-			ui->viewTableImageNameText->setEnabled(true);
+			ui->viewTableImageNameText->setEnabled(true);*/
 			ui->matcherBruteForceCrossCheckLabel->setEnabled(false);
 			ui->matcherBruteForceCrossCheckText->setEnabled(false);
 			if (ui->matcher1toNtype1->isChecked()){
@@ -70,12 +80,12 @@ MainWindow::MainWindow(QWidget *parent) :
 				ui->matcherInlierInversMatches->setEnabled(false);
 				ui->matcherInlierNoTest->setChecked(true);
 			}
-			ui->secondImgText->textChanged(ui->secondImgText->text());
+			//ui->secondImgText->textChanged(ui->secondImgText->text());
 		}
 		else {
-			ui->bddImageNames->setEnabled(false);
+			/*ui->bddImageNames->setEnabled(false);
 			ui->viewMatchesImageNameText->setEnabled(false);
-			ui->viewTableImageNameText->setEnabled(false);
+			ui->viewTableImageNameText->setEnabled(false);*/
 			if (ui->matcherInlierNoTest->isChecked()){
 				ui->matcherBruteForceCrossCheckLabel->setEnabled(true);
 				ui->matcherBruteForceCrossCheckText->setEnabled(true);
@@ -372,16 +382,11 @@ void MainWindow::on_secondImgBtn_pressed()
 {
 	// Read Second Image(s) ...
 	QString str = (ui->oneToN->isChecked()) ? QFileDialog::getExistingDirectory(0, ("Select a Folder"), QDir::currentPath()) : QFileDialog::getOpenFileName(0, ("Select the 2nd Image"), QDir::currentPath());
-	if (!str.trimmed().isEmpty()){
+	if (!str.trimmed().isEmpty())
 		ui->secondImgText->setText(str);
-		/*if (ui->oneToN->isChecked()){
-			setImgs.clear();
-			if (!readSetOfImages()) return;
-		}*/
-	}
 }
 
-void MainWindow::on_secondImgText_textChanged()
+void MainWindow::on_refreshBddImageNames_pressed()
 {
 	// Reload image names ...
 	if (ui->oneToN->isChecked()){
@@ -420,25 +425,32 @@ void MainWindow::on_pushButton_pressed()
 	switch (ui->allMethodsTabs->currentIndex())
 	{
 	case 0:
-		// SIFT
-		runSIFT();
-		break;
+		// default
+		switch (ui->defaultTabs->currentIndex())
+		{
+		case 0:
+			// SIFT
+			runSIFT();
+			break;
 
+		case 1:
+			// SURF
+			runSURF();
+			break;
+
+		case 2:
+			// ORB
+			runORB();
+			break;
+
+		case 3:
+		default:
+			// BRISK
+			runBRISK();
+			break;
+		}
+		break;
 	case 1:
-		// SURF
-		runSURF();
-		break;
-
-	case 2:
-		// ORB
-		runORB();
-		break;
-
-	case 3:
-		// BRISK
-		runBRISK();
-		break;
-
 	default:
 		// custom
 		runCustom();
@@ -1542,7 +1554,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		std::vector<std::vector<Minutiae>> setMinutiaes;
 
 		detectionTime = (double)cv::getTickCount();
-		firstMinutiae = crossingNumber::getMinutiae(firstImg, ui->detectorMinutiae2BorderText->text().toInt());
+		firstMinutiae = crossingNumber::getMinutiae(firstImg, ui->detectorCrossingNumberBorderText->text().toInt());
 		//Minutiae-filtering
 		// slow with the second segmentation
 		Filter::filterMinutiae(firstMinutiae);
@@ -1550,24 +1562,24 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		{
 			setMinutiaes = std::vector<std::vector<Minutiae>>(setImgs.size(), std::vector<Minutiae>());
 			for (int i = 0; i < setImgs.size(); i++){
-				setMinutiaes[i] = crossingNumber::getMinutiae(setImgs[i].second, ui->detectorMinutiae2BorderText->text().toInt());
+				setMinutiaes[i] = crossingNumber::getMinutiae(setImgs[i].second, ui->detectorCrossingNumberBorderText->text().toInt());
 				Filter::filterMinutiae(setMinutiaes[i]);
 			}
 		}
 		else {
-			secondMinutiae = crossingNumber::getMinutiae(secondImg, ui->detectorMinutiae2BorderText->text().toInt());
+			secondMinutiae = crossingNumber::getMinutiae(secondImg, ui->detectorCrossingNumberBorderText->text().toInt());
 			Filter::filterMinutiae(secondMinutiae);
 		}
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
-		writeKeyPoints(firstImg, firstMinutiae, 1, "f-3_Minutiae2");
+		writeKeyPoints(firstImg, firstMinutiae, 1, "f-3_CrossingNumber");
 		if (oneToN)
 		{
 			for (int i = 0; i < setImgs.size(); i++){
-				writeKeyPoints(setImgs[i].second, setMinutiaes[i], 2, "l-3_Minutiae2");
+				writeKeyPoints(setImgs[i].second, setMinutiaes[i], 2, "l-3_CrossingNumber");
 			}
 		}
-		else writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_Minutiae2");
+		else writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_CrossingNumber");
 
 		// images must be segmented if not Minutiae will be empty
 		try{
@@ -2059,81 +2071,6 @@ int MainWindow::fileCounter(std::string dir, std::string prefix, std::string suf
 	return returnedCount;
 }
 
-ExcelExportHelper::ExcelExportHelper(bool closeExcelOnExit)
-{
-	m_closeExcelOnExit = closeExcelOnExit;
-	m_excelApplication = nullptr;
-	m_sheet = nullptr;
-	m_sheets = nullptr;
-	m_workbook = nullptr;
-	m_workbooks = nullptr;
-	m_excelApplication = nullptr;
-
-	m_excelApplication = new QAxObject("Excel.Application", 0);//{00024500-0000-0000-C000-000000000046}
-
-	if (m_excelApplication == nullptr)
-		throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
-
-	m_excelApplication->dynamicCall("SetVisible(bool)", false); // hide excel
-	m_excelApplication->setProperty("DisplayAlerts", 0); // disable alerts
-
-	m_workbooks = m_excelApplication->querySubObject("Workbooks");
-	m_workbook = m_workbooks->querySubObject("Add");
-	m_sheets = m_workbook->querySubObject("Worksheets");
-	m_sheet = m_sheets->querySubObject("Add");
-}
-
-void ExcelExportHelper::SetCellValue(int lineIndex, int columnIndex, const QString& value)
-{
-    QAxObject *cell = m_sheet->querySubObject("Cells(int,int)", lineIndex, columnIndex);
-	cell->setProperty("Value", value);
-	delete cell;
-}
-
-void ExcelExportHelper::Open(const QString& fileName)
-{
-    if (fileName == "")
-		throw std::invalid_argument("'fileName' is empty!");
-	if (fileName.contains("/"))
-		throw std::invalid_argument("'/' character in 'fileName' is not supported by excel!");
-
-    if (!QFile::exists(fileName))
-	{
-        /*if (!QFile::remove(fileName))
-		{
-			throw new std::exception(QString("Failed to remove file '%1'").arg(fileName).toStdString().c_str());
-        }*/
-        m_workbooks->dynamicCall("Open (const QString&)", fileName);
-        m_sheets->querySubObject("Worksheets(int)", 1);
-    }
-
-    //m_workbook->dynamicCall("SaveAs (const QString&)", fileName);
-}
-
-ExcelExportHelper::~ExcelExportHelper()
-{
-	if (m_excelApplication != nullptr)
-	{
-		if (!m_closeExcelOnExit)
-		{
-			m_excelApplication->setProperty("DisplayAlerts", 1);
-			m_excelApplication->dynamicCall("SetVisible(bool)", true);
-		}
-
-		if (m_workbook != nullptr && m_closeExcelOnExit)
-		{
-			m_workbook->dynamicCall("Close (Boolean)", true);
-			m_excelApplication->dynamicCall("Quit (void)");
-		}
-	}
-
-	delete m_sheet;
-	delete m_sheets;
-	delete m_workbook;
-	delete m_workbooks;
-	delete m_excelApplication;
-}
-
 bool MainWindow::fileExistenceCheck(const std::string& name){
 	struct stat buffer;
 	return (stat(name.c_str(), &buffer) == 0);
@@ -2192,3 +2129,77 @@ float MainWindow::testInReverse(std::vector<cv::DMatch> directMatches, std::vect
 	return sumDistances;
 }
 
+ExcelExportHelper::ExcelExportHelper(bool closeExcelOnExit)
+{
+	m_closeExcelOnExit = closeExcelOnExit;
+	m_excelApplication = nullptr;
+	m_sheet = nullptr;
+	m_sheets = nullptr;
+	m_workbook = nullptr;
+	m_workbooks = nullptr;
+	m_excelApplication = nullptr;
+
+	m_excelApplication = new QAxObject("Excel.Application", 0);//{00024500-0000-0000-C000-000000000046}
+
+	if (m_excelApplication == nullptr)
+		throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
+
+	m_excelApplication->dynamicCall("SetVisible(bool)", false); // hide excel
+	m_excelApplication->setProperty("DisplayAlerts", 0); // disable alerts
+
+	m_workbooks = m_excelApplication->querySubObject("Workbooks");
+	m_workbook = m_workbooks->querySubObject("Add");
+	m_sheets = m_workbook->querySubObject("Worksheets");
+	m_sheet = m_sheets->querySubObject("Add");
+}
+
+void ExcelExportHelper::SetCellValue(int lineIndex, int columnIndex, const QString& value)
+{
+	QAxObject *cell = m_sheet->querySubObject("Cells(int,int)", lineIndex, columnIndex);
+	cell->setProperty("Value", value);
+	delete cell;
+}
+
+void ExcelExportHelper::Open(const QString& fileName)
+{
+	if (fileName == "")
+		throw std::invalid_argument("'fileName' is empty!");
+	if (fileName.contains("/"))
+		throw std::invalid_argument("'/' character in 'fileName' is not supported by excel!");
+
+	if (!QFile::exists(fileName))
+	{
+		/*if (!QFile::remove(fileName))
+		{
+		throw new std::exception(QString("Failed to remove file '%1'").arg(fileName).toStdString().c_str());
+		}*/
+		m_workbooks->dynamicCall("Open (const QString&)", fileName);
+		m_sheets->querySubObject("Worksheets(int)", 1);
+	}
+
+	//m_workbook->dynamicCall("SaveAs (const QString&)", fileName);
+}
+
+ExcelExportHelper::~ExcelExportHelper()
+{
+	if (m_excelApplication != nullptr)
+	{
+		if (!m_closeExcelOnExit)
+		{
+			m_excelApplication->setProperty("DisplayAlerts", 1);
+			m_excelApplication->dynamicCall("SetVisible(bool)", true);
+		}
+
+		if (m_workbook != nullptr && m_closeExcelOnExit)
+		{
+			m_workbook->dynamicCall("Close (Boolean)", true);
+			m_excelApplication->dynamicCall("Quit (void)");
+		}
+	}
+
+	delete m_sheet;
+	delete m_sheets;
+	delete m_workbook;
+	delete m_workbooks;
+	delete m_excelApplication;
+}

@@ -3,11 +3,17 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    
-    return a.exec();
+    bool isConsole = (argc>1);
+
+	QApplication app(argc, argv);
+	MainWindow mainWindow;
+	if (isConsole) {
+		InitializeDualMode(true);
+		std::cout << "Console app" << std::endl;
+	}
+	else mainWindow.show();
+
+	return app.exec();
 }
 
 //using namespace cv;

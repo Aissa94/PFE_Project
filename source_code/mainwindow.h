@@ -1,27 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QtWidgets>
-
-#include <iostream>
-#include <fstream>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdexcept>
-#include <iomanip>
-#include <string>
-#include <ctime>
-#include <functional>
-
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/features2d/features2d.hpp>
-#include <opencv2/nonfree/nonfree.hpp>
-#include <opencv2/calib3d/calib3d.hpp>
-#include <opencv2/highgui/highgui.hpp>
-
 #include "include_files.h"
 
 namespace Ui {
@@ -33,6 +12,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
     
 public:
+	Ui::MainWindow *ui;
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
@@ -44,7 +24,7 @@ private slots:
 
     void on_secondImgBtn_pressed();
 
-	void on_secondImgText_textChanged();
+	void on_refreshBddImageNames_pressed();
 
 	void on_pushButton_pressed();
 
@@ -63,8 +43,6 @@ private slots:
 	void displayMatches(int bestImgIndex = 0);
 
 private:
-    Ui::MainWindow *ui;
-
     QString outputImagesPath;
 
 	void resetParams();
