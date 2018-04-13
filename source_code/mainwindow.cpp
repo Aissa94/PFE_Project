@@ -391,7 +391,6 @@ void MainWindow::on_refreshBddImageNames_pressed()
 {
 	// Reload image names ...
 	if (ui->oneToN->isChecked()){
-		setImgs.clear();
 		ui->bddImageNames->clear();
 		readSetOfImages();
 	}
@@ -407,6 +406,7 @@ void MainWindow::on_pushButton_pressed()
 	oneToN = ui->oneToN->isChecked();
 
 	if (oneToN) {
+		readSetOfImages();
 		if (setImgs.size() == 0){
 			showError("Read Images", "There is no image in the folder: " + ui->secondImgText->text().toStdString(), "Make sure that the folder '<i>" + ui->secondImgText->text().toStdString() + "'</i>  contains one or more images with correct extension!");
 			return;
@@ -790,6 +790,7 @@ bool MainWindow::readSecondImage(){
 }
 
 bool MainWindow::readSetOfImages(){
+	setImgs.clear();
 	// Read Data Set of Images ...
 	std::wstring wdatapath = ui->secondImgText->text().toStdWString();
 	
@@ -1525,7 +1526,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 					for (Minutiae minutiae : setMinutiaes[i]) setImgsKeypoints[i].push_back(minutiae);
 					// use masks to matche minutiae of the same type
 					matchingMasks[i] = maskMatchesByMinutiaeNature(firstMinutiae, setMinutiaes[i]);
-				}
+					}
 			}
 			else {
 				for (Minutiae minutiae : secondMinutiae) secondImgKeypoints.push_back(minutiae);
@@ -1806,7 +1807,8 @@ void MainWindow::customisingMatcher(int matcherIndex, std::string matcherName){
 	{
 		// BruteForce
 		int norm = getNormByText(ui->matcherBruteForceNormTypeText->currentText().toStdString());
-		ptrMatcher = new cv::BFMatcher(norm, ui->matcherBruteForceCrossCheckText->isEnabled() && ui->matcherBruteForceCrossCheckText->isChecked());
+		ptrMatcher = new cv::BFMatcher(norm, 
+			ui->matcherBruteForceCrossCheckText->isEnabled() && ui->matcherBruteForceCrossCheckText->isChecked() && (ui->detectorTabs->currentIndex()>1));
 	}
 	break;
 	case 1:
