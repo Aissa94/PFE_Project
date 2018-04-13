@@ -101,7 +101,7 @@
           <item row="0" column="1">
            <widget class="QLineEdit" name="firstImgText">
             <property name="text">
-             <string>Resources/images/box1.png</string>
+             <string>Resources/images/1_1.jpg</string>
             </property>
            </widget>
           </item>
@@ -628,7 +628,7 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="segmentationTabs">
               <property name="currentIndex">
-               <number>0</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="tabSegmentationWithout">
                <attribute name="title">
@@ -935,7 +935,7 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="detectorTabs">
               <property name="currentIndex">
-               <number>6</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="tabDetectorMinutiaeMme">
                <attribute name="title">
@@ -2010,7 +2010,7 @@ So a 100x100 image, with an initImgBound of 10, would create keypoints in the ce
                      <bool>false</bool>
                     </property>
                     <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If true, then keep only matches (i,j) such that for i-th query descriptor the j-th descriptor in the matcher’s collection is the &lt;span style=&quot; font-weight:600;&quot;&gt;nearest&lt;/span&gt; and vice versa. &lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; This is alternative to the &lt;span style=&quot; font-style:italic;&quot;&gt;In reverse test  &lt;/span&gt;in case of 1 to 1 image.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If true, then keep only matches (i,j) such that for i-th query descriptor the j-th descriptor in the matcher’s collection is the &lt;span style=&quot; font-weight:600;&quot;&gt;nearest&lt;/span&gt; and vice versa.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="text">
                      <string>Cross Check :</string>

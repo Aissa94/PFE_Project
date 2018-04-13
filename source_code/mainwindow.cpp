@@ -30,6 +30,10 @@
 	// Maches for knn = 2
 	std::vector<std::vector<std::vector<cv::DMatch>>> twoMatchesSet;
 
+	//Masks
+	cv::Mat matchingMask;
+	std::vector<cv::Mat> matchingMasks;
+
 // Operators Declaration
 	cv::FeatureDetector * ptrDetector;
 	cv::DescriptorExtractor * ptrDescriptor;
@@ -69,46 +73,43 @@ MainWindow::MainWindow(QWidget *parent) :
 	// Control check boxes
 	connect(ui->oneToN, &QCheckBox::toggled, [=](bool checked) {
 		if (checked){
-			/*ui->bddImageNames->setEnabled(true);
-			ui->viewMatchesImageNameText->setEnabled(true);
-			ui->viewTableImageNameText->setEnabled(true);*/
-			ui->matcherBruteForceCrossCheckLabel->setEnabled(false);
-			ui->matcherBruteForceCrossCheckText->setEnabled(false);
 			if (ui->matcher1toNtype1->isChecked()){
 				ui->matcherInlierLoweRatio->setEnabled(false);
 				ui->matcherInlierLoweRatioText->setEnabled(false);
 				ui->matcherInlierInversMatches->setEnabled(false);
 				ui->matcherInlierNoTest->setChecked(true);
 			}
-			//ui->secondImgText->textChanged(ui->secondImgText->text());
 		}
 		else {
-			/*ui->bddImageNames->setEnabled(false);
-			ui->viewMatchesImageNameText->setEnabled(false);
-			ui->viewTableImageNameText->setEnabled(false);*/
-			if (ui->matcherInlierNoTest->isChecked()){
-				ui->matcherBruteForceCrossCheckLabel->setEnabled(true);
-				ui->matcherBruteForceCrossCheckText->setEnabled(true);
-			}
 			ui->matcherInlierLoweRatio->setEnabled(true);
 			ui->matcherInlierLoweRatioText->setEnabled(true);
 			ui->matcherInlierInversMatches->setEnabled(true);
 		}
-	});
-	connect(ui->matcherInlierNoTest, &QCheckBox::toggled, [=](bool checked) {
-		if (checked){
-			if (!ui->oneToN->isChecked()){
-				ui->matcherBruteForceCrossCheckLabel->setEnabled(true);
-				ui->matcherBruteForceCrossCheckText->setEnabled(true);
-			}
+		if (!ui->matcherInlierLoweRatio->isChecked()){
+			ui->matcherBruteForceCrossCheckLabel->setDisabled(ui->matcherInlierLoweRatio->isChecked() || (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()));
+			ui->matcherBruteForceCrossCheckText->setDisabled(ui->matcherInlierLoweRatio->isChecked() || (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()));
 		}
-		else {
+	});
+	connect(ui->matcherInlierLoweRatio, &QCheckBox::toggled, [=](bool checked) {
+		if (checked){
 			ui->matcherBruteForceCrossCheckLabel->setEnabled(false);
 			ui->matcherBruteForceCrossCheckText->setEnabled(false);
+		}
+		else {
+			ui->matcherBruteForceCrossCheckLabel->setEnabled(true);
+			ui->matcherBruteForceCrossCheckText->setEnabled(true);
 		}
 	});
 	connect(ui->matcher1toNtype1, &QCheckBox::toggled, [=](bool checked) {
 		ui->matcherInlierNoTest->setChecked(true);
+		if (checked){
+			ui->matcherBruteForceCrossCheckLabel->setEnabled(false);
+			ui->matcherBruteForceCrossCheckText->setEnabled(false);
+		}
+		else {
+			ui->matcherBruteForceCrossCheckLabel->setEnabled(true);
+			ui->matcherBruteForceCrossCheckText->setEnabled(true);
+		}
 	});
 
 	this->setWindowState(Qt::WindowMaximized);
@@ -343,7 +344,7 @@ void MainWindow::runCustom()
 	customisingMatcher(matcherIndex, matcherName);
 
 	// Find the matching points
-	matching();
+	if (!matching()) return;
 
 	ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + clusteringTime + matchingTime) + " (s)");
 
@@ -420,6 +421,9 @@ void MainWindow::on_pushButton_pressed()
 
 	// Create a test folder ...
 	if (!createTestFolder()) return;
+
+	if(oneToN) matchingMasks = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
+	else matchingMask = cv::Mat();
 
 	// Launch the algorithm
 	switch (ui->allMethodsTabs->currentIndex())
@@ -983,9 +987,7 @@ void MainWindow::resetParams()
 		directMatches.clear(); inverseMatches.clear(); twoMatches.clear(); goodMatches.clear(); badMatches.clear();
 		directMatchesSet.clear(); inverseMatchesSet.clear(); twoMatchesSet.clear(); goodMatchesSet.clear(); badMatchesSet.clear();
 		sumDistancesSet.clear(); scoreSet.clear();
-		//delete ptrDetector;
-		//delete ptrDescriptor;
-		//delete ptrMatcher;
+		matchingMask.release(); matchingMasks.clear();
 	}
 	catch (...){
 		ui->logPlainText->appendHtml("<b style='color:yellow'>Enable to free some structures!</b>");
@@ -1182,9 +1184,9 @@ void MainWindow::displayMatches(int imgIndex){
 		QStandardItem *y1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.y));
 		model->setItem(i, 1, y1);
 		if (oneToN){
-			QStandardItem *x2 = new QStandardItem(QString::number(setImgsKeypoints[match.imgIdx][match.trainIdx].pt.x));
+			QStandardItem *x2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.x));
 			model->setItem(i, 2, x2);
-			QStandardItem *y2 = new QStandardItem(QString::number(setImgsKeypoints[match.imgIdx][match.trainIdx].pt.y));
+			QStandardItem *y2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.y));
 			model->setItem(i, 3, y2);
 		}
 		else{
@@ -1208,9 +1210,9 @@ void MainWindow::displayMatches(int imgIndex){
 		QStandardItem *y1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.y));
 		model->setItem(i, 1, y1);
 		if (oneToN){
-			QStandardItem *x2 = new QStandardItem(QString::number(setImgsKeypoints[match.imgIdx][match.trainIdx].pt.x));
+			QStandardItem *x2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.x));
 			model->setItem(i, 2, x2);
-			QStandardItem *y2 = new QStandardItem(QString::number(setImgsKeypoints[match.imgIdx][match.trainIdx].pt.y));
+			QStandardItem *y2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.y));
 			model->setItem(i, 3, y2);
 		}
 		else{
@@ -1513,31 +1515,22 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			// also we must add the Adapting time to detection time
 			detectionTime += adapter.adapt(firstMinutiae);
 			if (oneToN)
-			{
-				for (int i = 0; i < setImgs.size(); i++){
-					detectionTime += adapter.adapt(setMinutiaes[i]);
-				}
-			}
+				for (int i = 0; i < setImgs.size(); i++) detectionTime += adapter.adapt(setMinutiaes[i]);
 			else detectionTime += adapter.adapt(secondMinutiae);
-			for (Minutiae minutiae : firstMinutiae)
-			{
-				firstImgKeypoints.push_back(minutiae);
-			}
+			for (Minutiae minutiae : firstMinutiae) firstImgKeypoints.push_back(minutiae);
 			if (oneToN)
 			{
 				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
-				int i = 0;
-				for (std::vector<Minutiae> minutiaes : setMinutiaes){
-					for (Minutiae minutiae : minutiaes)
-					{
-						setImgsKeypoints[i].push_back(minutiae);
-					}
-					i++;
+				for (int i = 0; i < setImgs.size(); i++){
+					for (Minutiae minutiae : setMinutiaes[i]) setImgsKeypoints[i].push_back(minutiae);
+					// use masks to matche minutiae of the same type
+					matchingMasks[i] = maskMatchesByMinutiaeNature(firstMinutiae, setMinutiaes[i]);
 				}
 			}
-			else for (Minutiae minutiae : secondMinutiae)
-			{
-				secondImgKeypoints.push_back(minutiae);
+			else {
+				for (Minutiae minutiae : secondMinutiae) secondImgKeypoints.push_back(minutiae);
+				// use masks to matche minutiae of the same type
+				matchingMask = maskMatchesByMinutiaeNature(firstMinutiae, secondMinutiae);
 			}
 		}
 		catch (...){
@@ -1588,31 +1581,22 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			// also we must add the Adapting time to detection time
 			detectionTime += adapter.adapt(firstMinutiae);
 			if (oneToN)
-			{
-				for (std::vector<Minutiae> &minutiaes : setMinutiaes){
-					detectionTime += adapter.adapt(minutiaes);
-				}
-			}
+				for (int i = 0; i < setImgs.size(); i++) detectionTime += adapter.adapt(setMinutiaes[i]);
 			else detectionTime += adapter.adapt(secondMinutiae);
-			for (Minutiae minutiae : firstMinutiae)
-			{
-				firstImgKeypoints.push_back(minutiae);
-			}
+			for (Minutiae minutiae : firstMinutiae) firstImgKeypoints.push_back(minutiae);
 			if (oneToN)
 			{
 				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
-				int i = 0;
-				for (std::vector<Minutiae> minutiaes : setMinutiaes){
-					for (Minutiae minutiae : minutiaes)
-					{
-						setImgsKeypoints[i].push_back(minutiae);
-					}
-					i++;
+				for (int i = 0; i < setImgs.size(); i++){
+					for (Minutiae minutiae : setMinutiaes[i]) setImgsKeypoints[i].push_back(minutiae);
+					// use masks to matche minutiae of the same type
+					matchingMasks[i] = maskMatchesByMinutiaeNature(firstMinutiae, setMinutiaes[i]);
 				}
 			}
-			else for (Minutiae minutiae : secondMinutiae)
-			{
-				secondImgKeypoints.push_back(minutiae);
+			else {
+				for (Minutiae minutiae : secondMinutiae) secondImgKeypoints.push_back(minutiae);
+				// use masks to matche minutiae of the same type
+				matchingMask = maskMatchesByMinutiaeNature(firstMinutiae, secondMinutiae);
 			}
 		}
 		catch (...){
@@ -1844,7 +1828,7 @@ void MainWindow::customisingMatcher(int matcherIndex, std::string matcherName){
 	writeToFile("matcher_" + matcherName, ptrMatcher);
 }
 
-void MainWindow::matching(){
+bool MainWindow::matching(){
 	// Start matching ...
 	try{
 		if (ui->matcherInlierNoTest->isChecked() || ui->matcherInlierInversMatches->isChecked()){
@@ -1854,26 +1838,39 @@ void MainWindow::matching(){
 				if (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()){
 					ptrMatcher->add(setImgsDescriptors);
 					//ptrMatcher->train();
-					ptrMatcher->match(firstImgDescriptor, directMatches);
+					ptrMatcher->match(firstImgDescriptor, directMatches, matchingMasks);
 				}
 				else {//(ui->matcher1toNtype2->isChecked())
 					directMatchesSet = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
 					for (int i = 0; i < setImgs.size(); i++){
-						ptrMatcher->match(firstImgDescriptor, setImgsDescriptors[i], directMatchesSet[i]);
+						ptrMatcher->match(firstImgDescriptor, setImgsDescriptors[i], directMatchesSet[i], matchingMasks[i]);
 					}
 				}
 			}
-			else ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches);
+			else {
+				ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches, matchingMask);
+			}
 
 			if (ui->matcherInlierInversMatches->isEnabled() && ui->matcherInlierInversMatches->isChecked()){
 				// Also the best match in reverse
+				cv::Mat inverseMatchingMask;
 				if (oneToN){
 					inverseMatchesSet = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
 					for (int i = 0; i < setImgs.size(); i++){
-						ptrMatcher->match(setImgsDescriptors[i], firstImgDescriptor, inverseMatchesSet[i]);
+						try{
+							inverseMatchingMask = matchingMasks[i].t();
+						}
+						catch (cv::Exception){ inverseMatchingMask = cv::Mat(); }
+						ptrMatcher->match(setImgsDescriptors[i], firstImgDescriptor, inverseMatchesSet[i], inverseMatchingMask);
 					}
 				}
-				else ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches);
+				else {
+					try{
+						inverseMatchingMask = matchingMask.t();
+					}
+					catch (cv::Exception){ inverseMatchingMask = cv::Mat(); }
+					ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches, inverseMatchingMask);
+				}
 			}
 			matchingTime = ((double)cv::getTickCount() - matchingTime) / cv::getTickFrequency();
 		}
@@ -1883,22 +1880,23 @@ void MainWindow::matching(){
 			if (oneToN){
 				twoMatchesSet = std::vector<std::vector<std::vector<cv::DMatch>>>(setImgs.size(), std::vector<std::vector<cv::DMatch>>());
 				for (int i = 0; i < setImgs.size(); i++){
-					ptrMatcher->knnMatch(firstImgDescriptor, setImgsDescriptors[i], twoMatchesSet[i], 2);
+					ptrMatcher->knnMatch(firstImgDescriptor, setImgsDescriptors[i], twoMatchesSet[i], 2, matchingMasks[i]);
 				}
 			}
-			else ptrMatcher->knnMatch(firstImgDescriptor, secondImgDescriptor, twoMatches, 2);
+			else ptrMatcher->knnMatch(firstImgDescriptor, secondImgDescriptor, twoMatches, 2, matchingMask);
 			matchingTime = ((double)cv::getTickCount() - matchingTime) / cv::getTickFrequency();
 		}
 	}
 	catch (cv::Exception e){
 		// For example Flann-Based doesn't work with Brief desctiptor extractor
 		// And also, some descriptors must be used with specific NORM_s
-		if (ui->matcherTabs->currentIndex() == 0 && oneToN && ui->matcherBruteForceCrossCheckText->isEnabled() && ui->matcherBruteForceCrossCheckText->isChecked())
-			ui->logPlainText->appendHtml("<b style='color:orange'>Set <i>Cross Check</i> in Brute Force as false while testing 1 to N images!.</b>");
+		if (ui->matcherTabs->currentIndex() == 0 && ui->matcherBruteForceCrossCheckText->isEnabled() && ui->matcherBruteForceCrossCheckText->isChecked() && ui->detectorTabs->currentIndex()<2)
+			ui->logPlainText->appendHtml("<b style='color:orange'>Set <i>Cross Check</i> in Brute Force as false while matching Minutias!.</b>");
 		else ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one.</b>");
-		return;
+		return false;
 	}
 	ui->logPlainText->appendPlainText("matching time: " + QString::number(matchingTime) + " (s)");
+	return true;
 }
 
 void MainWindow::outlierElimination(){
@@ -1927,18 +1925,22 @@ void MainWindow::outlierElimination(){
 			if (lowesRatio <= 0 || 1 <= lowesRatio) {
 				ui->logPlainText->appendHtml("<b style='color:red'>Invalid Lowe's Ratio: " + QString::number(lowesRatio) + ", the default value is maintained!</b>");
 				lowesRatio = 0.7;
+				ui->matcherInlierLoweRatioText->setText("0.7");
 			}
 			for (int i = 0; i < setImgs.size(); i++){
 				sumDistancesSet[i] = testOfLowe(twoMatchesSet[i], lowesRatio, limitDistance, goodMatchesSet[i], badMatchesSet[i]);
 				
-				float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
-				float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
-				scoreSet[i] = 1.0 / average * goodProbability;
-				// update the best score index
-				if (scoreSet[i] > bestScore) {
-					bestScoreIndex = i;
-					bestScore = scoreSet[i];
+				if (goodMatchesSet[i].size() > 0){
+					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
+					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
+					scoreSet[i] = 1.0 / average * goodProbability;
+					// update the best score index
+					if (scoreSet[i] > bestScore) {
+						bestScoreIndex = i;
+						bestScore = scoreSet[i];
+					}
 				}
+				else scoreSet[i] = 0.0;
 			}
 		}
 		else if (ui->matcherInlierInversMatches->isEnabled() && ui->matcherInlierInversMatches->isChecked()){
@@ -1946,14 +1948,17 @@ void MainWindow::outlierElimination(){
 			for (int i = 0; i < setImgs.size(); i++){
 				sumDistancesSet[i] = testInReverse(directMatchesSet[i], inverseMatchesSet[i], firstImgKeypoints, setImgsKeypoints[i], limitDistance, goodMatchesSet[i], badMatchesSet[i]);
 				
-				float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
-				float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
-				scoreSet[i] = 1.0 / average * goodProbability;
-				// update the best score index
-				if (scoreSet[i] > bestScore) {
-					bestScoreIndex = i;
-					bestScore = scoreSet[i];
+				if (goodMatchesSet[i].size() > 0){
+					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
+					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
+					scoreSet[i] = 1.0 / average * goodProbability;
+					// update the best score index
+					if (scoreSet[i] > bestScore) {
+						bestScoreIndex = i;
+						bestScore = scoreSet[i];
+					}
 				}
+				else scoreSet[i] = 0.0;
 			}
 		}
 		else {
@@ -1969,14 +1974,17 @@ void MainWindow::outlierElimination(){
 					}
 				}
 				for (int i = 0; i < setImgs.size(); i++){
-					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
-					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
-					scoreSet[i] = 1.0 / average * goodProbability;
-					// update the best score index
-					if (scoreSet[i] > bestScore) {
-						bestScoreIndex = i;
-						bestScore = scoreSet[i];
+					if (goodMatchesSet[i].size() > 0){
+						float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
+						float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
+						scoreSet[i] = 1.0 / average * goodProbability;
+						// update the best score index
+						if (scoreSet[i] > bestScore) {
+							bestScoreIndex = i;
+							bestScore = scoreSet[i];
+						}
 					}
+					else scoreSet[i] = 0.0;
 				}
 			}
 			else {// Type2
@@ -1990,14 +1998,17 @@ void MainWindow::outlierElimination(){
 							badMatchesSet[i].push_back(directMatchesSet[i][j]);
 						}
 					}
-					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
-					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
-					scoreSet[i] = 1.0 / average * goodProbability;
-					// update the best score index
-					if (scoreSet[i] > bestScore) {
-						bestScoreIndex = i;
-						bestScore = scoreSet[i];
+					if (goodMatchesSet[i].size() > 0){
+						float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
+						float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
+						scoreSet[i] = 1.0 / average * goodProbability;
+						// update the best score index
+						if (scoreSet[i] > bestScore) {
+							bestScoreIndex = i;
+							bestScore = scoreSet[i];
+						}
 					}
+					else scoreSet[i] = 0.0;
 				}
 			}
 		}
@@ -2032,9 +2043,12 @@ void MainWindow::outlierElimination(){
 				}
 			}
 		}
-		float average = sumDistances / static_cast<float>(goodMatches.size());
-		float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size() + badMatches.size()) * 100;
-		score = 1.0 / average * goodProbability;
+		if (goodMatches.size() > 0){
+			float average = sumDistances / static_cast<float>(goodMatches.size());
+			float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size() + badMatches.size()) * 100;
+			score = 1.0 / average * goodProbability;
+		}
+		else score = 0.0;
 		if (score >= scoreThreshold) 
 			ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(score) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
 		else ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(score) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
@@ -2127,6 +2141,21 @@ float MainWindow::testInReverse(std::vector<cv::DMatch> directMatches, std::vect
 		AfterFindingAcceptedMatch_testInReverse_LABEL:;
 	}
 	return sumDistances;
+}
+
+cv::Mat MainWindow::maskMatchesByMinutiaeNature(std::vector<Minutiae> firstImgKeypoints, std::vector<Minutiae> secondImgKeypoints){
+	// To matche bifurcation with bifurcation and ridge ending with ridge ending...
+	// Only if keypoints are minutiae
+	cv::Mat mask = cv::Mat(firstImgKeypoints.size(), secondImgKeypoints.size(), CV_8UC1);
+	for (size_t i = 0; i < firstImgKeypoints.size(); i++)
+	{
+		for (size_t j = 0; j < secondImgKeypoints.size(); j++)
+		{
+			if (firstImgKeypoints[i].getType() == secondImgKeypoints[j].getType()) mask.at<uchar>(i, j) = 1;
+			else mask.at<uchar>(i, j) = 0;
+		}
+	}
+	return mask;
 }
 
 ExcelExportHelper::ExcelExportHelper(bool closeExcelOnExit)

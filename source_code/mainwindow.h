@@ -79,10 +79,11 @@ private:
 	void customisingDetector(int detectorIndex, std::string detectorName);
 	void customisingDescriptor(int descriptorIndex, std::string descriptorName);
 	void customisingMatcher(int matcherIndex, std::string matcherName);
-	void matching();
+	bool matching();
 	void outlierElimination();
 	void maskMatchesByTrainImgIdx(const std::vector<cv::DMatch> matches, int trainImgIdx, std::vector<char>& mask);
 	int computeRankK(float scoreThreshold);
+	cv::Mat maskMatchesByMinutiaeNature(std::vector<Minutiae> firstImgKeypoints, std::vector<Minutiae> secondImgKeypoints);
 
 	int fileCounter(std::string dir, std::string prefix, std::string suffix, std::string extension);
 	bool fileExistenceCheck(const std::string& name);
