@@ -727,14 +727,17 @@ void MainWindow::on_actionAbout_Me_triggered()
 }
 
 void MainWindow::on_refreshRankkGraph_pressed(){
-	std::vector<int> rankkDataFromExcel = {1, 1, 2, 3, 1, 8, 1, 2, 3, 5, 5, 10, 9, 13, 12, 13, 25, 23, 24, 2, 3, 6, 1, 1, 2, 3, 1, 8, 1, 2, 3, 5, 5, 10, 9, 13, 12, 13, 2, 3, 6, 5, 1 };
-	if (rankkDataFromExcel.size() > 0){
+	std::vector<int> rankkDataFromExcel = { 1, 1, 2, 3, 1, 8, 1, 2, 3, 5, 5, 10, 9, 13, 12, 13, 25, 23, 24, 2, 3, 6, 1, 1, 2, 3, 1, 8, 1, 2, 3, 5, 5, 10, 9, 13, 12, 13, 2, 3, 6, 5, 1 };
+	int maxRank = rankkDataFromExcel.size();
+	int nbRank0FromExcel = 20; // for example we have 5 rank-0
+	
+	if (maxRank > 0){
 		std::sort(rankkDataFromExcel.begin(), rankkDataFromExcel.end());
-		rankkData = std::vector<std::pair<int, float>>(rankkDataFromExcel[rankkDataFromExcel.size() - 1], std::pair<int, float>());
+		rankkData = std::vector<std::pair<int, float>>(rankkDataFromExcel[maxRank - 1], std::pair<int, float>());
 
-		int cpt = rankkDataFromExcel.size(), toretrive = 0;
-		rankkData[rankkDataFromExcel[rankkDataFromExcel.size() - 1] - 1] = std::make_pair(rankkDataFromExcel[rankkDataFromExcel.size() - 1], cpt);
-		for (int i = rankkDataFromExcel.size() - 2; i > 0; i--){
+		int cpt = maxRank, toretrive = 0;
+		rankkData[rankkDataFromExcel[maxRank - 1] - 1] = std::make_pair(rankkDataFromExcel[maxRank - 1], cpt);
+		for (int i = maxRank - 2; i > 0; i--){
 			if (rankkDataFromExcel[i] != rankkDataFromExcel[i + 1]) {
 				cpt--;
 				rankkData[rankkDataFromExcel[i] - 1] = std::make_pair(rankkDataFromExcel[i], cpt);
@@ -746,9 +749,10 @@ void MainWindow::on_refreshRankkGraph_pressed(){
 		{
 			if (rankkData[i].first == 0)rankkData[i] = std::make_pair(i + 1, rankkData[i - 1].second);
 		}
-
+		rankkData.insert(rankkData.begin(), std::make_pair<int, float>(0, static_cast<float>(nbRank0FromExcel) / static_cast<float>(maxRank + nbRank0FromExcel) * 100));
+		for (std::pair<int, float> p : rankkData)qDebug() << p.first<< " " << p.second;
 		connect(ui->graphWidget, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showRankkToolTip(QMouseEvent*)));
-		drowRankk(rankkDataFromExcel.size());
+		drowRankk(maxRank);
 	}
 	else {
 		showError("Show Rank-k Graph", "No data to show!", "You can Show Rank-k Graph after launching some tests!");
@@ -2319,8 +2323,30 @@ void MainWindow::drowRankk(int maxRank){
 	for (int i = 0; i < rankkData.size(); i++)
 	{
 		x[i] = rankkData[i].first;
-		rankkData[i].second = rankkData[i].second / static_cast<float>(maxRank) * 100;
+		if (x[i] != 0) rankkData[i].second = rankkData[i].second / static_cast<float>(maxRank)* 100;
 		y[i] = rankkData[i].second;
+
+		if (x[i] == 1 && y[i]!=0) {
+			// add the text label at the top:
+			QCPItemText *textLabel = new QCPItemText(ui->graphWidget);
+			textLabel->setPositionAlignment(Qt::AlignTop| Qt::AlignHCenter);
+			textLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+			textLabel->setText("Rank-1= "+QString::number(y[i])+"%");
+			textLabel->setFont(QFont(font().family(), 9)); // make font a bit larger
+			textLabel->setPen(QPen(Qt::black)); // show black border around text
+
+			// add the arrow:
+			QCPItemLine *arrow = new QCPItemLine(ui->graphWidget);
+			arrow->start->setParentAnchor(textLabel->top);
+			double yPos = 1 - y[i] / 100 + 0.05;
+			if (yPos > 0.9){
+				yPos -= 0.2;
+				arrow->start->setParentAnchor(textLabel->bottom);
+			}
+			textLabel->position->setCoords(0.10, yPos); // place position at center/top of axis rect
+			arrow->end->setCoords(x[i], y[i]); // point to rank-1 plot coordinates
+			arrow->setHead(QCPLineEnding::esSpikeArrow);
+		}
 	}
 	// create graph and assign data to it:
 	ui->graphWidget->addGraph();
@@ -2330,7 +2356,7 @@ void MainWindow::drowRankk(int maxRank){
 	ui->graphWidget->xAxis->setLabel("Rank");
 	ui->graphWidget->yAxis->setLabel("Percent %");
 	// set axes ranges, so we see all data:
-	ui->graphWidget->xAxis->setRange(0, 10);
+	ui->graphWidget->xAxis->setRange(0, x[x.size()-1]);
 	QCPAxisTickerFixed *fixedTicker = new QCPAxisTickerFixed();
 	fixedTicker->setTickStep(1);
 	ui->graphWidget->xAxis->setTicker(QSharedPointer<QCPAxisTickerFixed>(fixedTicker));
@@ -2346,6 +2372,7 @@ void MainWindow::drowRankk(int maxRank){
 	ui->graphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 	ui->graphWidget->axisRect()->setRangeDrag(Qt::Horizontal); // drag only on x
 	ui->graphWidget->axisRect()->setRangeZoom(Qt::Horizontal); // zoom only on x
+	
 	// drow
 	ui->graphWidget->replot();
 }
@@ -2355,8 +2382,8 @@ void MainWindow::showRankkToolTip(QMouseEvent *event)
 	float x = ui->graphWidget->xAxis->pixelToCoord(event->pos().x());
 	//int y = ui->graphWidget->yAxis->pixelToCoord(event->pos().y());
 	if (rankkData[0].first <= x && x <= rankkData[rankkData.size() - 1].first){
-		if (x <= (floor(x) + 0.5))setToolTip(QString("rank-%1 = %2%").arg(floor(x)).arg(rankkData[floor(x)-1].second));
-		else setToolTip(QString("rank-%1 = %2%").arg(floor(x) + 1).arg(rankkData[floor(x)].second));
+		if (x <= (floor(x) + 0.5))setToolTip(QString("rank-%1 = %2%").arg(floor(x)).arg(rankkData[floor(x)].second));
+		else setToolTip(QString("rank-%1 = %2%").arg(floor(x) + 1).arg(rankkData[floor(x)+1].second));
 	}
 	else setToolTip("");
 }
