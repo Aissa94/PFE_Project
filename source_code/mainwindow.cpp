@@ -33,6 +33,9 @@
 	//Masks
 	cv::Mat matchingMask;
 	std::vector<cv::Mat> matchingMasks;
+	
+	//Excel data
+	std::vector<std::pair<int, float>> rankkData;
 
 // Operators Declaration
 	cv::FeatureDetector * ptrDetector;
@@ -57,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 	// cusomizing ToolTips :
-	qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white;}");
+	//qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white;}");
     ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
 	
 	QPixmap pixmap1(":/start-img.png");
@@ -721,6 +724,36 @@ void MainWindow::on_actionAbout_Me_triggered()
                        "<br><br>Thanks"
                        "<br><br>GHOUILA Nabil & BELKAID Aïssa"
 					   "<br><br><a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>");
+}
+
+void MainWindow::on_refreshRankkGraph_pressed(){
+	std::vector<int> rankkDataFromExcel = {1, 1, 2, 3, 1, 8, 1, 2, 3, 5, 5, 10, 9, 13, 12, 13, 25, 23, 24, 2, 3, 6, 1, 1, 2, 3, 1, 8, 1, 2, 3, 5, 5, 10, 9, 13, 12, 13, 2, 3, 6, 5, 1 };
+	if (rankkDataFromExcel.size() > 0){
+		std::sort(rankkDataFromExcel.begin(), rankkDataFromExcel.end());
+		rankkData = std::vector<std::pair<int, float>>(rankkDataFromExcel[rankkDataFromExcel.size() - 1], std::pair<int, float>());
+
+		int cpt = rankkDataFromExcel.size(), toretrive = 0;
+		rankkData[rankkDataFromExcel[rankkDataFromExcel.size() - 1] - 1] = std::make_pair(rankkDataFromExcel[rankkDataFromExcel.size() - 1], cpt);
+		for (int i = rankkDataFromExcel.size() - 2; i > 0; i--){
+			if (rankkDataFromExcel[i] != rankkDataFromExcel[i + 1]) {
+				cpt--;
+				rankkData[rankkDataFromExcel[i] - 1] = std::make_pair(rankkDataFromExcel[i], cpt);
+			}
+			else cpt--;
+		}
+		if (rankkData[0].first == 0)rankkData[0] = std::make_pair(1, 0);
+		for (int i = 1; i < rankkData.size(); i++)
+		{
+			if (rankkData[i].first == 0)rankkData[i] = std::make_pair(i + 1, rankkData[i - 1].second);
+		}
+
+		connect(ui->graphWidget, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showRankkToolTip(QMouseEvent*)));
+		drowRankk(rankkDataFromExcel.size());
+	}
+	else {
+		showError("Show Rank-k Graph", "No data to show!", "You can Show Rank-k Graph after launching some tests!");
+		//disconnect(ui->graphWidget, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showRankkToolTip(QMouseEvent*)));
+	}
 }
 
 int MainWindow::computeRankK(float scoreThreshold){
@@ -2233,4 +2266,97 @@ ExcelExportHelper::~ExcelExportHelper()
 	delete m_workbook;
 	delete m_workbooks;
 	delete m_excelApplication;
+}
+
+void MainWindow::makePlot(){
+	// generate some data:
+	QVector<double> x(1001), y(1001); // initialize with entries 0..100
+	for (int i = 0; i<1001; ++i)
+	{
+		x[i] = i / 5.0; // x goes from 0 to 100
+		y[i] = x[i] * x[i]; // let's plot a quadratic function
+	}
+	// create graph and assign data to it:
+	ui->graphWidget->addGraph();
+	ui->graphWidget->graph(0)->setData(x, y);
+	ui->graphWidget->graph(0)->setName("y=x²");
+	ui->graphWidget->addGraph();
+	ui->graphWidget->graph(1)->setData(y, x);
+	ui->graphWidget->graph(1)->setName("y=sqrt(x)");
+	// give the axes some labels:
+	ui->graphWidget->xAxis->setLabel("x");
+	ui->graphWidget->yAxis->setLabel("y");
+	// set axes ranges, so we see all data:
+	ui->graphWidget->xAxis->setRange(0, 5);
+	ui->graphWidget->yAxis->setRange(0, 10);
+	// set legend
+	ui->graphWidget->legend->setVisible(true);
+	ui->graphWidget->legend->setFont(QFont("Helvetica", 9));
+	// set locale to english, so we get english decimal separator:
+	ui->graphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
+	// configuration:
+	QPen pen;
+	pen.setStyle(Qt::DotLine);
+	pen.setWidth(1);
+	pen.setColor(QColor(180, 180, 180));
+	pen.setStyle(Qt::DashLine);
+	pen.setWidth(2);
+	pen.setColor(Qt::red);
+
+	ui->graphWidget->graph(1)->setPen(pen);
+	ui->graphWidget->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 9));
+	ui->graphWidget->graph(0)->setPen(QPen(QColor(120, 120, 120), 2));
+	ui->graphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes | QCP::iSelectLegend | QCP::iSelectPlottables | QCP::iMultiSelect);
+	ui->graphWidget->xAxis->setSelectableParts(QCPAxis::spAxisLabel | QCPAxis::spAxis | QCPAxis::spTickLabels);
+	ui->graphWidget->yAxis->setSelectableParts(QCPAxis::spAxisLabel | QCPAxis::spAxis | QCPAxis::spTickLabels);
+	ui->graphWidget->replot();
+}
+
+void MainWindow::drowRankk(int maxRank){
+	// drow Rank-k gragh
+	// generate data:
+	QVector<double> x(rankkData.size()), y(rankkData.size());
+	for (int i = 0; i < rankkData.size(); i++)
+	{
+		x[i] = rankkData[i].first;
+		rankkData[i].second = rankkData[i].second / static_cast<float>(maxRank) * 100;
+		y[i] = rankkData[i].second;
+	}
+	// create graph and assign data to it:
+	ui->graphWidget->addGraph();
+	ui->graphWidget->graph(0)->setData(x, y);
+	ui->graphWidget->graph(0)->setName("Rank-k");
+	// give the axes some labels:
+	ui->graphWidget->xAxis->setLabel("Rank");
+	ui->graphWidget->yAxis->setLabel("Percent %");
+	// set axes ranges, so we see all data:
+	ui->graphWidget->xAxis->setRange(0, 10);
+	QCPAxisTickerFixed *fixedTicker = new QCPAxisTickerFixed();
+	fixedTicker->setTickStep(1);
+	ui->graphWidget->xAxis->setTicker(QSharedPointer<QCPAxisTickerFixed>(fixedTicker));
+	ui->graphWidget->yAxis->setRange(0, 110);
+	// set legend
+	ui->graphWidget->legend->setVisible(true);
+	ui->graphWidget->legend->setFont(QFont("Helvetica", 9));
+	// set locale to english, so we get english decimal separator:
+	ui->graphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
+	// configuration:
+	ui->graphWidget->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 9));
+	ui->graphWidget->graph(0)->setPen(QPen(QColor(120, 120, 120), 2));
+	ui->graphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+	ui->graphWidget->axisRect()->setRangeDrag(Qt::Horizontal); // drag only on x
+	ui->graphWidget->axisRect()->setRangeZoom(Qt::Horizontal); // zoom only on x
+	// drow
+	ui->graphWidget->replot();
+}
+
+void MainWindow::showRankkToolTip(QMouseEvent *event)
+{
+	float x = ui->graphWidget->xAxis->pixelToCoord(event->pos().x());
+	//int y = ui->graphWidget->yAxis->pixelToCoord(event->pos().y());
+	if (rankkData[0].first <= x && x <= rankkData[rankkData.size() - 1].first){
+		if (x <= (floor(x) + 0.5))setToolTip(QString("rank-%1 = %2%").arg(floor(x)).arg(rankkData[floor(x)-1].second));
+		else setToolTip(QString("rank-%1 = %2%").arg(floor(x) + 1).arg(rankkData[floor(x)].second));
+	}
+	else setToolTip("");
 }

@@ -38,9 +38,13 @@ private slots:
 
     void on_actionAbout_Qt_triggered();
 
-    void on_actionAbout_Me_triggered();
+	void on_actionAbout_Me_triggered();
 
-	void displayMatches(int bestImgIndex = 0);
+	void on_refreshRankkGraph_pressed();
+
+	void displayMatches(int bestImgIndex = 0); 
+	
+	void showRankkToolTip(QMouseEvent *event);
 
 private:
     QString outputImagesPath;
@@ -51,7 +55,6 @@ private:
     void runORB();
 	void runBRISK();
 	void runCustom();
-	void runCustom_old();
 	bool readFirstImage();
 	bool readSecondImage();
 	bool readSetOfImages();
@@ -88,6 +91,9 @@ private:
 	int fileCounter(std::string dir, std::string prefix, std::string suffix, std::string extension);
 	bool fileExistenceCheck(const std::string& name);
 	void showError(std::string title, std::string text, std::string e_msg = "");
+
+	void drowRankk(int maxRank);
+	void makePlot();
 };
 
 #endif // MAINWINDOW_H

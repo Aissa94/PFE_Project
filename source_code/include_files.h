@@ -41,6 +41,7 @@
 #include "file-reader\tinydir.h"
 #include "dualMod\DualModeI.h"
 #include "ExcelExportHelper.h"
+#include "graph\qcustomplot.h"
 
 // Dr :
 #include "image-processing\image_processing.h"
