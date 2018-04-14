@@ -731,6 +731,10 @@ void MainWindow::on_refreshRankkGraph_pressed(){
 	int maxRank = rankkDataFromExcel.size();
 	int nbRank0FromExcel = 20; // for example we have 5 rank-0
 	
+	if (ui->graphWidget->graphCount()){ 
+		ui->graphWidget->clearGraphs();
+		ui->graphWidget->clearItems();
+	}
 	if (maxRank > 0){
 		std::sort(rankkDataFromExcel.begin(), rankkDataFromExcel.end());
 		rankkData = std::vector<std::pair<int, float>>(rankkDataFromExcel[maxRank - 1], std::pair<int, float>());
