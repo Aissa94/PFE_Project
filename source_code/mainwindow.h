@@ -42,9 +42,14 @@ private slots:
 
 	void on_refreshRankkGraph_pressed();
 
+	void on_refreshEerGraph_pressed();
+
 	void displayMatches(int bestImgIndex = 0); 
 	
 	void showRankkToolTip(QMouseEvent *event);
+
+	void showEerToolTip(QVector<double>xFMRsplined, QVector<double>yFMRsplined, QVector<double>xFNMRsplined, QVector<double>yFNMRsplined, QMouseEvent *event);
+
 
 private:
     QString outputImagesPath;
@@ -87,12 +92,14 @@ private:
 	void maskMatchesByTrainImgIdx(const std::vector<cv::DMatch> matches, int trainImgIdx, std::vector<char>& mask);
 	int computeRankK(float scoreThreshold);
 	cv::Mat maskMatchesByMinutiaeNature(std::vector<Minutiae> firstImgKeypoints, std::vector<Minutiae> secondImgKeypoints);
+	void showDecision();
 
 	int fileCounter(std::string dir, std::string prefix, std::string suffix, std::string extension);
 	bool fileExistenceCheck(const std::string& name);
 	void showError(std::string title, std::string text, std::string e_msg = "");
 
 	void drowRankk(int maxRank);
+	void drowEer(std::vector <std::tuple<float, int, int>> FMR_dataFromExcel, std::vector <std::tuple<float, int, int>> FNMR_dataFromExcel);
 	void makePlot();
 };
 

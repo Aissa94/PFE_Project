@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1150</width>
-    <height>658</height>
+    <height>687</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -68,7 +68,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="1" column="1" colspan="2">
            <widget class="QLineEdit" name="secondImgText">
             <property name="text">
              <string>D:/ESI/Empreinte/Data/JPG-complet</string>
@@ -78,27 +78,27 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="5">
+          <item row="1" column="4">
            <widget class="QCheckBox" name="oneToN">
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of choosing the second image, select a folder to an image set.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; If the folder contains only one image it will be considered as (1 to 1).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>1 to N images</string>
+             <string>1 to N</string>
             </property>
             <property name="checked">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="1" column="5">
+          <item row="2" column="1" colspan="2">
            <widget class="QComboBox" name="bddImageNames">
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the image which is similar to the First image&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; this will be used to calculate Rank-k.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="1" colspan="2">
            <widget class="QLineEdit" name="firstImgText">
             <property name="text">
              <string>Resources/images/1_1.jpg</string>
@@ -119,7 +119,17 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="4">
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="imageExistsInBdd">
+            <property name="text">
+             <string>First image exists in Bdd</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
            <widget class="QPushButton" name="refreshBddImageNames">
             <property name="cursor">
              <cursorShape>PointingHandCursor</cursorShape>
@@ -2687,24 +2697,44 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="viewGraph">
+      <widget class="QWidget" name="viewRankkGraph">
        <attribute name="title">
         <string>Rank-k</string>
        </attribute>
-       <layout class="QGridLayout" name="viewGraphGridLayoutTab">
+       <layout class="QGridLayout" name="viewRankkGraphGridLayoutTab">
         <item row="1" column="0">
-         <widget class="QCustomPlot" name="graphWidget" native="true"/>
+         <widget class="QCustomPlot" name="rankkGraphWidget" native="true"/>
         </item>
         <item row="0" column="0">
-           <widget class="QPushButton" name="refreshRankkGraph">
-            <property name="cursor">
-             <cursorShape>PointingHandCursor</cursorShape>
-            </property>
-            <property name="text">
-             <string>Show Rank-k Graph</string>
-            </property>
-           </widget>
-          </item>
+         <widget class="QPushButton" name="refreshRankkGraph">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>Show Rank-k Graph</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="viewErrGraph">
+       <attribute name="title">
+        <string>EER</string>
+       </attribute>
+       <layout class="QGridLayout" name="viewEerGraphGridLayoutTab">
+        <item row="1" column="0">
+         <widget class="QCustomPlot" name="eerGraphWidget" native="true"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QPushButton" name="refreshEerGraph">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>Show EER Graph</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </widget>
@@ -2930,12 +2960,12 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>120</x>
-     <y>215</y>
+     <x>133</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
-     <x>120</x>
-     <y>220</y>
+     <x>133</x>
+     <y>264</y>
     </hint>
    </hints>
   </connection>
@@ -2946,12 +2976,12 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>120</x>
-     <y>215</y>
+     <x>133</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
-     <x>77</x>
-     <y>220</y>
+     <x>90</x>
+     <y>264</y>
     </hint>
    </hints>
   </connection>
@@ -2963,11 +2993,11 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <hints>
     <hint type="sourcelabel">
      <x>264</x>
-     <y>472</y>
+     <y>501</y>
     </hint>
     <hint type="destinationlabel">
      <x>403</x>
-     <y>474</y>
+     <y>503</y>
     </hint>
    </hints>
   </connection>
@@ -2979,11 +3009,11 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <hints>
     <hint type="sourcelabel">
      <x>125</x>
-     <y>498</y>
+     <y>527</y>
     </hint>
     <hint type="destinationlabel">
      <x>264</x>
-     <y>500</y>
+     <y>529</y>
     </hint>
    </hints>
   </connection>
@@ -2995,11 +3025,11 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <hints>
     <hint type="sourcelabel">
      <x>482</x>
-     <y>81</y>
+     <y>110</y>
     </hint>
     <hint type="destinationlabel">
-     <x>153</x>
-     <y>412</y>
+     <x>167</x>
+     <y>456</y>
     </hint>
    </hints>
   </connection>
@@ -3011,11 +3041,11 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <hints>
     <hint type="sourcelabel">
      <x>482</x>
-     <y>81</y>
+     <y>110</y>
     </hint>
     <hint type="destinationlabel">
-     <x>349</x>
-     <y>427</y>
+     <x>375</x>
+     <y>456</y>
     </hint>
    </hints>
   </connection>
@@ -3027,11 +3057,11 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <hints>
     <hint type="sourcelabel">
      <x>482</x>
-     <y>81</y>
+     <y>110</y>
     </hint>
     <hint type="destinationlabel">
-     <x>530</x>
-     <y>427</y>
+     <x>550</x>
+     <y>456</y>
     </hint>
    </hints>
   </connection>
@@ -3042,12 +3072,12 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>422</x>
-     <y>417</y>
+     <x>550</x>
+     <y>456</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>462</y>
+     <x>264</x>
+     <y>501</y>
     </hint>
    </hints>
   </connection>
@@ -3058,44 +3088,12 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>499</x>
-     <y>421</y>
+     <x>550</x>
+     <y>456</y>
     </hint>
     <hint type="destinationlabel">
-     <x>488</x>
-     <y>469</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>oneToN</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>refreshBddImageNames</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>449</x>
-     <y>69</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>364</x>
-     <y>107</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>oneToN</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>bddImageNames</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>472</x>
-     <y>69</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>467</x>
-     <y>100</y>
+     <x>550</x>
+     <y>501</y>
     </hint>
    </hints>
   </connection>
@@ -3106,8 +3104,8 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>430</x>
-     <y>74</y>
+     <x>482</x>
+     <y>110</y>
     </hint>
     <hint type="destinationlabel">
      <x>902</x>
@@ -3122,8 +3120,8 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>430</x>
-     <y>69</y>
+     <x>482</x>
+     <y>110</y>
     </hint>
     <hint type="destinationlabel">
      <x>941</x>
@@ -3131,9 +3129,89 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>oneToN</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>imageExistsInBdd</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>408</x>
+     <y>98</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>63</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>imageExistsInBdd</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>bddImageNames</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>52</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>196</x>
+     <y>135</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>imageExistsInBdd</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>refreshBddImageNames</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>366</x>
+     <y>132</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>oneToN</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>bddImageNames</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>482</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>317</x>
+     <y>140</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>oneToN</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>refreshBddImageNames</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>482</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
+     <y>142</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="typeOfMatchButtonGroup"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="typeOfMatchButtonGroup"/>
  </buttongroups>
 </ui>
