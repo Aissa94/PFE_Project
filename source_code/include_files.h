@@ -15,6 +15,7 @@
 #include <string>
 #include <ctime>
 #include <functional>
+#include <map>
 
 // Include Qt
 #include <QMainWindow>

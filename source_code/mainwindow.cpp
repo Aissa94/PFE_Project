@@ -889,10 +889,32 @@ void MainWindow::on_refreshRankkGraph_pressed(){
 }
 
 void MainWindow::on_refreshEerGraph_pressed(){
-	std::vector <std::tuple<float, int, int>>/*<threshold, nbFM, nbExists>*/ FMR_dataFromExcel
-		= { std::make_tuple<float, int, int>(10, 65, 70), std::make_tuple<float, int, int>(15, 89, 100), std::make_tuple<float, int, int>(80, 45, 70), std::make_tuple<float, int, int>(100, 35, 77), std::make_tuple<float, int, int>(230, 20, 100), std::make_tuple<float, int, int>(400, 5, 80), std::make_tuple<float, int, int>(500, 0, 10) };
-	std::vector <std::tuple<float, int, int>>/*<threshold, nbFNM, nbNonExists>*/ FNMR_dataFromExcel
-		= { std::make_tuple<float, int, int>(18, 0, 10), std::make_tuple<float, int, int>(25, 5, 80), std::make_tuple<float, int, int>(30, 20, 100), std::make_tuple<float, int, int>(50, 35, 77), std::make_tuple<float, int, int>(105, 45, 70), std::make_tuple<float, int, int>(190, 80, 100), std::make_tuple<float, int, int>(260, 88, 100), std::make_tuple<float, int, int>(410, 120, 130), std::make_tuple<float, int, int>(580, 70, 75) };
+	std::map<float, std::pair<int, int>>/*<threshold, <nbFM, nbNonExists>>*/ FMR_dataFromExcel
+		= { { 10, std::make_pair<int, int>(65, 70) }, { 15, std::make_pair<int, int>(89, 100) }, { 80, std::make_pair<int, int>(45, 70) }, { 100, std::make_pair<int, int>(35, 77) }, { 230, std::make_pair<int, int>(20, 100) }, { 400, std::make_pair<int, int>(5, 80) }, { 500, std::make_pair<int, int>(0, 10) } };
+	std::map<float, std::pair<int, int>>/*<threshold, <nbFNM, nbExists>>*/ FNMR_dataFromExcel
+		= { { 18, std::make_pair<int, int>(0, 10) }, { 25, std::make_pair<int, int>(5, 80) }, { 30, std::make_pair<int, int>(20, 100) }, { 50, std::make_pair<int, int>(35, 77) }, { 105, std::make_pair<int, int>(45, 70) }, { 190, std::make_pair<int, int>(80, 100) }, { 260, std::make_pair<int, int>(88, 100) }, { 410, std::make_pair<int, int>(120, 130) }, { 580, std::make_pair<int, int>(70, 75) } };
+	
+	std::map<float, std::pair<int, int>>::iterator it;
+	FMR_dataFromExcel.insert({ 9, std::make_pair<int, int>(99, 999) });
+
+	for (it = FMR_dataFromExcel.begin(); it != FMR_dataFromExcel.end(); ++it){
+		qDebug() << it->first << ": " << it->second.first << ", " << it->second.second;
+	}
+
+	qDebug() << "===========================";
+	FMR_dataFromExcel.insert({ 11, std::make_pair<int, int>(11, 111) });
+
+	for (it = FMR_dataFromExcel.begin(); it != FMR_dataFromExcel.end(); ++it){
+		qDebug() << it->first << ": " << it->second.first << ", " << it->second.second;
+	}
+
+	qDebug() << "===========================";
+	FMR_dataFromExcel.insert({ 9, std::make_pair<int, int>(999, 111) });
+
+	for (it = FMR_dataFromExcel.begin(); it != FMR_dataFromExcel.end(); ++it){
+		qDebug() << it->first << ": " << it->second.first << ", " << it->second.second;
+	}
+
 	if (ui->eerGraphWidget->graphCount()){
 		ui->eerGraphWidget->clearGraphs();
 		ui->eerGraphWidget->clearItems();
@@ -2807,10 +2829,10 @@ void MainWindow::showRankkToolTip(QMouseEvent *event)
 	else setToolTip("");
 }
 
-void MainWindow::drowEer(std::vector <std::tuple<float, int, int>> FMR_dataFromExcel, std::vector <std::tuple<float, int, int>> FNMR_dataFromExcel){
+void MainWindow::drowEer(std::map<float, std::pair<int, int>> FMR_dataFromExcel, std::map<float, std::pair<int, int>> FNMR_dataFromExcel){
 	// drow ERR gragh
 	// generate data:
-	QVector<double> xFMR(FMR_dataFromExcel.size()), yFMR(FMR_dataFromExcel.size());
+	/*QVector<double> xFMR(FMR_dataFromExcel.size()), yFMR(FMR_dataFromExcel.size());
 	QVector<double> xFNMR(FNMR_dataFromExcel.size()), yFNMR(FNMR_dataFromExcel.size());
 	for (int i = 0; i < FMR_dataFromExcel.size(); i++)
 	{
@@ -2883,36 +2905,40 @@ void MainWindow::drowEer(std::vector <std::tuple<float, int, int>> FMR_dataFromE
 	ui->eerGraphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 	ui->eerGraphWidget->axisRect()->setRangeDrag(Qt::Horizontal); // drag only on x
 	ui->eerGraphWidget->axisRect()->setRangeZoom(Qt::Horizontal); // zoom only on x
-	
+	*/
 	// drow
 	ui->eerGraphWidget->replot();
 
-	connect(ui->eerGraphWidget, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showEerToolTip(xFMRsplined, yFMRsplined, xFNMRsplined, yFNMRsplined, QMouseEvent*)));
+	connect(ui->eerGraphWidget, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showEerToolTip(QMouseEvent*)));
 }
 
-void MainWindow::showEerToolTip(QVector<double>xFMRsplined, QVector<double>yFMRsplined, QVector<double>xFNMRsplined, QVector<double>yFNMRsplined, QMouseEvent *event)
+void MainWindow::showEerToolTip(QMouseEvent *event)
 {
-	float x = ui->eerGraphWidget->xAxis->pixelToCoord(event->pos().x());
-	int y = ui->eerGraphWidget->yAxis->pixelToCoord(event->pos().y());
+	int x = ui->eerGraphWidget->xAxis->pixelToCoord(event->pos().x());
+	double y = ui->eerGraphWidget->yAxis->pixelToCoord(event->pos().y());
 
-	double old_x;
-	auto it = std::find(xFMRsplined.begin(), xFMRsplined.end(), old_x);
-	if (it == xFMRsplined.end())
+	/*auto itX = std::find(xFMRsplined.begin(), xFMRsplined.end(), x);
+	auto itY = std::find(yFMRsplined.begin(), yFMRsplined.end(), y);
+	if (itX != xFMRsplined.end() && itY != yFMRsplined.end())
 	{
-		auto it = std::find(xFNMRsplined.begin(), xFNMRsplined.end(), old_x);
-		if (it == xFNMRsplined.end())
-		{
-			setToolTip("");
-		}
-		else
-		{
-			auto index = std::distance(xFNMRsplined.begin(), it);
-			setToolTip(QString("(%1, %2%)").arg(xFNMRsplined[index]).arg(yFNMRsplined[index]));
-		}
+		int i = std::distance(xFMRsplined.begin(), itX);
+		int j = std::distance(yFMRsplined.begin(), itY);
+		setToolTip(QString("(%1, %2%)").arg(x).arg(y));
 	}
 	else
 	{
-		auto index = std::distance(xFMRsplined.begin(), it);
-		setToolTip(QString("(%1, %2%)").arg(xFMRsplined[index]).arg(yFMRsplined[index]));
-	}
+		auto itX = std::find(xFNMRsplined.begin(), xFNMRsplined.end(), x);
+		//auto itY = std::find(yFNMRsplined.begin(), yFNMRsplined.end(), y);
+		if (itX != xFNMRsplined.end() && itY != yFNMRsplined.end())
+		{
+			int i = std::distance(xFNMRsplined.begin(), itX);
+			int j = std::distance(yFNMRsplined.begin(), itY);
+			setToolTip(QString("(%1, %2%)").arg(x).arg(y));
+		}
+		else
+		{
+			setToolTip("");
+		}
+	}*/
+	setToolTip(QString("(%1, %2%)").arg(x).arg(y));
 }
