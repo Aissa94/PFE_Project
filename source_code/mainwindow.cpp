@@ -234,6 +234,9 @@ void MainWindow::runSURF()
 	bool extended = ui->surfExtendedText->isChecked();
 	bool upright = !ui->surfUprightText->isChecked();
 
+	// Create SURF Objects ...
+    cv::SURF surfDetector(hessainThreshold, nOctaves, nOctaveLayers, extended, upright);
+
     // Detecting Keypoints ...
     surfDetector.detect(firstImg, firstImgKeypoints);
 	surfDetector.detect(secondImg, secondImgKeypoints);
@@ -924,28 +927,7 @@ void MainWindow::on_refreshEerGraph_pressed(){
 		= { { 10, std::make_pair<int, int>(65, 70) }, { 15, std::make_pair<int, int>(89, 100) }, { 80, std::make_pair<int, int>(45, 70) }, { 100, std::make_pair<int, int>(35, 77) }, { 230, std::make_pair<int, int>(20, 100) }, { 400, std::make_pair<int, int>(5, 80) }, { 500, std::make_pair<int, int>(0, 10) } };
 	std::map<float, std::pair<int, int>>/*<threshold, <nbFNM, nbExists>>*/ FNMR_dataFromExcel
 		= { { 18, std::make_pair<int, int>(0, 10) }, { 25, std::make_pair<int, int>(5, 80) }, { 30, std::make_pair<int, int>(20, 100) }, { 50, std::make_pair<int, int>(35, 77) }, { 105, std::make_pair<int, int>(45, 70) }, { 190, std::make_pair<int, int>(80, 100) }, { 260, std::make_pair<int, int>(88, 100) }, { 410, std::make_pair<int, int>(120, 130) }, { 580, std::make_pair<int, int>(70, 75) } };
-	
-	std::map<float, std::pair<int, int>>::iterator it;
-	FMR_dataFromExcel.insert({ 9, std::make_pair<int, int>(99, 999) });
-
-	for (it = FMR_dataFromExcel.begin(); it != FMR_dataFromExcel.end(); ++it){
-		qDebug() << it->first << ": " << it->second.first << ", " << it->second.second;
-	}
-
-	qDebug() << "===========================";
-	FMR_dataFromExcel.insert({ 11, std::make_pair<int, int>(11, 111) });
-
-	for (it = FMR_dataFromExcel.begin(); it != FMR_dataFromExcel.end(); ++it){
-		qDebug() << it->first << ": " << it->second.first << ", " << it->second.second;
-	}
-
-	qDebug() << "===========================";
-	FMR_dataFromExcel.insert({ 9, std::make_pair<int, int>(999, 111) });
-
-	for (it = FMR_dataFromExcel.begin(); it != FMR_dataFromExcel.end(); ++it){
-		qDebug() << it->first << ": " << it->second.first << ", " << it->second.second;
-	}
-
+		
 	if (ui->eerGraphWidget->graphCount()){
 		ui->eerGraphWidget->clearGraphs();
 		ui->eerGraphWidget->clearItems();
@@ -2863,17 +2845,20 @@ void MainWindow::showRankkToolTip(QMouseEvent *event)
 void MainWindow::drowEer(std::map<float, std::pair<int, int>> FMR_dataFromExcel, std::map<float, std::pair<int, int>> FNMR_dataFromExcel){
 	// drow ERR gragh
 	// generate data:
-	/*QVector<double> xFMR(FMR_dataFromExcel.size()), yFMR(FMR_dataFromExcel.size());
-	QVector<double> xFNMR(FNMR_dataFromExcel.size()), yFNMR(FNMR_dataFromExcel.size());
-	for (int i = 0; i < FMR_dataFromExcel.size(); i++)
+	QVector<double> xFMR, yFMR;
+	QVector<double> xFNMR, yFNMR;
+	
+	std::map<float, std::pair<int, int>>::iterator it;
+
+	for (it = FMR_dataFromExcel.begin(); it != FMR_dataFromExcel.end(); ++it)
 	{
-		xFMR[i] = std::get<0>(FMR_dataFromExcel[i]); // threshold
-		yFMR[i] = static_cast<float>(std::get<1>(FMR_dataFromExcel[i])) / static_cast<float>(std::get<2>(FMR_dataFromExcel[i])) * 100; // nbFM / nbExists %
+		xFMR.push_back(it->first); // threshold
+		yFMR.push_back(static_cast<float>(it->second.first) / static_cast<float>(it->second.second) * 100); // nbFM / nbExists %
 	}
-	for (int i = 0; i < FNMR_dataFromExcel.size(); i++)
+	for (it = FNMR_dataFromExcel.begin(); it != FNMR_dataFromExcel.end(); ++it)
 	{
-		xFNMR[i] = std::get<0>(FNMR_dataFromExcel[i]); // threshold
-		yFNMR[i] = static_cast<float>(std::get<1>(FNMR_dataFromExcel[i])) / static_cast<float>(std::get<2>(FNMR_dataFromExcel[i])) * 100; // nbFNM / nbNonExists %
+		xFNMR.push_back(it->first); // threshold
+		yFNMR.push_back(static_cast<float>(it->second.first) / static_cast<float>(it->second.second) * 100); // nbFM / nbExists %
 	}
 
 	double *xFMRmaxValue = std::max_element(xFMR.begin(), xFMR.end()), *xFNMRmaxValue = std::max_element(xFNMR.begin(), xFNMR.end());
@@ -2936,7 +2921,7 @@ void MainWindow::drowEer(std::map<float, std::pair<int, int>> FMR_dataFromExcel,
 	ui->eerGraphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 	ui->eerGraphWidget->axisRect()->setRangeDrag(Qt::Horizontal); // drag only on x
 	ui->eerGraphWidget->axisRect()->setRangeZoom(Qt::Horizontal); // zoom only on x
-	*/
+	
 	// drow
 	ui->eerGraphWidget->replot();
 
