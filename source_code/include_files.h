@@ -42,6 +42,7 @@
 #include "dualMod\DualModeI.h"
 #include "ExcelExportHelper.h"
 #include "graph\qcustomplot.h"
+#include "graph\cSpline.h"
 
 // Dr :
 #include "image-processing\image_processing.h"
