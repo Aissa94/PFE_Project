@@ -52,15 +52,12 @@
 	int bestScoreIndex = -1, bestImageIndex = -1;
 	std::string directoryPath;
 	bool oneToN;
-<<<<<<< HEAD
 	int bestMatchesCount;
 	float sumDistances;
 	double minKeypoints;
 	int cpt;
 	const QString fileName = QDir::toNativeSeparators(QDir::currentPath()) + "\\Tests\\palmprint_registration_log_file.xlsx";
-=======
 	int prev_cursor_position;
->>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -178,7 +175,6 @@ void MainWindow::runSIFT()
     ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
 
 	// Drowing best matches
-<<<<<<< HEAD
 	calculateBestMatches();
 
 	QString curtime = getCurrentTime();
@@ -213,9 +209,7 @@ void MainWindow::runSIFT()
 		QMessageBox::critical(this, "Error - SIFT", e.what());
 	}
 
-=======
 	outlierElimination();
->>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
 }
 
 void MainWindow::runSURF()
@@ -496,23 +490,40 @@ void MainWindow::on_refreshBddImageNames_pressed()
 
 void MainWindow::on_pushButton_pressed()
 {
-<<<<<<< HEAD
-	if (ui->tabWidget_2->currentIndex() == 0) {
-		// Read Images ...
-		if (!readFirstImage()) return;
-		oneToN = ui->selectFolder->isChecked();
-		if (oneToN){
-			if (!readSetOfImages()) return;
-		}
-		else {
-			if (!readSecondImage()) return;
-		}
+if (ui->tabWidget_2->currentIndex() == 0) {
+	// Read Images ...
+	if (!readFirstImage()){
+		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 1st input file!</b>"); 
+		return;
+	}
+	oneToN = ui->oneToN->isChecked();
 
-		// Create a test folder ...
-		if (!createTestFolder()) return;
+	if (oneToN) {
+		readSetOfImages();
+		if (setImgs.size() == 0){
+			showError("Read Images", "There is no image in the folder: " + ui->secondImgText->text().toStdString(), "Make sure that the folder '<i>" + ui->secondImgText->text().toStdString() + "'</i>  contains one or more images with correct extension!");
+			return;
+		}
+	}
+	else {
+		if (!readSecondImage()) {
+			ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 2nd input file!</b>");
+			return;
+		}
+	}
 
-		// Launch the algorithm
-		switch (ui->allMethodsTabs->currentIndex())
+	// Create a test folder ...
+	if (!createTestFolder()) return;
+
+	if(oneToN) matchingMasks = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
+	else matchingMask = cv::Mat();
+
+	// Launch the algorithm
+	switch (ui->allMethodsTabs->currentIndex())
+	{
+	case 0:
+		// default
+		switch (ui->defaultTabs->currentIndex())
 		{
 		case 0:
 			// SIFT
@@ -530,15 +541,18 @@ void MainWindow::on_pushButton_pressed()
 			break;
 
 		case 3:
+		default:
 			// BRISK
 			runBRISK();
 			break;
-
-		default:
-			// custom
-			runCustom();
-			break;
 		}
+		break;
+	case 1:
+	default:
+		// custom
+		runCustom();
+		break;
+	}
 	}
 	else {
 		const QString fileName = "palmprint_registration_log_file.xlsx";
@@ -626,70 +640,8 @@ void MainWindow::on_pushButton_pressed()
 		excel->setProperty("Visible", false);
 		workbooks->querySubObject("Close()");
 		excel->querySubObject("Quit()");
-=======
-	// Read Images ...
-	if (!readFirstImage()){
-		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 1st input file!</b>"); 
-		return;
-	}
-	oneToN = ui->oneToN->isChecked();
-
-	if (oneToN) {
-		readSetOfImages();
-		if (setImgs.size() == 0){
-			showError("Read Images", "There is no image in the folder: " + ui->secondImgText->text().toStdString(), "Make sure that the folder '<i>" + ui->secondImgText->text().toStdString() + "'</i>  contains one or more images with correct extension!");
-			return;
-		}
-	}
-	else {
-		if (!readSecondImage()) {
-			ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 2nd input file!</b>");
-			return;
-		}
 	}
 
-	// Create a test folder ...
-	if (!createTestFolder()) return;
-
-	if(oneToN) matchingMasks = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
-	else matchingMask = cv::Mat();
-
-	// Launch the algorithm
-	switch (ui->allMethodsTabs->currentIndex())
-	{
-	case 0:
-		// default
-		switch (ui->defaultTabs->currentIndex())
-		{
-		case 0:
-			// SIFT
-			runSIFT();
-			break;
-
-		case 1:
-			// SURF
-			runSURF();
-			break;
-
-		case 2:
-			// ORB
-			runORB();
-			break;
-
-		case 3:
-		default:
-			// BRISK
-			runBRISK();
-			break;
-		}
-		break;
-	case 1:
-	default:
-		// custom
-		runCustom();
-		break;
->>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
-	}
 }
 
 void MainWindow::on_actionDestroy_All_Windows_triggered()
@@ -2113,19 +2065,7 @@ bool MainWindow::matching(){
 	return true;
 }
 
-<<<<<<< HEAD
-void MainWindow::calculateBestMatches(){
-	// Calculate the number of best matches between two sets of matches
-	bestMatchesCount = 0;
-	sumDistances = 0;
-	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 5 Columns
-	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
-	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
-	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
-	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
-	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
 
-=======
 void MainWindow::outlierElimination(){
 	// Eliminate outliers, and calculate the sum of best matches distance
 	float limitDistance = ui->matcherInlierLimitDistanceText->text().toFloat();
@@ -2134,7 +2074,6 @@ void MainWindow::outlierElimination(){
 		ui->logPlainText->appendHtml("<b style='color:red'>Invalid Limit Distance: " + QString::number(limitDistance) + ", the default value is maintained!</b>");
 		limitDistance = 0.4;
 	}
->>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
 	/*if (use_ransac == false)
 	compute_inliers_homography(matches_surf, inliers_surf, H, MAX_H_ERROR);
 	else
@@ -2292,37 +2231,6 @@ void MainWindow::maskMatchesByTrainImgIdx(const std::vector<cv::DMatch> matches,
 		if (matches[i].imgIdx == trainImgIdx)
 			mask[i] = 1;
 	}
-<<<<<<< HEAD
-	else {// knn > 2
-		for each (std::vector<cv::DMatch> match in knnMatches)
-		{
-			bestMatches.push_back(match[0]);
-			bestMatchesCount++;
-		}
-		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(knnMatches.size()));
-	}
-	minKeypoints = firstImgKeypoints.size() <= secondImgKeypoints.size() ?
-		firstImgKeypoints.size()
-		:
-		secondImgKeypoints.size();
-
-	ui->logPlainText->appendPlainText("Sum of distances = " + QString::number(sumDistances));
-	ui->logPlainText->appendPlainText("Probability = " + QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
-	cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
-		bestMatches, bestImgMatches, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0),
-		std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-	cv::imwrite(directoryPath + "output.png", bestImgMatches);
-
-	//-- Draw only "good" matches
-	QGraphicsScene *scene = new QGraphicsScene();
-	QImage dest((const uchar *)bestImgMatches.data, bestImgMatches.cols, bestImgMatches.rows, bestImgMatches.step, QImage::Format_RGB888);
-	//dest.bits();
-	scene->addPixmap(QPixmap::fromImage(dest));
-	ui->viewMatches->setScene(scene);
-	ui->viewMatches->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
-	ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
-=======
->>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
 }
 
 int MainWindow::fileCounter(std::string dir, std::string prefix, std::string suffix, std::string extension){
@@ -2609,11 +2517,7 @@ ExcelExportHelper::ExcelExportHelper(bool closeExcelOnExit, int numSheet)
 
 void ExcelExportHelper::SetCellValue(int columnIndex, const QString& value)
 {
-<<<<<<< HEAD
 	QAxObject *cell = m_sheet->querySubObject("Cells(int,int)", intRows + 1, columnIndex);
-=======
-	QAxObject *cell = m_sheet->querySubObject("Cells(int,int)", lineIndex, columnIndex);
->>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
 	cell->setProperty("Value", value);
 	cell->setProperty("HorizontalAlignment", -4108);
 	delete cell;
@@ -2710,21 +2614,8 @@ void ExcelExportHelper::Create()
 	if (fileName.contains("/"))
 		throw std::invalid_argument("'/' character in 'fileName' is not supported by excel!");
 
-<<<<<<< HEAD
-    m_workbook->dynamicCall("SaveAs (const QString&)", fileName);
-=======
-	if (!QFile::exists(fileName))
-	{
-		/*if (!QFile::remove(fileName))
-		{
-		throw new std::exception(QString("Failed to remove file '%1'").arg(fileName).toStdString().c_str());
-		}*/
-		m_workbooks->dynamicCall("Open (const QString&)", fileName);
-		m_sheets->querySubObject("Worksheets(int)", 1);
-	}
 
-	//m_workbook->dynamicCall("SaveAs (const QString&)", fileName);
->>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
+    m_workbook->dynamicCall("SaveAs (const QString&)", fileName);
 }
 
 ExcelExportHelper::~ExcelExportHelper()
@@ -2745,7 +2636,6 @@ ExcelExportHelper::~ExcelExportHelper()
 	}
 }
 
-<<<<<<< HEAD
 QString MainWindow::getCurrentTime() {
 	auto t = std::time(nullptr);
 	auto tm = *std::localtime(&t);
@@ -2755,11 +2645,11 @@ QString MainWindow::getCurrentTime() {
 	QString curtime = QString::fromStdString(str);
 	return curtime;
 }
-
 bool MainWindow::fileExistenceCheck(const std::string& name){
 	struct stat buffer;
 	return (stat(name.c_str(), &buffer) == 0);
-=======
+}
+
 void MainWindow::makePlot(){
 	// generate some data:
 	QVector<double> x(1001), y(1001); // initialize with entries 0..100
@@ -2863,7 +2753,6 @@ void MainWindow::drowRankk(int maxRank){
 	
 	// drow
 	ui->graphWidget->replot();
->>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
 }
 
 void MainWindow::showRankkToolTip(QMouseEvent *event)
