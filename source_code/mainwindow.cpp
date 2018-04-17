@@ -46,14 +46,13 @@
 	double /*segmentationTime = 0,*/ detectionTime = 0, descriptionTime = 0, clusteringTime = 0, matchingTime = 0;
 // Others
 	float sumDistances = 0;
-	float score;
+	float score = 0;
 	std::vector<float> sumDistancesSet;
 	std::vector<float> scoreSet;
-	int bestScoreIndex = -1, bestImageIndex = -1;
+	int bestScoreIndex = -1;
 	std::string directoryPath;
 	bool oneToN;
 	int bestMatchesCount;
-	float sumDistances;
 	double minKeypoints;
 	int cpt;
 	const QString fileName = QDir::toNativeSeparators(QDir::currentPath()) + "\\Tests\\palmprint_registration_log_file.xlsx";
@@ -86,6 +85,14 @@ MainWindow::MainWindow(QWidget *parent) :
 				ui->matcherInlierLoweRatioText->setEnabled(false);
 				ui->matcherInlierInversMatches->setEnabled(false);
 				ui->matcherInlierNoTest->setChecked(true);
+			}
+			if (ui->imageExistsInBdd->isChecked()){
+				ui->bddImageNames->setEnabled(true);
+				ui->refreshBddImageNames->setEnabled(true);
+			}
+			else {
+				ui->bddImageNames->setEnabled(false);
+				ui->refreshBddImageNames->setEnabled(false);
 			}
 		}
 		else {
@@ -153,8 +160,8 @@ void MainWindow::runSIFT()
     // Detecting Keypoints ...
     siftDetector.detect(firstImg, firstImgKeypoints);
     siftDetector.detect(secondImg, secondImgKeypoints);
-	writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
-	writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
+	writeKeyPoints(firstImg, firstImgKeypoints, 1, "f-keypoints");
+	writeKeyPoints(secondImg, secondImgKeypoints, 2, "s-keypoints");
 
 	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
 
@@ -175,7 +182,7 @@ void MainWindow::runSIFT()
     ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
 
 	// Drowing best matches
-	calculateBestMatches();
+	outlierElimination();
 
 	QString curtime = getCurrentTime();
 
@@ -208,8 +215,6 @@ void MainWindow::runSIFT()
 	{
 		QMessageBox::critical(this, "Error - SIFT", e.what());
 	}
-
-	outlierElimination();
 }
 
 void MainWindow::runSURF()
@@ -359,7 +364,7 @@ void MainWindow::runCustom()
 	std::string descriptorName = ui->descriptorTabs->tabText(ui->descriptorTabs->currentIndex()).toStdString();
 	std::string matcherName = ui->matcherTabs->tabText(ui->matcherTabs->currentIndex()).toStdString();
 
-	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + segmentationName +", "+ detectorName + ", " + descriptorName + ", " + matcherName + ") based identification</b> "));
+	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + segmentationName + ", " + detectorName + ", " + descriptorName + ", " + matcherName + ") based identification</b> "));
 	
 	/*QString curtime = getCurrentTime();
 	const QString fileName = "palmprint_registration_log_file.xlsx";
@@ -408,13 +413,12 @@ void MainWindow::runCustom()
 	workbooks->querySubObject("SaveAs()");
 	workbooks->querySubObject("Close()");
 	excel->querySubObject("Quit()");*/
-
 	// Binarization
 	customisingBinarization(segmentationIndex);
 
 	// Customising Segmentor...
 	customisingSegmentor(segmentationIndex);
-	
+
 	// Customising Detector...	
 	customisingDetector(detectorIndex, detectorName);
 
@@ -443,24 +447,6 @@ void MainWindow::runCustom()
 	// Keep only best matching according to the selected test
 	outlierElimination();
 
-	if (oneToN){
-		QTextCursor current_cursor = QTextCursor(ui->logPlainText->document());
-		current_cursor.setPosition(prev_cursor_position);
-		current_cursor.insertText("\nFound " + QString::number(setImgsKeypoints[bestScoreIndex].size()) + " key points in the most similar image!");
-	}
-	// View results
-	if (oneToN){
-		displayMatches(bestScoreIndex);
-		writeMatches(bestScoreIndex);
-	}
-	else {
-		displayMatches();
-		writeMatches();
-	}
-
-	float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
-	if (oneToN)ui->logPlainText->appendHtml("The image <b>" + ui->bddImageNames->currentText() + "</b> is Rank-<b>" + QString::number(computeRankK(scoreThreshold)) + "</b>");
-
 }
 
 void MainWindow::on_firstImgBtn_pressed()
@@ -483,76 +469,75 @@ void MainWindow::on_refreshBddImageNames_pressed()
 {
 	// Reload image names ...
 	if (ui->oneToN->isChecked()){
-		ui->bddImageNames->clear();
 		readSetOfImages();
 	}
 }
 
 void MainWindow::on_pushButton_pressed()
 {
-if (ui->tabWidget_2->currentIndex() == 0) {
-	// Read Images ...
-	if (!readFirstImage()){
-		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 1st input file!</b>"); 
-		return;
-	}
-	oneToN = ui->oneToN->isChecked();
-
-	if (oneToN) {
-		readSetOfImages();
-		if (setImgs.size() == 0){
-			showError("Read Images", "There is no image in the folder: " + ui->secondImgText->text().toStdString(), "Make sure that the folder '<i>" + ui->secondImgText->text().toStdString() + "'</i>  contains one or more images with correct extension!");
+	if (ui->tabWidget_2->currentIndex() == 0) {
+		// Read Images ...
+		if (!readFirstImage()){
+			ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 1st input file!</b>"); 
 			return;
 		}
-	}
-	else {
-		if (!readSecondImage()) {
-			ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 2nd input file!</b>");
-			return;
+		oneToN = ui->oneToN->isChecked();
+
+		if (oneToN) {
+			readSetOfImages();
+			if (setImgs.size() == 0){
+				showError("Read Images", "There is no image in the folder: " + ui->secondImgText->text().toStdString(), "Make sure that the folder '<i>" + ui->secondImgText->text().toStdString() + "'</i>  contains one or more images with correct extension!");
+				return;
+			}
 		}
-	}
+		else {
+			if (!readSecondImage()) {
+				ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 2nd input file!</b>");
+				return;
+			}
+		}
 
-	// Create a test folder ...
-	if (!createTestFolder()) return;
+		// Create a test folder ...
+		if (!createTestFolder()) return;
 
-	if(oneToN) matchingMasks = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
-	else matchingMask = cv::Mat();
+		if(oneToN) matchingMasks = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
+		else matchingMask = cv::Mat();
 
-	// Launch the algorithm
-	switch (ui->allMethodsTabs->currentIndex())
-	{
-	case 0:
-		// default
-		switch (ui->defaultTabs->currentIndex())
+		// Launch the algorithm
+		switch (ui->allMethodsTabs->currentIndex())
 		{
 		case 0:
-			// SIFT
-			runSIFT();
-			break;
+			// default
+			switch (ui->defaultTabs->currentIndex())
+			{
+			case 0:
+				// SIFT
+				runSIFT();
+				break;
 
+			case 1:
+				// SURF
+				runSURF();
+				break;
+
+			case 2:
+				// ORB
+				runORB();
+				break;
+
+			case 3:
+			default:
+				// BRISK
+				runBRISK();
+				break;
+			}
+			break;
 		case 1:
-			// SURF
-			runSURF();
-			break;
-
-		case 2:
-			// ORB
-			runORB();
-			break;
-
-		case 3:
 		default:
-			// BRISK
-			runBRISK();
+			// custom
+			runCustom();
 			break;
 		}
-		break;
-	case 1:
-	default:
-		// custom
-		runCustom();
-		break;
-	}
 	}
 	else {
 		const QString fileName = "palmprint_registration_log_file.xlsx";
@@ -641,7 +626,8 @@ if (ui->tabWidget_2->currentIndex() == 0) {
 		workbooks->querySubObject("Close()");
 		excel->querySubObject("Quit()");
 	}
-
+	
+	showDecision();
 }
 
 void MainWindow::on_actionDestroy_All_Windows_triggered()
@@ -661,9 +647,27 @@ void MainWindow::on_actionClear_Log_triggered()
 
 void MainWindow::on_actionSave_Log_File_As_triggered()
 {
+	/*QString fileName = QFileDialog::getSaveFileName(this,
+		tr("Save Log File"), "palmprint_registration_log_file",
+		tr("Excel Workbook (*.xlsx);;All Files (*)"));
+	if (fileName.isEmpty())
+		return;
+	else {
+		QFile file(fileName);
+		if (!file.open(QIODevice::WriteOnly)) {
+			QMessageBox::information(this, tr("Unable to open file"),
+				file.errorString());
+			return;
+		}
+		QDataStream out(&file);
+		out.setVersion(QDataStream::Qt_4_5);
+		// We must fix it !
+		out << ui->logPlainText->toPlainText();// .toStdString().c_str();
+	}*/
+
 	try
 	{
-        const QString fileName = "palmprint_registration_log_file7.xlsx";
+        const QString fileName = "palmprint_registration_log_file.xlsx";
 
         /*ExcelExportHelper helper;
         helper.Open(fileName);
@@ -779,7 +783,7 @@ void MainWindow::on_actionSave_Log_File_As_triggered()
             // Custom
 
             QAxObject* segmentationTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 1);
-            segmentationTabs->setProperty("Value", ui->segmentationTabs->tabText(ui->segmentationTabs->currentIndex()));
+     		segmentationTabs->setProperty("Value", ui->segmentationTabs->tabText(ui->segmentationTabs->currentIndex()));
 
             int segmentationIndex = ui->segmentationTabs->currentIndex();
             int detectorIndex = ui->detectorTabs->currentIndex();
@@ -805,7 +809,7 @@ void MainWindow::on_actionSave_Log_File_As_triggered()
                 break;
             }
 
-            QAxObject* detectorTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 3);
+           QAxObject* detectorTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 3);
             detectorTabs->setProperty("Value", ui->detectorTabs->tabText(ui->detectorTabs->currentIndex()));
 
             QAxObject* descriptorTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 5);
@@ -852,9 +856,9 @@ void MainWindow::on_refreshRankkGraph_pressed(){
 	int maxRank = rankkDataFromExcel.size();
 	int nbRank0FromExcel = 20; // for example we have 5 rank-0
 	
-	if (ui->graphWidget->graphCount()){ 
-		ui->graphWidget->clearGraphs();
-		ui->graphWidget->clearItems();
+	if (ui->rankkGraphWidget->graphCount()){ 
+		ui->rankkGraphWidget->clearGraphs();
+		ui->rankkGraphWidget->clearItems();
 	}
 	if (maxRank > 0){
 		std::sort(rankkDataFromExcel.begin(), rankkDataFromExcel.end());
@@ -875,14 +879,26 @@ void MainWindow::on_refreshRankkGraph_pressed(){
 			if (rankkData[i].first == 0)rankkData[i] = std::make_pair(i + 1, rankkData[i - 1].second);
 		}
 		rankkData.insert(rankkData.begin(), std::make_pair<int, float>(0, static_cast<float>(nbRank0FromExcel) / static_cast<float>(maxRank + nbRank0FromExcel) * 100));
-		for (std::pair<int, float> p : rankkData)qDebug() << p.first<< " " << p.second;
-		connect(ui->graphWidget, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showRankkToolTip(QMouseEvent*)));
+		connect(ui->rankkGraphWidget, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showRankkToolTip(QMouseEvent*)));
 		drowRankk(maxRank);
 	}
 	else {
 		showError("Show Rank-k Graph", "No data to show!", "You can Show Rank-k Graph after launching some tests!");
-		//disconnect(ui->graphWidget, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showRankkToolTip(QMouseEvent*)));
+		//disconnect(ui->rankkGraphWidget, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showRankkToolTip(QMouseEvent*)));
 	}
+}
+
+void MainWindow::on_refreshEerGraph_pressed(){
+	std::vector <std::tuple<float, int, int>>/*<threshold, nbFM, nbExists>*/ FMR_dataFromExcel
+		= { std::make_tuple<float, int, int>(10, 65, 70), std::make_tuple<float, int, int>(15, 89, 100), std::make_tuple<float, int, int>(80, 45, 70), std::make_tuple<float, int, int>(100, 35, 77), std::make_tuple<float, int, int>(230, 20, 100), std::make_tuple<float, int, int>(400, 5, 80), std::make_tuple<float, int, int>(500, 0, 10) };
+	std::vector <std::tuple<float, int, int>>/*<threshold, nbFNM, nbNonExists>*/ FNMR_dataFromExcel
+		= { std::make_tuple<float, int, int>(18, 0, 10), std::make_tuple<float, int, int>(25, 5, 80), std::make_tuple<float, int, int>(30, 20, 100), std::make_tuple<float, int, int>(50, 35, 77), std::make_tuple<float, int, int>(105, 45, 70), std::make_tuple<float, int, int>(190, 80, 100), std::make_tuple<float, int, int>(260, 88, 100), std::make_tuple<float, int, int>(410, 120, 130), std::make_tuple<float, int, int>(580, 70, 75) };
+	if (ui->eerGraphWidget->graphCount()){
+		ui->eerGraphWidget->clearGraphs();
+		ui->eerGraphWidget->clearItems();
+	}
+
+	drowEer(FMR_dataFromExcel, FNMR_dataFromExcel);
 }
 
 int MainWindow::computeRankK(float scoreThreshold){
@@ -953,6 +969,8 @@ bool MainWindow::readSecondImage(){
 
 bool MainWindow::readSetOfImages(){
 	setImgs.clear();
+	int savedIndex = ui->bddImageNames->currentIndex();
+	ui->bddImageNames->clear();
 	// Read Data Set of Images ...
 	std::wstring wdatapath = ui->secondImgText->text().toStdWString();
 	
@@ -1007,6 +1025,7 @@ bool MainWindow::readSetOfImages(){
 		secondImg = setImgs[setImgs.size() - 1].second;
 		oneToN = false;
 	}
+	ui->bddImageNames->setCurrentIndex(savedIndex);
 	// display the last image
 	displayImage(setImgs[setImgs.size() - 1].second, 2);
 	return true;
@@ -1141,6 +1160,8 @@ void MainWindow::wheelEvent(QWheelEvent *event){
 
 void MainWindow::resetParams()
 {
+	sumDistances = 0; score = 0;
+	bestScoreIndex = -1;
 	try{
 		firstImgKeypoints.clear(); secondImgKeypoints.clear(); setImgsKeypoints.clear();
 		firstImgDescriptor.release(); secondImgDescriptor.release(); setImgsDescriptors.clear();
@@ -1309,10 +1330,7 @@ void MainWindow::displayFeature(cv::Mat featureMat, int first_second)
 	QImage featureImg((const uchar *)featureMat.data, featureMat.cols, featureMat.rows, featureMat.step, QImage::Format_RGB888);
 	featureScene->addPixmap(QPixmap::fromImage(featureImg));
 
-	QGraphicsView *myUiScene;
-	if (first_second == 1) myUiScene = ui->viewKeyPoints1;
-	else if (first_second == 2) myUiScene = ui->viewKeyPoints2;
-	else myUiScene = ui->viewMatches;
+	QGraphicsView *myUiScene = (first_second == 1) ? ui->viewKeyPoints1 : ui->viewKeyPoints2;
 	myUiScene->setScene(featureScene);
 	myUiScene->fitInView(featureScene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
 	//myUiScene->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
@@ -2065,7 +2083,6 @@ bool MainWindow::matching(){
 	return true;
 }
 
-
 void MainWindow::outlierElimination(){
 	// Eliminate outliers, and calculate the sum of best matches distance
 	float limitDistance = ui->matcherInlierLimitDistanceText->text().toFloat();
@@ -2179,11 +2196,8 @@ void MainWindow::outlierElimination(){
 				}
 			}
 		}
-		if (scoreSet[bestScoreIndex] >= scoreThreshold) 
-			 ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(bestScore) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
-		else ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(bestScore) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
 	}
-	else{// 1 to 1
+	else {// 1 to 1
 		if (ui->matcherInlierLoweRatio->isChecked()){
 			// Lowe's ratio test = 0.7 by default
 			float lowesRatio = ui->matcherInlierLoweRatioText->text().toFloat();
@@ -2216,9 +2230,6 @@ void MainWindow::outlierElimination(){
 			score = 1.0 / average * goodProbability;
 		}
 		else score = 0.0;
-		if (score >= scoreThreshold) 
-			ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(score) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
-		else ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(score) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
 	}
 }
 
@@ -2325,6 +2336,41 @@ cv::Mat MainWindow::maskMatchesByMinutiaeNature(std::vector<Minutiae> firstImgKe
 	return mask;
 }
 
+void MainWindow::showDecision(){
+	float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
+
+	if (oneToN){
+		QTextCursor current_cursor = QTextCursor(ui->logPlainText->document());
+		current_cursor.setPosition(prev_cursor_position);
+		current_cursor.insertText("\nFound " + QString::number(setImgsKeypoints[bestScoreIndex].size()) + " key points in the most similar image!");
+
+		if (scoreSet[bestScoreIndex] >= scoreThreshold)
+			ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
+		else ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
+
+		if (ui->imageExistsInBdd->isEnabled() && ui->imageExistsInBdd->isChecked()){
+			ui->logPlainText->appendHtml("The first image is Rank-<b>" + QString::number(computeRankK(scoreThreshold)) + "</b> ");
+			if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml("There is a False Non-Match (FNM)");
+		}
+		else{
+			if (scoreSet[bestScoreIndex] >= scoreThreshold)ui->logPlainText->appendHtml("There is a False Match (FM)");
+		}
+
+		// View results
+		displayMatches(bestScoreIndex);
+		writeMatches(bestScoreIndex);
+	}
+	else {
+		if (score >= scoreThreshold)
+			ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(score) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
+		else ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(score) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
+
+		// View results
+		displayMatches();
+		writeMatches();
+	}
+}
+
 ExcelExportHelper::ExcelExportHelper(bool closeExcelOnExit, int numSheet)
 {
 	m_closeExcelOnExit = closeExcelOnExit;
@@ -2346,7 +2392,6 @@ ExcelExportHelper::ExcelExportHelper(bool closeExcelOnExit, int numSheet)
 	m_excelApplication->setProperty("DisplayAlerts", 0); // disable alerts
 
 	m_workbooks = m_excelApplication->querySubObject("Workbooks");
-
 	if (!QFile::exists(fileName))
 	{
 
@@ -2625,11 +2670,11 @@ ExcelExportHelper::~ExcelExportHelper()
 		if (!m_closeExcelOnExit)
 		{
 			m_excelApplication->setProperty("DisplayAlerts", 1);
-			m_excelApplication->dynamicCall("SetVisible(bool)", false);
+			m_excelApplication->dynamicCall("SetVisible(bool)", true);
 		}
 
 		if (m_workbook != nullptr && m_closeExcelOnExit)
-		{		
+		{
 			m_workbook->dynamicCall("Close (Boolean)", true);
 			m_excelApplication->dynamicCall("Quit (void)");
 		}
@@ -2645,10 +2690,6 @@ QString MainWindow::getCurrentTime() {
 	QString curtime = QString::fromStdString(str);
 	return curtime;
 }
-bool MainWindow::fileExistenceCheck(const std::string& name){
-	struct stat buffer;
-	return (stat(name.c_str(), &buffer) == 0);
-}
 
 void MainWindow::makePlot(){
 	// generate some data:
@@ -2659,23 +2700,23 @@ void MainWindow::makePlot(){
 		y[i] = x[i] * x[i]; // let's plot a quadratic function
 	}
 	// create graph and assign data to it:
-	ui->graphWidget->addGraph();
-	ui->graphWidget->graph(0)->setData(x, y);
-	ui->graphWidget->graph(0)->setName("y=x²");
-	ui->graphWidget->addGraph();
-	ui->graphWidget->graph(1)->setData(y, x);
-	ui->graphWidget->graph(1)->setName("y=sqrt(x)");
+	ui->rankkGraphWidget->addGraph();
+	ui->rankkGraphWidget->graph(0)->setData(x, y);
+	ui->rankkGraphWidget->graph(0)->setName("y=x²");
+	ui->rankkGraphWidget->addGraph();
+	ui->rankkGraphWidget->graph(1)->setData(y, x);
+	ui->rankkGraphWidget->graph(1)->setName("y=sqrt(x)");
 	// give the axes some labels:
-	ui->graphWidget->xAxis->setLabel("x");
-	ui->graphWidget->yAxis->setLabel("y");
+	ui->rankkGraphWidget->xAxis->setLabel("x");
+	ui->rankkGraphWidget->yAxis->setLabel("y");
 	// set axes ranges, so we see all data:
-	ui->graphWidget->xAxis->setRange(0, 5);
-	ui->graphWidget->yAxis->setRange(0, 10);
+	ui->rankkGraphWidget->xAxis->setRange(0, 5);
+	ui->rankkGraphWidget->yAxis->setRange(0, 10);
 	// set legend
-	ui->graphWidget->legend->setVisible(true);
-	ui->graphWidget->legend->setFont(QFont("Helvetica", 9));
+	ui->rankkGraphWidget->legend->setVisible(true);
+	ui->rankkGraphWidget->legend->setFont(QFont("Helvetica", 9));
 	// set locale to english, so we get english decimal separator:
-	ui->graphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
+	ui->rankkGraphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
 	// configuration:
 	QPen pen;
 	pen.setStyle(Qt::DotLine);
@@ -2685,13 +2726,13 @@ void MainWindow::makePlot(){
 	pen.setWidth(2);
 	pen.setColor(Qt::red);
 
-	ui->graphWidget->graph(1)->setPen(pen);
-	ui->graphWidget->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 9));
-	ui->graphWidget->graph(0)->setPen(QPen(QColor(120, 120, 120), 2));
-	ui->graphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes | QCP::iSelectLegend | QCP::iSelectPlottables | QCP::iMultiSelect);
-	ui->graphWidget->xAxis->setSelectableParts(QCPAxis::spAxisLabel | QCPAxis::spAxis | QCPAxis::spTickLabels);
-	ui->graphWidget->yAxis->setSelectableParts(QCPAxis::spAxisLabel | QCPAxis::spAxis | QCPAxis::spTickLabels);
-	ui->graphWidget->replot();
+	ui->rankkGraphWidget->graph(1)->setPen(pen);
+	ui->rankkGraphWidget->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 9));
+	ui->rankkGraphWidget->graph(0)->setPen(QPen(QColor(120, 120, 120), 2));
+	ui->rankkGraphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes | QCP::iSelectLegend | QCP::iSelectPlottables | QCP::iMultiSelect);
+	ui->rankkGraphWidget->xAxis->setSelectableParts(QCPAxis::spAxisLabel | QCPAxis::spAxis | QCPAxis::spTickLabels);
+	ui->rankkGraphWidget->yAxis->setSelectableParts(QCPAxis::spAxisLabel | QCPAxis::spAxis | QCPAxis::spTickLabels);
+	ui->rankkGraphWidget->replot();
 }
 
 void MainWindow::drowRankk(int maxRank){
@@ -2706,7 +2747,7 @@ void MainWindow::drowRankk(int maxRank){
 
 		if (x[i] == 1 && y[i]!=0) {
 			// add the text label at the top:
-			QCPItemText *textLabel = new QCPItemText(ui->graphWidget);
+			QCPItemText *textLabel = new QCPItemText(ui->rankkGraphWidget);
 			textLabel->setPositionAlignment(Qt::AlignTop| Qt::AlignHCenter);
 			textLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
 			textLabel->setText("Rank-1= "+QString::number(y[i])+"%");
@@ -2714,7 +2755,7 @@ void MainWindow::drowRankk(int maxRank){
 			textLabel->setPen(QPen(Qt::black)); // show black border around text
 
 			// add the arrow:
-			QCPItemLine *arrow = new QCPItemLine(ui->graphWidget);
+			QCPItemLine *arrow = new QCPItemLine(ui->rankkGraphWidget);
 			arrow->start->setParentAnchor(textLabel->top);
 			double yPos = 1 - y[i] / 100 + 0.05;
 			if (yPos > 0.9){
@@ -2727,41 +2768,151 @@ void MainWindow::drowRankk(int maxRank){
 		}
 	}
 	// create graph and assign data to it:
-	ui->graphWidget->addGraph();
-	ui->graphWidget->graph(0)->setData(x, y);
-	ui->graphWidget->graph(0)->setName("Rank-k");
+	ui->rankkGraphWidget->addGraph();
+	ui->rankkGraphWidget->graph(0)->setData(x, y);
+	ui->rankkGraphWidget->graph(0)->setName("Rank-k");
 	// give the axes some labels:
-	ui->graphWidget->xAxis->setLabel("Rank");
-	ui->graphWidget->yAxis->setLabel("Percent %");
+	ui->rankkGraphWidget->xAxis->setLabel("Rank");
+	ui->rankkGraphWidget->yAxis->setLabel("Percent %");
 	// set axes ranges, so we see all data:
-	ui->graphWidget->xAxis->setRange(0, x[x.size()-1]);
+	ui->rankkGraphWidget->xAxis->setRange(0, x[x.size()-1]);
 	QCPAxisTickerFixed *fixedTicker = new QCPAxisTickerFixed();
 	fixedTicker->setTickStep(1);
-	ui->graphWidget->xAxis->setTicker(QSharedPointer<QCPAxisTickerFixed>(fixedTicker));
-	ui->graphWidget->yAxis->setRange(0, 110);
+	ui->rankkGraphWidget->xAxis->setTicker(QSharedPointer<QCPAxisTickerFixed>(fixedTicker));
+	ui->rankkGraphWidget->yAxis->setRange(0, 110);
 	// set legend
-	ui->graphWidget->legend->setVisible(true);
-	ui->graphWidget->legend->setFont(QFont("Helvetica", 9));
+	ui->rankkGraphWidget->legend->setVisible(true);
+	ui->rankkGraphWidget->legend->setFont(QFont("Helvetica", 9));
 	// set locale to english, so we get english decimal separator:
-	ui->graphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
+	ui->rankkGraphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
 	// configuration:
-	ui->graphWidget->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 9));
-	ui->graphWidget->graph(0)->setPen(QPen(QColor(120, 120, 120), 2));
-	ui->graphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
-	ui->graphWidget->axisRect()->setRangeDrag(Qt::Horizontal); // drag only on x
-	ui->graphWidget->axisRect()->setRangeZoom(Qt::Horizontal); // zoom only on x
+	ui->rankkGraphWidget->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 9));
+	ui->rankkGraphWidget->graph(0)->setPen(QPen(QColor(120, 120, 120), 2));
+	ui->rankkGraphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+	ui->rankkGraphWidget->axisRect()->setRangeDrag(Qt::Horizontal); // drag only on x
+	ui->rankkGraphWidget->axisRect()->setRangeZoom(Qt::Horizontal); // zoom only on x
 	
 	// drow
-	ui->graphWidget->replot();
+	ui->rankkGraphWidget->replot();
 }
 
 void MainWindow::showRankkToolTip(QMouseEvent *event)
 {
-	float x = ui->graphWidget->xAxis->pixelToCoord(event->pos().x());
-	//int y = ui->graphWidget->yAxis->pixelToCoord(event->pos().y());
+	float x = ui->rankkGraphWidget->xAxis->pixelToCoord(event->pos().x());
+	//int y = ui->rankkGraphWidget->yAxis->pixelToCoord(event->pos().y());
 	if (rankkData[0].first <= x && x <= rankkData[rankkData.size() - 1].first){
 		if (x <= (floor(x) + 0.5))setToolTip(QString("rank-%1 = %2%").arg(floor(x)).arg(rankkData[floor(x)].second));
 		else setToolTip(QString("rank-%1 = %2%").arg(floor(x) + 1).arg(rankkData[floor(x)+1].second));
 	}
 	else setToolTip("");
+}
+
+void MainWindow::drowEer(std::vector <std::tuple<float, int, int>> FMR_dataFromExcel, std::vector <std::tuple<float, int, int>> FNMR_dataFromExcel){
+	// drow ERR gragh
+	// generate data:
+	QVector<double> xFMR(FMR_dataFromExcel.size()), yFMR(FMR_dataFromExcel.size());
+	QVector<double> xFNMR(FNMR_dataFromExcel.size()), yFNMR(FNMR_dataFromExcel.size());
+	for (int i = 0; i < FMR_dataFromExcel.size(); i++)
+	{
+		xFMR[i] = std::get<0>(FMR_dataFromExcel[i]); // threshold
+		yFMR[i] = static_cast<float>(std::get<1>(FMR_dataFromExcel[i])) / static_cast<float>(std::get<2>(FMR_dataFromExcel[i])) * 100; // nbFM / nbExists %
+	}
+	for (int i = 0; i < FNMR_dataFromExcel.size(); i++)
+	{
+		xFNMR[i] = std::get<0>(FNMR_dataFromExcel[i]); // threshold
+		yFNMR[i] = static_cast<float>(std::get<1>(FNMR_dataFromExcel[i])) / static_cast<float>(std::get<2>(FNMR_dataFromExcel[i])) * 100; // nbFNM / nbNonExists %
+	}
+
+	double *xFMRmaxValue = std::max_element(xFMR.begin(), xFMR.end()), *xFNMRmaxValue = std::max_element(xFNMR.begin(), xFNMR.end());
+	double *xFMRminValue = std::min_element(xFMR.begin(), xFMR.end()), *xFNMRminValue = std::min_element(xFNMR.begin(), xFNMR.end());
+	raven::cSpline FMRspline(xFMR.toStdVector(), yFMR.toStdVector());
+	raven::cSpline FNMRspline(xFNMR.toStdVector(), yFNMR.toStdVector());
+	QVector<double> xFMRsplined, yFMRsplined;
+	QVector<double> xFNMRsplined, yFNMRsplined;
+	for (int i = *xFMRminValue; i <= *xFMRmaxValue; i++)
+	{
+		xFMRsplined.push_back(i);
+		yFMRsplined.push_back(FMRspline.getY(i));
+	}
+	for (int i = *xFNMRminValue; i <= *xFNMRmaxValue; i++)
+	{
+		xFNMRsplined.push_back(i);
+		yFNMRsplined.push_back(FNMRspline.getY(i));
+	}
+
+	// spline graph
+	ui->eerGraphWidget->addGraph();
+	ui->eerGraphWidget->graph(0)->setData(xFMRsplined, yFMRsplined);
+	ui->eerGraphWidget->graph(0)->setName("FMR");
+	ui->eerGraphWidget->addGraph();
+	ui->eerGraphWidget->graph(1)->setData(xFNMRsplined, yFNMRsplined);
+	ui->eerGraphWidget->graph(1)->setName("FNMR");
+	// create graph and assign data to it:
+	ui->eerGraphWidget->addGraph();
+	ui->eerGraphWidget->graph(2)->setData(xFMR, yFMR);
+	ui->eerGraphWidget->addGraph();
+	ui->eerGraphWidget->graph(3)->setData(xFNMR, yFNMR);
+	// give the axes some labels:
+	ui->eerGraphWidget->xAxis->setLabel("Threshold");
+	ui->eerGraphWidget->yAxis->setLabel("Percent %");
+	// set axes ranges, so we see all data:
+	ui->eerGraphWidget->xAxis->rescale();
+	ui->eerGraphWidget->xAxis->setRange(0, std::max(*xFMRmaxValue, *xFNMRmaxValue) + 10);
+	QCPAxisTickerFixed *fixedTicker = new QCPAxisTickerFixed();
+	fixedTicker->setTickStep(50);
+	ui->eerGraphWidget->xAxis->setTicker(QSharedPointer<QCPAxisTickerFixed>(fixedTicker));
+	ui->eerGraphWidget->yAxis->setRange(0, 110);
+	// set legend
+	ui->eerGraphWidget->legend->setVisible(true);
+	ui->eerGraphWidget->legend->setFont(QFont("Helvetica", 9));
+	// set locale to english, so we get english decimal separator:
+	ui->eerGraphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
+	// configuration:
+	ui->eerGraphWidget->graph(0)->setPen(QPen(QColor(120, 140, 250), 2));
+	ui->eerGraphWidget->graph(1)->setPen(QPen(QColor(120, 250, 120), 2));
+	ui->eerGraphWidget->graph(2)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 5));
+	ui->eerGraphWidget->graph(2)->setPen(Qt::NoPen);
+	ui->eerGraphWidget->graph(2)->removeFromLegend();
+	ui->eerGraphWidget->graph(3)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 5));
+	ui->eerGraphWidget->graph(3)->setPen(Qt::NoPen);
+	ui->eerGraphWidget->graph(3)->removeFromLegend();
+	ui->eerGraphWidget->graph(0)->selectionDecorator()->setPen(QPen(QColor(120, 140, 250), 2));
+	ui->eerGraphWidget->graph(1)->selectionDecorator()->setPen(QPen(QColor(120, 250, 120), 2));
+	ui->eerGraphWidget->graph(2)->selectionDecorator()->setPen(QPen(QColor(120, 120, 120), 1));
+	ui->eerGraphWidget->graph(3)->selectionDecorator()->setPen(QPen(QColor(120, 120, 120), 1));
+	ui->eerGraphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+	ui->eerGraphWidget->axisRect()->setRangeDrag(Qt::Horizontal); // drag only on x
+	ui->eerGraphWidget->axisRect()->setRangeZoom(Qt::Horizontal); // zoom only on x
+	
+	// drow
+	ui->eerGraphWidget->replot();
+
+	connect(ui->eerGraphWidget, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showEerToolTip(xFMRsplined, yFMRsplined, xFNMRsplined, yFNMRsplined, QMouseEvent*)));
+}
+
+void MainWindow::showEerToolTip(QVector<double>xFMRsplined, QVector<double>yFMRsplined, QVector<double>xFNMRsplined, QVector<double>yFNMRsplined, QMouseEvent *event)
+{
+	float x = ui->eerGraphWidget->xAxis->pixelToCoord(event->pos().x());
+	int y = ui->eerGraphWidget->yAxis->pixelToCoord(event->pos().y());
+
+	double old_x;
+	auto it = std::find(xFMRsplined.begin(), xFMRsplined.end(), old_x);
+	if (it == xFMRsplined.end())
+	{
+		auto it = std::find(xFNMRsplined.begin(), xFNMRsplined.end(), old_x);
+		if (it == xFNMRsplined.end())
+		{
+			setToolTip("");
+		}
+		else
+		{
+			auto index = std::distance(xFNMRsplined.begin(), it);
+			setToolTip(QString("(%1, %2%)").arg(xFNMRsplined[index]).arg(yFNMRsplined[index]));
+		}
+	}
+	else
+	{
+		auto index = std::distance(xFMRsplined.begin(), it);
+		setToolTip(QString("(%1, %2%)").arg(xFMRsplined[index]).arg(yFMRsplined[index]));
+	}
 }
