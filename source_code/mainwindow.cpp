@@ -3,7 +3,7 @@
 
 // Images Declaration
 	cv::Mat firstImg, secondImg;
-	std::vector<cv::Mat> setImgs;
+	std::vector<std::pair<std::string, cv::Mat>> setImgs;
 
 // Vectors Declaration
 	// Segmentation parameters for First and Second Image ...
@@ -17,11 +17,25 @@
 	std::vector<cv::Mat> setImgsDescriptors;
 	// Clustering parameters ...
 	cv::Mat labels, centers;
-	// Matches for the Direct & Invers matching ...
-	std::vector<cv::DMatch> directMatches, inverseMatches, bestMatches;
-	// Maches for knn > 1
-	std::vector<std::vector< cv::DMatch >> knnMatches;
-	cv::Mat bestImgMatches;
+	
+	// 1 to 1 ...
+	// Matches for the Direct & Invers matching
+	std::vector<cv::DMatch> directMatches, inverseMatches, goodMatches, badMatches;
+	// Maches for knn = 2
+	std::vector<std::vector<cv::DMatch>> twoMatches;
+	
+	// 1 to N ...
+	// Matches for the Direct & Invers matching
+	std::vector<std::vector<cv::DMatch>> directMatchesSet, inverseMatchesSet, goodMatchesSet, badMatchesSet;
+	// Maches for knn = 2
+	std::vector<std::vector<std::vector<cv::DMatch>>> twoMatchesSet;
+
+	//Masks
+	cv::Mat matchingMask;
+	std::vector<cv::Mat> matchingMasks;
+	
+	//Excel data
+	std::vector<std::pair<int, float>> rankkData;
 
 // Operators Declaration
 	cv::FeatureDetector * ptrDetector;
@@ -29,11 +43,24 @@
 	cv::DescriptorMatcher * ptrMatcher;
 
 // Times
-	double /*segmentationTime,*/ detectionTime, descriptionTime, directMatchingTime, inverseMatchingTime, bestMatchingTime;
+	double /*segmentationTime = 0,*/ detectionTime = 0, descriptionTime = 0, clusteringTime = 0, matchingTime = 0;
 // Others
-	int kBestMatches;
+	float sumDistances = 0;
+	float score;
+	std::vector<float> sumDistancesSet;
+	std::vector<float> scoreSet;
+	int bestScoreIndex = -1, bestImageIndex = -1;
 	std::string directoryPath;
 	bool oneToN;
+<<<<<<< HEAD
+	int bestMatchesCount;
+	float sumDistances;
+	double minKeypoints;
+	int cpt;
+	const QString fileName = QDir::toNativeSeparators(QDir::currentPath()) + "\\Tests\\palmprint_registration_log_file.xlsx";
+=======
+	int prev_cursor_position;
+>>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -41,8 +68,60 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 	// cusomizing ToolTips :
-	qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white;}");
+	//qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white;}");
     ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
+	
+	QPixmap pixmap1(":/start-img.png");
+	QIcon ButtonIcon1(pixmap1);
+	ui->pushButton->setIcon(ButtonIcon1);
+
+	QPixmap pixmap2(":/refresh-img.png");
+	QIcon ButtonIcon2(pixmap2);
+	ui->refreshBddImageNames->setIcon(ButtonIcon2);
+
+	if (ui->oneToN->isChecked()) on_refreshBddImageNames_pressed();
+
+	// Control check boxes
+	connect(ui->oneToN, &QCheckBox::toggled, [=](bool checked) {
+		if (checked){
+			if (ui->matcher1toNtype1->isChecked()){
+				ui->matcherInlierLoweRatio->setEnabled(false);
+				ui->matcherInlierLoweRatioText->setEnabled(false);
+				ui->matcherInlierInversMatches->setEnabled(false);
+				ui->matcherInlierNoTest->setChecked(true);
+			}
+		}
+		else {
+			ui->matcherInlierLoweRatio->setEnabled(true);
+			ui->matcherInlierLoweRatioText->setEnabled(true);
+			ui->matcherInlierInversMatches->setEnabled(true);
+		}
+		if (!ui->matcherInlierLoweRatio->isChecked()){
+			ui->matcherBruteForceCrossCheckLabel->setDisabled(ui->matcherInlierLoweRatio->isChecked() || (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()));
+			ui->matcherBruteForceCrossCheckText->setDisabled(ui->matcherInlierLoweRatio->isChecked() || (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()));
+		}
+	});
+	connect(ui->matcherInlierLoweRatio, &QCheckBox::toggled, [=](bool checked) {
+		if (checked){
+			ui->matcherBruteForceCrossCheckLabel->setEnabled(false);
+			ui->matcherBruteForceCrossCheckText->setEnabled(false);
+		}
+		else {
+			ui->matcherBruteForceCrossCheckLabel->setEnabled(true);
+			ui->matcherBruteForceCrossCheckText->setEnabled(true);
+		}
+	});
+	connect(ui->matcher1toNtype1, &QCheckBox::toggled, [=](bool checked) {
+		ui->matcherInlierNoTest->setChecked(true);
+		if (checked){
+			ui->matcherBruteForceCrossCheckLabel->setEnabled(false);
+			ui->matcherBruteForceCrossCheckText->setEnabled(false);
+		}
+		else {
+			ui->matcherBruteForceCrossCheckLabel->setEnabled(true);
+			ui->matcherBruteForceCrossCheckText->setEnabled(true);
+		}
+	});
 
 	this->setWindowState(Qt::WindowMaximized);
 }
@@ -60,8 +139,8 @@ void MainWindow::runSIFT()
     //              double contrastThreshold=0.04, double edgeThreshold=10,
     //              double sigma=1.6);
 
-    //ui->logPlainText->appendPlainText("Starting SIFT object detection!");
-	ui->logPlainText->appendHtml("<b>Starting SIFT object detection!</b>");
+    //ui->logPlainText->appendPlainText("Starting SIFT based identification!");
+	ui->logPlainText->appendHtml("<b>Starting SIFT based identification!</b>");
 
 
     // Read Parameters ...
@@ -77,6 +156,8 @@ void MainWindow::runSIFT()
     // Detecting Keypoints ...
     siftDetector.detect(firstImg, firstImgKeypoints);
     siftDetector.detect(secondImg, secondImgKeypoints);
+	writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
+	writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
 
 	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
 
@@ -97,7 +178,44 @@ void MainWindow::runSIFT()
     ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
 
 	// Drowing best matches
+<<<<<<< HEAD
 	calculateBestMatches();
+
+	QString curtime = getCurrentTime();
+
+	try
+	{
+
+		ExcelExportHelper helper(true, 1);
+
+		helper.SetCellValue(1, QString::number(cpt));
+		helper.SetCellValue(2, curtime);
+		helper.SetCellValue(3, ui->firstImgText->text());
+		helper.SetCellValue(4, ui->secondImgText->text());
+		helper.SetCellValue(5, QString::number(contrastThreshold));
+		helper.SetCellValue(6, QString::number(edgeThreshold));
+		helper.SetCellValue(7, QString::number(nfeatures));
+		helper.SetCellValue(8, QString::number(nOctaveLayers));
+		helper.SetCellValue(9, QString::number(sigma));
+
+		QString siftBruteForceCheck = ui->siftBruteForceCheck->isChecked() ? "TRUE" : "FALSE";
+		helper.SetCellValue(10, siftBruteForceCheck);
+		helper.SetCellValue(11, QString::number(firstImgKeypoints.size()));
+		helper.SetCellValue(12, QString::number(secondImgKeypoints.size()));
+		helper.SetCellValue(13, QString::number(bestMatchesCount));
+		helper.SetCellValue(14, QString::number(sumDistances));
+		helper.SetCellValue(15, QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
+
+		helper.~ExcelExportHelper();
+	}
+	catch (const std::exception& e)
+	{
+		QMessageBox::critical(this, "Error - SIFT", e.what());
+	}
+
+=======
+	outlierElimination();
+>>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
 }
 
 void MainWindow::runSURF()
@@ -108,7 +226,7 @@ void MainWindow::runSURF()
     //                      int nOctaves=4, int nOctaveLayers=2,
     //                      bool extended=true, bool upright=false);
 
-	ui->logPlainText->appendHtml("<b>Starting SURF object detection!</b>");
+	ui->logPlainText->appendHtml("<b>Starting SURF based identification!</b>");
 
     // Read Parameters ...
     double hessainThreshold = ui->surfHessianThreshText->text().toDouble();
@@ -144,7 +262,7 @@ void MainWindow::runSURF()
     ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!hena yebda le pblm de difference entre hada w ta3 custom !!! !!! !!! !!
-	calculateBestMatches();
+	outlierElimination();
 }
 
 void MainWindow::runORB()
@@ -154,8 +272,8 @@ void MainWindow::runORB()
     //    ORB(int nfeatures = 500, float scaleFactor = 1.2f, int nlevels = 8, int edgeThreshold = 31,
     //                     int firstLevel = 0, int WTA_K=2, int scoreType=HARRIS_SCORE, int patchSize=31 );
 
-    //ui->logPlainText->appendPlainText("Starting ORB object detection!");
-	ui->logPlainText->appendHtml("<b>Starting ORB object detection!</b>");
+    //ui->logPlainText->appendPlainText("Starting ORB based identification!");
+	ui->logPlainText->appendHtml("<b>Starting ORB based identification!</b>");
 
     // Read Parameters ...
     int  nfeatures = ui->orbNumFeatText->text().toInt();
@@ -190,7 +308,7 @@ void MainWindow::runORB()
 	ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, directMatches );
     ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
 
-	calculateBestMatches();
+	outlierElimination();
 }
 
 void MainWindow::runBRISK()
@@ -199,8 +317,8 @@ void MainWindow::runBRISK()
 
 	//    BRISK(int thresh = 30, int octaves = 3,float patternScale = 1.0f);
 
-	//ui->logPlainText->appendPlainText("Starting BRISK object detection!");
-	ui->logPlainText->appendHtml("<b>Starting BRISK object detection!</b>");
+	//ui->logPlainText->appendPlainText("Starting BRISK based identification!");
+	ui->logPlainText->appendHtml("<b>Starting BRISK based identification!</b>");
 
 	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 3 Columns
 	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
@@ -232,7 +350,7 @@ void MainWindow::runBRISK()
 	ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches);
 	ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches);
 
-	calculateBestMatches();
+	outlierElimination();
 }
 
 void MainWindow::runCustom()
@@ -247,8 +365,56 @@ void MainWindow::runCustom()
 	std::string descriptorName = ui->descriptorTabs->tabText(ui->descriptorTabs->currentIndex()).toStdString();
 	std::string matcherName = ui->matcherTabs->tabText(ui->matcherTabs->currentIndex()).toStdString();
 
-	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + segmentationName +", "+ detectorName + ", " + descriptorName + ", " + matcherName + ") object detection!</b>"));
+	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + segmentationName +", "+ detectorName + ", " + descriptorName + ", " + matcherName + ") based identification</b> "));
 	
+	/*QString curtime = getCurrentTime();
+	const QString fileName = "palmprint_registration_log_file.xlsx";
+	QAxObject* excel = new QAxObject("Excel.Application");
+	QAxObject* workbooks = excel->querySubObject("Workbooks");
+	QAxObject* workbook = workbooks->querySubObject("Open(const QString&)", fileName);
+	QAxObject* worksheet = workbook->querySubObject("Worksheets");
+	QAxObject* sheet = worksheet->querySubObject("Item(int)", 5);
+	QAxObject* usedrange = sheet->querySubObject("UsedRange");
+	QAxObject* rows = usedrange->querySubObject("Rows");
+	int intRows = rows->property("Count").toInt();
+	
+	QAxObject* identificatorTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 1);
+	identificatorTabs->setProperty("Value", intRows + 1);
+	QAxObject* currentTimeTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 2);
+	currentTimeTabs->setProperty("Value", curtime);
+	QAxObject* firstImageTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 3);
+	firstImageTabs->setProperty("Value", ui->firstImgText->text());
+	QAxObject* secondImageTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 4);
+	secondImageTabs->setProperty("Value", ui->secondImgText->text());*/
+	/*QAxObject* segmentationTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 5);
+	segmentationTabs->setProperty("Value", QString::fromStdString(segmentationName));*/
+	//QAxObject* ExcelCell = sheet->querySubObject("Range(Cells(int,int),Cells(int,int))", intRows + 1, 5, intRows + 1, 6);
+	//ExcelCell->dynamicCall("Merge");
+	/*QString cell;
+	cell.append(QChar(5 - 1 + 'A'));
+	cell.append(QString::number(intRows + 1));
+	cell.append(":");
+	cell.append(QChar(8 - 1 + 'A'));
+	cell.append(QString::number(intRows + 1));
+	QAxObject *range = sheet->querySubObject("Range(const QString&)", cell);
+	range->setProperty("VerticalAlignment", -4108);//xlCenter  
+	range->setProperty("WrapText", true);
+	range->setProperty("MergeCells", true);
+	range->setProperty("Value", QString::fromStdString(segmentationName));
+	QAxObject* detectorTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 7);
+	detectorTabs->setProperty("Value", QString::fromStdString(detectorName));
+
+	QAxObject* descriptorTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 9);
+	descriptorTabs->setProperty("Value", QString::fromStdString(descriptorName));
+
+	QAxObject* matcherTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 11);
+	matcherTabs->setProperty("Value", QString::fromStdString(matcherName));
+
+	excel->setProperty("Visible", true);
+	workbooks->querySubObject("SaveAs()");
+	workbooks->querySubObject("Close()");
+	excel->querySubObject("Quit()");*/
+
 	// Binarization
 	customisingBinarization(segmentationIndex);
 
@@ -259,7 +425,7 @@ void MainWindow::runCustom()
 	customisingDetector(detectorIndex, detectorName);
 
 	//Only detection
-	return;
+	//return;
 
 	// Customising Descriptor...
 	customisingDescriptor(descriptorIndex, descriptorName);
@@ -268,40 +434,44 @@ void MainWindow::runCustom()
 	//return;
 
 	// Clustering descriptor
-	double clusteringTime = (double)cv::getTickCount();
-	if (true){ //Klustering
-		std::vector<cv::Mat> matrix;
-		if (oneToN) {
-			matrix = { firstImgDescriptor };
-			matrix.insert(matrix.end(), setImgsDescriptors.begin(), setImgsDescriptors.end());
-		}
-		else matrix = { firstImgDescriptor, secondImgDescriptor };
-		double compactness = clusteringIntoKClusters(matrix, 1000);
-
-		// Write Kmeans parameters
-		cv::FileStorage fs("params/kmeans_params.yaml", cv::FileStorage::WRITE);
-		fs << "Labels" << labels;
-		fs << "Centers" << centers;
-		fs.release();
+	if (false){
+		clustering();
 	}
-	clusteringTime = ((double)cv::getTickCount() - clusteringTime) / cv::getTickFrequency();
-	ui->logPlainText->appendPlainText("clustering time: " + QString::number(clusteringTime) + " (s)");
 
 	// Customising Matcher...
 	customisingMatcher(matcherIndex, matcherName);
 
-	//return;
-
 	// Find the matching points
-	matching();
+	if (!matching()) return;
 
-	ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + bestMatchingTime) + " (s)");
+	ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + clusteringTime + matchingTime) + " (s)");
 
-	calculateBestMatches();
+	// Keep only best matching according to the selected test
+	outlierElimination();
+
+	if (oneToN){
+		QTextCursor current_cursor = QTextCursor(ui->logPlainText->document());
+		current_cursor.setPosition(prev_cursor_position);
+		current_cursor.insertText("\nFound " + QString::number(setImgsKeypoints[bestScoreIndex].size()) + " key points in the most similar image!");
+	}
+	// View results
+	if (oneToN){
+		displayMatches(bestScoreIndex);
+		writeMatches(bestScoreIndex);
+	}
+	else {
+		displayMatches();
+		writeMatches();
+	}
+
+	float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
+	if (oneToN)ui->logPlainText->appendHtml("The image <b>" + ui->bddImageNames->currentText() + "</b> is Rank-<b>" + QString::number(computeRankK(scoreThreshold)) + "</b>");
+
 }
 
 void MainWindow::on_firstImgBtn_pressed()
 {
+	// Read First Image ...
 	QString str = QFileDialog::getOpenFileName(0, ("Select the 1st Image"), QDir::currentPath());
 	if (!str.trimmed().isEmpty())
 		ui->firstImgText->setText(str);
@@ -309,53 +479,216 @@ void MainWindow::on_firstImgBtn_pressed()
 
 void MainWindow::on_secondImgBtn_pressed()
 {
-	QString str = (ui->selectFolder->isChecked()) ? QFileDialog::getExistingDirectory(0, ("Select a Folder"), QDir::currentPath()) : QFileDialog::getOpenFileName(0, ("Select the 2nd Image"), QDir::currentPath());
+	// Read Second Image(s) ...
+	QString str = (ui->oneToN->isChecked()) ? QFileDialog::getExistingDirectory(0, ("Select a Folder"), QDir::currentPath()) : QFileDialog::getOpenFileName(0, ("Select the 2nd Image"), QDir::currentPath());
 	if (!str.trimmed().isEmpty())
 		ui->secondImgText->setText(str);
 }
 
+void MainWindow::on_refreshBddImageNames_pressed()
+{
+	// Reload image names ...
+	if (ui->oneToN->isChecked()){
+		ui->bddImageNames->clear();
+		readSetOfImages();
+	}
+}
+
 void MainWindow::on_pushButton_pressed()
 {
-	// Read Images ...
-	if (!readFirstImage()) return;
-	oneToN = ui->selectFolder->isChecked();
-	if (oneToN){
-		if (!readSetOfImages()) return;
+<<<<<<< HEAD
+	if (ui->tabWidget_2->currentIndex() == 0) {
+		// Read Images ...
+		if (!readFirstImage()) return;
+		oneToN = ui->selectFolder->isChecked();
+		if (oneToN){
+			if (!readSetOfImages()) return;
+		}
+		else {
+			if (!readSecondImage()) return;
+		}
+
+		// Create a test folder ...
+		if (!createTestFolder()) return;
+
+		// Launch the algorithm
+		switch (ui->allMethodsTabs->currentIndex())
+		{
+		case 0:
+			// SIFT
+			runSIFT();
+			break;
+
+		case 1:
+			// SURF
+			runSURF();
+			break;
+
+		case 2:
+			// ORB
+			runORB();
+			break;
+
+		case 3:
+			// BRISK
+			runBRISK();
+			break;
+
+		default:
+			// custom
+			runCustom();
+			break;
+		}
 	}
 	else {
-		if (!readSecondImage()) return;
+		const QString fileName = "palmprint_registration_log_file.xlsx";
+		QAxObject* excel = new QAxObject("Excel.Application");
+		QAxObject* workbooks = excel->querySubObject("Workbooks");
+		QAxObject* workbook = workbooks->querySubObject("Open(const QString&)", fileName);
+		QAxObject* worksheet = workbook->querySubObject("Worksheets");
+		bool exist = false;
+
+		for (int i = 1; i <= 5; i++) {
+			QAxObject* sheet = worksheet->querySubObject("Item(int)", i);
+			QAxObject* usedrange = sheet->querySubObject("UsedRange");
+			QAxObject* rows = usedrange->querySubObject("Rows");
+			int intRows = rows->property("Count").toInt();
+			for (int j = 2; j <= intRows; j++) {
+				QAxObject* identificatorTabs = sheet->querySubObject("Cells(Int, Int)", j, 1);
+				if (identificatorTabs->dynamicCall("Value()") == ui->spinBox->text()) {
+					
+					cv::Mat firstImage, secondImage, firstImageKeypoints, secondImageKeypoints, outputImage;
+					ui->tabWidget_2->setCurrentIndex(0);
+					ui->allMethodsTabs->setCurrentIndex(0);
+					
+					QAxObject* firstImageTabs = sheet->querySubObject("Cells(Int, Int)", j, 3);
+					firstImage = cv::imread(firstImageTabs->dynamicCall("Value()").toString().toStdString(), CV_LOAD_IMAGE_COLOR);
+					displayImage(firstImage, 1);
+					ui->firstImgText->setText(firstImageTabs->dynamicCall("Value()").toString());
+
+					firstImageKeypoints = cv::imread(("Tests/" + ui->spinBox->text() + "/keypoints1.bmp").toStdString(), CV_LOAD_IMAGE_COLOR);
+					displayFeature(firstImageKeypoints, 1);
+
+					QAxObject* secondImageTabs = sheet->querySubObject("Cells(Int, Int)", j, 4);
+					secondImage = cv::imread(secondImageTabs->dynamicCall("Value()").toString().toStdString(), CV_LOAD_IMAGE_COLOR);
+					displayImage(secondImage, 2);
+					ui->secondImgText->setText(secondImageTabs->dynamicCall("Value()").toString());
+
+					secondImageKeypoints = cv::imread(("Tests/" + ui->spinBox->text() + "/keypoints2.bmp").toStdString(), CV_LOAD_IMAGE_COLOR);
+					displayFeature(secondImageKeypoints, 2);
+
+					outputImage = cv::imread(("Tests/" + ui->spinBox->text() + "/output.png").toStdString(), CV_LOAD_IMAGE_COLOR);
+					displayFeature(outputImage, 3);
+					
+					QAxObject* siftContThreshText = sheet->querySubObject("Cells(Int, Int)", j, 5);
+					ui->siftContThreshText->setText(siftContThreshText->dynamicCall("Value()").toString());
+
+					QAxObject* siftEdgeThreshText = sheet->querySubObject("Cells(Int, Int)", j, 6);
+					ui->siftEdgeThreshText->setText(siftEdgeThreshText->dynamicCall("Value()").toString());
+
+					QAxObject* siftNumFeatText = sheet->querySubObject("Cells(Int, Int)", j, 7);
+					ui->siftNumFeatText->setText(siftNumFeatText->dynamicCall("Value()").toString());
+
+					QAxObject* siftNumOctText = sheet->querySubObject("Cells(Int, Int)", j, 8);
+					ui->siftNumOctText->setText(siftNumOctText->dynamicCall("Value()").toString());
+
+					QAxObject* siftSigmaText = sheet->querySubObject("Cells(Int, Int)", j, 9);
+					ui->siftSigmaText->setText(siftSigmaText->dynamicCall("Value()").toString());
+
+					QAxObject* siftBruteForceCheck = sheet->querySubObject("Cells(Int, Int)", j, 10);
+					ui->siftBruteForceCheck->setChecked(siftBruteForceCheck->dynamicCall("Value()").toBool());
+
+					
+					ui->logPlainText->appendHtml("<b style='color:green'>Starting SIFT object importation !</b>");
+
+					QAxObject* firstKeypoints = sheet->querySubObject("Cells(Int, Int)", j, 11);
+					ui->logPlainText->appendHtml("Found " + firstKeypoints->dynamicCall("Value()").toString() + " key points in the first image!");
+
+					QAxObject* secondKeypoints = sheet->querySubObject("Cells(Int, Int)", j, 12);
+					ui->logPlainText->appendHtml("Found " + secondKeypoints->dynamicCall("Value()").toString() + " key points in the second image!");
+
+					QAxObject* bestMatches = sheet->querySubObject("Cells(Int, Int)", j, 13);
+					ui->logPlainText->appendHtml("Number of Best key point matches = " + bestMatches->dynamicCall("Value()").toString() + "/" + QString::number(std::min(firstKeypoints->dynamicCall("Value()").toString().toInt(), secondKeypoints->dynamicCall("Value()").toString().toInt())));
+
+					QAxObject* sumDistancesMeasure = sheet->querySubObject("Cells(Int, Int)", j, 14);
+					ui->logPlainText->appendHtml("Sum of distances = " + sumDistancesMeasure->dynamicCall("Value()").toString());
+
+					QAxObject* probabilityMeasure = sheet->querySubObject("Cells(Int, Int)", j, 15);
+					ui->logPlainText->appendHtml("Probability = " + QString::number(probabilityMeasure->dynamicCall("Value()").toString().toFloat() * 100) + "%");
+
+					exist = true;
+					break;
+				}
+			}
+		}
+		if (!exist) ui->logPlainText->appendHtml("<b style='color:red'>Please check the entered number because no ID matches this number!</b>");
+
+		excel->setProperty("Visible", false);
+		workbooks->querySubObject("Close()");
+		excel->querySubObject("Quit()");
+=======
+	// Read Images ...
+	if (!readFirstImage()){
+		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 1st input file!</b>"); 
+		return;
+	}
+	oneToN = ui->oneToN->isChecked();
+
+	if (oneToN) {
+		readSetOfImages();
+		if (setImgs.size() == 0){
+			showError("Read Images", "There is no image in the folder: " + ui->secondImgText->text().toStdString(), "Make sure that the folder '<i>" + ui->secondImgText->text().toStdString() + "'</i>  contains one or more images with correct extension!");
+			return;
+		}
+	}
+	else {
+		if (!readSecondImage()) {
+			ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 2nd input file!</b>");
+			return;
+		}
 	}
 
 	// Create a test folder ...
 	if (!createTestFolder()) return;
-	
+
+	if(oneToN) matchingMasks = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
+	else matchingMask = cv::Mat();
+
 	// Launch the algorithm
 	switch (ui->allMethodsTabs->currentIndex())
 	{
 	case 0:
-		// SIFT
-		runSIFT();
-		break;
+		// default
+		switch (ui->defaultTabs->currentIndex())
+		{
+		case 0:
+			// SIFT
+			runSIFT();
+			break;
 
+		case 1:
+			// SURF
+			runSURF();
+			break;
+
+		case 2:
+			// ORB
+			runORB();
+			break;
+
+		case 3:
+		default:
+			// BRISK
+			runBRISK();
+			break;
+		}
+		break;
 	case 1:
-		// SURF
-		runSURF();
-		break;
-
-	case 2:
-		// ORB
-		runORB();
-		break;
-
-	case 3:
-		// BRISK
-		runBRISK();
-		break;
-
 	default:
 		// custom
 		runCustom();
 		break;
+>>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
 	}
 }
 
@@ -376,74 +709,45 @@ void MainWindow::on_actionClear_Log_triggered()
 
 void MainWindow::on_actionSave_Log_File_As_triggered()
 {
-	/*QString fileName = QFileDialog::getSaveFileName(this,
-		tr("Save Log File"), "palmprint_registration_log_file",
-		tr("Excel Workbook (*.xlsx);;All Files (*)"));
-	if (fileName.isEmpty())
-		return;
-	else {
-		QFile file(fileName);
-		if (!file.open(QIODevice::WriteOnly)) {
-			QMessageBox::information(this, tr("Unable to open file"),
-				file.errorString());
-			return;
-		}
-		QDataStream out(&file);
-		out.setVersion(QDataStream::Qt_4_5);
-		// We must fix it !
-		out << ui->logPlainText->toPlainText();// .toStdString().c_str();
-	}*/
-
 	try
 	{
-        const QString fileName = "palmprint_registration_log_file.xlsx";
+        const QString fileName = "palmprint_registration_log_file7.xlsx";
 
-        //ExcelExportHelper helper;
-
-        auto t = std::time(nullptr);
-        auto tm = *std::localtime(&t);
-        std::ostringstream oss;
-        oss << std::put_time(&tm, "%d-%m-%Y %H.%M");
-        auto str = oss.str();
-        QString curtime = QString::fromStdString(str);
-
-        /*helper.Open(fileName);
+        /*ExcelExportHelper helper;
+        helper.Open(fileName);
         helper.SetCellValue(1, 1, ui->matcherTabs->tabText(ui->matcherTabs->currentIndex()));
         helper.SetCellValue(1, 2, curtime);*/
         QAxObject* excel = new QAxObject("Excel.Application");
         QAxObject* workbooks = excel->querySubObject("Workbooks");
         QAxObject* workbook = workbooks->querySubObject("Open(const QString&)", fileName);
-        QAxObject* worksheet = workbook->querySubObject("Worksheets(int)", 0);
+        QAxObject* worksheet = workbook->querySubObject("Worksheets");
+		QAxObject* sheet = worksheet->querySubObject("Item(int)", ui->allMethodsTabs->currentIndex() + 1);
+		QAxObject* usedrange = sheet->querySubObject("UsedRange");
+		QAxObject* rows = usedrange->querySubObject("Rows");
+		int intRows = rows->property("Count").toInt();
 
         switch (ui->allMethodsTabs->currentIndex())
         {
         case 0:
         {
             // SIFT
-            QAxObject* siftSheet = worksheet->querySubObject( "Item(int)", 1 );
 
-            QAxObject* siftUsedrange = siftSheet->querySubObject("UsedRange");
-
-            QAxObject* siftRows = siftUsedrange->querySubObject("Rows");
-
-            int intRows = siftRows->property("Count").toInt();
-
-            QAxObject* siftContThreshText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 1);
+            QAxObject* siftContThreshText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 1);
             siftContThreshText->setProperty("Value", ui->siftContThreshText->text());
 
-            QAxObject* siftEdgeThreshText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 2);
+            QAxObject* siftEdgeThreshText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 2);
             siftEdgeThreshText->setProperty("Value", ui->siftEdgeThreshText->text());
 
-            QAxObject* siftNumFeatText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 3);
+            QAxObject* siftNumFeatText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 3);
             siftNumFeatText->setProperty("Value", ui->siftNumFeatText->text());
 
-            QAxObject* siftNumOctText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 4);
+            QAxObject* siftNumOctText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 4);
             siftNumOctText->setProperty("Value", ui->siftNumOctText->text());
 
-            QAxObject* siftSigmaText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 5);
+            QAxObject* siftSigmaText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 5);
             siftSigmaText->setProperty("Value", ui->siftSigmaText->text());
 
-            QAxObject* siftBruteForceCheck = excel->querySubObject("Cells(Int, Int)", intRows + 1, 6);
+            QAxObject* siftBruteForceCheck = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 6);
             siftBruteForceCheck->setProperty("Value", ui->siftBruteForceCheck->isChecked());
 
             break;
@@ -451,30 +755,23 @@ void MainWindow::on_actionSave_Log_File_As_triggered()
         case 1:
         {
             // SURF
-            QAxObject* surfSheet = worksheet->querySubObject( "Item(int)", 2 );
 
-            QAxObject* surfUsedrange = surfSheet->querySubObject("UsedRange");
-
-            QAxObject* surfRows = surfUsedrange->querySubObject("Rows");
-
-            int intRows = surfRows->property("Count").toInt();
-
-            QAxObject* surfHessianThreshText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 1);
+            QAxObject* surfHessianThreshText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 1);
             surfHessianThreshText->setProperty("Value", ui->surfHessianThreshText->text());
 
-            QAxObject* surfNumOctavesText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 2);
+            QAxObject* surfNumOctavesText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 2);
             surfNumOctavesText->setProperty("Value", ui->surfNumOctavesText->text());
 
-            QAxObject* surfNumOctLayersText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 3);
+            QAxObject* surfNumOctLayersText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 3);
             surfNumOctLayersText->setProperty("Value", ui->surfNumOctLayersText->text());
 
-            QAxObject* surfExtendedText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 4);
+            QAxObject* surfExtendedText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 4);
             surfExtendedText->setProperty("Value", ui->surfExtendedText->isChecked());
 
-            QAxObject* surfUprightText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 5);
+            QAxObject* surfUprightText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 5);
             surfUprightText->setProperty("Value", ui->surfUprightText->isChecked());
 
-            QAxObject* surfBruteForceCheck = excel->querySubObject("Cells(Int, Int)", intRows + 1, 6);
+            QAxObject* surfBruteForceCheck = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 6);
             surfBruteForceCheck->setProperty("Value", ui->surfBruteForceCheck->isChecked());
 
             break;
@@ -483,37 +780,29 @@ void MainWindow::on_actionSave_Log_File_As_triggered()
         case 2:
         {
             // ORB
-            QAxObject* orbSheet = worksheet->querySubObject( "Item(int)", 3 );
-            qDebug () << orbSheet->property("Name");
 
-            QAxObject* orbUsedrange = orbSheet->querySubObject("UsedRange");
-
-            QAxObject* orbRows = orbUsedrange->querySubObject("Rows");
-
-            int intRows = orbRows->property("Count").toInt();
-
-            QAxObject* orbNumFeatText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 1);
+            QAxObject* orbNumFeatText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 1);
             orbNumFeatText->setProperty("Value", ui->orbNumFeatText->text());
 
-            QAxObject* orbScaleFactText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 2);
+            QAxObject* orbScaleFactText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 2);
             orbScaleFactText->setProperty("Value", ui->orbScaleFactText->text());
 
-            QAxObject* orbNumLevelsText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 3);
+            QAxObject* orbNumLevelsText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 3);
             orbNumLevelsText->setProperty("Value", ui->orbNumLevelsText->text());
 
-            QAxObject* orbEdgeThreshText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 4);
+            QAxObject* orbEdgeThreshText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 4);
             orbEdgeThreshText->setProperty("Value", ui->orbEdgeThreshText->text());
 
-            QAxObject* orbFirstLevText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 5);
+            QAxObject* orbFirstLevText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 5);
             orbFirstLevText->setProperty("Value", ui->orbFirstLevText->text());
 
-            QAxObject* orbWTAKText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 6);
+            QAxObject* orbWTAKText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 6);
             orbWTAKText->setProperty("Value", ui->orbWTAKText->text());
 
-            QAxObject* scoreType = excel->querySubObject("Cells(Int, Int)", intRows + 1, 7);
+            QAxObject* scoreType = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 7);
             scoreType->setProperty("Value", ui->orbScoreHarrisRadioBtn->isChecked());
 
-            QAxObject* orbPatchSizeText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 8);
+            QAxObject* orbPatchSizeText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 8);
             orbPatchSizeText->setProperty("Value", ui->orbPatchSizeText->text());
 
             break;
@@ -521,21 +810,14 @@ void MainWindow::on_actionSave_Log_File_As_triggered()
         case 3:
         {
             // BRISK
-            QAxObject* briskSheet = worksheet->querySubObject( "Item(int)", 4 );
 
-            QAxObject* briskUsedrange = briskSheet->querySubObject("UsedRange");
-
-            QAxObject* briskRows = briskUsedrange->querySubObject("Rows");
-
-            int intRows = briskRows->property("Count").toInt();
-
-            QAxObject* briskPatternScaleText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 1);
+            QAxObject* briskPatternScaleText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 1);
             briskPatternScaleText->setProperty("Value", ui->briskPatternScaleText->text());
 
-            QAxObject* briskOctavesText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 2);
+            QAxObject* briskOctavesText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 2);
             briskOctavesText->setProperty("Value", ui->briskOctavesText->text());
 
-            QAxObject* briskThreshText = excel->querySubObject("Cells(Int, Int)", intRows + 1, 3);
+            QAxObject* briskThreshText = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 3);
             briskThreshText->setProperty("Value", ui->briskThreshText->text());
 
             break;
@@ -543,15 +825,8 @@ void MainWindow::on_actionSave_Log_File_As_triggered()
         default:
         {
             // Custom
-            QAxObject* customSheet = worksheet->querySubObject( "Item(int)", 5 );
 
-            QAxObject* customUsedrange = customSheet->querySubObject("UsedRange");
-
-            QAxObject* customRows = customUsedrange->querySubObject("Rows");
-
-            int intRows = customRows->property("Count").toInt();
-
-            QAxObject* segmentationTabs = excel->querySubObject("Cells(Int, Int)", intRows + 1, 1);
+            QAxObject* segmentationTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 1);
             segmentationTabs->setProperty("Value", ui->segmentationTabs->tabText(ui->segmentationTabs->currentIndex()));
 
             int segmentationIndex = ui->segmentationTabs->currentIndex();
@@ -578,13 +853,13 @@ void MainWindow::on_actionSave_Log_File_As_triggered()
                 break;
             }
 
-            QAxObject* detectorTabs = excel->querySubObject("Cells(Int, Int)", intRows + 1, 3);
+            QAxObject* detectorTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 3);
             detectorTabs->setProperty("Value", ui->detectorTabs->tabText(ui->detectorTabs->currentIndex()));
 
-            QAxObject* descriptorTabs = excel->querySubObject("Cells(Int, Int)", intRows + 1, 5);
+            QAxObject* descriptorTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 5);
             descriptorTabs->setProperty("Value", ui->descriptorTabs->tabText(ui->descriptorTabs->currentIndex()));
 
-            QAxObject* matcherTabs = excel->querySubObject("Cells(Int, Int)", intRows + 1, 7);
+            QAxObject* matcherTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 7);
             matcherTabs->setProperty("Value", ui->matcherTabs->tabText(ui->matcherTabs->currentIndex()));
 
             break;
@@ -620,6 +895,60 @@ void MainWindow::on_actionAbout_Me_triggered()
 					   "<br><br><a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>");
 }
 
+void MainWindow::on_refreshRankkGraph_pressed(){
+	std::vector<int> rankkDataFromExcel = { 1, 1, 2, 3, 1, 8, 1, 2, 3, 5, 5, 10, 9, 13, 12, 13, 25, 23, 24, 2, 3, 6, 1, 1, 2, 3, 1, 8, 1, 2, 3, 5, 5, 10, 9, 13, 12, 13, 2, 3, 6, 5, 1 };
+	int maxRank = rankkDataFromExcel.size();
+	int nbRank0FromExcel = 20; // for example we have 5 rank-0
+	
+	if (ui->graphWidget->graphCount()){ 
+		ui->graphWidget->clearGraphs();
+		ui->graphWidget->clearItems();
+	}
+	if (maxRank > 0){
+		std::sort(rankkDataFromExcel.begin(), rankkDataFromExcel.end());
+		rankkData = std::vector<std::pair<int, float>>(rankkDataFromExcel[maxRank - 1], std::pair<int, float>());
+
+		int cpt = maxRank, toretrive = 0;
+		rankkData[rankkDataFromExcel[maxRank - 1] - 1] = std::make_pair(rankkDataFromExcel[maxRank - 1], cpt);
+		for (int i = maxRank - 2; i > 0; i--){
+			if (rankkDataFromExcel[i] != rankkDataFromExcel[i + 1]) {
+				cpt--;
+				rankkData[rankkDataFromExcel[i] - 1] = std::make_pair(rankkDataFromExcel[i], cpt);
+			}
+			else cpt--;
+		}
+		if (rankkData[0].first == 0)rankkData[0] = std::make_pair(1, 0);
+		for (int i = 1; i < rankkData.size(); i++)
+		{
+			if (rankkData[i].first == 0)rankkData[i] = std::make_pair(i + 1, rankkData[i - 1].second);
+		}
+		rankkData.insert(rankkData.begin(), std::make_pair<int, float>(0, static_cast<float>(nbRank0FromExcel) / static_cast<float>(maxRank + nbRank0FromExcel) * 100));
+		for (std::pair<int, float> p : rankkData)qDebug() << p.first<< " " << p.second;
+		connect(ui->graphWidget, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showRankkToolTip(QMouseEvent*)));
+		drowRankk(maxRank);
+	}
+	else {
+		showError("Show Rank-k Graph", "No data to show!", "You can Show Rank-k Graph after launching some tests!");
+		//disconnect(ui->graphWidget, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showRankkToolTip(QMouseEvent*)));
+	}
+}
+
+int MainWindow::computeRankK(float scoreThreshold){
+	int rankK = 0;
+	std::vector<std::pair<float, int>> scoreSetCollection;
+	for (int i = 0; i < scoreSet.size(); i++) scoreSetCollection.push_back(std::make_pair(scoreSet[i], i));
+	// Sort from the best score to the least
+	std::sort(scoreSetCollection.begin(), scoreSetCollection.end(), std::greater<std::pair<float, int>>());
+	while ((rankK < scoreSetCollection.size()) && (scoreSetCollection[rankK].first > scoreThreshold)){
+		if (scoreSetCollection[rankK].second == ui->bddImageNames->currentIndex()){
+			rankK++;
+			return rankK; 
+		}
+		else rankK++;
+	}
+	return 0;
+}
+
 bool MainWindow::readFirstImage(){
 	// Read Image ...
 	if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex() == 4)){
@@ -633,7 +962,6 @@ bool MainWindow::readFirstImage(){
 	// Check if the Images are loaded correctly ...
 	if (firstImg.empty())
 	{
-		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 1st input file!</b>");
 		return false;
 	}
 	if ((firstImg.cols < 100) && (firstImg.rows < 100))
@@ -659,7 +987,6 @@ bool MainWindow::readSecondImage(){
 	// Check if the Images are loaded correctly ...
 	if (secondImg.empty())
 	{
-		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 2nd input file!</b>");
 		return false;
 	}
 
@@ -673,36 +1000,63 @@ bool MainWindow::readSecondImage(){
 }
 
 bool MainWindow::readSetOfImages(){
+	setImgs.clear();
 	// Read Data Set of Images ...
-	std::string datapath = ui->secondImgText->text().toStdString()+"/";
-	int nbFile = fileCounter(datapath, "(", ")", ".jpg");
-	for (int f = 1; f <= nbFile; f++){
-		std::ostringstream filename;
-		filename << datapath << "(" << f << ").jpg";
-		//open the file
-		cv::Mat img;
-		if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex() == 4)){
-			// Custom && OpponentColor
-			img = cv::imread(filename.str(), CV_LOAD_IMAGE_COLOR);
-		}
-		else{
-			img = cv::imread(filename.str(), cv::IMREAD_GRAYSCALE); //or CV_LOAD_IMAGE_GRAYSCALE
-		}
+	std::wstring wdatapath = ui->secondImgText->text().toStdWString();
+	
+	tinydir_dir dir;
+	tinydir_open(&dir, (const TCHAR*)wdatapath.c_str());
 
-		// Check if the Images are loaded correctly ...
-		if (img.empty())
-		{
-			ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the " + QString::number(f) + "th input of '" + QString::fromStdString(datapath) + "' folder!</b>");
-			return false;
+	while (dir.has_next)
+	{
+		tinydir_file file;
+		tinydir_readfile(&dir, &file);
+
+		if (!file.is_dir)
+		{   // this is a file
+			// get its name
+			std::wstring wfilename = file.name;
+			std::string datapath(wdatapath.begin(), wdatapath.end());
+			std::string filename(wfilename.begin(), wfilename.end());
+			std::string datapath_filename = datapath + "/" + filename;
+
+			cv::Mat img;
+			if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex() == 4)){
+				// Custom && OpponentColor
+				img = cv::imread(datapath_filename, CV_LOAD_IMAGE_COLOR);
+			}
+			else{
+				img = cv::imread(datapath_filename, cv::IMREAD_GRAYSCALE); //or CV_LOAD_IMAGE_GRAYSCALE
+			}
+
+			// Check if the Images are loaded correctly ...
+			if (!img.empty())
+			{
+				if ((img.cols < 100) && (img.rows < 100))
+				{
+					cv::resize(img, img, cv::Size(), 200 / img.rows, 200 / img.cols);
+				}
+				// store the name and the image
+				setImgs.push_back(std::make_pair(filename, img));
+
+				// show names in the combobox
+				ui->bddImageNames->addItem(QString::fromStdString(filename));
+			}
 		}
-		if ((img.cols < 100) && (img.rows < 100))
-		{
-			cv::resize(img, img, cv::Size(), 200 / img.rows, 200 / img.cols);
-		}
-		//displayImage(img, 2);
-		setImgs.push_back(img);
+		tinydir_next(&dir);
 	}
-	displayImage(setImgs[setImgs.size() - 1], 2);
+	tinydir_close(&dir);
+
+	if (setImgs.size() == 0) {
+		return false;
+	}
+	else if (setImgs.size() == 1){
+		// one to one image
+		secondImg = setImgs[setImgs.size() - 1].second;
+		oneToN = false;
+	}
+	// display the last image
+	displayImage(setImgs[setImgs.size() - 1].second, 2);
 	return true;
 }
 
@@ -713,7 +1067,6 @@ bool MainWindow::createTestFolder(){
 		FILE *file;
 		/*first check if the file exists...*/
 		infile.open("Tests/next.txt");
-		int cpt;
 		/*...then open it in the appropriate way*/
 		if (infile.is_open()) {
 			// existing file
@@ -746,6 +1099,18 @@ bool MainWindow::createTestFolder(){
 			// Rest parameters :
 			resetParams();
 			directoryPath = "Tests/" + std::to_string(cpt) + "/";
+			if (oneToN && setImgs.size() > 1){
+				// Create a sub directory for all outmput matches
+				wchar_t _outputsPath[256];
+				wsprintfW(_outputsPath, L"Tests/%d/all matches", cpt);
+				if (CreateDirectory(_outputsPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
+				{
+					// success
+				}
+				else {
+					showError("Creating directory", "Cannot create a directory to store matches", "Make sure that " + directoryPath + " existes");
+				}
+			}
 			return true;
 		}
 		else
@@ -829,12 +1194,10 @@ void MainWindow::resetParams()
 		firstImgDescriptor.release(); secondImgDescriptor.release(); setImgsDescriptors.clear();
 		firstEnhancedImage.release(); secondEnhancedImage.release(); setEnhancedImages.clear();
 		firstSegmentedImage.release(); secondSegmentedImage.release(); setSegmentedImages.clear();
-		directMatches.clear(); inverseMatches.clear(); bestMatches.clear();
-		knnMatches.clear();
-		bestImgMatches.release();
-		//delete ptrDetector;
-		//delete ptrDescriptor;
-		//delete ptrMatcher;
+		directMatches.clear(); inverseMatches.clear(); twoMatches.clear(); goodMatches.clear(); badMatches.clear();
+		directMatchesSet.clear(); inverseMatchesSet.clear(); twoMatchesSet.clear(); goodMatchesSet.clear(); badMatchesSet.clear();
+		sumDistancesSet.clear(); scoreSet.clear();
+		matchingMask.release(); matchingMasks.clear();
 	}
 	catch (...){
 		ui->logPlainText->appendHtml("<b style='color:yellow'>Enable to free some structures!</b>");
@@ -893,11 +1256,11 @@ void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &
 	}
 }
 
-double MainWindow::clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k){
+double MainWindow::kMeans(std::vector<cv::Mat> features_vector, int k){
 // K : The number of clusters to split the samples in rawFeatureData (retrieved from 'OpenCV 3 Blueprints' book)
 	int nbRows = firstImgDescriptor.rows;
 	if (oneToN){
-		for each (cv::Mat descriptor in setImgsDescriptors)
+		for (cv::Mat descriptor : setImgsDescriptors)
 		{
 			nbRows += descriptor.rows;
 		}
@@ -916,6 +1279,30 @@ double MainWindow::clusteringIntoKClusters(std::vector<cv::Mat> features_vector,
 	return result;
 }
 // <--------------
+void MainWindow::clustering(){
+	// use kmeans algorithme to cluster descriptors
+	clusteringTime = (double)cv::getTickCount();
+	std::vector<cv::Mat> matrix;
+	if (oneToN) {
+		matrix = { firstImgDescriptor };
+		matrix.insert(matrix.end(), setImgsDescriptors.begin(), setImgsDescriptors.end());
+	}
+	else matrix = { firstImgDescriptor, secondImgDescriptor };
+	try{
+		double compactness = kMeans(matrix, 40);
+	}
+	catch (...){
+		ui->logPlainText->appendHtml("<i style='color:red'>The number of clusters is too high, try another!</i>");
+		return;
+	}
+	// Write Kmeans parameters
+	cv::FileStorage fs("params/kmeans_params.yaml", cv::FileStorage::WRITE);
+	fs << "Labels" << labels;
+	fs << "Centers" << centers;
+	fs.release();
+	clusteringTime = ((double)cv::getTickCount() - clusteringTime) / cv::getTickFrequency();
+	ui->logPlainText->appendPlainText("clustering time: " + QString::number(clusteringTime) + " (s)");
+}
 
 QImage MainWindow::matToQImage(const cv::Mat& mat)
 {
@@ -958,6 +1345,7 @@ void MainWindow::displayImage(cv::Mat imageMat, int first_second)
 
 	myUiScene->setScene(featureScene);
 	myUiScene->fitInView(featureScene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
+	//myUiScene->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 }
 
 void MainWindow::displayFeature(cv::Mat featureMat, int first_second)
@@ -969,9 +1357,115 @@ void MainWindow::displayFeature(cv::Mat featureMat, int first_second)
 	QImage featureImg((const uchar *)featureMat.data, featureMat.cols, featureMat.rows, featureMat.step, QImage::Format_RGB888);
 	featureScene->addPixmap(QPixmap::fromImage(featureImg));
 
-	QGraphicsView *myUiScene = (first_second == 1) ? ui->viewKeyPoints1 : ui->viewKeyPoints2;
+	QGraphicsView *myUiScene;
+	if (first_second == 1) myUiScene = ui->viewKeyPoints1;
+	else if (first_second == 2) myUiScene = ui->viewKeyPoints2;
+	else myUiScene = ui->viewMatches;
 	myUiScene->setScene(featureScene);
 	myUiScene->fitInView(featureScene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
+	//myUiScene->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+}
+
+void MainWindow::displayMatches(int imgIndex){
+// Displays matches in the table and point to imgIndex if 1 to N
+	QStandardItemModel *model = new QStandardItemModel(0, 6, this); //0 Rows and 6 Columns
+	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
+	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
+	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
+	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
+	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
+	model->setHorizontalHeaderItem(5, new QStandardItem(QString("Accepted/Rejected")));
+
+	disconnect(ui->viewMatchesImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	disconnect(ui->viewTableImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	ui->viewMatchesImageNameText->setCurrentIndex(imgIndex);
+	ui->viewTableImageNameText->setCurrentIndex(imgIndex);
+	connect(ui->viewMatchesImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	connect(ui->viewTableImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+
+	if (oneToN) {
+		goodMatches = goodMatchesSet[imgIndex];
+		badMatches = badMatchesSet[imgIndex];
+		sumDistances = sumDistancesSet[imgIndex];
+		score = scoreSet[imgIndex];
+	}
+	int i = 0;
+	for (cv::DMatch match : goodMatches){
+		// Add information to the table
+		QStandardItem *x1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.x));
+		model->setItem(i, 0, x1);
+		QStandardItem *y1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.y));
+		model->setItem(i, 1, y1);
+		if (oneToN){
+			QStandardItem *x2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.x));
+			model->setItem(i, 2, x2);
+			QStandardItem *y2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.y));
+			model->setItem(i, 3, y2);
+		}
+		else{
+			QStandardItem *x2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.x));
+			model->setItem(i, 2, x2);
+			QStandardItem *y2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.y));
+			model->setItem(i, 3, y2);
+		}
+		QStandardItem *dist = new QStandardItem(QString::number(match.distance));
+		model->setItem(i, 4, dist);
+
+		QStandardItem *accepted = new QStandardItem("Accepted");
+		accepted->setData(QColor(Qt::green), Qt::BackgroundRole);
+		model->setItem(i, 5, accepted);
+		i++;
+	}
+	for (cv::DMatch match : badMatches){
+		// Add information to the table
+		QStandardItem *x1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.x));
+		model->setItem(i, 0, x1);
+		QStandardItem *y1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.y));
+		model->setItem(i, 1, y1);
+		if (oneToN){
+			QStandardItem *x2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.x));
+			model->setItem(i, 2, x2);
+			QStandardItem *y2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.y));
+			model->setItem(i, 3, y2);
+		}
+		else{
+			QStandardItem *x2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.x));
+			model->setItem(i, 2, x2);
+			QStandardItem *y2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.y));
+			model->setItem(i, 3, y2);
+		}
+		QStandardItem *dist = new QStandardItem(QString::number(match.distance));
+		model->setItem(i, 4, dist);
+
+		QStandardItem *rejected = new QStandardItem("Rejected");
+		rejected->setData(QColor(Qt::red), Qt::BackgroundRole);
+		model->setItem(i, 5, rejected);
+		i++;
+	}
+	ui->viewTable->setModel(model);
+
+	// Add the image to the viewer
+	QGraphicsScene *matchingScene = new QGraphicsScene();
+
+	cv::Mat drawImg;
+	if (oneToN) drawImg = cv::imread(directoryPath + "/all matches/" + std::to_string(imgIndex) + ".jpg");
+	else drawImg = cv::imread(directoryPath + "output.jpg");
+	QImage img = matToQImage(drawImg);
+	matchingScene->addPixmap(QPixmap::fromImage(img));
+
+	ui->viewMatches->setScene(matchingScene);
+	ui->viewMatches->fitInView(matchingScene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
+	//ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+
+	// Add infos to Matcher viewer
+	float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size()+badMatches.size()) * 100;
+	float badProbability = static_cast<float>(badMatches.size()) / static_cast<float>(goodMatches.size() + badMatches.size()) * 100;
+	float average = sumDistances / static_cast<float>(goodMatches.size());
+
+	ui->viewMatchesGoodMatchesText->setText("<b style='color:green'>" + QString::number(goodMatches.size()) + "</b>/" + QString::number(goodMatches.size() + badMatches.size()) + " = <b style = 'color:green'>" + QString::number(goodProbability) + "</b>%");
+	ui->viewMatchesBadMatchesText->setText("<b style='color:red'>" + QString::number(badMatches.size()) + "</b>/" + QString::number(goodMatches.size() + badMatches.size()) + " = <b style = 'color:red'>" + QString::number(badProbability) + "</b>%");
+	ui->viewMatchesAverageMatchesText->setText(QString::number(average));
+	ui->viewMatchesScoreMatchesText->setText("<b>"+QString::number(score)+"</b>");
 }
 
 template <typename T>
@@ -1004,11 +1498,81 @@ void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first
 			color = cv::Mat(roi.size(), CV_8UC3, cv::Scalar(0, 128, 0));    //green square for simple keyPoint
 		}
 		addWeighted(color, alpha, roi, 1.0 - alpha, 0.0, roi);
-	EndDisplayingKeyPoint_LABEL:
+		EndDisplayingKeyPoint_LABEL:
 		;
 	}
 	displayFeature(outImg, first_second);  // Show our image inside the viewer.
 	if (fileName != "")cv::imwrite(directoryPath + fileName + ".bmp", outImg);
+}
+
+void MainWindow::writeMatches(int imgIndex){
+// Write and Shows matches
+	cv::Mat drawImg;
+	disconnect(ui->viewMatchesImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	disconnect(ui->viewTableImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+
+	ui->viewMatchesImageNameText->clear();
+	ui->viewTableImageNameText->clear();
+	if (oneToN){
+		// 1 to N and There is a best match  
+		for (size_t i = 0; i < setImgs.size(); i++)
+		{
+			ui->viewMatchesImageNameText->addItem(QString::fromStdString(setImgs[i].first));
+			ui->viewTableImageNameText->addItem(QString::fromStdString(setImgs[i].first));
+			// Draw and Store bad matches
+			cv::drawMatches(firstImg, firstImgKeypoints, setImgs[i].second, setImgsKeypoints[i],
+				badMatchesSet[i], drawImg, cv::Scalar(0, 0, 255), cv::Scalar(0, 255, 255));
+
+			// Draw and Store best matches
+			cv::drawMatches(firstImg, firstImgKeypoints, setImgs[i].second, setImgsKeypoints[i],
+				goodMatchesSet[i], drawImg, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 255), std::vector<char>(), cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
+
+			std::string filename = directoryPath + "/all matches/" + std::to_string(i) + ".jpg";
+			if (!cv::imwrite(filename, drawImg))
+				ui->logPlainText->appendHtml("<b style='color:orange'>Image " + QString::fromStdString(filename) + "  can not be saved (may be because directory " + QString::fromStdString(directoryPath) + "  does not exist) !</b>");
+				
+			if (i == bestScoreIndex){
+				// Add the image to the viewer
+				QGraphicsScene *matchingScene = new QGraphicsScene();
+
+				QImage img = matToQImage(drawImg);
+				matchingScene->addPixmap(QPixmap::fromImage(img));
+
+				ui->viewMatches->setScene(matchingScene);
+				ui->viewMatches->fitInView(matchingScene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
+				//ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+			}
+		}
+	}
+	else{
+		// 1 to 1
+		// Draw and Store bad matches
+		cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
+			badMatches, drawImg, cv::Scalar(0, 0, 255), cv::Scalar(0, 255, 255));
+		// Draw and Store best matches
+		cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
+			goodMatches, drawImg, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 255), std::vector<char>(), cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
+		if (!cv::imwrite(directoryPath + "output.jpg", drawImg))
+			ui->logPlainText->appendHtml("<b style='color:orange'>Matches Image can not be saved (may be because directory " + QString::fromStdString(directoryPath) + "  does not exist) !</b>");
+		
+		// Add the image to the viewer
+		QGraphicsScene *matchingScene = new QGraphicsScene();
+
+		QImage img = matToQImage(drawImg);
+		matchingScene->addPixmap(QPixmap::fromImage(img));
+
+		ui->viewMatches->setScene(matchingScene);
+		ui->viewMatches->fitInView(matchingScene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
+		//ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+	}
+	// Choose matches to display
+	ui->viewMatchesImageNameText->setItemData(imgIndex, QBrush(Qt::green), Qt::BackgroundRole);
+	ui->viewTableImageNameText->setItemData(imgIndex, QBrush(Qt::green), Qt::BackgroundRole);
+	ui->viewMatchesImageNameText->setCurrentIndex(imgIndex);
+	ui->viewTableImageNameText->setCurrentIndex(imgIndex);
+
+	connect(ui->viewMatchesImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
+	connect(ui->viewTableImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
 }
 
 void MainWindow::customisingBinarization(int segmentationIndex){
@@ -1023,12 +1587,10 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 		localThreshold::binarisation(firstImg, 41, 56);
 		if (oneToN)
 		{
-			int i = 0;
-			for each (cv::Mat img in setImgs){
-				i++;
-				try{ localThreshold::binarisation(img, 41, 56); }
+			for (int i = 0; i < setImgs.size(); i++){
+				try{ localThreshold::binarisation(setImgs[i].second, 41, 56); }
 				catch (cv::Exception e){
-					showError("Binarization", "Error in the " + std::to_string(i) + " image", e.msg);
+					showError("Binarization", "Error in the image '" + setImgs[i].first + "'", e.msg);
 				}
 			}
 		}
@@ -1037,15 +1599,18 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 		double threshold = ui->segmentationThresholdText->text().toFloat();
 		cv::threshold(firstImg, firstImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
 		if (oneToN)
-			for each (cv::Mat img in setImgs) {
-				cv::threshold(img, img, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
+			for (int i = 0; i < setImgs.size(); i++){
+				try{ cv::threshold(setImgs[i].second, setImgs[i].second, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU); }
+				catch (cv::Exception e){
+					showError("Thresholding", "Error in the image '" + setImgs[i].first + "'", e.msg);
+				}
 			}
 		else cv::threshold(secondImg, secondImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
 		
 		//ideka::binOptimisation(firstImg);
 		//ideka::binOptimisation(secondImg);
 		cv::imwrite(directoryPath + "f-1_Binarization.bmp", firstImg);
-		if (oneToN) cv::imwrite(directoryPath + "l-1_Binarization.bmp", setImgs[setImgs.size()-1]);
+		if (oneToN) cv::imwrite(directoryPath + "l-1_Binarization.bmp", setImgs[setImgs.size() - 1].second);
 		else cv::imwrite(directoryPath + "s-1_Binarization.bmp", secondImg);
 	}
 }
@@ -1061,12 +1626,10 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		cv::imwrite(directoryPath + "f-2_Morphological Skeleton.bmp", firstImg);
 		if (oneToN)
 		{
-			int i = 0;
-			for each (cv::Mat img in setImgs){
-				setImgs[i] = skeletonization(img);
-				i++;
+			for (int i = 0; i < setImgs.size();i++){
+				setImgs[i].second = skeletonization(setImgs[i].second);
 			}
-			cv::imwrite(directoryPath + "l-2_Morphological Skeleton.bmp", setImgs[setImgs.size() - 1]);
+			cv::imwrite(directoryPath + "l-2_Morphological Skeleton.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			secondImg = skeletonization(secondImg);
@@ -1080,10 +1643,10 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		cv::imwrite(directoryPath + "f-2_Zhang-Suen Thinning.bmp", firstImg);
 		if (oneToN)
 		{
-			for each (cv::Mat img in setImgs){
-				ZhangSuen::thinning(img);
+			for (int i = 0; i < setImgs.size(); i++){
+				ZhangSuen::thinning(setImgs[i].second);
 			}
-			cv::imwrite(directoryPath + "l-2_Zhang-Suen Thinning.bmp", setImgs[setImgs.size() - 1]);
+			cv::imwrite(directoryPath + "l-2_Zhang-Suen Thinning.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			ZhangSuen::thinning(secondImg);
@@ -1099,13 +1662,11 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		{
 			setEnhancedImages = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
 			setSegmentedImages = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
-			int i = 0;
-			for each (cv::Mat img in setImgs){
-				setImgs[i] = Image_processing::thinning(img, setEnhancedImages[i], setSegmentedImages[i]);
-				setImgs[i].convertTo(setImgs[i], CV_8UC3, 255);
-				i++;
+			for (int i = 0; i < setImgs.size(); i++){
+				setImgs[i].second = Image_processing::thinning(setImgs[i].second, setEnhancedImages[i], setSegmentedImages[i]);
+				setImgs[i].second.convertTo(setImgs[i].second, CV_8UC3, 255);
 			}
-			cv::imwrite(directoryPath + "l-2_Lin-Hong Thinning.bmp", setImgs[setImgs.size() - 1]);
+			cv::imwrite(directoryPath + "l-2_Lin-Hong Thinning.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			secondImg = Image_processing::thinning(secondImg, secondEnhancedImage, secondSegmentedImage);
@@ -1121,10 +1682,10 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		cv::imwrite(directoryPath + "f-2_Guo-Hall Thinning.bmp", firstImg);
 		if (oneToN)
 		{
-			for each (cv::Mat img in setImgs){
-				GuoHall::thinning(img);
+			for (int i = 0; i < setImgs.size(); i++){
+				GuoHall::thinning(setImgs[i].second);
 			}
-			cv::imwrite(directoryPath + "l-2_Guo-Hall Thinning.bmp", setImgs[setImgs.size() - 1]);
+			cv::imwrite(directoryPath + "l-2_Guo-Hall Thinning.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			GuoHall::thinning(secondImg);
@@ -1149,17 +1710,15 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		if (oneToN)
 		{
 			setMinutiaes = std::vector<std::vector<Minutiae>>(setImgs.size(), std::vector<Minutiae>());
-			int i = 0;
-			for each (cv::Mat img in setImgs){
-				setMinutiaes[i] = Image_processing::extracting(img, setEnhancedImages[i], setSegmentedImages[i], img);
-				i++;
+			for (int i = 0; i < setImgs.size(); i++){
+				setMinutiaes[i] = Image_processing::extracting(setImgs[i].second, setEnhancedImages[i], setSegmentedImages[i], setImgs[i].second);
 			}
 		}
 		else secondMinutiae = Image_processing::extracting(secondImg, secondEnhancedImage, secondSegmentedImage, secondImg);
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
 		writeKeyPoints(firstImg, firstMinutiae, 1, "f-3_Minutiae");
-		if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1], setMinutiaes[setMinutiaes.size() - 1], 2, "l-3_Minutiae");
+		if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1].second, setMinutiaes[setMinutiaes.size() - 1], 2, "l-3_Minutiae");
 		else writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_Minutiae");
 
 		// images must be segmented if not Minutiae will be empty
@@ -1169,31 +1728,22 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			// also we must add the Adapting time to detection time
 			detectionTime += adapter.adapt(firstMinutiae);
 			if (oneToN)
-			{
-				for (int i = 0; i < setImgs.size(); i++){
-					detectionTime += adapter.adapt(setMinutiaes[i]);
-				}
-			}
+				for (int i = 0; i < setImgs.size(); i++) detectionTime += adapter.adapt(setMinutiaes[i]);
 			else detectionTime += adapter.adapt(secondMinutiae);
-			for each (Minutiae minutiae in firstMinutiae)
-			{
-				firstImgKeypoints.push_back(minutiae);
-			}
+			for (Minutiae minutiae : firstMinutiae) firstImgKeypoints.push_back(minutiae);
 			if (oneToN)
 			{
 				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
-				int i = 0;
-				for each (std::vector<Minutiae> minutiaes in setMinutiaes){
-					for each (Minutiae minutiae in minutiaes)
-					{
-						setImgsKeypoints[i].push_back(minutiae);
+				for (int i = 0; i < setImgs.size(); i++){
+					for (Minutiae minutiae : setMinutiaes[i]) setImgsKeypoints[i].push_back(minutiae);
+					// use masks to matche minutiae of the same type
+					matchingMasks[i] = maskMatchesByMinutiaeNature(firstMinutiae, setMinutiaes[i]);
 					}
-					i++;
-				}
 			}
-			else for each (Minutiae minutiae in secondMinutiae)
-			{
-				secondImgKeypoints.push_back(minutiae);
+			else {
+				for (Minutiae minutiae : secondMinutiae) secondImgKeypoints.push_back(minutiae);
+				// use masks to matche minutiae of the same type
+				matchingMask = maskMatchesByMinutiaeNature(firstMinutiae, secondMinutiae);
 			}
 		}
 		catch (...){
@@ -1210,36 +1760,32 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		std::vector<std::vector<Minutiae>> setMinutiaes;
 
 		detectionTime = (double)cv::getTickCount();
-		firstMinutiae = crossingNumber::getMinutiae(firstImg, ui->detectorMinutiae2BorderText->text().toInt());
+		firstMinutiae = crossingNumber::getMinutiae(firstImg, ui->detectorCrossingNumberBorderText->text().toInt());
 		//Minutiae-filtering
 		// slow with the second segmentation
 		Filter::filterMinutiae(firstMinutiae);
 		if (oneToN)
 		{
 			setMinutiaes = std::vector<std::vector<Minutiae>>(setImgs.size(), std::vector<Minutiae>());
-			int i = 0;
-			for each (cv::Mat img in setImgs){
-				setMinutiaes[i] = crossingNumber::getMinutiae(img, ui->detectorMinutiae2BorderText->text().toInt());
+			for (int i = 0; i < setImgs.size(); i++){
+				setMinutiaes[i] = crossingNumber::getMinutiae(setImgs[i].second, ui->detectorCrossingNumberBorderText->text().toInt());
 				Filter::filterMinutiae(setMinutiaes[i]);
-				i++;
 			}
 		}
 		else {
-			secondMinutiae = crossingNumber::getMinutiae(secondImg, ui->detectorMinutiae2BorderText->text().toInt());
+			secondMinutiae = crossingNumber::getMinutiae(secondImg, ui->detectorCrossingNumberBorderText->text().toInt());
 			Filter::filterMinutiae(secondMinutiae);
 		}
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
-		writeKeyPoints(firstImg, firstMinutiae, 1, "f-3_Minutiae2");
+		writeKeyPoints(firstImg, firstMinutiae, 1, "f-3_CrossingNumber");
 		if (oneToN)
 		{
-			int i = 0;
-			for each (cv::Mat img in setImgs){
-				writeKeyPoints(img, setMinutiaes[i], 2, "l-3_Minutiae2");
-				i++;
+			for (int i = 0; i < setImgs.size(); i++){
+				writeKeyPoints(setImgs[i].second, setMinutiaes[i], 2, "l-3_CrossingNumber");
 			}
 		}
-		else writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_Minutiae2");
+		else writeKeyPoints(secondImg, secondMinutiae, 2, "s-3_CrossingNumber");
 
 		// images must be segmented if not Minutiae will be empty
 		try{
@@ -1248,31 +1794,22 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			// also we must add the Adapting time to detection time
 			detectionTime += adapter.adapt(firstMinutiae);
 			if (oneToN)
-			{
-				for each (std::vector<Minutiae> minutiaes in setMinutiaes){
-					detectionTime += adapter.adapt(minutiaes);
-				}
-			}
+				for (int i = 0; i < setImgs.size(); i++) detectionTime += adapter.adapt(setMinutiaes[i]);
 			else detectionTime += adapter.adapt(secondMinutiae);
-			for each (Minutiae minutiae in firstMinutiae)
-			{
-				firstImgKeypoints.push_back(minutiae);
-			}
+			for (Minutiae minutiae : firstMinutiae) firstImgKeypoints.push_back(minutiae);
 			if (oneToN)
 			{
 				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
-				int i = 0;
-				for each (std::vector<Minutiae> minutiaes in setMinutiaes){
-					for each (Minutiae minutiae in minutiaes)
-					{
-						setImgsKeypoints[i].push_back(minutiae);
-					}
-					i++;
+				for (int i = 0; i < setImgs.size(); i++){
+					for (Minutiae minutiae : setMinutiaes[i]) setImgsKeypoints[i].push_back(minutiae);
+					// use masks to matche minutiae of the same type
+					matchingMasks[i] = maskMatchesByMinutiaeNature(firstMinutiae, setMinutiaes[i]);
 				}
 			}
-			else for each (Minutiae minutiae in secondMinutiae)
-			{
-				secondImgKeypoints.push_back(minutiae);
+			else {
+				for (Minutiae minutiae : secondMinutiae) secondImgKeypoints.push_back(minutiae);
+				// use masks to matche minutiae of the same type
+				matchingMask = maskMatchesByMinutiaeNature(firstMinutiae, secondMinutiae);
 			}
 		}
 		catch (...){
@@ -1288,10 +1825,8 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		harrisCorners(firstImg, firstImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
 		if (oneToN)
 		{
-			int i = 0;
-			for each (cv::Mat img in setImgs){
-				harrisCorners(img, setImgsKeypoints[i], ui->detectorHarrisThresholdText->text().toFloat());
-				i++;
+			for (int i = 0; i < setImgs.size(); i++){
+				harrisCorners(setImgs[i].second, setImgsKeypoints[i], ui->detectorHarrisThresholdText->text().toFloat());
 			}
 		}
 		else harrisCorners(secondImg, secondImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
@@ -1319,12 +1854,10 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 				ui->detectorFastTypeText->currentIndex());
 			if (oneToN)
 			{
-				int i = 0;
-				for each (cv::Mat img in setImgs){
-					cv::FASTX(img, setImgsKeypoints[i], ui->detectorFastThresholdText->text().toInt(),
+				for (int i = 0; i < setImgs.size(); i++){
+					cv::FASTX(setImgs[i].second, setImgsKeypoints[i], ui->detectorFastThresholdText->text().toInt(),
 						ui->detectorFastNonmaxSuppressionCheck->isChecked(),
 						ui->detectorFastTypeText->currentIndex());
-					i++;
 				}
 			}
 			else cv::FASTX(secondImg, secondImgKeypoints, ui->detectorFastThresholdText->text().toInt(),
@@ -1377,10 +1910,8 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			ptrDetector->detect(firstImg, firstImgKeypoints);
 			if (oneToN){
 				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
-				int i = 0;
-				for each (cv::Mat img in setImgs){
-					ptrDetector->detect(img, setImgsKeypoints[i]);
-					i++;
+				for (int i = 0; i < setImgs.size(); i++){
+					ptrDetector->detect(setImgs[i].second, setImgsKeypoints[i]);
 				}
 			}else ptrDetector->detect(secondImg, secondImgKeypoints);
 			detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
@@ -1390,11 +1921,14 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			return;
 		}
 		writeKeyPoints(firstImg, firstImgKeypoints, 1, "f-3_KeyPoints");
-		if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1], setImgsKeypoints[setImgs.size() - 1], 2, "l-3_KeyPoints");
+		if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1].second, setImgsKeypoints[setImgs.size() - 1], 2, "l-3_KeyPoints");
 		else writeKeyPoints(secondImg, secondImgKeypoints, 2, "s-3_KeyPoints");
 	}
 	if (noKeyPoints("first", firstImgKeypoints) || (!oneToN && noKeyPoints("second", secondImgKeypoints))) return;
-	if (oneToN) noKeyPoints("last", setImgsKeypoints[setImgs.size() - 1]);
+	if (oneToN) {
+		ui->logPlainText->textCursor().movePosition(QTextCursor::End);
+		prev_cursor_position = ui->logPlainText->textCursor().position();
+	}
 	ui->logPlainText->appendPlainText("detection time: " + QString::number(detectionTime) + " (s)");
 }
 
@@ -1448,11 +1982,12 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 	// Write the parameters
 	writeToFile("descriptor_" + descriptorName, ptrDescriptor);
 
-	if (ui->opponentColor->isChecked())
+	if (ui->opponentColor->isChecked()){
 		//OpponentColor
 		ptrDescriptor = new cv::OpponentColorDescriptorExtractor(ptrDescriptor);
-	// Write the parameters
-	writeToFile("descriptorOppCol_" + descriptorName, ptrDescriptor);
+		// Write the parameters
+		writeToFile("descriptorOppCol_" + descriptorName, ptrDescriptor);
+	}
 
 	try{
 		// Aissa !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! affichinna firstImgKeypoints avant et après pour voir si compute va les changer ou pas!!!!
@@ -1461,10 +1996,8 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 		if (oneToN)
 		{
 			setImgsDescriptors = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
-			int i = 0;
-			for each (cv::Mat img in setImgs){
-				ptrDescriptor->compute(img, setImgsKeypoints[i], setImgsDescriptors[i]);
-				i++;
+			for (int i = 0; i < setImgs.size(); i++){
+				ptrDescriptor->compute(setImgs[i].second, setImgsKeypoints[i], setImgsDescriptors[i]);
 			}
 		}
 		else ptrDescriptor->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
@@ -1480,14 +2013,14 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 
 void MainWindow::customisingMatcher(int matcherIndex, std::string matcherName){
 	// creating Matcher...
-	kBestMatches = (ui->matcherKBestText->text().toInt() < 1) ? 1 : ui->matcherKBestText->text().toInt();
 	switch (matcherIndex)
 	{
 	case 0:
 	{
 		// BruteForce
 		int norm = getNormByText(ui->matcherBruteForceNormTypeText->currentText().toStdString());
-		ptrMatcher = new cv::BFMatcher(norm, ui->matcherBruteForceCrossCheckText->isChecked());
+		ptrMatcher = new cv::BFMatcher(norm, 
+			ui->matcherBruteForceCrossCheckText->isEnabled() && ui->matcherBruteForceCrossCheckText->isChecked() && (ui->detectorTabs->currentIndex()>1));
 	}
 	break;
 	case 1:
@@ -1509,58 +2042,82 @@ void MainWindow::customisingMatcher(int matcherIndex, std::string matcherName){
 	writeToFile("matcher_" + matcherName, ptrMatcher);
 }
 
-void MainWindow::matching(){
+bool MainWindow::matching(){
 	// Start matching ...
 	try{
-		if (kBestMatches < 2 || ui->matcherInlierInversMatches->isChecked()){
-			// direct and reverse set of the best matches (simple match)
-			directMatchingTime = (double)cv::getTickCount();
+		if (ui->matcherInlierNoTest->isChecked() || ui->matcherInlierInversMatches->isChecked()){
+			// Only the best direct match
+			matchingTime = (double)cv::getTickCount();
 			if (oneToN){
-				ptrMatcher->add(setImgsDescriptors);
-				ptrMatcher->match(firstImgDescriptor, directMatches);
+				if (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()){
+					ptrMatcher->add(setImgsDescriptors);
+					//ptrMatcher->train();
+					ptrMatcher->match(firstImgDescriptor, directMatches, matchingMasks);
+				}
+				else {//(ui->matcher1toNtype2->isChecked())
+					directMatchesSet = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
+					for (int i = 0; i < setImgs.size(); i++){
+						ptrMatcher->match(firstImgDescriptor, setImgsDescriptors[i], directMatchesSet[i], matchingMasks[i]);
+					}
+				}
 			}
-			else ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches);
-			directMatchingTime = ((double)cv::getTickCount() - directMatchingTime) / cv::getTickFrequency();
-
-			inverseMatchingTime = (double)cv::getTickCount();
-			if (oneToN){
-				/*ptrMatcher->add(setImgsDescriptors);
-				ptrMatcher->match(firstImgDescriptor, directMatches);*/
+			else {
+				ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches, matchingMask);
 			}
-			else ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches);
-			inverseMatchingTime = ((double)cv::getTickCount() - inverseMatchingTime) / cv::getTickFrequency();
 
-			bestMatchingTime = std::min(directMatchingTime, inverseMatchingTime);
+			if (ui->matcherInlierInversMatches->isEnabled() && ui->matcherInlierInversMatches->isChecked()){
+				// Also the best match in reverse
+				cv::Mat inverseMatchingMask;
+				if (oneToN){
+					inverseMatchesSet = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
+					for (int i = 0; i < setImgs.size(); i++){
+						try{
+							inverseMatchingMask = matchingMasks[i].t();
+						}
+						catch (cv::Exception){ inverseMatchingMask = cv::Mat(); }
+						ptrMatcher->match(setImgsDescriptors[i], firstImgDescriptor, inverseMatchesSet[i], inverseMatchingMask);
+					}
+				}
+				else {
+					try{
+						inverseMatchingMask = matchingMask.t();
+					}
+					catch (cv::Exception){ inverseMatchingMask = cv::Mat(); }
+					ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches, inverseMatchingMask);
+				}
+			}
+			matchingTime = ((double)cv::getTickCount() - matchingTime) / cv::getTickFrequency();
 		}
-		else { // ui->matcherInlierLoweRatio->isChecked()
-			// only direct set of the k best matches
-			directMatchingTime = (double)cv::getTickCount();
+		else if (ui->matcherInlierLoweRatio->isEnabled() && ui->matcherInlierLoweRatio->isChecked()){
+			// Best two set of matches
+			matchingTime = (double)cv::getTickCount();
 			if (oneToN){
-				ptrMatcher->add(setImgsDescriptors);
-				ptrMatcher->knnMatch(firstImgDescriptor, knnMatches, kBestMatches, cv::Mat(), false);
+				twoMatchesSet = std::vector<std::vector<std::vector<cv::DMatch>>>(setImgs.size(), std::vector<std::vector<cv::DMatch>>());
+				for (int i = 0; i < setImgs.size(); i++){
+					ptrMatcher->knnMatch(firstImgDescriptor, setImgsDescriptors[i], twoMatchesSet[i], 2, matchingMasks[i]);
+				}
 			}
-			else ptrMatcher->knnMatch(firstImgDescriptor, secondImgDescriptor, knnMatches, kBestMatches, cv::Mat(), false);
-			directMatchingTime = ((double)cv::getTickCount() - directMatchingTime) / cv::getTickFrequency();
-
-			bestMatchingTime = directMatchingTime;
+			else ptrMatcher->knnMatch(firstImgDescriptor, secondImgDescriptor, twoMatches, 2, matchingMask);
+			matchingTime = ((double)cv::getTickCount() - matchingTime) / cv::getTickFrequency();
 		}
 	}
 	catch (cv::Exception e){
 		// For example Flann-Based doesn't work with Brief desctiptor extractor
 		// And also, some descriptors must be used with specific NORM_s
-		ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one.</b>");
-		showError("fd","dfdf",e.msg);
-		return;
+		if (ui->matcherTabs->currentIndex() == 0 && ui->matcherBruteForceCrossCheckText->isEnabled() && ui->matcherBruteForceCrossCheckText->isChecked() && ui->detectorTabs->currentIndex()<2)
+			ui->logPlainText->appendHtml("<b style='color:orange'>Set <i>Cross Check</i> in Brute Force as false while matching Minutias!.</b>");
+		else ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one.</b>");
+		return false;
 	}
-
-	ui->logPlainText->appendPlainText("matching time: " + QString::number(bestMatchingTime) + " (s)");
-
+	ui->logPlainText->appendPlainText("matching time: " + QString::number(matchingTime) + " (s)");
+	return true;
 }
 
+<<<<<<< HEAD
 void MainWindow::calculateBestMatches(){
 	// Calculate the number of best matches between two sets of matches
-	int bestMatchesCount = 0;
-	float sumDistances = 0;
+	bestMatchesCount = 0;
+	sumDistances = 0;
 	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 5 Columns
 	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
 	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
@@ -1568,64 +2125,174 @@ void MainWindow::calculateBestMatches(){
 	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
 	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
 
+=======
+void MainWindow::outlierElimination(){
+	// Eliminate outliers, and calculate the sum of best matches distance
+	float limitDistance = ui->matcherInlierLimitDistanceText->text().toFloat();
+	float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
+	if (ui->matcherInlierLimitDistance->isChecked() && limitDistance < 0) {
+		ui->logPlainText->appendHtml("<b style='color:red'>Invalid Limit Distance: " + QString::number(limitDistance) + ", the default value is maintained!</b>");
+		limitDistance = 0.4;
+	}
+>>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
 	/*if (use_ransac == false)
 	compute_inliers_homography(matches_surf, inliers_surf, H, MAX_H_ERROR);
 	else
 	compute_inliers_ransac(matches_surf, inliers_surf, MAX_H_ERROR, false);*/
+	if (oneToN){
+		sumDistancesSet = std::vector<float>(setImgs.size());
+		scoreSet = std::vector<float>(setImgs.size());
+		float bestScore = 0;
 
-	if (kBestMatches < 2 || ui->matcherInlierInversMatches->isChecked()) {
-		// in reverse matching test
-		for (uint i = 0; i < directMatches.size(); i++)
-		{
-			cv::Point matchedPt1 = firstImgKeypoints[i].pt;
-			cv::Point matchedPt2 = secondImgKeypoints[directMatches[i].trainIdx].pt;
+		goodMatchesSet = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
+		badMatchesSet  = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
 
-			bool foundInReverse = false;
-
-			for (uint j = 0; j < inverseMatches.size(); j++)
-			{
-				cv::Point tmpSecImgKeyPnt = secondImgKeypoints[j].pt;
-				cv::Point tmpFrstImgKeyPntTrn = firstImgKeypoints[inverseMatches[j].trainIdx].pt;
-				if ((tmpSecImgKeyPnt == matchedPt2) && (tmpFrstImgKeyPntTrn == matchedPt1))
-				{
-					foundInReverse = true;
-					break;
+		if (ui->matcherInlierLoweRatio->isEnabled() && ui->matcherInlierLoweRatio->isChecked()){
+			// Lowe's ratio test = 0.7 by default
+			float lowesRatio = ui->matcherInlierLoweRatioText->text().toFloat();
+			if (lowesRatio <= 0 || 1 <= lowesRatio) {
+				ui->logPlainText->appendHtml("<b style='color:red'>Invalid Lowe's Ratio: " + QString::number(lowesRatio) + ", the default value is maintained!</b>");
+				lowesRatio = 0.7;
+				ui->matcherInlierLoweRatioText->setText("0.7");
+			}
+			for (int i = 0; i < setImgs.size(); i++){
+				sumDistancesSet[i] = testOfLowe(twoMatchesSet[i], lowesRatio, limitDistance, goodMatchesSet[i], badMatchesSet[i]);
+				
+				if (goodMatchesSet[i].size() > 0){
+					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
+					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
+					scoreSet[i] = 1.0 / average * goodProbability;
+					// update the best score index
+					if (scoreSet[i] > bestScore) {
+						bestScoreIndex = i;
+						bestScore = scoreSet[i];
+					}
+				}
+				else scoreSet[i] = 0.0;
+			}
+		}
+		else if (ui->matcherInlierInversMatches->isEnabled() && ui->matcherInlierInversMatches->isChecked()){
+			// in reverse matching test
+			for (int i = 0; i < setImgs.size(); i++){
+				sumDistancesSet[i] = testInReverse(directMatchesSet[i], inverseMatchesSet[i], firstImgKeypoints, setImgsKeypoints[i], limitDistance, goodMatchesSet[i], badMatchesSet[i]);
+				
+				if (goodMatchesSet[i].size() > 0){
+					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
+					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
+					scoreSet[i] = 1.0 / average * goodProbability;
+					// update the best score index
+					if (scoreSet[i] > bestScore) {
+						bestScoreIndex = i;
+						bestScore = scoreSet[i];
+					}
+				}
+				else scoreSet[i] = 0.0;
+			}
+		}
+		else {
+			// No elimination test
+			if (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()){// Type1
+				for (int i = 0; i < directMatches.size(); i++){
+					if (directMatches[i].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
+						sumDistancesSet[directMatches[i].imgIdx] += directMatches[i].distance;
+						goodMatchesSet[directMatches[i].imgIdx].push_back(directMatches[i]);
+					}
+					else{
+						badMatchesSet[directMatches[i].imgIdx].push_back(directMatches[i]);
+					}
+				}
+				for (int i = 0; i < setImgs.size(); i++){
+					if (goodMatchesSet[i].size() > 0){
+						float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
+						float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
+						scoreSet[i] = 1.0 / average * goodProbability;
+						// update the best score index
+						if (scoreSet[i] > bestScore) {
+							bestScoreIndex = i;
+							bestScore = scoreSet[i];
+						}
+					}
+					else scoreSet[i] = 0.0;
 				}
 			}
-
-			if (foundInReverse)
-			{
-				QStandardItem *x1 = new QStandardItem(QString::number(matchedPt1.x));
-				model->setItem(bestMatchesCount, 0, x1);
-				QStandardItem *y1 = new QStandardItem(QString::number(matchedPt1.y));
-				model->setItem(bestMatchesCount, 1, y1);
-				QStandardItem *x2 = new QStandardItem(QString::number(matchedPt2.x));
-				model->setItem(bestMatchesCount, 2, x2);
-				QStandardItem *y2 = new QStandardItem(QString::number(matchedPt2.y));
-				model->setItem(bestMatchesCount, 3, y2);
-				QStandardItem *dist = new QStandardItem(QString::number(directMatches[i].distance));
-				model->setItem(bestMatchesCount, 4, dist);
-				ui->viewTable->setModel(model);
-
-				sumDistances += directMatches[i].distance;
-				bestMatches.push_back(directMatches[i]);
-				bestMatchesCount++;
+			else {// Type2
+				for (int i = 0; i < setImgs.size(); i++){
+					for (int j = 0; j < directMatchesSet[i].size(); j++){
+						if (directMatchesSet[i][j].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
+							sumDistancesSet[i] += directMatchesSet[i][j].distance;
+							goodMatchesSet[i].push_back(directMatchesSet[i][j]);
+						}
+						else {
+							badMatchesSet[i].push_back(directMatchesSet[i][j]);
+						}
+					}
+					if (goodMatchesSet[i].size() > 0){
+						float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
+						float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
+						scoreSet[i] = 1.0 / average * goodProbability;
+						// update the best score index
+						if (scoreSet[i] > bestScore) {
+							bestScoreIndex = i;
+							bestScore = scoreSet[i];
+						}
+					}
+					else scoreSet[i] = 0.0;
+				}
 			}
 		}
-		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(std::min(directMatches.size(), inverseMatches.size())));
+		if (scoreSet[bestScoreIndex] >= scoreThreshold) 
+			 ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(bestScore) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
+		else ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(bestScore) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
 	}
-	else if (kBestMatches == 2 && ui->matcherInlierLoweRatio->isChecked()){
-		// knn = 2
-		// Lowe's ratio test = 0.7
-		for each (std::vector<cv::DMatch> match in knnMatches)
-		{
-			if (match[0].distance < 0.7*match[1].distance){
-				bestMatches.push_back(match[0]);
-				bestMatchesCount++;
+	else{// 1 to 1
+		if (ui->matcherInlierLoweRatio->isChecked()){
+			// Lowe's ratio test = 0.7 by default
+			float lowesRatio = ui->matcherInlierLoweRatioText->text().toFloat();
+			if (lowesRatio <= 0 || 1 <= lowesRatio) {
+				ui->logPlainText->appendHtml("<b style='color:red'>Invalid Lowe's Ratio: " + QString::number(lowesRatio) + ", the default value is maintained!</b>");
+				lowesRatio = 0.7;
+			}
+			sumDistances = testOfLowe(twoMatches, lowesRatio, limitDistance, goodMatches, badMatches);
+		}
+		else if (ui->matcherInlierInversMatches->isChecked()){
+			// in reverse matching test
+			sumDistances = testInReverse(directMatches, inverseMatches, firstImgKeypoints, secondImgKeypoints, limitDistance, goodMatches, badMatches);
+		}
+		else {
+			// No elimination test
+			// 1 to 1
+			for (int i = 0; i < directMatches.size(); i++){
+				if (directMatches[i].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
+					sumDistances += directMatches[i].distance;
+					goodMatches.push_back(directMatches[i]);
+				}
+				else{
+					badMatches.push_back(directMatches[i]);
+				}
 			}
 		}
-		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(knnMatches.size()));
+		if (goodMatches.size() > 0){
+			float average = sumDistances / static_cast<float>(goodMatches.size());
+			float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size() + badMatches.size()) * 100;
+			score = 1.0 / average * goodProbability;
+		}
+		else score = 0.0;
+		if (score >= scoreThreshold) 
+			ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(score) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
+		else ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(score) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
 	}
+}
+
+void MainWindow::maskMatchesByTrainImgIdx(const std::vector<cv::DMatch> matches, int trainImgIdx, std::vector<char>& mask)
+{
+	mask.resize(matches.size());
+	fill(mask.begin(), mask.end(), 0);
+	for (size_t i = 0; i < matches.size(); i++)
+	{
+		if (matches[i].imgIdx == trainImgIdx)
+			mask[i] = 1;
+	}
+<<<<<<< HEAD
 	else {// knn > 2
 		for each (std::vector<cv::DMatch> match in knnMatches)
 		{
@@ -1634,7 +2301,7 @@ void MainWindow::calculateBestMatches(){
 		}
 		ui->logPlainText->appendPlainText("Number of Best key point matches = " + QString::number(bestMatchesCount) + "/" + QString::number(knnMatches.size()));
 	}
-	double minKeypoints = firstImgKeypoints.size() <= secondImgKeypoints.size() ?
+	minKeypoints = firstImgKeypoints.size() <= secondImgKeypoints.size() ?
 		firstImgKeypoints.size()
 		:
 		secondImgKeypoints.size();
@@ -1654,13 +2321,15 @@ void MainWindow::calculateBestMatches(){
 	ui->viewMatches->setScene(scene);
 	ui->viewMatches->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
 	ui->viewMatches->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+=======
+>>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
 }
 
 int MainWindow::fileCounter(std::string dir, std::string prefix, std::string suffix, std::string extension){
 	int returnedCount = 0;
 	int possibleMax = 5000000; //some number you can expect.
 
-	for (int istarter = 1; istarter < possibleMax; istarter++){
+	for (int istarter = 0; istarter < possibleMax; istarter++){
 		std::string fileName = "";
 		fileName.append(dir);
 		fileName.append(prefix);
@@ -1668,91 +2337,12 @@ int MainWindow::fileCounter(std::string dir, std::string prefix, std::string suf
 		fileName.append(suffix);
 		fileName.append(extension);
 		bool status = fileExistenceCheck(fileName);
-		returnedCount = istarter;
-
-		if (!status)
-			break;
+		if (!status) break;
+		returnedCount = istarter + 1;
 	}
 
-	return returnedCount-1;
+	return returnedCount;
 }
-
-ExcelExportHelper::ExcelExportHelper(bool closeExcelOnExit)
-{
-	m_closeExcelOnExit = closeExcelOnExit;
-	m_excelApplication = nullptr;
-	m_sheet = nullptr;
-	m_sheets = nullptr;
-	m_workbook = nullptr;
-	m_workbooks = nullptr;
-	m_excelApplication = nullptr;
-
-	m_excelApplication = new QAxObject("Excel.Application", 0);//{00024500-0000-0000-C000-000000000046}
-
-	if (m_excelApplication == nullptr)
-		throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
-
-	m_excelApplication->dynamicCall("SetVisible(bool)", false); // hide excel
-	m_excelApplication->setProperty("DisplayAlerts", 0); // disable alerts
-
-	m_workbooks = m_excelApplication->querySubObject("Workbooks");
-	m_workbook = m_workbooks->querySubObject("Add");
-	m_sheets = m_workbook->querySubObject("Worksheets");
-	m_sheet = m_sheets->querySubObject("Add");
-}
-
-void ExcelExportHelper::SetCellValue(int lineIndex, int columnIndex, const QString& value)
-{
-    QAxObject *cell = m_sheet->querySubObject("Cells(int,int)", lineIndex, columnIndex);
-	cell->setProperty("Value", value);
-	delete cell;
-}
-
-void ExcelExportHelper::Open(const QString& fileName)
-{
-    if (fileName == "")
-		throw std::invalid_argument("'fileName' is empty!");
-	if (fileName.contains("/"))
-		throw std::invalid_argument("'/' character in 'fileName' is not supported by excel!");
-
-    if (!QFile::exists(fileName))
-	{
-        /*if (!QFile::remove(fileName))
-		{
-			throw new std::exception(QString("Failed to remove file '%1'").arg(fileName).toStdString().c_str());
-        }*/
-        m_workbooks->dynamicCall("Open (const QString&)", fileName);
-        m_sheets->querySubObject("Worksheets(int)", 1);
-    }
-
-    //m_workbook->dynamicCall("SaveAs (const QString&)", fileName);
-}
-
-ExcelExportHelper::~ExcelExportHelper()
-{
-	if (m_excelApplication != nullptr)
-	{
-		if (!m_closeExcelOnExit)
-		{
-			m_excelApplication->setProperty("DisplayAlerts", 1);
-			m_excelApplication->dynamicCall("SetVisible(bool)", true);
-		}
-
-		if (m_workbook != nullptr && m_closeExcelOnExit)
-		{
-			m_workbook->dynamicCall("Close (Boolean)", true);
-			m_excelApplication->dynamicCall("Quit (void)");
-		}
-	}
-
-	delete m_sheet;
-	delete m_sheets;
-	delete m_workbook;
-	delete m_workbooks;
-	delete m_excelApplication;
-}
-
-
 
 bool MainWindow::fileExistenceCheck(const std::string& name){
 	struct stat buffer;
@@ -1766,4 +2356,523 @@ void MainWindow::showError(std::string title, std::string text, std::string e_ms
 	error.setText(QString::fromStdString(text));
 	error.exec();
 	if(e_msg!="")ui->logPlainText->appendHtml("<b style='color:red'>Code Error: " + QString::fromStdString(e_msg) + " </b>");
+}
+
+float MainWindow::testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, float lowesRatio, float limitDistance, std::vector<cv::DMatch> &goodMatches, std::vector<cv::DMatch> &badMatches){
+	// put matches that accept the Lowe's test in goodMatches
+	// and put the other matches in badMatches
+	// and return sum of distances of goodMatches
+	double sumDistances = 0; 
+	for (int i = 0; i < twoMatches.size(); i++){
+		if ((twoMatches[i][0].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked())
+		  &&(twoMatches[i][0].distance <= lowesRatio*twoMatches[i][1].distance)){
+			sumDistances += twoMatches[i][0].distance;
+			goodMatches.push_back(twoMatches[i][0]);
+		}
+		else{
+			badMatches.push_back(twoMatches[i][0]);
+		}
+	}
+	return sumDistances;
+}
+
+float MainWindow::testInReverse(std::vector<cv::DMatch> directMatches, std::vector<cv::DMatch> inverseMatches, std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints, float limitDistance, std::vector<cv::DMatch> &goodMatches, std::vector<cv::DMatch> &badMatches){
+	// put matches that are in direct and reverse Matches in goodMatches
+	// and put the other matches in badMatches
+	// and return sum of distances of goodMatches
+ 	double sumDistances = 0;
+	for (int i = 0; i < directMatches.size(); i++){
+		if (directMatches[i].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
+			// Check if the match is the same in reverse
+			for (int j = 0; j < inverseMatches.size(); j++)
+			{
+				if ((secondImgKeypoints[j].pt == secondImgKeypoints[directMatches[i].trainIdx].pt)
+					&& (firstImgKeypoints[inverseMatches[j].trainIdx].pt == firstImgKeypoints[i].pt))
+				{
+					sumDistances += directMatches[i].distance;
+					goodMatches.push_back(directMatches[i]);
+					// go out the loop
+					goto AfterFindingAcceptedMatch_testInReverse_LABEL;
+				}
+			}
+		}
+		badMatches.push_back(directMatches[i]);
+		AfterFindingAcceptedMatch_testInReverse_LABEL:;
+	}
+	return sumDistances;
+}
+
+cv::Mat MainWindow::maskMatchesByMinutiaeNature(std::vector<Minutiae> firstImgKeypoints, std::vector<Minutiae> secondImgKeypoints){
+	// To matche bifurcation with bifurcation and ridge ending with ridge ending...
+	// Only if keypoints are minutiae
+	cv::Mat mask = cv::Mat(firstImgKeypoints.size(), secondImgKeypoints.size(), CV_8UC1);
+	for (size_t i = 0; i < firstImgKeypoints.size(); i++)
+	{
+		for (size_t j = 0; j < secondImgKeypoints.size(); j++)
+		{
+			if (firstImgKeypoints[i].getType() == secondImgKeypoints[j].getType()) mask.at<uchar>(i, j) = 1;
+			else mask.at<uchar>(i, j) = 0;
+		}
+	}
+	return mask;
+}
+
+ExcelExportHelper::ExcelExportHelper(bool closeExcelOnExit, int numSheet)
+{
+	m_closeExcelOnExit = closeExcelOnExit;
+	m_excelApplication = nullptr;
+	m_rows = nullptr;
+	m_usedrange = nullptr;
+	m_sheet = nullptr;
+	m_sheets = nullptr;
+	m_workbook = nullptr;
+	m_workbooks = nullptr;
+	m_excelApplication = nullptr;
+
+	m_excelApplication = new QAxObject("Excel.Application", 0);//{00024500-0000-0000-C000-000000000046}
+
+	if (m_excelApplication == nullptr)
+		throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
+
+	m_excelApplication->dynamicCall("SetVisible(bool)", false); // display excel
+	m_excelApplication->setProperty("DisplayAlerts", 0); // disable alerts
+
+	m_workbooks = m_excelApplication->querySubObject("Workbooks");
+
+	if (!QFile::exists(fileName))
+	{
+
+		m_workbook = m_workbooks->querySubObject("Add");
+		m_sheets = m_workbook->querySubObject("Worksheets");
+		
+		m_sheet_custom = m_sheets->querySubObject("Item(int)", 1);
+		m_sheet_custom->setProperty("Name", "Custom");
+
+		SetNewCellValue(m_sheet_custom, 1, 1, "Identifier");
+		SetNewCellValue(m_sheet_custom, 2, 1, "Current Time");
+		SetNewCellValue(m_sheet_custom, 3, 1, "First Image");
+		SetNewCellValue(m_sheet_custom, 4, 1, "Second Image");
+		SetNewCellValue(m_sheet_custom, 5, 1, "1 to N images");
+		SetNewCellValue(m_sheet_custom, 6, 1, "First Image Exists in Bdd");
+		SetNewCellValue(m_sheet_custom, 7, 1, "Requested Image");
+		SetNewCellValue(m_sheet_custom, 8, 1, "Segmentation");
+		SetNewCellValue(m_sheet_custom, 9, 3, "Parameters of Segmentation");
+		SetNewCellValue(m_sheet_custom, 12, 1, "Detector");
+		SetNewCellValue(m_sheet_custom, 13, 5, "Parameters of Detector");
+		SetNewCellValue(m_sheet_custom, 18, 1, "Descriptor");
+		SetNewCellValue(m_sheet_custom, 19, 5, "Parameters of Descriptor");
+		SetNewCellValue(m_sheet_custom, 24, 1, "Matcher");
+		SetNewCellValue(m_sheet_custom, 25, 6, "Parameters of Matcher");
+		SetNewCellValue(m_sheet_custom, 31, 1, "Decision Stage");
+		SetNewCellValue(m_sheet_custom, 32, 1, "Opponent Color");
+		SetNewCellValue(m_sheet_custom, 33, 1, "key Points 1");
+		SetNewCellValue(m_sheet_custom, 34, 1, "key Points 2");
+		SetNewCellValue(m_sheet_custom, 35, 1, "Detection Time");
+		SetNewCellValue(m_sheet_custom, 36, 1, "Description Time");
+		SetNewCellValue(m_sheet_custom, 37, 1, "Matching Time");
+		SetNewCellValue(m_sheet_custom, 38, 1, "Total Time");
+		SetNewCellValue(m_sheet_custom, 39, 1, "Accepted Matches");
+		SetNewCellValue(m_sheet_custom, 40, 1, "Rejected Matches");
+		SetNewCellValue(m_sheet_custom, 41, 1, "Average");
+		SetNewCellValue(m_sheet_custom, 42, 1, "Best Image Score");
+		SetNewCellValue(m_sheet_custom, 43, 1, "Requested Image Score");
+		SetNewCellValue(m_sheet_custom, 44, 1, "Best Image");
+		SetNewCellValue(m_sheet_custom, 45, 1, "Rank");
+
+		m_sheet_brisk = AddNewSheet("BRISK");
+
+		SetNewCellValue(m_sheet_brisk, 1, 1, "Identifier");
+		SetNewCellValue(m_sheet_brisk, 2, 1, "Current Time");
+		SetNewCellValue(m_sheet_brisk, 3, 1, "First Image");
+		SetNewCellValue(m_sheet_brisk, 4, 1, "Second Image");
+		SetNewCellValue(m_sheet_brisk, 5, 1, "1 to N images");
+		SetNewCellValue(m_sheet_brisk, 6, 1, "First Image Exists in Bdd");
+		SetNewCellValue(m_sheet_brisk, 7, 1, "Requested Image");
+		SetNewCellValue(m_sheet_brisk, 8, 1, "Pattern Scale");
+		SetNewCellValue(m_sheet_brisk, 9, 1, "Number of Octaves");
+		SetNewCellValue(m_sheet_brisk, 10, 1, "Threshold");
+		SetNewCellValue(m_sheet_brisk, 11, 1, "key Points 1");
+		SetNewCellValue(m_sheet_brisk, 12, 1, "key Points 2");
+		SetNewCellValue(m_sheet_brisk, 13, 1, "Detection Time");
+		SetNewCellValue(m_sheet_brisk, 14, 1, "Description Time");
+		SetNewCellValue(m_sheet_brisk, 15, 1, "Matching Time");
+		SetNewCellValue(m_sheet_brisk, 16, 1, "Total Time");
+		SetNewCellValue(m_sheet_brisk, 17, 1, "Accepted Matches");
+		SetNewCellValue(m_sheet_brisk, 18, 1, "Rejected Matches");
+		SetNewCellValue(m_sheet_brisk, 19, 1, "Average");
+		SetNewCellValue(m_sheet_brisk, 20, 1, "Best Image Score");
+		SetNewCellValue(m_sheet_brisk, 21, 1, "Requested Image Score");
+		SetNewCellValue(m_sheet_brisk, 22, 1, "Best Image");
+		SetNewCellValue(m_sheet_brisk, 23, 1, "Rank");
+
+		m_sheet_orb = AddNewSheet("ORB");
+
+		SetNewCellValue(m_sheet_orb, 1, 1, "Identifier");
+		SetNewCellValue(m_sheet_orb, 2, 1, "Current Time");
+		SetNewCellValue(m_sheet_orb, 3, 1, "First Image");
+		SetNewCellValue(m_sheet_orb, 4, 1, "Second Image");
+		SetNewCellValue(m_sheet_orb, 5, 1, "1 to N images");
+		SetNewCellValue(m_sheet_orb, 6, 1, "First Image Exists in Bdd");
+		SetNewCellValue(m_sheet_orb, 7, 1, "Requested Image");
+		SetNewCellValue(m_sheet_orb, 8, 1, "Number of Features");
+		SetNewCellValue(m_sheet_orb, 9, 1, "Scale Factor");
+		SetNewCellValue(m_sheet_orb, 10, 1, "Number of Levels");
+		SetNewCellValue(m_sheet_orb, 11, 1, "Edge Threshold");
+		SetNewCellValue(m_sheet_orb, 12, 1, "First Level");
+		SetNewCellValue(m_sheet_orb, 13, 1, "WTA K");
+		SetNewCellValue(m_sheet_orb, 14, 1, "Score Type");
+		SetNewCellValue(m_sheet_orb, 15, 1, "Patch Size");
+		SetNewCellValue(m_sheet_orb, 16, 1, "key Points 1");
+		SetNewCellValue(m_sheet_orb, 17, 1, "key Points 2");
+		SetNewCellValue(m_sheet_orb, 18, 1, "Detection Time");
+		SetNewCellValue(m_sheet_orb, 19, 1, "Description Time");
+		SetNewCellValue(m_sheet_orb, 20, 1, "Matching Time");
+		SetNewCellValue(m_sheet_orb, 21, 1, "Total Time");
+		SetNewCellValue(m_sheet_orb, 22, 1, "Accepted Matches");
+		SetNewCellValue(m_sheet_orb, 23, 1, "Rejected Matches");
+		SetNewCellValue(m_sheet_orb, 24, 1, "Average");
+		SetNewCellValue(m_sheet_orb, 25, 1, "Best Image Score");
+		SetNewCellValue(m_sheet_orb, 26, 1, "Requested Image Score");
+		SetNewCellValue(m_sheet_orb, 27, 1, "Best Image");
+		SetNewCellValue(m_sheet_orb, 28, 1, "Rank");
+		
+		m_sheet_surf = AddNewSheet("SURF");
+
+		SetNewCellValue(m_sheet_surf, 1, 1, "Identifier");
+		SetNewCellValue(m_sheet_surf, 2, 1, "Current Time");
+		SetNewCellValue(m_sheet_surf, 3, 1, "First Image");
+		SetNewCellValue(m_sheet_surf, 4, 1, "Second Image");
+		SetNewCellValue(m_sheet_surf, 5, 1, "1 to N images");
+		SetNewCellValue(m_sheet_surf, 6, 1, "First Image Exists in Bdd");
+		SetNewCellValue(m_sheet_surf, 7, 1, "Requested Image");
+		SetNewCellValue(m_sheet_surf, 8, 1, "Hessian Threshold");
+		SetNewCellValue(m_sheet_surf, 9, 1, "Number of Octaves");
+		SetNewCellValue(m_sheet_surf, 10, 1, "Number of Octave Layers");
+		SetNewCellValue(m_sheet_surf, 11, 1, "Extended");
+		SetNewCellValue(m_sheet_surf, 12, 1, "Features Orientation");
+		SetNewCellValue(m_sheet_surf, 13, 1, "Brute Force Matching");
+		SetNewCellValue(m_sheet_surf, 14, 1, "key Points 1");
+		SetNewCellValue(m_sheet_surf, 15, 1, "key Points 2");
+		SetNewCellValue(m_sheet_surf, 16, 1, "Detection Time");
+		SetNewCellValue(m_sheet_surf, 17, 1, "Description Time");
+		SetNewCellValue(m_sheet_surf, 18, 1, "Matching Time");
+		SetNewCellValue(m_sheet_surf, 19, 1, "Total Time");
+		SetNewCellValue(m_sheet_surf, 20, 1, "Accepted Matches");
+		SetNewCellValue(m_sheet_surf, 21, 1, "Rejected Matches");
+		SetNewCellValue(m_sheet_surf, 22, 1, "Average");
+		SetNewCellValue(m_sheet_surf, 23, 1, "Best Image Score");
+		SetNewCellValue(m_sheet_surf, 24, 1, "Requested Image Score");
+		SetNewCellValue(m_sheet_surf, 25, 1, "Best Image");
+		SetNewCellValue(m_sheet_surf, 26, 1, "Rank");
+		
+		m_sheet_sift = AddNewSheet("SIFT");
+
+		SetNewCellValue(m_sheet_sift, 1, 1, "Identifier");
+		SetNewCellValue(m_sheet_sift, 2, 1, "Current Time");
+		SetNewCellValue(m_sheet_sift, 3, 1, "First Image");
+		SetNewCellValue(m_sheet_sift, 4, 1, "Second Image");
+		SetNewCellValue(m_sheet_sift, 5, 1, "1 to N images");
+		SetNewCellValue(m_sheet_sift, 6, 1, "First Image Exists in Bdd");
+		SetNewCellValue(m_sheet_sift, 7, 1, "Requested Image");
+		SetNewCellValue(m_sheet_sift, 8, 1, "Contrast Threshold");
+		SetNewCellValue(m_sheet_sift, 9, 1, "Edge Threshold");
+		SetNewCellValue(m_sheet_sift, 10, 1, "Number of Features");
+		SetNewCellValue(m_sheet_sift, 11, 1, "Number of Octave Layers");
+		SetNewCellValue(m_sheet_sift, 12, 1, "Sigma");
+		SetNewCellValue(m_sheet_sift, 13, 1, "Brute Force Matching");
+		SetNewCellValue(m_sheet_sift, 14, 1, "key Points 1");
+		SetNewCellValue(m_sheet_sift, 15, 1, "key Points 2");
+		SetNewCellValue(m_sheet_sift, 16, 1, "Detection Time");
+		SetNewCellValue(m_sheet_sift, 17, 1, "Description Time");
+		SetNewCellValue(m_sheet_sift, 18, 1, "Matching Time");
+		SetNewCellValue(m_sheet_sift, 19, 1, "Total Time");
+		SetNewCellValue(m_sheet_sift, 20, 1, "Accepted Matches");
+		SetNewCellValue(m_sheet_sift, 21, 1, "Rejected Matches");
+		SetNewCellValue(m_sheet_sift, 22, 1, "Average");
+		SetNewCellValue(m_sheet_sift, 23, 1, "Best Image Score");
+		SetNewCellValue(m_sheet_sift, 24, 1, "Requested Image Score");
+		SetNewCellValue(m_sheet_sift, 25, 1, "Best Image");
+		SetNewCellValue(m_sheet_sift, 26, 1, "Rank");
+		
+		m_workbook->dynamicCall("SaveAs (const QString&)", fileName);
+	}
+	else 
+	{
+		m_workbook = m_workbooks->querySubObject("Open(const QString&)", fileName);
+		m_sheets = m_workbook->querySubObject("Worksheets");
+	}
+	m_sheet = m_sheets->querySubObject("Item(int)", numSheet);
+	m_usedrange = m_sheet->querySubObject("UsedRange");
+	m_rows = m_usedrange->querySubObject("Rows");
+	intRows = m_rows->property("Count").toInt();
+}
+
+void ExcelExportHelper::SetCellValue(int columnIndex, const QString& value)
+{
+<<<<<<< HEAD
+	QAxObject *cell = m_sheet->querySubObject("Cells(int,int)", intRows + 1, columnIndex);
+=======
+	QAxObject *cell = m_sheet->querySubObject("Cells(int,int)", lineIndex, columnIndex);
+>>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
+	cell->setProperty("Value", value);
+	cell->setProperty("HorizontalAlignment", -4108);
+	delete cell;
+}
+
+QString ExcelExportHelper::IndexesToRange(int rowIndex, int columnIndex, int length)
+{
+	QString cellRange;
+
+	if (columnIndex <= 26) {
+		cellRange.append(QChar(columnIndex - 1 + 'A'));
+		cellRange.append(QString::number(rowIndex));
+		if ((columnIndex + length) <= 26) {
+			cellRange.append(":");
+			cellRange.append(QChar(columnIndex + length - 2 + 'A'));
+			cellRange.append(QString::number(rowIndex));
+		}
+		else {
+			cellRange.append(":A");
+			cellRange.append(QChar(columnIndex + length - 28 + 'A'));
+			cellRange.append(QString::number(rowIndex));
+		}
+	}
+	else {
+		cellRange.append("A");
+		cellRange.append(QChar(columnIndex - 27 + 'A'));
+		cellRange.append(QString::number(rowIndex));
+		cellRange.append(":A");
+		cellRange.append(QChar(columnIndex + length - 28 + 'A'));
+		cellRange.append(QString::number(rowIndex));
+	}
+
+	return cellRange;
+}
+
+QString ExcelExportHelper::IndexToRange(int rowIndex, int columnIndex)
+{
+	QString cellRange;
+	if (columnIndex > 26) {
+		cellRange.append('A');
+		columnIndex -= 26;
+	}
+	cellRange.append(QChar(columnIndex - 1 + 'A'));
+	cellRange.append(QString::number(rowIndex));
+	return cellRange;
+}
+
+void ExcelExportHelper::setCellTextCenter(QAxObject* sheet, int rowIndex, int columnIndex)
+{
+	QString cell = IndexToRange(rowIndex, columnIndex);
+	QAxObject *range = sheet->querySubObject("Range(const QString&)", cell);
+	range->setProperty("HorizontalAlignment", -4108);//xlCenter    
+}
+
+void ExcelExportHelper::setCellFontBold(QAxObject* cell, int size) {
+	QAxObject* chars = cell->querySubObject("Characters(int, int)", 1, size);
+	QAxObject* font = chars->querySubObject("Font");
+	font->setProperty("Bold", true);
+}
+void ExcelExportHelper::SetNewCellValue(QAxObject* sheet, int columnIndex, int intHorizontallyRange, const QString& value)
+{
+	if (intHorizontallyRange == 1) {
+		QAxObject *cell = sheet->querySubObject("Cells(int,int)", 1, columnIndex);
+		cell->setProperty("Value", value);
+		cell->setProperty("HorizontalAlignment", -4108);
+		cell->setProperty("ColumnWidth", value.size() + 4);
+		setCellFontBold(cell, value.size());
+		delete cell;
+	}
+	else {
+		QString cellRange = IndexesToRange(1, columnIndex, intHorizontallyRange);
+		QAxObject *range = sheet->querySubObject("Range(const QString&)", cellRange);
+		range->setProperty("HorizontalAlignment", -4108); //xlCenter  
+		range->setProperty("WrapText", true);
+		range->setProperty("MergeCells", true);
+		range->setProperty("Value", value);
+		setCellFontBold(range, value.size());
+		delete range;
+	}
+}
+
+QAxObject* ExcelExportHelper::AddNewSheet(const QString& value)
+{
+	m_sheets->querySubObject("Add");
+	QAxObject * sheet = m_sheets->querySubObject("Item(int)", 1);
+	sheet->setProperty("Name", value);
+	return sheet;
+}
+
+void ExcelExportHelper::Create()
+{
+	if (fileName == "")
+		throw std::invalid_argument("'fileName' is empty!");
+	if (fileName.contains("/"))
+		throw std::invalid_argument("'/' character in 'fileName' is not supported by excel!");
+
+<<<<<<< HEAD
+    m_workbook->dynamicCall("SaveAs (const QString&)", fileName);
+=======
+	if (!QFile::exists(fileName))
+	{
+		/*if (!QFile::remove(fileName))
+		{
+		throw new std::exception(QString("Failed to remove file '%1'").arg(fileName).toStdString().c_str());
+		}*/
+		m_workbooks->dynamicCall("Open (const QString&)", fileName);
+		m_sheets->querySubObject("Worksheets(int)", 1);
+	}
+
+	//m_workbook->dynamicCall("SaveAs (const QString&)", fileName);
+>>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
+}
+
+ExcelExportHelper::~ExcelExportHelper()
+{
+	if (m_excelApplication != nullptr)
+	{
+		if (!m_closeExcelOnExit)
+		{
+			m_excelApplication->setProperty("DisplayAlerts", 1);
+			m_excelApplication->dynamicCall("SetVisible(bool)", false);
+		}
+
+		if (m_workbook != nullptr && m_closeExcelOnExit)
+		{		
+			m_workbook->dynamicCall("Close (Boolean)", true);
+			m_excelApplication->dynamicCall("Quit (void)");
+		}
+	}
+}
+
+<<<<<<< HEAD
+QString MainWindow::getCurrentTime() {
+	auto t = std::time(nullptr);
+	auto tm = *std::localtime(&t);
+	std::ostringstream oss;
+	oss << std::put_time(&tm, "%d-%m-%Y %H:%M");
+	auto str = oss.str();
+	QString curtime = QString::fromStdString(str);
+	return curtime;
+}
+
+bool MainWindow::fileExistenceCheck(const std::string& name){
+	struct stat buffer;
+	return (stat(name.c_str(), &buffer) == 0);
+=======
+void MainWindow::makePlot(){
+	// generate some data:
+	QVector<double> x(1001), y(1001); // initialize with entries 0..100
+	for (int i = 0; i<1001; ++i)
+	{
+		x[i] = i / 5.0; // x goes from 0 to 100
+		y[i] = x[i] * x[i]; // let's plot a quadratic function
+	}
+	// create graph and assign data to it:
+	ui->graphWidget->addGraph();
+	ui->graphWidget->graph(0)->setData(x, y);
+	ui->graphWidget->graph(0)->setName("y=x²");
+	ui->graphWidget->addGraph();
+	ui->graphWidget->graph(1)->setData(y, x);
+	ui->graphWidget->graph(1)->setName("y=sqrt(x)");
+	// give the axes some labels:
+	ui->graphWidget->xAxis->setLabel("x");
+	ui->graphWidget->yAxis->setLabel("y");
+	// set axes ranges, so we see all data:
+	ui->graphWidget->xAxis->setRange(0, 5);
+	ui->graphWidget->yAxis->setRange(0, 10);
+	// set legend
+	ui->graphWidget->legend->setVisible(true);
+	ui->graphWidget->legend->setFont(QFont("Helvetica", 9));
+	// set locale to english, so we get english decimal separator:
+	ui->graphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
+	// configuration:
+	QPen pen;
+	pen.setStyle(Qt::DotLine);
+	pen.setWidth(1);
+	pen.setColor(QColor(180, 180, 180));
+	pen.setStyle(Qt::DashLine);
+	pen.setWidth(2);
+	pen.setColor(Qt::red);
+
+	ui->graphWidget->graph(1)->setPen(pen);
+	ui->graphWidget->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 9));
+	ui->graphWidget->graph(0)->setPen(QPen(QColor(120, 120, 120), 2));
+	ui->graphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes | QCP::iSelectLegend | QCP::iSelectPlottables | QCP::iMultiSelect);
+	ui->graphWidget->xAxis->setSelectableParts(QCPAxis::spAxisLabel | QCPAxis::spAxis | QCPAxis::spTickLabels);
+	ui->graphWidget->yAxis->setSelectableParts(QCPAxis::spAxisLabel | QCPAxis::spAxis | QCPAxis::spTickLabels);
+	ui->graphWidget->replot();
+}
+
+void MainWindow::drowRankk(int maxRank){
+	// drow Rank-k gragh
+	// generate data:
+	QVector<double> x(rankkData.size()), y(rankkData.size());
+	for (int i = 0; i < rankkData.size(); i++)
+	{
+		x[i] = rankkData[i].first;
+		if (x[i] != 0) rankkData[i].second = rankkData[i].second / static_cast<float>(maxRank)* 100;
+		y[i] = rankkData[i].second;
+
+		if (x[i] == 1 && y[i]!=0) {
+			// add the text label at the top:
+			QCPItemText *textLabel = new QCPItemText(ui->graphWidget);
+			textLabel->setPositionAlignment(Qt::AlignTop| Qt::AlignHCenter);
+			textLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+			textLabel->setText("Rank-1= "+QString::number(y[i])+"%");
+			textLabel->setFont(QFont(font().family(), 9)); // make font a bit larger
+			textLabel->setPen(QPen(Qt::black)); // show black border around text
+
+			// add the arrow:
+			QCPItemLine *arrow = new QCPItemLine(ui->graphWidget);
+			arrow->start->setParentAnchor(textLabel->top);
+			double yPos = 1 - y[i] / 100 + 0.05;
+			if (yPos > 0.9){
+				yPos -= 0.2;
+				arrow->start->setParentAnchor(textLabel->bottom);
+			}
+			textLabel->position->setCoords(0.10, yPos); // place position at center/top of axis rect
+			arrow->end->setCoords(x[i], y[i]); // point to rank-1 plot coordinates
+			arrow->setHead(QCPLineEnding::esSpikeArrow);
+		}
+	}
+	// create graph and assign data to it:
+	ui->graphWidget->addGraph();
+	ui->graphWidget->graph(0)->setData(x, y);
+	ui->graphWidget->graph(0)->setName("Rank-k");
+	// give the axes some labels:
+	ui->graphWidget->xAxis->setLabel("Rank");
+	ui->graphWidget->yAxis->setLabel("Percent %");
+	// set axes ranges, so we see all data:
+	ui->graphWidget->xAxis->setRange(0, x[x.size()-1]);
+	QCPAxisTickerFixed *fixedTicker = new QCPAxisTickerFixed();
+	fixedTicker->setTickStep(1);
+	ui->graphWidget->xAxis->setTicker(QSharedPointer<QCPAxisTickerFixed>(fixedTicker));
+	ui->graphWidget->yAxis->setRange(0, 110);
+	// set legend
+	ui->graphWidget->legend->setVisible(true);
+	ui->graphWidget->legend->setFont(QFont("Helvetica", 9));
+	// set locale to english, so we get english decimal separator:
+	ui->graphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
+	// configuration:
+	ui->graphWidget->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 9));
+	ui->graphWidget->graph(0)->setPen(QPen(QColor(120, 120, 120), 2));
+	ui->graphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+	ui->graphWidget->axisRect()->setRangeDrag(Qt::Horizontal); // drag only on x
+	ui->graphWidget->axisRect()->setRangeZoom(Qt::Horizontal); // zoom only on x
+	
+	// drow
+	ui->graphWidget->replot();
+>>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
+}
+
+void MainWindow::showRankkToolTip(QMouseEvent *event)
+{
+	float x = ui->graphWidget->xAxis->pixelToCoord(event->pos().x());
+	//int y = ui->graphWidget->yAxis->pixelToCoord(event->pos().y());
+	if (rankkData[0].first <= x && x <= rankkData[rankkData.size() - 1].first){
+		if (x <= (floor(x) + 0.5))setToolTip(QString("rank-%1 = %2%").arg(floor(x)).arg(rankkData[floor(x)].second));
+		else setToolTip(QString("rank-%1 = %2%").arg(floor(x) + 1).arg(rankkData[floor(x)+1].second));
+	}
+	else setToolTip("");
 }

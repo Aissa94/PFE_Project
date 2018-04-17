@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+<<<<<<< HEAD
 #include <QMainWindow>
 #include <QtWidgets>
 
@@ -14,6 +15,7 @@
 #include <iomanip>
 #include <string>
 #include <ctime>
+#include <QFileInfo>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -21,6 +23,8 @@
 #include <opencv2/nonfree/nonfree.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/highgui/highgui.hpp>
+=======
+>>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
 #include "include_files.h"
 
 namespace Ui {
@@ -32,6 +36,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
     
 public:
+	Ui::MainWindow *ui;
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
@@ -42,6 +47,8 @@ private slots:
 	void on_firstImgBtn_pressed();
 
     void on_secondImgBtn_pressed();
+
+	void on_refreshBddImageNames_pressed();
 
 	void on_pushButton_pressed();
 
@@ -55,11 +62,15 @@ private slots:
 
     void on_actionAbout_Qt_triggered();
 
-    void on_actionAbout_Me_triggered();
+	void on_actionAbout_Me_triggered();
+
+	void on_refreshRankkGraph_pressed();
+
+	void displayMatches(int bestImgIndex = 0); 
+	
+	void showRankkToolTip(QMouseEvent *event);
 
 private:
-    Ui::MainWindow *ui;
-
     QString outputImagesPath;
 
 	void resetParams();
@@ -68,7 +79,6 @@ private:
     void runORB();
 	void runBRISK();
 	void runCustom();
-	void runCustom_old();
 	bool readFirstImage();
 	bool readSecondImage();
 	bool readSetOfImages();
@@ -79,24 +89,36 @@ private:
 	cv::Ptr<cv::flann::IndexParams> getFlannBasedIndexParamsType();
 	cv::Mat skeletonization(cv::Mat img);
 	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold = 125.0);
-	double clusteringIntoKClusters(std::vector<cv::Mat> features_vector, int k); 
+	double kMeans(std::vector<cv::Mat> features_vector, int k);
+	void clustering();
+	float testInReverse(std::vector<cv::DMatch> directMatches, std::vector<cv::DMatch> inverseMatches, std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints, float limitDistance, std::vector<cv::DMatch> &bestMatches, std::vector<cv::DMatch> &badMatches);
+	float testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, float lowesRatio, float limitDistance, std::vector<cv::DMatch> &bestMatches, std::vector<cv::DMatch> &badMatches);
 	template <typename T>
 	void writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first_second, std::string fileName = "", int squareSize = 5);
+	void writeMatches(int imgIndex = 0);
 	void displayImage(cv::Mat imageMat, int first_second);
 	void displayFeature(cv::Mat featureMat, int first_second);
+
 	QImage matToQImage(const cv::Mat& mat);
+	QString getCurrentTime();
 
 	void customisingBinarization(int segmentationIndex);
 	void customisingSegmentor(int segmentationIndex);
 	void customisingDetector(int detectorIndex, std::string detectorName);
 	void customisingDescriptor(int descriptorIndex, std::string descriptorName);
 	void customisingMatcher(int matcherIndex, std::string matcherName);
-	void matching();
-	void calculateBestMatches();
+	bool matching();
+	void outlierElimination();
+	void maskMatchesByTrainImgIdx(const std::vector<cv::DMatch> matches, int trainImgIdx, std::vector<char>& mask);
+	int computeRankK(float scoreThreshold);
+	cv::Mat maskMatchesByMinutiaeNature(std::vector<Minutiae> firstImgKeypoints, std::vector<Minutiae> secondImgKeypoints);
 
 	int fileCounter(std::string dir, std::string prefix, std::string suffix, std::string extension);
 	bool fileExistenceCheck(const std::string& name);
 	void showError(std::string title, std::string text, std::string e_msg = "");
+
+	void drowRankk(int maxRank);
+	void makePlot();
 };
 
 #endif // MAINWINDOW_H

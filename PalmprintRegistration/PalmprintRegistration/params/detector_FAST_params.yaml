@@ -1,4 +1,0 @@
-%YAML:1.0
-name: "Feature2D.FAST"
-nonmaxSuppression: 1
-threshold: 10
