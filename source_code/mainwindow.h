@@ -1,30 +1,5 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
-<<<<<<< HEAD
-#include <QMainWindow>
-#include <QtWidgets>
-
-#include <iostream>
-#include <fstream>
-#include <iostream>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdexcept>
-#include <iomanip>
-#include <string>
-#include <ctime>
-#include <QFileInfo>
-
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/features2d/features2d.hpp>
-#include <opencv2/nonfree/nonfree.hpp>
-#include <opencv2/calib3d/calib3d.hpp>
-#include <opencv2/highgui/highgui.hpp>
-=======
->>>>>>> 9ac807c1668163e5f841bd1e667f4778affdb0e8
 #include "include_files.h"
 
 namespace Ui {
