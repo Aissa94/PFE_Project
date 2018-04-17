@@ -234,12 +234,11 @@ void MainWindow::runSURF()
 	bool extended = ui->surfExtendedText->isChecked();
 	bool upright = !ui->surfUprightText->isChecked();
 
-    // Create SURF Objects ...
-    cv::SURF surfDetector(hessainThreshold, nOctaves, nOctaveLayers, extended, upright);
-
     // Detecting Keypoints ...
     surfDetector.detect(firstImg, firstImgKeypoints);
 	surfDetector.detect(secondImg, secondImgKeypoints);
+	writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
+	writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
 
     if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
 
@@ -262,6 +261,38 @@ void MainWindow::runSURF()
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!hena yebda le pblm de difference entre hada w ta3 custom !!! !!! !!! !!
 	outlierElimination();
+
+	QString curtime = getCurrentTime();
+
+	try
+	{
+
+		ExcelExportHelper helper(true, 2);
+
+		helper.SetCellValue(1, QString::number(cpt));
+		helper.SetCellValue(2, curtime);
+		helper.SetCellValue(3, ui->firstImgText->text());
+		helper.SetCellValue(4, ui->secondImgText->text());
+		helper.SetCellValue(5, QString::number(hessainThreshold));
+		helper.SetCellValue(6, QString::number(nOctaves));
+		helper.SetCellValue(7, QString::number(nOctaveLayers));
+		helper.SetCellValue(8, QString::number(nOctaveLayers));
+		helper.SetCellValue(9, QString::number(upright));
+
+		QString surfBruteForceCheck = ui->surfBruteForceCheck->isChecked() ? "TRUE" : "FALSE";
+		helper.SetCellValue(10, surfBruteForceCheck);
+		helper.SetCellValue(11, QString::number(firstImgKeypoints.size()));
+		helper.SetCellValue(12, QString::number(secondImgKeypoints.size()));
+		helper.SetCellValue(13, QString::number(bestMatchesCount));
+		helper.SetCellValue(14, QString::number(sumDistances));
+		helper.SetCellValue(15, QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
+
+		helper.~ExcelExportHelper();
+	}
+	catch (const std::exception& e)
+	{
+		QMessageBox::critical(this, "Error - SIFT", e.what());
+	}
 }
 
 void MainWindow::runORB()
