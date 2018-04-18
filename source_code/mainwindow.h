@@ -48,7 +48,7 @@ private slots:
 	
 	void showRankkToolTip(QMouseEvent *event);
 
-	void showEerToolTip(QVector<double>xFMRsplined, QVector<double>yFMRsplined, QVector<double>xFNMRsplined, QVector<double>yFNMRsplined, QMouseEvent *event);
+	void showEerToolTip(QMouseEvent *event);
 
 
 private:
@@ -100,7 +100,7 @@ private:
 	void showError(std::string title, std::string text, std::string e_msg = "");
 
 	void drowRankk(int maxRank);
-	void drowEer(std::vector <std::tuple<float, int, int>> FMR_dataFromExcel, std::vector <std::tuple<float, int, int>> FNMR_dataFromExcel);
+	void drowEer(std::map<float, std::pair<int, int>> FMR_dataFromExcel, std::map<float, std::pair<int, int>> FNMR_dataFromExcel);
 	void makePlot();
 };
 
