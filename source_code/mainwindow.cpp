@@ -972,17 +972,10 @@ void MainWindow::on_refreshRankkGraph_pressed(){
 }
 
 void MainWindow::on_refreshEerGraph_pressed(){
-<<<<<<< HEAD
-	std::vector <std::tuple<float, int, int>>/*<threshold, nbFM, nbNonExists>*/ FMR_dataFromExcel
-		= { std::make_tuple<float, int, int>(10, 65, 70), std::make_tuple<float, int, int>(15, 89, 100), std::make_tuple<float, int, int>(80, 45, 70), std::make_tuple<float, int, int>(100, 35, 77), std::make_tuple<float, int, int>(230, 20, 100), std::make_tuple<float, int, int>(400, 5, 80), std::make_tuple<float, int, int>(500, 0, 10) };
-	std::vector <std::tuple<float, int, int>>/*<threshold, nbFNM, nbExists>*/ FNMR_dataFromExcel
-		= { std::make_tuple<float, int, int>(18, 0, 10), std::make_tuple<float, int, int>(25, 5, 80), std::make_tuple<float, int, int>(30, 20, 100), std::make_tuple<float, int, int>(50, 35, 77), std::make_tuple<float, int, int>(105, 45, 70), std::make_tuple<float, int, int>(190, 80, 100), std::make_tuple<float, int, int>(260, 88, 100), std::make_tuple<float, int, int>(410, 120, 130), std::make_tuple<float, int, int>(580, 70, 75) };
-=======
 	std::map<float, std::pair<int, int>>/*<threshold, <nbFM, nbNonExists>>*/ FMR_dataFromExcel
 		= { { 10, std::make_pair<int, int>(65, 70) }, { 15, std::make_pair<int, int>(89, 100) }, { 80, std::make_pair<int, int>(45, 70) }, { 100, std::make_pair<int, int>(35, 77) }, { 230, std::make_pair<int, int>(20, 100) }, { 400, std::make_pair<int, int>(5, 80) }, { 500, std::make_pair<int, int>(0, 10) } };
 	std::map<float, std::pair<int, int>>/*<threshold, <nbFNM, nbExists>>*/ FNMR_dataFromExcel
 		= { { 18, std::make_pair<int, int>(0, 10) }, { 25, std::make_pair<int, int>(5, 80) }, { 30, std::make_pair<int, int>(20, 100) }, { 50, std::make_pair<int, int>(35, 77) }, { 105, std::make_pair<int, int>(45, 70) }, { 190, std::make_pair<int, int>(80, 100) }, { 260, std::make_pair<int, int>(88, 100) }, { 410, std::make_pair<int, int>(120, 130) }, { 580, std::make_pair<int, int>(70, 75) } };
-	
 	std::map<float, std::pair<int, int>>::iterator it;
 	FMR_dataFromExcel.insert({ 9, std::make_pair<int, int>(99, 999) });
 
@@ -1003,8 +996,6 @@ void MainWindow::on_refreshEerGraph_pressed(){
 	for (it = FMR_dataFromExcel.begin(); it != FMR_dataFromExcel.end(); ++it){
 		qDebug() << it->first << ": " << it->second.first << ", " << it->second.second;
 	}
-
->>>>>>> 8523c4579f6b0fc778dd44107f7050bc22aa987e
 	if (ui->eerGraphWidget->graphCount()){
 		ui->eerGraphWidget->clearGraphs();
 		ui->eerGraphWidget->clearItems();
