@@ -71,7 +71,7 @@
           <item row="1" column="1" colspan="2">
            <widget class="QLineEdit" name="secondImgText">
             <property name="text">
-             <string>D:/ESI/Empreinte/Data/JPG-complet</string>
+             <string>Resources/images/box2.png</string>
             </property>
             <property name="buddy" stdset="0">
              <cstring>label_4</cstring>
@@ -80,6 +80,9 @@
           </item>
           <item row="1" column="4">
            <widget class="QCheckBox" name="oneToN">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of choosing the second image, select a folder to an image set.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; If the folder contains only one image it will be considered as (1 to 1).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
@@ -87,7 +90,7 @@
              <string>1 to N</string>
             </property>
             <property name="checked">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -101,7 +104,7 @@
           <item row="0" column="1" colspan="2">
            <widget class="QLineEdit" name="firstImgText">
             <property name="text">
-             <string>Resources/images/1_1.jpg</string>
+             <string>Resources/images/box1.png</string>
             </property>
            </widget>
           </item>
@@ -183,7 +186,7 @@
              <set>Qt::AlignCenter</set>
             </property>
             <property name="text" stdset="0">
-             <string>0</string>
+             <string/>
             </property>
             <property name="accelerated">
              <bool>true</bool>
@@ -2590,7 +2593,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
     <item row="0" column="1" rowspan="3">
      <widget class="QTabWidget" name="viewTabs">
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_7">
        <attribute name="title">
@@ -3334,7 +3337,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="typeOfMatchButtonGroup"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

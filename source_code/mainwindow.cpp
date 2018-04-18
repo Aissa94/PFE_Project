@@ -160,8 +160,8 @@ void MainWindow::runSIFT()
     // Detecting Keypoints ...
     siftDetector.detect(firstImg, firstImgKeypoints);
     siftDetector.detect(secondImg, secondImgKeypoints);
-	writeKeyPoints(firstImg, firstImgKeypoints, 1, "f-keypoints");
-	writeKeyPoints(secondImg, secondImgKeypoints, 2, "s-keypoints");
+	writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
+	writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
 
 	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
 
@@ -191,23 +191,23 @@ void MainWindow::runSIFT()
 
 		ExcelExportHelper helper(true, 1);
 
-		helper.SetCellValue(1, QString::number(cpt));
-		helper.SetCellValue(2, curtime);
-		helper.SetCellValue(3, ui->firstImgText->text());
-		helper.SetCellValue(4, ui->secondImgText->text());
-		helper.SetCellValue(5, QString::number(contrastThreshold));
-		helper.SetCellValue(6, QString::number(edgeThreshold));
-		helper.SetCellValue(7, QString::number(nfeatures));
-		helper.SetCellValue(8, QString::number(nOctaveLayers));
-		helper.SetCellValue(9, QString::number(sigma));
+		helper.SetCellValue(1, false, QString::number(cpt));
+		helper.SetCellValue(2, false, curtime);
+		helper.SetCellValue(3, false, ui->firstImgText->text());
+		helper.SetCellValue(4, false, ui->secondImgText->text());
+		helper.SetCellValue(8, false, QString::number(contrastThreshold));
+		helper.SetCellValue(9, false, QString::number(edgeThreshold));
+		helper.SetCellValue(10, false, QString::number(nfeatures));
+		helper.SetCellValue(11, false, QString::number(nOctaveLayers));
+		helper.SetCellValue(12, false, QString::number(sigma));
 
 		QString siftBruteForceCheck = ui->siftBruteForceCheck->isChecked() ? "TRUE" : "FALSE";
-		helper.SetCellValue(10, siftBruteForceCheck);
-		helper.SetCellValue(11, QString::number(firstImgKeypoints.size()));
-		helper.SetCellValue(12, QString::number(secondImgKeypoints.size()));
-		helper.SetCellValue(13, QString::number(bestMatchesCount));
-		helper.SetCellValue(14, QString::number(sumDistances));
-		helper.SetCellValue(15, QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
+		helper.SetCellValue(13, false, siftBruteForceCheck);
+		helper.SetCellValue(14, false, QString::number(firstImgKeypoints.size()));
+		helper.SetCellValue(15, false, QString::number(secondImgKeypoints.size()));
+		helper.SetCellValue(16, false, QString::number(bestMatchesCount));
+		helper.SetCellValue(17, false, QString::number(sumDistances));
+		helper.SetCellValue(18, false, QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
 
 		helper.~ExcelExportHelper();
 	}
@@ -233,6 +233,9 @@ void MainWindow::runSURF()
     int nOctaveLayers = ui->surfNumOctLayersText->text().toInt();
 	bool extended = ui->surfExtendedText->isChecked();
 	bool upright = !ui->surfUprightText->isChecked();
+
+	// Create Surf Objects ...
+	cv::SURF surfDetector(hessainThreshold, nOctaves, nOctaveLayers, extended, upright);
 
     // Detecting Keypoints ...
     surfDetector.detect(firstImg, firstImgKeypoints);
@@ -269,29 +272,33 @@ void MainWindow::runSURF()
 
 		ExcelExportHelper helper(true, 2);
 
-		helper.SetCellValue(1, QString::number(cpt));
-		helper.SetCellValue(2, curtime);
-		helper.SetCellValue(3, ui->firstImgText->text());
-		helper.SetCellValue(4, ui->secondImgText->text());
-		helper.SetCellValue(5, QString::number(hessainThreshold));
-		helper.SetCellValue(6, QString::number(nOctaves));
-		helper.SetCellValue(7, QString::number(nOctaveLayers));
-		helper.SetCellValue(8, QString::number(nOctaveLayers));
-		helper.SetCellValue(9, QString::number(upright));
+		helper.SetCellValue(1, false, QString::number(cpt));
+		helper.SetCellValue(2, false, curtime);
+		helper.SetCellValue(3, false, ui->firstImgText->text());
+		helper.SetCellValue(4, false, ui->secondImgText->text());
+		helper.SetCellValue(8, false, QString::number(hessainThreshold));
+		helper.SetCellValue(9, false, QString::number(nOctaves));
+		helper.SetCellValue(10, false, QString::number(nOctaveLayers));
+
+		QString surfExtendedCheck = extended ? "TRUE" : "FALSE";
+		helper.SetCellValue(11, false, surfExtendedCheck);
+
+		QString surfUprightCheck = upright ? "FALSE" : "TRUE";
+		helper.SetCellValue(12, false, surfUprightCheck);
 
 		QString surfBruteForceCheck = ui->surfBruteForceCheck->isChecked() ? "TRUE" : "FALSE";
-		helper.SetCellValue(10, surfBruteForceCheck);
-		helper.SetCellValue(11, QString::number(firstImgKeypoints.size()));
-		helper.SetCellValue(12, QString::number(secondImgKeypoints.size()));
-		helper.SetCellValue(13, QString::number(bestMatchesCount));
-		helper.SetCellValue(14, QString::number(sumDistances));
-		helper.SetCellValue(15, QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
+		helper.SetCellValue(13, false, surfBruteForceCheck);
+		helper.SetCellValue(14, false, QString::number(firstImgKeypoints.size()));
+		helper.SetCellValue(15, false, QString::number(secondImgKeypoints.size()));
+		helper.SetCellValue(16, false, QString::number(bestMatchesCount));
+		helper.SetCellValue(17, false, QString::number(sumDistances));
+		helper.SetCellValue(18, false, QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
 
 		helper.~ExcelExportHelper();
 	}
 	catch (const std::exception& e)
 	{
-		QMessageBox::critical(this, "Error - SIFT", e.what());
+		QMessageBox::critical(this, "Error - SURF", e.what());
 	}
 }
 
@@ -326,6 +333,8 @@ void MainWindow::runORB()
     // Detecting Keypoints ...
     orbDetector.detect(firstImg, firstImgKeypoints);
 	orbDetector.detect(secondImg, secondImgKeypoints);
+	writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
+	writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
 
 	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
 
@@ -339,6 +348,41 @@ void MainWindow::runORB()
     ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
 
 	outlierElimination();
+
+	QString curtime = getCurrentTime();
+
+	try
+	{
+
+		ExcelExportHelper helper(true, 3);
+
+		helper.SetCellValue(1, false, QString::number(cpt));
+		helper.SetCellValue(2, false, curtime);
+		helper.SetCellValue(3, false, ui->firstImgText->text());
+		helper.SetCellValue(4, false, ui->secondImgText->text());
+		helper.SetCellValue(8, false, QString::number(nfeatures));
+		helper.SetCellValue(9, false, QString::number(scaleFactor));
+		helper.SetCellValue(10, false, QString::number(nlevels));
+		helper.SetCellValue(11, false, QString::number(edgeThreshold));
+		helper.SetCellValue(12, false, QString::number(firstLevel));
+		helper.SetCellValue(13, false, QString::number(WTA_K));
+
+		QString orbScoreType = ui->orbScoreHarrisRadioBtn->isChecked() ? "Harris" : "FAST";
+		helper.SetCellValue(14, false, orbScoreType);
+		helper.SetCellValue(15, false, QString::number(patchSize));
+
+		helper.SetCellValue(16, false, QString::number(firstImgKeypoints.size()));
+		helper.SetCellValue(17, false, QString::number(secondImgKeypoints.size()));
+		helper.SetCellValue(18, false, QString::number(bestMatchesCount));
+		helper.SetCellValue(19, false, QString::number(sumDistances));
+		helper.SetCellValue(20, false, QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
+
+		helper.~ExcelExportHelper();
+	}
+	catch (const std::exception& e)
+	{
+		QMessageBox::critical(this, "Error - ORB", e.what());
+	}
 }
 
 void MainWindow::runBRISK()
@@ -368,6 +412,8 @@ void MainWindow::runBRISK()
 	// Detecting Keypoints ...
 	briskDetector.detect(firstImg, firstImgKeypoints);
 	briskDetector.detect(secondImg, secondImgKeypoints);
+	writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
+	writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
 
 	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
 
@@ -381,6 +427,33 @@ void MainWindow::runBRISK()
 	ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches);
 
 	outlierElimination();
+
+	QString curtime = getCurrentTime();
+
+	try
+	{
+
+		ExcelExportHelper helper(true, 4);
+
+		helper.SetCellValue(1, false, QString::number(cpt));
+		helper.SetCellValue(2, false, curtime);
+		helper.SetCellValue(3, false, ui->firstImgText->text());
+		helper.SetCellValue(4, false, ui->secondImgText->text());
+		helper.SetCellValue(8, false, QString::number(patternScale));
+		helper.SetCellValue(9, false, QString::number(octaves));
+		helper.SetCellValue(10, false, QString::number(thresh));
+		helper.SetCellValue(11, false, QString::number(firstImgKeypoints.size()));
+		helper.SetCellValue(12, false, QString::number(secondImgKeypoints.size()));
+		helper.SetCellValue(13, false, QString::number(bestMatchesCount));
+		helper.SetCellValue(14, false, QString::number(sumDistances));
+		helper.SetCellValue(15, false, QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
+
+		helper.~ExcelExportHelper();
+	}
+	catch (const std::exception& e)
+	{
+		QMessageBox::critical(this, "Error - BRISK", e.what());
+	}
 }
 
 void MainWindow::runCustom()
@@ -397,53 +470,6 @@ void MainWindow::runCustom()
 
 	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + segmentationName + ", " + detectorName + ", " + descriptorName + ", " + matcherName + ") based identification</b> "));
 	
-	/*QString curtime = getCurrentTime();
-	const QString fileName = "palmprint_registration_log_file.xlsx";
-	QAxObject* excel = new QAxObject("Excel.Application");
-	QAxObject* workbooks = excel->querySubObject("Workbooks");
-	QAxObject* workbook = workbooks->querySubObject("Open(const QString&)", fileName);
-	QAxObject* worksheet = workbook->querySubObject("Worksheets");
-	QAxObject* sheet = worksheet->querySubObject("Item(int)", 5);
-	QAxObject* usedrange = sheet->querySubObject("UsedRange");
-	QAxObject* rows = usedrange->querySubObject("Rows");
-	int intRows = rows->property("Count").toInt();
-	
-	QAxObject* identificatorTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 1);
-	identificatorTabs->setProperty("Value", intRows + 1);
-	QAxObject* currentTimeTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 2);
-	currentTimeTabs->setProperty("Value", curtime);
-	QAxObject* firstImageTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 3);
-	firstImageTabs->setProperty("Value", ui->firstImgText->text());
-	QAxObject* secondImageTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 4);
-	secondImageTabs->setProperty("Value", ui->secondImgText->text());*/
-	/*QAxObject* segmentationTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 5);
-	segmentationTabs->setProperty("Value", QString::fromStdString(segmentationName));*/
-	//QAxObject* ExcelCell = sheet->querySubObject("Range(Cells(int,int),Cells(int,int))", intRows + 1, 5, intRows + 1, 6);
-	//ExcelCell->dynamicCall("Merge");
-	/*QString cell;
-	cell.append(QChar(5 - 1 + 'A'));
-	cell.append(QString::number(intRows + 1));
-	cell.append(":");
-	cell.append(QChar(8 - 1 + 'A'));
-	cell.append(QString::number(intRows + 1));
-	QAxObject *range = sheet->querySubObject("Range(const QString&)", cell);
-	range->setProperty("VerticalAlignment", -4108);//xlCenter  
-	range->setProperty("WrapText", true);
-	range->setProperty("MergeCells", true);
-	range->setProperty("Value", QString::fromStdString(segmentationName));
-	QAxObject* detectorTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 7);
-	detectorTabs->setProperty("Value", QString::fromStdString(detectorName));
-
-	QAxObject* descriptorTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 9);
-	descriptorTabs->setProperty("Value", QString::fromStdString(descriptorName));
-
-	QAxObject* matcherTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 11);
-	matcherTabs->setProperty("Value", QString::fromStdString(matcherName));
-
-	excel->setProperty("Visible", true);
-	workbooks->querySubObject("SaveAs()");
-	workbooks->querySubObject("Close()");
-	excel->querySubObject("Quit()");*/
 	// Binarization
 	customisingBinarization(segmentationIndex);
 
@@ -478,6 +504,32 @@ void MainWindow::runCustom()
 	// Keep only best matching according to the selected test
 	outlierElimination();
 
+	QString curtime = getCurrentTime();
+
+	try
+	{
+
+		ExcelExportHelper helper(true, 5);
+
+		helper.SetCellValue(1, true, QString::number(cpt));
+		helper.SetCellValue(2, true, curtime);
+		helper.SetCellValue(3, true, ui->firstImgText->text());
+		helper.SetCellValue(4, true, ui->secondImgText->text());
+		/*helper.SetCellValue(8, QString::number(patternScale));
+		helper.SetCellValue(9, QString::number(octaves));
+		helper.SetCellValue(10, QString::number(thresh));*/
+		helper.SetCellValue(33, true, QString::number(firstImgKeypoints.size()));
+		helper.SetCellValue(34, true, QString::number(secondImgKeypoints.size()));
+		helper.SetCellValue(35, true, QString::number(bestMatchesCount));
+		helper.SetCellValue(36, true, QString::number(sumDistances));
+		helper.SetCellValue(37, true, QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
+
+		helper.~ExcelExportHelper();
+	}
+	catch (const std::exception& e)
+	{
+		QMessageBox::critical(this, "Error - Custom", e.what());
+	}
 }
 
 void MainWindow::on_firstImgBtn_pressed()
@@ -920,9 +972,9 @@ void MainWindow::on_refreshRankkGraph_pressed(){
 }
 
 void MainWindow::on_refreshEerGraph_pressed(){
-	std::vector <std::tuple<float, int, int>>/*<threshold, nbFM, nbExists>*/ FMR_dataFromExcel
+	std::vector <std::tuple<float, int, int>>/*<threshold, nbFM, nbNonExists>*/ FMR_dataFromExcel
 		= { std::make_tuple<float, int, int>(10, 65, 70), std::make_tuple<float, int, int>(15, 89, 100), std::make_tuple<float, int, int>(80, 45, 70), std::make_tuple<float, int, int>(100, 35, 77), std::make_tuple<float, int, int>(230, 20, 100), std::make_tuple<float, int, int>(400, 5, 80), std::make_tuple<float, int, int>(500, 0, 10) };
-	std::vector <std::tuple<float, int, int>>/*<threshold, nbFNM, nbNonExists>*/ FNMR_dataFromExcel
+	std::vector <std::tuple<float, int, int>>/*<threshold, nbFNM, nbExists>*/ FNMR_dataFromExcel
 		= { std::make_tuple<float, int, int>(18, 0, 10), std::make_tuple<float, int, int>(25, 5, 80), std::make_tuple<float, int, int>(30, 20, 100), std::make_tuple<float, int, int>(50, 35, 77), std::make_tuple<float, int, int>(105, 45, 70), std::make_tuple<float, int, int>(190, 80, 100), std::make_tuple<float, int, int>(260, 88, 100), std::make_tuple<float, int, int>(410, 120, 130), std::make_tuple<float, int, int>(580, 70, 75) };
 	if (ui->eerGraphWidget->graphCount()){
 		ui->eerGraphWidget->clearGraphs();
@@ -2591,8 +2643,9 @@ ExcelExportHelper::ExcelExportHelper(bool closeExcelOnExit, int numSheet)
 	intRows = m_rows->property("Count").toInt();
 }
 
-void ExcelExportHelper::SetCellValue(int columnIndex, const QString& value)
+void ExcelExportHelper::SetCellValue(int columnIndex, bool merge, const QString& value)
 {
+	if (merge) mergeRowsCells(intRows + 1, columnIndex);
 	QAxObject *cell = m_sheet->querySubObject("Cells(int,int)", intRows + 1, columnIndex);
 	cell->setProperty("Value", value);
 	cell->setProperty("HorizontalAlignment", -4108);
@@ -2627,6 +2680,45 @@ QString ExcelExportHelper::IndexesToRange(int rowIndex, int columnIndex, int len
 	}
 
 	return cellRange;
+}
+
+void ExcelExportHelper::mergeCells(int topLeftRow, int topLeftColumn, int bottomRightRow, int bottomRightColumn)
+{
+	QString cell;
+	cell.append(QChar(topLeftColumn - 1 + 'A'));
+	cell.append(QString::number(topLeftRow));
+	cell.append(":");
+	cell.append(QChar(bottomRightColumn - 1 + 'A'));
+	cell.append(QString::number(bottomRightRow));
+
+	QAxObject *range = m_sheet->querySubObject("Range(const QString&)", cell);
+	range->setProperty("VerticalAlignment", -4108);//xlCenter    
+	range->setProperty("WrapText", true);
+	range->setProperty("MergeCells", true);
+}
+
+void ExcelExportHelper::mergeRowsCells(int rowIndex, int columnIndex)
+{
+	QString cell;
+	if (columnIndex > 26) {
+		cell.append('A');
+		columnIndex -= 26;
+		cell.append(QChar(columnIndex - 1 + 'A'));
+		cell.append(QString::number(rowIndex));
+		cell.append(":A");
+	}
+	else {
+		cell.append(QChar(columnIndex - 1 + 'A'));
+		cell.append(QString::number(rowIndex));
+		cell.append(":");
+	}
+	cell.append(QChar(columnIndex - 1 + 'A'));
+	cell.append(QString::number(rowIndex + 1));
+
+	QAxObject *range = m_sheet->querySubObject("Range(const QString&)", cell);
+	range->setProperty("VerticalAlignment", -4108);//xlCenter    
+	range->setProperty("WrapText", true);
+	range->setProperty("MergeCells", true);
 }
 
 QString ExcelExportHelper::IndexToRange(int rowIndex, int columnIndex)
