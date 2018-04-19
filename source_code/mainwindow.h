@@ -53,10 +53,10 @@ private:
     QString outputImagesPath;
 
 	void resetParams();
-    void runSIFT();
-    void runSURF();
-    void runORB();
-	void runBRISK();
+	void runSIFT(int &excelColumn);
+	void runSURF(int &excelColumn);
+	void runORB(int &excelColumn);
+	void runBRISK(int &excelColumn);
 	void runDefault();
 	void runCustom();
 	bool readFirstImage();
