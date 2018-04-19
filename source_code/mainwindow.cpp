@@ -41,6 +41,7 @@
 	cv::FeatureDetector * ptrDetector;
 	cv::DescriptorExtractor * ptrDescriptor;
 	cv::DescriptorMatcher * ptrMatcher;
+	cv::Feature2D * ptrDefault;
 
 // Times
 	double /*segmentationTime = 0,*/ detectionTime = 0, descriptionTime = 0, clusteringTime = 0, matchingTime = 0;
@@ -137,15 +138,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::runSIFT()
 {
-    //QMessageBox msg; msg.setText("SIFT"); msg.exec();
-
     //    SIFT( int nfeatures=0, int nOctaveLayers=3,
     //              double contrastThreshold=0.04, double edgeThreshold=10,
     //              double sigma=1.6);
-
-    //ui->logPlainText->appendPlainText("Starting SIFT based identification!");
-	ui->logPlainText->appendHtml("<b>Starting SIFT based identification!</b>");
-
 
     // Read Parameters ...
     int nfeatures = ui->siftNumFeatText->text().toInt();
@@ -155,34 +150,17 @@ void MainWindow::runSIFT()
     double sigma = ui->siftSigmaText->text().toDouble();
 
     // Create SIFT Objects ...
-    cv::SIFT siftDetector(nfeatures, nOctaveLayers, contrastThreshold, edgeThreshold, sigma);
+	ptrDefault = new cv::SIFT(nfeatures, nOctaveLayers, contrastThreshold, edgeThreshold, sigma);
 
-    // Detecting Keypoints ...
-    siftDetector.detect(firstImg, firstImgKeypoints);
-    siftDetector.detect(secondImg, secondImgKeypoints);
-	writeKeyPoints(firstImg, firstImgKeypoints, 1, "f-keypoints");
-	writeKeyPoints(secondImg, secondImgKeypoints, 2, "s-keypoints");
-
-	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
-
-    // Computing the descriptors
-	siftDetector.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
-    siftDetector.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
-
-    // Find the matching points
-    if(ui->siftBruteForceCheck->isChecked())
-    {
-        ptrMatcher = new cv::BFMatcher(cv::NORM_L1);
-    }
-    else
-    {
-        ptrMatcher = new cv::FlannBasedMatcher();
-    }
-    ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, directMatches );
-    ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
-
-	// Drowing best matches
-	outlierElimination();
+	// Matcher
+	if (ui->siftBruteForceCheck->isChecked())
+	{
+		ptrMatcher = new cv::BFMatcher(cv::NORM_L1);
+	}
+	else
+	{
+		ptrMatcher = new cv::FlannBasedMatcher();
+	}
 
 	QString curtime = getCurrentTime();
 
@@ -219,15 +197,11 @@ void MainWindow::runSIFT()
 
 void MainWindow::runSURF()
 {
-    //QMessageBox msg; msg.setText("SURF"); msg.exec();
-
     //    SURF(double hessianThreshold=100,
     //                      int nOctaves=4, int nOctaveLayers=2,
     //                      bool extended=true, bool upright=false);
 
-	ui->logPlainText->appendHtml("<b>Starting SURF based identification!</b>");
-
-    // Read Parameters ...
+	// Read Parameters ...
     double hessainThreshold = ui->surfHessianThreshText->text().toDouble();
     int nOctaves = ui->surfNumOctavesText->text().toInt();
     int nOctaveLayers = ui->surfNumOctLayersText->text().toInt();
@@ -235,35 +209,17 @@ void MainWindow::runSURF()
 	bool upright = !ui->surfUprightText->isChecked();
 
 	// Create SURF Objects ...
-    cv::SURF surfDetector(hessainThreshold, nOctaves, nOctaveLayers, extended, upright);
-
-    // Detecting Keypoints ...
-    surfDetector.detect(firstImg, firstImgKeypoints);
-	surfDetector.detect(secondImg, secondImgKeypoints);
-	writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
-	writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
-
-    if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
-
-    // Computing the descriptors
-    surfDetector.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
-    surfDetector.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
-
-    // Find the matching points
-    if(ui->surfBruteForceCheck->isChecked())
-    {
-        ptrMatcher = new cv::BFMatcher(cv::NORM_L1);
-    }
-    else
-    {
-        ptrMatcher = new cv::FlannBasedMatcher();
-    }
-
-    ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, directMatches );
-    ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
-
-    // !!!!!!!!!!!!!!!!!!!!!!!!!hena yebda le pblm de difference entre hada w ta3 custom !!! !!! !!! !!
-	outlierElimination();
+	ptrDefault = new cv::SURF(hessainThreshold, nOctaves, nOctaveLayers, extended, upright);
+	
+	// Matcher
+	if (ui->siftBruteForceCheck->isChecked())
+	{
+		ptrMatcher = new cv::BFMatcher(cv::NORM_L1);
+	}
+	else
+	{
+		ptrMatcher = new cv::FlannBasedMatcher();
+	}
 
 	QString curtime = getCurrentTime();
 
@@ -305,9 +261,6 @@ void MainWindow::runORB()
     //    ORB(int nfeatures = 500, float scaleFactor = 1.2f, int nlevels = 8, int edgeThreshold = 31,
     //                     int firstLevel = 0, int WTA_K=2, int scoreType=HARRIS_SCORE, int patchSize=31 );
 
-    //ui->logPlainText->appendPlainText("Starting ORB based identification!");
-	ui->logPlainText->appendHtml("<b>Starting ORB based identification!</b>");
-
     // Read Parameters ...
     int  nfeatures = ui->orbNumFeatText->text().toInt();
     float scaleFactor = ui->orbScaleFactText->text().toFloat();
@@ -324,66 +277,149 @@ void MainWindow::runORB()
 
 
     // Create ORB Object ...
-    cv::ORB orbDetector(nfeatures, scaleFactor, nlevels, edgeThreshold, firstLevel, WTA_K, scoreType, patchSize);
-
-    // Detecting Keypoints ...
-    orbDetector.detect(firstImg, firstImgKeypoints);
-	orbDetector.detect(secondImg, secondImgKeypoints);
-
-	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
-
-    // Computing the descriptors
-    orbDetector.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
-    orbDetector.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
+	ptrDefault = new cv::ORB(nfeatures, scaleFactor, nlevels, edgeThreshold, firstLevel, WTA_K, scoreType, patchSize);
 
     // Find the matching points
     ptrMatcher = new cv::BFMatcher(cv::NORM_HAMMING);
-	ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, directMatches );
-    ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
 
-	outlierElimination();
 }
 
 void MainWindow::runBRISK()
 {
-	//QMessageBox msg; msg.setText("BRISK"); msg.exec();
-
 	//    BRISK(int thresh = 30, int octaves = 3,float patternScale = 1.0f);
-
-	//ui->logPlainText->appendPlainText("Starting BRISK based identification!");
-	ui->logPlainText->appendHtml("<b>Starting BRISK based identification!</b>");
-
-	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 3 Columns
-	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
-	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
-	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
-	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
-	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
 
 	// Read Parameters ...
 	float patternScale = ui->briskPatternScaleText->text().toFloat();
 	int octaves = ui->briskOctavesText->text().toInt();
 	int thresh = ui->briskThreshText->text().toInt();
 
-
 	// Create BRISK Object ...
-	cv::BRISK briskDetector(thresh, octaves, patternScale);
-	// Detecting Keypoints ...
-	briskDetector.detect(firstImg, firstImgKeypoints);
-	briskDetector.detect(secondImg, secondImgKeypoints);
-
-	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
-
-	// Computing the descriptors
-	briskDetector.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
-	briskDetector.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
-
+	ptrDetector = new cv::BRISK(thresh, octaves, patternScale);
 	// Find the matching points
 	ptrMatcher = new cv::BFMatcher(cv::NORM_HAMMING);
-	ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches);
-	ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches);
+	
+}
 
-	outlierElimination();
+void MainWindow::runDefault()
+{
+	// Get choices
+	int methodIndex = ui->defaultTabs->currentIndex();
+	std::string methodName = ui->defaultTabs->tabText(ui->defaultTabs->currentIndex()).toStdString();
+
+	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + methodName + ") based identification</b> "));
+
+	if (oneToN) {
+		setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>()); 
+		setImgsDescriptors = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
+		goodMatchesSet = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
+		badMatchesSet = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
+		sumDistancesSet = std::vector<float>(setImgs.size());
+		scoreSet = std::vector<float>(setImgs.size());
+	}
+	switch (methodIndex) {
+		case 0:
+			// SIFT
+			runSIFT();
+			break;
+
+		case 1:
+			// SURF
+			runSURF();
+			break;
+
+		case 2:
+			// ORB
+			runORB();
+			break;
+
+		case 3:
+		default:
+			// BRISK
+			runBRISK();
+			break;
+	}
+
+	// Detecting Keypoints ...
+	detectionTime = (double)cv::getTickCount();
+	ptrDefault->detect(firstImg, firstImgKeypoints);
+	if (oneToN){
+		for (int i = 0; i < setImgs.size(); i++){
+			ptrDefault->detect(setImgs[i].second, setImgsKeypoints[i]);
+		}
+	}
+	else ptrDefault->detect(secondImg, secondImgKeypoints);
+	detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+
+	writeKeyPoints(firstImg, firstImgKeypoints, 1, "f-KeyPoints");
+	if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1].second, setImgsKeypoints[setImgs.size() - 1], 2, "l-KeyPoints");
+	else writeKeyPoints(secondImg, secondImgKeypoints, 2, "s-KeyPoints");
+	if (noKeyPoints("first", firstImgKeypoints) || (!oneToN && noKeyPoints("second", secondImgKeypoints))) return;
+	if (oneToN) {
+		ui->logPlainText->textCursor().movePosition(QTextCursor::End);
+		prev_cursor_position = ui->logPlainText->textCursor().position();
+	}
+	ui->logPlainText->appendPlainText("detection time: " + QString::number(detectionTime) + " (s)");
+
+	// Computing the descriptors
+	descriptionTime = (double)cv::getTickCount();
+	ptrDefault->compute(firstImg, firstImgKeypoints, firstImgDescriptor);
+	if (oneToN){
+		for (int i = 0; i < setImgs.size(); i++){
+			ptrDefault->compute(setImgs[i].second, setImgsKeypoints[i], setImgsDescriptors[i]);
+		}
+	}
+	else ptrDefault->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
+	descriptionTime = ((double)cv::getTickCount() - descriptionTime) / cv::getTickFrequency();
+	ui->logPlainText->appendPlainText("description time: " + QString::number(descriptionTime) + " (s)");
+
+	// Only the best direct match
+	matchingTime = (double)cv::getTickCount();
+	if (oneToN){
+		for (int i = 0; i < setImgs.size(); i++){
+			ptrMatcher->match(firstImgDescriptor, setImgsDescriptors[i], goodMatchesSet[i]);
+		}
+	}
+	else {
+		ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, goodMatches);
+	}
+	matchingTime = ((double)cv::getTickCount() - matchingTime) / cv::getTickFrequency();
+	ui->logPlainText->appendPlainText("matching time: " + QString::number(matchingTime) + " (s)");
+
+	ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + clusteringTime + matchingTime) + " (s)");
+	
+	// Scores
+	float bestScore = 0;
+	if (oneToN){
+		for (int i = 0; i < setImgs.size(); i++){
+			for (int j = 0; j < goodMatchesSet[i].size(); j++){
+				sumDistancesSet[i] += goodMatchesSet[i][j].distance;
+			}
+			if (goodMatchesSet[i].size() > 0){
+				float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size()) * 100;
+				float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
+				scoreSet[i] = 1.0 / average * goodProbability;
+				// update the best score index
+				if (scoreSet[i] >= bestScore) {
+					if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
+						bestScoreIndex = i;
+						bestScore = scoreSet[i];
+					}
+				}
+			}
+			else scoreSet[i] = 0.0;
+		}
+	}
+	else { // 1 to 1
+		for (int i = 0; i < goodMatches.size(); i++){
+			sumDistances += goodMatches[i].distance;
+		}
+		if (goodMatches.size() > 0){
+			float average = sumDistances / static_cast<float>(goodMatches.size());
+			float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size()) * 100;
+			score = 1.0 / average * goodProbability;
+		}
+		else score = 0.0;
+	}
 }
 
 void MainWindow::runCustom()
@@ -400,53 +436,6 @@ void MainWindow::runCustom()
 
 	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + segmentationName + ", " + detectorName + ", " + descriptorName + ", " + matcherName + ") based identification</b> "));
 	
-	/*QString curtime = getCurrentTime();
-	const QString fileName = "palmprint_registration_log_file.xlsx";
-	QAxObject* excel = new QAxObject("Excel.Application");
-	QAxObject* workbooks = excel->querySubObject("Workbooks");
-	QAxObject* workbook = workbooks->querySubObject("Open(const QString&)", fileName);
-	QAxObject* worksheet = workbook->querySubObject("Worksheets");
-	QAxObject* sheet = worksheet->querySubObject("Item(int)", 5);
-	QAxObject* usedrange = sheet->querySubObject("UsedRange");
-	QAxObject* rows = usedrange->querySubObject("Rows");
-	int intRows = rows->property("Count").toInt();
-	
-	QAxObject* identificatorTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 1);
-	identificatorTabs->setProperty("Value", intRows + 1);
-	QAxObject* currentTimeTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 2);
-	currentTimeTabs->setProperty("Value", curtime);
-	QAxObject* firstImageTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 3);
-	firstImageTabs->setProperty("Value", ui->firstImgText->text());
-	QAxObject* secondImageTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 4);
-	secondImageTabs->setProperty("Value", ui->secondImgText->text());*/
-	/*QAxObject* segmentationTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 5);
-	segmentationTabs->setProperty("Value", QString::fromStdString(segmentationName));*/
-	//QAxObject* ExcelCell = sheet->querySubObject("Range(Cells(int,int),Cells(int,int))", intRows + 1, 5, intRows + 1, 6);
-	//ExcelCell->dynamicCall("Merge");
-	/*QString cell;
-	cell.append(QChar(5 - 1 + 'A'));
-	cell.append(QString::number(intRows + 1));
-	cell.append(":");
-	cell.append(QChar(8 - 1 + 'A'));
-	cell.append(QString::number(intRows + 1));
-	QAxObject *range = sheet->querySubObject("Range(const QString&)", cell);
-	range->setProperty("VerticalAlignment", -4108);//xlCenter  
-	range->setProperty("WrapText", true);
-	range->setProperty("MergeCells", true);
-	range->setProperty("Value", QString::fromStdString(segmentationName));
-	QAxObject* detectorTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 7);
-	detectorTabs->setProperty("Value", QString::fromStdString(detectorName));
-
-	QAxObject* descriptorTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 9);
-	descriptorTabs->setProperty("Value", QString::fromStdString(descriptorName));
-
-	QAxObject* matcherTabs = sheet->querySubObject("Cells(Int, Int)", intRows + 1, 11);
-	matcherTabs->setProperty("Value", QString::fromStdString(matcherName));
-
-	excel->setProperty("Visible", true);
-	workbooks->querySubObject("SaveAs()");
-	workbooks->querySubObject("Close()");
-	excel->querySubObject("Quit()");*/
 	// Binarization
 	customisingBinarization(segmentationIndex);
 
@@ -456,14 +445,8 @@ void MainWindow::runCustom()
 	// Customising Detector...	
 	customisingDetector(detectorIndex, detectorName);
 
-	//Only detection
-	//return;
-
 	// Customising Descriptor...
 	customisingDescriptor(descriptorIndex, descriptorName);
-
-	//Only detection & description
-	//return;
 
 	// Clustering descriptor
 	if (false){
@@ -542,29 +525,7 @@ void MainWindow::on_pushButton_pressed()
 		{
 		case 0:
 			// default
-			switch (ui->defaultTabs->currentIndex())
-			{
-			case 0:
-				// SIFT
-				runSIFT();
-				break;
-
-			case 1:
-				// SURF
-				runSURF();
-				break;
-
-			case 2:
-				// ORB
-				runORB();
-				break;
-
-			case 3:
-			default:
-				// BRISK
-				runBRISK();
-				break;
-			}
+			runDefault();
 			break;
 		case 1:
 		default:
@@ -572,6 +533,7 @@ void MainWindow::on_pushButton_pressed()
 			runCustom();
 			break;
 		}
+		showDecision();
 	}
 	else {
 		const QString fileName = "palmprint_registration_log_file.xlsx";
@@ -661,7 +623,6 @@ void MainWindow::on_pushButton_pressed()
 		excel->querySubObject("Quit()");
 	}
 	
-	showDecision();
 }
 
 void MainWindow::on_actionDestroy_All_Windows_triggered()
@@ -1537,6 +1498,9 @@ void MainWindow::writeMatches(int imgIndex){
 				ui->logPlainText->appendHtml("<b style='color:orange'>Image " + QString::fromStdString(filename) + "  can not be saved (may be because directory " + QString::fromStdString(directoryPath) + "  does not exist) !</b>");
 				
 			if (i == bestScoreIndex){
+				if (!cv::imwrite(directoryPath + "output.jpg", drawImg))
+					ui->logPlainText->appendHtml("<b style='color:orange'>Image " + QString::fromStdString(directoryPath + "output.jpg") + "  can not be saved (may be because directory " + QString::fromStdString(directoryPath) + "  does not exist) !</b>");
+
 				// Add the image to the viewer
 				QGraphicsScene *matchingScene = new QGraphicsScene();
 
@@ -1704,6 +1668,7 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 
 void MainWindow::customisingDetector(int detectorIndex, std::string detectorName){
 	// Creating Detector...	
+	setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
 	switch (detectorIndex){
 	case 0:{
 		// Minutiae-detection using Crossing Number By Dr. Faiçal
@@ -1914,7 +1879,6 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			detectionTime = (double)cv::getTickCount();
 			ptrDetector->detect(firstImg, firstImgKeypoints);
 			if (oneToN){
-				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
 				for (int i = 0; i < setImgs.size(); i++){
 					ptrDetector->detect(setImgs[i].second, setImgsKeypoints[i]);
 				}
@@ -1995,7 +1959,6 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 	}
 
 	try{
-		// Aissa !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! affichinna firstImgKeypoints avant et après pour voir si compute va les changer ou pas!!!!
 		descriptionTime = (double)cv::getTickCount();
 		ptrDescriptor->compute(firstImg, firstImgKeypoints, firstImgDescriptor);
 		if (oneToN)
@@ -2154,9 +2117,11 @@ void MainWindow::outlierElimination(){
 					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
 					scoreSet[i] = 1.0 / average * goodProbability;
 					// update the best score index
-					if (scoreSet[i] > bestScore) {
-						bestScoreIndex = i;
-						bestScore = scoreSet[i];
+					if (scoreSet[i] >= bestScore) {
+						if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
+							bestScoreIndex = i;
+							bestScore = scoreSet[i];
+						}
 					}
 				}
 				else scoreSet[i] = 0.0;
@@ -2172,9 +2137,11 @@ void MainWindow::outlierElimination(){
 					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
 					scoreSet[i] = 1.0 / average * goodProbability;
 					// update the best score index
-					if (scoreSet[i] > bestScore) {
-						bestScoreIndex = i;
-						bestScore = scoreSet[i];
+					if (scoreSet[i] >= bestScore) {
+						if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
+							bestScoreIndex = i;
+							bestScore = scoreSet[i];
+						}
 					}
 				}
 				else scoreSet[i] = 0.0;
@@ -2198,9 +2165,11 @@ void MainWindow::outlierElimination(){
 						float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
 						scoreSet[i] = 1.0 / average * goodProbability;
 						// update the best score index
-						if (scoreSet[i] > bestScore) {
-							bestScoreIndex = i;
-							bestScore = scoreSet[i];
+						if (scoreSet[i] >= bestScore) {
+								if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
+									bestScoreIndex = i;
+									bestScore = scoreSet[i];
+								}
 						}
 					}
 					else scoreSet[i] = 0.0;
@@ -2222,9 +2191,11 @@ void MainWindow::outlierElimination(){
 						float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
 						scoreSet[i] = 1.0 / average * goodProbability;
 						// update the best score index
-						if (scoreSet[i] > bestScore) {
-							bestScoreIndex = i;
-							bestScore = scoreSet[i];
+						if (scoreSet[i] >= bestScore) {
+								if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
+									bestScoreIndex = i;
+									bestScore = scoreSet[i];
+								}
 						}
 					}
 					else scoreSet[i] = 0.0;
@@ -2374,26 +2345,27 @@ cv::Mat MainWindow::maskMatchesByMinutiaeNature(std::vector<Minutiae> firstImgKe
 void MainWindow::showDecision(){
 	float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
 
-	if (oneToN){
-		QTextCursor current_cursor = QTextCursor(ui->logPlainText->document());
-		current_cursor.setPosition(prev_cursor_position);
-		current_cursor.insertText("\nFound " + QString::number(setImgsKeypoints[bestScoreIndex].size()) + " key points in the most similar image!");
+	if (oneToN) {
+		if (bestScoreIndex > -1){
+			QTextCursor current_cursor = QTextCursor(ui->logPlainText->document());
+			current_cursor.setPosition(prev_cursor_position);
+			current_cursor.insertText("\nFound " + QString::number(setImgsKeypoints[bestScoreIndex].size()) + " key points in the most similar image!");
 
-		if (scoreSet[bestScoreIndex] >= scoreThreshold)
-			ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
-		else ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
+			if (scoreSet[bestScoreIndex] >= scoreThreshold)
+				ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
+			else ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
 
-		if (ui->imageExistsInBdd->isEnabled() && ui->imageExistsInBdd->isChecked()){
-			ui->logPlainText->appendHtml("The first image is Rank-<b>" + QString::number(computeRankK(scoreThreshold)) + "</b> ");
-			if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml("There is a False Non-Match (FNM)");
+			if (ui->imageExistsInBdd->isEnabled() && ui->imageExistsInBdd->isChecked()){
+				ui->logPlainText->appendHtml("The first image is Rank-<b>" + QString::number(computeRankK(scoreThreshold)) + "</b> ");
+				if (ui->bddImageNames->currentIndex() > -1) if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml("There is a False Non-Match (FNM)");
+			}
+			else{
+				if (scoreSet[bestScoreIndex] >= scoreThreshold)ui->logPlainText->appendHtml("There is a False Match (FM)");
+			}
+			// View results
+			displayMatches(bestScoreIndex);
+			writeMatches(bestScoreIndex);
 		}
-		else{
-			if (scoreSet[bestScoreIndex] >= scoreThreshold)ui->logPlainText->appendHtml("There is a False Match (FM)");
-		}
-
-		// View results
-		displayMatches(bestScoreIndex);
-		writeMatches(bestScoreIndex);
 	}
 	else {
 		if (score >= scoreThreshold)

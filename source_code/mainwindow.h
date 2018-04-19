@@ -59,6 +59,7 @@ private:
     void runSURF();
     void runORB();
 	void runBRISK();
+	void runDefault();
 	void runCustom();
 	bool readFirstImage();
 	bool readSecondImage();
