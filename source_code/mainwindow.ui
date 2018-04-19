@@ -186,7 +186,7 @@
              <set>Qt::AlignCenter</set>
             </property>
             <property name="text" stdset="0">
-             <string/>
+             <string>0</string>
             </property>
             <property name="accelerated">
              <bool>true</bool>
@@ -205,7 +205,7 @@
             <property name="sizeConstraint">
              <enum>QLayout::SetDefaultConstraint</enum>
             </property>
-            <item>
+            <item alignment="Qt::AlignBottom">
              <widget class="QWidget" name="widget" native="true">
               <layout class="QHBoxLayout" name="horizontalLayout">
                <property name="topMargin">
@@ -754,7 +754,7 @@
         <item row="0" column="0">
          <widget class="QTabWidget" name="customTabs">
           <property name="currentIndex">
-           <number>3</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tabSegmentation">
            <attribute name="title">
@@ -764,7 +764,7 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="segmentationTabs">
               <property name="currentIndex">
-               <number>3</number>
+               <number>4</number>
               </property>
               <widget class="QWidget" name="tabSegmentationWithout">
                <attribute name="title">
@@ -1071,7 +1071,7 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="detectorTabs">
               <property name="currentIndex">
-               <number>0</number>
+               <number>4</number>
               </property>
               <widget class="QWidget" name="tabDetectorMinutiaeMme">
                <attribute name="title">
@@ -1248,7 +1248,7 @@
                    </widget>
                   </item>
                   <item row="2" column="0">
-                   <widget class="QLabel" name="detectorStarLineThresholdProjected Label">
+                   <widget class="QLabel" name="detectorStarLineThresholdProjectedLabel">
                     <property name="text">
                      <string>Line Threshold Projected  :</string>
                     </property>
@@ -2889,7 +2889,6 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
     <addaction name="actionRun"/>
     <addaction name="separator"/>
     <addaction name="actionClear_Log"/>
-    <addaction name="actionSave_Log_File_As"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -3337,7 +3336,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="typeOfMatchButtonGroup"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="typeOfMatchButtonGroup"/>
  </buttongroups>
 </ui>

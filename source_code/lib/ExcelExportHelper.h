@@ -10,9 +10,10 @@ class ExcelExportHelper
 public:
     ExcelExportHelper(const ExcelExportHelper& other) = delete;
     ExcelExportHelper& operator=(const ExcelExportHelper& other) = delete;
-
     ExcelExportHelper(bool closeExcelOnExit, int numSheet);
-	void SetCellValue(int columnIndex, bool merge, const QString& value);
+
+	void SetCellValue(int columnIndex, int type, const QString& value);
+	void SetCellValueSecondRow(int columnIndex, const QString& value);
 	void SetNewCellValue(QAxObject* sheet, int columnIndex, int intHorizontallyRange, const QString& value);
 	QAxObject *AddNewSheet(const QString& value);
 	QString IndexesToRange(int rowIndex, int index, int length);
@@ -20,10 +21,16 @@ public:
 	void setCellTextCenter(QAxObject* sheet, int rowIndex, int index);
 	void setCellFontBold(QAxObject* cell, int size);
 	void mergeCells(int topLeftRow, int topLeftColumn, int bottomRightRow, int bottomRightColumn);
-	void mergeRowsCells(int rowIndex, int columnIndex);
+	void mergeCellsCustom(int topLeftColumn, int bottomRightColumn);
+	void mergeRowsCells(int columnIndex);
+	void SetNewCellValueFirst(QAxObject* sheet);
+	void SetNewCellValueLast(QAxObject* sheet, int startColumnIndex);
+	QVariant GetCellValue(int rowIndex, int columnIndex);
+	void GetIntRows(int numSheet);
+	int getSheetCount();
     void Create();
 
-    ~ExcelExportHelper();
+	~ExcelExportHelper();
 
 private:
     QAxObject* m_excelApplication;

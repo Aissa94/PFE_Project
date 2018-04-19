@@ -33,8 +33,6 @@ private slots:
     void on_actionRun_triggered();
 
     void on_actionClear_Log_triggered();
-    
-	void on_actionSave_Log_File_As_triggered();
 
     void on_actionAbout_Qt_triggered();
 
@@ -68,6 +66,7 @@ private:
 	bool noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints);
 	int  getNormByText(std::string norm);
 	cv::Ptr<cv::flann::IndexParams> getFlannBasedIndexParamsType();
+	QString getFlannBasedNameParamsType();
 	cv::Mat skeletonization(cv::Mat img);
 	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold = 125.0);
 	double kMeans(std::vector<cv::Mat> features_vector, int k);
@@ -82,6 +81,7 @@ private:
 
 	QImage matToQImage(const cv::Mat& mat);
 	QString getCurrentTime();
+	void exportSuccess();
 
 	void customisingBinarization(int segmentationIndex);
 	void customisingSegmentor(int segmentationIndex);
