@@ -35,12 +35,14 @@
 	std::vector<cv::Mat> matchingMasks;
 	
 	//Excel data
+	ExcelExportHelper *excelReader;
 	std::vector<std::pair<int, float>> rankkData;
 
 // Operators Declaration
 	cv::FeatureDetector * ptrDetector;
 	cv::DescriptorExtractor * ptrDescriptor;
 	cv::DescriptorMatcher * ptrMatcher;
+	cv::Feature2D * ptrDefault;
 
 // Times
 	double /*segmentationTime = 0,*/ detectionTime = 0, descriptionTime = 0, clusteringTime = 0, matchingTime = 0;
@@ -135,17 +137,11 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::runSIFT()
+void MainWindow::runSIFT(int &excelColumn)
 {
-    //QMessageBox msg; msg.setText("SIFT"); msg.exec();
-
     //    SIFT( int nfeatures=0, int nOctaveLayers=3,
     //              double contrastThreshold=0.04, double edgeThreshold=10,
     //              double sigma=1.6);
-
-    //ui->logPlainText->appendPlainText("Starting SIFT based identification!");
-	ui->logPlainText->appendHtml("<b>Starting SIFT based identification!</b>");
-
 
     // Read Parameters ...
     int nfeatures = ui->siftNumFeatText->text().toInt();
@@ -155,68 +151,27 @@ void MainWindow::runSIFT()
     double sigma = ui->siftSigmaText->text().toDouble();
 
     // Create SIFT Objects ...
-    cv::SIFT siftDetector(nfeatures, nOctaveLayers, contrastThreshold, edgeThreshold, sigma);
+	ptrDefault = new cv::SIFT(nfeatures, nOctaveLayers, contrastThreshold, edgeThreshold, sigma);
 
-    // Detecting Keypoints ...
-    siftDetector.detect(firstImg, firstImgKeypoints);
-    siftDetector.detect(secondImg, secondImgKeypoints);
-	writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
-	writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
-
-	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
-
-    // Computing the descriptors
-	siftDetector.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
-    siftDetector.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
-
-    // Find the matching points
-    if(ui->siftBruteForceCheck->isChecked())
-    {
-        ptrMatcher = new cv::BFMatcher(cv::NORM_L1);
-    }
-    else
-    {
-        ptrMatcher = new cv::FlannBasedMatcher();
-    }
-    ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, directMatches );
-    ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
-
-	// Drowing best matches
-	outlierElimination();
-
-	QString curtime = getCurrentTime();
-
-	try
+	// Matcher
+	if (ui->siftBruteForceCheck->isChecked())
 	{
-
-		ExcelExportHelper helper(true, 1);
-
-		helper.SetCellValue(1, 0, QString::number(cpt));
-		helper.SetCellValue(2, 0, getCurrentTime());
-		helper.SetCellValue(3, 0, ui->firstImgText->text());
-		helper.SetCellValue(4, 0, ui->secondImgText->text());
-
-		QString one2nImage = ui->oneToN->isChecked() ? "TRUE" : "FALSE";
-		helper.SetCellValue(5, 0, one2nImage);
-
-		QString imageExistsInBdd = ui->imageExistsInBdd->isChecked() ? "TRUE" : "FALSE";
-		helper.SetCellValue(6, 0, imageExistsInBdd);
-		helper.SetCellValue(7, 0, ui->bddImageNames->currentText());
-		helper.SetCellValue(8, 0, QString::number(contrastThreshold));
-		helper.SetCellValue(9, 0, QString::number(edgeThreshold));
-		helper.SetCellValue(10, 0, QString::number(nfeatures));
-		helper.SetCellValue(11, 0, QString::number(nOctaveLayers));
-		helper.SetCellValue(12, 0, QString::number(sigma));
+		ptrMatcher = new cv::BFMatcher(cv::NORM_L1);
+	}
+	else
+	{
+		ptrMatcher = new cv::FlannBasedMatcher();
+	}
+	
+	try{
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(contrastThreshold));
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(edgeThreshold));
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(nfeatures));
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(nOctaveLayers));
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(sigma));
 
 		QString siftBruteForceCheck = ui->siftBruteForceCheck->isChecked() ? "TRUE" : "FALSE";
-		helper.SetCellValue(13, 0, siftBruteForceCheck);
-		helper.SetCellValue(14, 0, QString::number(firstImgKeypoints.size()));
-		helper.SetCellValue(15, 0, QString::number(secondImgKeypoints.size()));
-		helper.SetCellValue(16, 0, QString::number(bestMatchesCount));
-		helper.SetCellValue(17, 0, QString::number(sumDistances));
-		helper.SetCellValue(18, 0, QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
-
-		helper.~ExcelExportHelper();
+		excelReader->SetCellValue(++excelColumn, 0, siftBruteForceCheck);
 	}
 	catch (const std::exception& e)
 	{
@@ -224,40 +179,23 @@ void MainWindow::runSIFT()
 	}
 }
 
-void MainWindow::runSURF()
+void MainWindow::runSURF(int &excelColumn)
 {
-    //QMessageBox msg; msg.setText("SURF"); msg.exec();
-
     //    SURF(double hessianThreshold=100,
     //                      int nOctaves=4, int nOctaveLayers=2,
     //                      bool extended=true, bool upright=false);
 
-	ui->logPlainText->appendHtml("<b>Starting SURF based identification!</b>");
-
-    // Read Parameters ...
+	// Read Parameters ...
     double hessainThreshold = ui->surfHessianThreshText->text().toDouble();
     int nOctaves = ui->surfNumOctavesText->text().toInt();
     int nOctaveLayers = ui->surfNumOctLayersText->text().toInt();
 	bool extended = ui->surfExtendedText->isChecked();
 	bool upright = !ui->surfUprightText->isChecked();
 
-	// Create Surf Objects ...
-	cv::SURF surfDetector(hessainThreshold, nOctaves, nOctaveLayers, extended, upright);
-
-    // Detecting Keypoints ...
-    surfDetector.detect(firstImg, firstImgKeypoints);
-	surfDetector.detect(secondImg, secondImgKeypoints);
-	writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
-	writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
-
-    if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
-
-    // Computing the descriptors
-    surfDetector.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
-    surfDetector.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
-
-    // Find the matching points
-    if(ui->surfBruteForceCheck->isChecked())
+	// Create SURF Objects ...
+	ptrDefault = new cv::SURF(hessainThreshold, nOctaves, nOctaveLayers, extended, upright);
+	// Matcher
+	if(ui->surfBruteForceCheck->isChecked())
     {
         ptrMatcher = new cv::BFMatcher(cv::NORM_L1);
     }
@@ -266,48 +204,21 @@ void MainWindow::runSURF()
         ptrMatcher = new cv::FlannBasedMatcher();
     }
 
-    ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, directMatches );
-    ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
-
-    // !!!!!!!!!!!!!!!!!!!!!!!!!hena yebda le pblm de difference entre hada w ta3 custom !!! !!! !!! !!
-	outlierElimination();
-
-	QString curtime = getCurrentTime();
-
 	try
 	{
 
-		ExcelExportHelper helper(true, 2);
-
-		helper.SetCellValue(1, 0, QString::number(cpt));
-		helper.SetCellValue(2, 0, curtime);
-		helper.SetCellValue(3, 0, ui->firstImgText->text());
-		helper.SetCellValue(4, 0, ui->secondImgText->text());
-		QString one2nImage = ui->oneToN->isChecked() ? "TRUE" : "FALSE";
-		helper.SetCellValue(5, 0, one2nImage);
-
-		QString imageExistsInBdd = ui->imageExistsInBdd->isChecked() ? "TRUE" : "FALSE";
-		helper.SetCellValue(6, 0, imageExistsInBdd);
-		helper.SetCellValue(7, 0, ui->bddImageNames->currentText());
-		helper.SetCellValue(8, 0, QString::number(hessainThreshold));
-		helper.SetCellValue(9, 0, QString::number(nOctaves));
-		helper.SetCellValue(10, 0, QString::number(nOctaveLayers));
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(hessainThreshold));
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(nOctaves));
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(nOctaveLayers));
 
 		QString surfExtendedCheck = extended ? "TRUE" : "FALSE";
-		helper.SetCellValue(11, 0, surfExtendedCheck);
+		excelReader->SetCellValue(++excelColumn, 0, surfExtendedCheck);
 
 		QString surfUprightCheck = upright ? "FALSE" : "TRUE";
-		helper.SetCellValue(12, 0, surfUprightCheck);
+		excelReader->SetCellValue(++excelColumn, 0, surfUprightCheck);
 
 		QString surfBruteForceCheck = ui->surfBruteForceCheck->isChecked() ? "TRUE" : "FALSE";
-		helper.SetCellValue(13, 0, surfBruteForceCheck);
-		helper.SetCellValue(14, 0, QString::number(firstImgKeypoints.size()));
-		helper.SetCellValue(15, 0, QString::number(secondImgKeypoints.size()));
-		helper.SetCellValue(16, 0, QString::number(bestMatchesCount));
-		helper.SetCellValue(17, 0, QString::number(sumDistances));
-		helper.SetCellValue(18, 0, QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
-
-		helper.~ExcelExportHelper();
+		excelReader->SetCellValue(++excelColumn, 0, surfBruteForceCheck);
 	}
 	catch (const std::exception& e)
 	{
@@ -315,15 +226,10 @@ void MainWindow::runSURF()
 	}
 }
 
-void MainWindow::runORB()
+void MainWindow::runORB(int &excelColumn)
 {
-    //QMessageBox msg; msg.setText("ORB"); msg.exec();
-
     //    ORB(int nfeatures = 500, float scaleFactor = 1.2f, int nlevels = 8, int edgeThreshold = 31,
     //                     int firstLevel = 0, int WTA_K=2, int scoreType=HARRIS_SCORE, int patchSize=31 );
-
-    //ui->logPlainText->appendPlainText("Starting ORB based identification!");
-	ui->logPlainText->appendHtml("<b>Starting ORB based identification!</b>");
 
     // Read Parameters ...
     int  nfeatures = ui->orbNumFeatText->text().toInt();
@@ -341,62 +247,22 @@ void MainWindow::runORB()
 
 
     // Create ORB Object ...
-    cv::ORB orbDetector(nfeatures, scaleFactor, nlevels, edgeThreshold, firstLevel, WTA_K, scoreType, patchSize);
-
-    // Detecting Keypoints ...
-    orbDetector.detect(firstImg, firstImgKeypoints);
-	orbDetector.detect(secondImg, secondImgKeypoints);
-	writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
-	writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
-
-	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
-
-    // Computing the descriptors
-    orbDetector.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
-    orbDetector.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
-
-    // Find the matching points
+	ptrDefault = new cv::ORB(nfeatures, scaleFactor, nlevels, edgeThreshold, firstLevel, WTA_K, scoreType, patchSize);
+	// Matcher
     ptrMatcher = new cv::BFMatcher(cv::NORM_HAMMING);
-	ptrMatcher->match( firstImgDescriptor, secondImgDescriptor, directMatches );
-    ptrMatcher->match( secondImgDescriptor, firstImgDescriptor, inverseMatches );
-
-	outlierElimination();
-
-	QString curtime = getCurrentTime();
 
 	try
 	{
-
-		ExcelExportHelper helper(true, 3);
-
-		helper.SetCellValue(1, 0, QString::number(cpt));
-		helper.SetCellValue(2, 0, curtime);
-		helper.SetCellValue(3, 0, ui->firstImgText->text());
-		helper.SetCellValue(4, 0, ui->secondImgText->text());
-		QString one2nImage = ui->oneToN->isChecked() ? "TRUE" : "FALSE";
-		helper.SetCellValue(5, 0, one2nImage);
-
-		QString imageExistsInBdd = ui->imageExistsInBdd->isChecked() ? "TRUE" : "FALSE";
-		helper.SetCellValue(6, 0, imageExistsInBdd);
-		helper.SetCellValue(7, 0, ui->bddImageNames->currentText());
-		helper.SetCellValue(8, 0, QString::number(nfeatures));
-		helper.SetCellValue(9, 0, QString::number(scaleFactor));
-		helper.SetCellValue(10, 0, QString::number(nlevels));
-		helper.SetCellValue(11, 0, QString::number(edgeThreshold));
-		helper.SetCellValue(12, 0, QString::number(firstLevel));
-		helper.SetCellValue(13, 0, QString::number(WTA_K));
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(nfeatures));
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(scaleFactor));
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(nlevels));
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(edgeThreshold));
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(firstLevel));
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(WTA_K));
 
 		QString orbScoreType = ui->orbScoreHarrisRadioBtn->isChecked() ? "Harris" : "FAST";
-		helper.SetCellValue(14, 0, orbScoreType);
-		helper.SetCellValue(15, 0, QString::number(patchSize));
-
-		helper.SetCellValue(16, 0, QString::number(firstImgKeypoints.size()));
-		helper.SetCellValue(17, 0, QString::number(secondImgKeypoints.size()));
-		helper.SetCellValue(18, 0, QString::number(bestMatchesCount));
-		helper.SetCellValue(19, 0, QString::number(sumDistances));
-		helper.SetCellValue(20, 0, QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
-
-		helper.~ExcelExportHelper();
+		excelReader->SetCellValue(++excelColumn, 0, orbScoreType);
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(patchSize));
 	}
 	catch (const std::exception& e)
 	{
@@ -404,80 +270,207 @@ void MainWindow::runORB()
 	}
 }
 
-void MainWindow::runBRISK()
+void MainWindow::runBRISK(int &excelColumn)
 {
-	//QMessageBox msg; msg.setText("BRISK"); msg.exec();
-
 	//    BRISK(int thresh = 30, int octaves = 3,float patternScale = 1.0f);
-
-	//ui->logPlainText->appendPlainText("Starting BRISK based identification!");
-	ui->logPlainText->appendHtml("<b>Starting BRISK based identification!</b>");
-
-	QStandardItemModel *model = new QStandardItemModel(2, 5, this); //2 Rows and 3 Columns
-	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Coordinate X1")));
-	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Coordinate Y1")));
-	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Coordinate X2")));
-	model->setHorizontalHeaderItem(3, new QStandardItem(QString("Coordinate Y2")));
-	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
 
 	// Read Parameters ...
 	float patternScale = ui->briskPatternScaleText->text().toFloat();
 	int octaves = ui->briskOctavesText->text().toInt();
 	int thresh = ui->briskThreshText->text().toInt();
 
-
 	// Create BRISK Object ...
-	cv::BRISK briskDetector(thresh, octaves, patternScale);
-	// Detecting Keypoints ...
-	briskDetector.detect(firstImg, firstImgKeypoints);
-	briskDetector.detect(secondImg, secondImgKeypoints);
-	writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
-	writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
-
-	if (noKeyPoints("first", firstImgKeypoints) || noKeyPoints("second", secondImgKeypoints)) return;
-
-	// Computing the descriptors
-	briskDetector.compute(firstImg, firstImgKeypoints, firstImgDescriptor);
-	briskDetector.compute(secondImg, secondImgKeypoints, secondImgDescriptor);
-
-	// Find the matching points
+	ptrDefault = new cv::BRISK(thresh, octaves, patternScale);
+	// Matcher
 	ptrMatcher = new cv::BFMatcher(cv::NORM_HAMMING);
-	ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches);
-	ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches);
-
-	outlierElimination();
-
-	QString curtime = getCurrentTime();
-
+	
 	try
 	{
-
-		ExcelExportHelper helper(true, 4);
-
-		helper.SetCellValue(1, 0, QString::number(cpt));
-		helper.SetCellValue(2, 0, curtime);
-		helper.SetCellValue(3, 0, ui->firstImgText->text());
-		helper.SetCellValue(4, 0, ui->secondImgText->text());
-		QString one2nImage = ui->oneToN->isChecked() ? "TRUE" : "FALSE";
-		helper.SetCellValue(5, 0, one2nImage);
-
-		QString imageExistsInBdd = ui->imageExistsInBdd->isChecked() ? "TRUE" : "FALSE";
-		helper.SetCellValue(6, 0, imageExistsInBdd);
-		helper.SetCellValue(7, 0, ui->bddImageNames->currentText());
-		helper.SetCellValue(8, 0, QString::number(patternScale));
-		helper.SetCellValue(9, 0, QString::number(octaves));
-		helper.SetCellValue(10, 0, QString::number(thresh));
-		helper.SetCellValue(11, 0, QString::number(firstImgKeypoints.size()));
-		helper.SetCellValue(12, 0, QString::number(secondImgKeypoints.size()));
-		helper.SetCellValue(13, 0, QString::number(bestMatchesCount));
-		helper.SetCellValue(14, 0, QString::number(sumDistances));
-		helper.SetCellValue(15, 0, QString::number((bestMatchesCount / minKeypoints) * 100) + "%");
-
-		helper.~ExcelExportHelper();
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(patternScale));
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(octaves));
+		excelReader->SetCellValue(++excelColumn, 0, QString::number(thresh));
 	}
 	catch (const std::exception& e)
 	{
 		QMessageBox::critical(this, "Error - BRISK", e.what());
+	}
+}
+
+void MainWindow::runDefault()
+{
+	// Get choices
+	int methodIndex = ui->defaultTabs->currentIndex();
+	std::string methodName = ui->defaultTabs->tabText(ui->defaultTabs->currentIndex()).toStdString();
+
+	ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + methodName + ") based identification</b> "));
+
+	if (oneToN) {
+		setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>()); 
+		setImgsDescriptors = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
+		goodMatchesSet = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
+		badMatchesSet = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
+		sumDistancesSet = std::vector<float>(setImgs.size());
+		scoreSet = std::vector<float>(setImgs.size());
+	}
+	QString curtime = getCurrentTime();
+	int excelColumn;
+	try
+	{
+		excelReader = new ExcelExportHelper(true, methodIndex + 1);
+		excelReader->SetCellValue(1, 0, QString::number(cpt));
+		excelReader->SetCellValue(2, 0, getCurrentTime());
+		excelReader->SetCellValue(3, 0, ui->firstImgText->text());
+		excelReader->SetCellValue(4, 0, ui->secondImgText->text());
+
+		QString one2nImage = ui->oneToN->isChecked() ? "TRUE" : "FALSE";
+		excelReader->SetCellValue(5, 0, one2nImage);
+
+		QString imageExistsInBdd = ui->imageExistsInBdd->isChecked() ? "TRUE" : "FALSE";
+		excelReader->SetCellValue(6, 0, imageExistsInBdd);
+		excelReader->SetCellValue(7, 0, ui->bddImageNames->currentText());
+		excelColumn = 7;
+	}
+	catch (const std::exception& e)
+	{
+		QMessageBox::critical(this, "Error - Excel", e.what());
+	}
+	switch (methodIndex) {
+		case 0:
+			// SIFT
+			runSIFT(excelColumn);
+			break;
+
+		case 1:
+			// SURF
+			runSURF(excelColumn);
+			break;
+
+		case 2:
+			// ORB
+			runORB(excelColumn);
+			break;
+
+		case 3:
+		default:
+			// BRISK
+			runBRISK(excelColumn);
+			break;
+	}
+
+	// Detecting Keypoints ...
+	detectionTime = (double)cv::getTickCount();
+	ptrDefault->detect(firstImg, firstImgKeypoints);
+	if (oneToN){
+		for (int i = 0; i < setImgs.size(); i++){
+			ptrDefault->detect(setImgs[i].second, setImgsKeypoints[i]);
+		}
+	}
+	else ptrDefault->detect(secondImg, secondImgKeypoints);
+	detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+
+	writeKeyPoints(firstImg, firstImgKeypoints, 1, "f-KeyPoints");
+	if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1].second, setImgsKeypoints[setImgs.size() - 1], 2, "l-KeyPoints");
+	else writeKeyPoints(secondImg, secondImgKeypoints, 2, "s-KeyPoints");
+	if (noKeyPoints("first", firstImgKeypoints) || (!oneToN && noKeyPoints("second", secondImgKeypoints))) return;
+	if (oneToN) {
+		ui->logPlainText->textCursor().movePosition(QTextCursor::End);
+		prev_cursor_position = ui->logPlainText->textCursor().position();
+	}
+	ui->logPlainText->appendPlainText("detection time: " + QString::number(detectionTime) + " (s)");
+
+	// Computing the descriptors
+	descriptionTime = (double)cv::getTickCount();
+	ptrDefault->compute(firstImg, firstImgKeypoints, firstImgDescriptor);
+	if (oneToN){
+		for (int i = 0; i < setImgs.size(); i++){
+			ptrDefault->compute(setImgs[i].second, setImgsKeypoints[i], setImgsDescriptors[i]);
+		}
+	}
+	else ptrDefault->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
+	descriptionTime = ((double)cv::getTickCount() - descriptionTime) / cv::getTickFrequency();
+	ui->logPlainText->appendPlainText("description time: " + QString::number(descriptionTime) + " (s)");
+
+	// Only the best direct match
+	matchingTime = (double)cv::getTickCount();
+	if (oneToN){
+		for (int i = 0; i < setImgs.size(); i++){
+			ptrMatcher->match(firstImgDescriptor, setImgsDescriptors[i], goodMatchesSet[i]);
+		}
+	}
+	else {
+		ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, goodMatches);
+	}
+	matchingTime = ((double)cv::getTickCount() - matchingTime) / cv::getTickFrequency();
+	ui->logPlainText->appendPlainText("matching time: " + QString::number(matchingTime) + " (s)");
+
+	ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + clusteringTime + matchingTime) + " (s)");
+	
+	// Scores
+	float bestScore = 0;
+	if (oneToN){
+		for (int i = 0; i < setImgs.size(); i++){
+			for (int j = 0; j < goodMatchesSet[i].size(); j++){
+				sumDistancesSet[i] += goodMatchesSet[i][j].distance;
+			}
+			if (goodMatchesSet[i].size() > 0){
+				float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size()) * 100;
+				float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
+				scoreSet[i] = 1.0 / average * goodProbability;
+				// update the best score index
+				if (scoreSet[i] >= bestScore) {
+					if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
+						bestScoreIndex = i;
+						bestScore = scoreSet[i];
+					}
+				}
+			}
+			else scoreSet[i] = 0.0;
+		}
+	}
+	else { // 1 to 1
+		for (int i = 0; i < goodMatches.size(); i++){
+			sumDistances += goodMatches[i].distance;
+		}
+		if (goodMatches.size() > 0){
+			float average = sumDistances / static_cast<float>(goodMatches.size());
+			float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size()) * 100;
+			score = 1.0 / average * goodProbability;
+		}
+		else score = 0.0;
+	}
+
+	try{
+		excelReader->SetCellValue(excelColumn + 1, 0, QString::number(firstImgKeypoints.size()));
+
+		excelReader->SetCellValue(excelColumn + 3, 0, QString::number(detectionTime) + " (s)");
+		excelReader->SetCellValue(excelColumn + 4, 0, QString::number(descriptionTime) + " (s)");
+		excelReader->SetCellValue(excelColumn + 5, 0, QString::number(matchingTime) + " (s)");
+		excelReader->SetCellValue(excelColumn + 6, 0, QString::number(detectionTime + descriptionTime + matchingTime) + " (s)");
+
+		if (!ui->oneToN->isChecked()) {
+			excelReader->SetCellValue(excelColumn + 2, 0, QString::number(secondImgKeypoints.size()));
+			excelReader->SetCellValue(excelColumn + 7, 0, QString::number(goodMatches.size()));
+			excelReader->SetCellValue(excelColumn + 8, 0, QString::number(badMatches.size()));
+			excelReader->SetCellValue(excelColumn + 9, 0, QString::number(sumDistances / static_cast<float>(goodMatches.size())));
+			excelReader->SetCellValue(excelColumn + 10, 0, QString::number(score));
+		}
+		else {
+			excelReader->SetCellValue(excelColumn + 2, 0, QString::number(setImgsKeypoints[bestScoreIndex].size()));
+			excelReader->SetCellValue(excelColumn + 7, 0, QString::number(goodMatchesSet[bestScoreIndex].size()));
+			excelReader->SetCellValue(excelColumn + 8, 0, QString::number(badMatchesSet[bestScoreIndex].size()));
+			excelReader->SetCellValue(excelColumn + 9, 0, QString::number(sumDistancesSet[bestScoreIndex] / static_cast<float>(goodMatchesSet[bestScoreIndex].size())));
+			excelReader->SetCellValue(excelColumn + 10, 0, QString::number(scoreSet[bestScoreIndex]));
+			excelReader->SetCellValue(excelColumn + 11, 0, QString::number(scoreSet[ui->bddImageNames->currentIndex()]));
+			excelReader->SetCellValue(excelColumn + 12, 0, QString::fromStdString(setImgs[bestScoreIndex].first));
+			float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
+			if (ui->imageExistsInBdd->isChecked() && ui->imageExistsInBdd->isEnabled()) excelReader->SetCellValue(excelColumn + 13, 0, QString::number(computeRankK(scoreThreshold)));
+		}
+
+		excelReader->~ExcelExportHelper();
+	}
+	catch (const std::exception& e)
+	{
+		QMessageBox::critical(this, "Error - Excel", e.what());
 	}
 }
 
@@ -504,14 +497,8 @@ void MainWindow::runCustom()
 	// Customising Detector...	
 	customisingDetector(detectorIndex, detectorName);
 
-	//Only detection
-	//return;
-
 	// Customising Descriptor...
 	customisingDescriptor(descriptorIndex, descriptorName);
-
-	//Only detection & description
-	//return;
 
 	// Clustering descriptor
 	if (false){
@@ -534,121 +521,121 @@ void MainWindow::runCustom()
 	try
 	{
 
-		ExcelExportHelper helper(true, 5);
+		excelReader = new ExcelExportHelper(true, 5);
 
-		helper.SetCellValue(1, 1, QString::number(cpt));
-		helper.SetCellValue(2, 1, curtime);
-		helper.SetCellValue(3, 1, ui->firstImgText->text());
-		helper.SetCellValue(4, 1, ui->secondImgText->text());
+		excelReader->SetCellValue(1, 1, QString::number(cpt));
+		excelReader->SetCellValue(2, 1, curtime);
+		excelReader->SetCellValue(3, 1, ui->firstImgText->text());
+		excelReader->SetCellValue(4, 1, ui->secondImgText->text());
 		QString one2nImage = ui->oneToN->isChecked() ? "TRUE" : "FALSE";
-		helper.SetCellValue(5, 1, one2nImage);
+		excelReader->SetCellValue(5, 1, one2nImage);
 
 		QString imageExistsInBdd = ui->imageExistsInBdd->isChecked() ? "TRUE" : "FALSE";
 		if (ui->oneToN->isChecked())
 		{
-			helper.SetCellValue(6, 1, imageExistsInBdd);
-			helper.SetCellValue(7, 1, ui->bddImageNames->currentText());
+			excelReader->SetCellValue(6, 1, imageExistsInBdd);
+			excelReader->SetCellValue(7, 1, ui->bddImageNames->currentText());
 		}
 		else
 		{
-			helper.mergeRowsCells(6);
-			helper.mergeRowsCells(7);
+			excelReader->mergeRowsCells(6);
+			excelReader->mergeRowsCells(7);
 		}
 
-		helper.SetCellValue(8, 1, QString::fromStdString(segmentationName));
+		excelReader->SetCellValue(8, 1, QString::fromStdString(segmentationName));
 		switch (segmentationIndex)
 		{
 			case 1:
 			{
 				// Skeletonization of Morphological Skeleton
-				helper.SetCellValue(9, 2, ui->segmentationMorphologicalSkeletonParam1Label->text());
-				helper.SetCellValueSecondRow(9, ui->segmentationMorphologicalSkeletonParam1Label->text());
-				helper.SetCellValue(10, 2, ui->segmentationMorphologicalSkeletonParam2Label->text());
-				helper.SetCellValueSecondRow(10, ui->segmentationMorphologicalSkeletonParam2Text->text());
-				helper.SetCellValue(11, 2, ui->segmentationMorphologicalSkeletonParam3Label->text());
-				helper.SetCellValueSecondRow(11, ui->segmentationMorphologicalSkeletonParam3Text->text());
+				excelReader->SetCellValue(9, 2, ui->segmentationMorphologicalSkeletonParam1Label->text());
+				excelReader->SetCellValueSecondRow(9, ui->segmentationMorphologicalSkeletonParam1Label->text());
+				excelReader->SetCellValue(10, 2, ui->segmentationMorphologicalSkeletonParam2Label->text());
+				excelReader->SetCellValueSecondRow(10, ui->segmentationMorphologicalSkeletonParam2Text->text());
+				excelReader->SetCellValue(11, 2, ui->segmentationMorphologicalSkeletonParam3Label->text());
+				excelReader->SetCellValueSecondRow(11, ui->segmentationMorphologicalSkeletonParam3Text->text());
 				break;
 			}
 			case 2:
 			{
 				// Thinning of Zhang-Suen
-				helper.SetCellValue(9, 2, ui->segmentationZhangSuenParam1Label->text());
-				helper.SetCellValueSecondRow(9, ui->segmentationZhangSuenParam1Text->text());
-				helper.SetCellValue(10, 2, ui->segmentationZhangSuenParam2Label->text());
-				helper.SetCellValueSecondRow(10, ui->segmentationZhangSuenParam2Text->text());
-				helper.SetCellValue(11, 2, ui->segmentationZhangSuenParam3Label->text());
-				helper.SetCellValueSecondRow(11, ui->segmentationZhangSuenParam3Text->text());
+				excelReader->SetCellValue(9, 2, ui->segmentationZhangSuenParam1Label->text());
+				excelReader->SetCellValueSecondRow(9, ui->segmentationZhangSuenParam1Text->text());
+				excelReader->SetCellValue(10, 2, ui->segmentationZhangSuenParam2Label->text());
+				excelReader->SetCellValueSecondRow(10, ui->segmentationZhangSuenParam2Text->text());
+				excelReader->SetCellValue(11, 2, ui->segmentationZhangSuenParam3Label->text());
+				excelReader->SetCellValueSecondRow(11, ui->segmentationZhangSuenParam3Text->text());
 				break;
 			}
 			case 3:
 			{
 				// Thinning of Lin-Hong implemented by Mrs. Faiçal
-				helper.SetCellValue(9, 2, ui->segmentationLinHongParam1Label->text());
-				helper.SetCellValueSecondRow(9, ui->segmentationLinHongParam1Text->text());
-				helper.SetCellValue(10, 2, ui->segmentationLinHongParam2Label->text());
-				helper.SetCellValueSecondRow(10, ui->segmentationLinHongParam2Text->text());
-				helper.SetCellValue(11, 2, ui->segmentationLinHongParam3Label->text());
-				helper.SetCellValueSecondRow(11, ui->segmentationLinHongParam3Text->text());
+				excelReader->SetCellValue(9, 2, ui->segmentationLinHongParam1Label->text());
+				excelReader->SetCellValueSecondRow(9, ui->segmentationLinHongParam1Text->text());
+				excelReader->SetCellValue(10, 2, ui->segmentationLinHongParam2Label->text());
+				excelReader->SetCellValueSecondRow(10, ui->segmentationLinHongParam2Text->text());
+				excelReader->SetCellValue(11, 2, ui->segmentationLinHongParam3Label->text());
+				excelReader->SetCellValueSecondRow(11, ui->segmentationLinHongParam3Text->text());
 				break;
 			}
 			case 4:
 			{
 				// Thinning of Guo-Hall
-				helper.SetCellValue(9, 2, ui->segmentationGuoHallParam1Label->text());
-				helper.SetCellValueSecondRow(9, ui->segmentationGuoHallParam1Text->text());
-				helper.SetCellValue(10, 2, ui->segmentationGuoHallParam2Label->text());
-				helper.SetCellValueSecondRow(10, ui->segmentationGuoHallParam2Text->text());
-				helper.SetCellValue(11, 2, ui->segmentationGuoHallParam3Label->text());
-				helper.SetCellValueSecondRow(11, ui->segmentationGuoHallParam3Text->text());
+				excelReader->SetCellValue(9, 2, ui->segmentationGuoHallParam1Label->text());
+				excelReader->SetCellValueSecondRow(9, ui->segmentationGuoHallParam1Text->text());
+				excelReader->SetCellValue(10, 2, ui->segmentationGuoHallParam2Label->text());
+				excelReader->SetCellValueSecondRow(10, ui->segmentationGuoHallParam2Text->text());
+				excelReader->SetCellValue(11, 2, ui->segmentationGuoHallParam3Label->text());
+				excelReader->SetCellValueSecondRow(11, ui->segmentationGuoHallParam3Text->text());
 				break;
 			}
 			default:
 			{
-				helper.mergeCellsCustom(9, 11);
+				excelReader->mergeCellsCustom(9, 11);
 			}
 		}
 
-		helper.SetCellValue(12, 1, QString::fromStdString(detectorName));
+		excelReader->SetCellValue(12, 1, QString::fromStdString(detectorName));
 		switch (detectorIndex){
 			case 0:{
 				// Minutiae-detection using Crossing Number By Dr. Faiçal
-				helper.SetCellValue(13, 2, ui->detectorMinutiaeParam1Label->text());
-				helper.SetCellValueSecondRow(13, ui->detectorMinutiaeParam1Text->text());
-				helper.SetCellValue(14, 2, ui->detectorMinutiaeParam2Label->text());
-				helper.SetCellValueSecondRow(14, ui->detectorMinutiaeParam2Text->text());
-				helper.mergeCellsCustom(15, 17);
+				excelReader->SetCellValue(13, 2, ui->detectorMinutiaeParam1Label->text());
+				excelReader->SetCellValueSecondRow(13, ui->detectorMinutiaeParam1Text->text());
+				excelReader->SetCellValue(14, 2, ui->detectorMinutiaeParam2Label->text());
+				excelReader->SetCellValueSecondRow(14, ui->detectorMinutiaeParam2Text->text());
+				excelReader->mergeCellsCustom(15, 17);
 				break;
 			}
 			case 1:{
 				// Minutiae-detection using Crossing Number
-				helper.SetCellValue(13, 2, ui->detectorCrossingNumberBorderLabel->text());
-				helper.SetCellValueSecondRow(13, ui->detectorCrossingNumberBorderText->text());
-				helper.SetCellValue(14, 2, ui->detectorCrossingNumberParamLabel->text());
-				helper.SetCellValueSecondRow(14, ui->detectorCrossingNumberParamText->text());
-				helper.mergeCellsCustom(15, 17);
+				excelReader->SetCellValue(13, 2, ui->detectorCrossingNumberBorderLabel->text());
+				excelReader->SetCellValueSecondRow(13, ui->detectorCrossingNumberBorderText->text());
+				excelReader->SetCellValue(14, 2, ui->detectorCrossingNumberParamLabel->text());
+				excelReader->SetCellValueSecondRow(14, ui->detectorCrossingNumberParamText->text());
+				excelReader->mergeCellsCustom(15, 17);
 				break;
 			}
 			case 2:{
 				// Harris-Corners
-				helper.SetCellValue(13, 2, ui->detectorHarrisThresholdLabel->text());
-				helper.SetCellValueSecondRow(13, ui->detectorHarrisThresholdText->text());
-				helper.SetCellValue(14, 2, ui->detectorHarrisParamLabel->text());
-				helper.SetCellValueSecondRow(14, ui->detectorHarrisParamText->text());
-				helper.mergeCellsCustom(15, 17);
+				excelReader->SetCellValue(13, 2, ui->detectorHarrisThresholdLabel->text());
+				excelReader->SetCellValueSecondRow(13, ui->detectorHarrisThresholdText->text());
+				excelReader->SetCellValue(14, 2, ui->detectorHarrisParamLabel->text());
+				excelReader->SetCellValueSecondRow(14, ui->detectorHarrisParamText->text());
+				excelReader->mergeCellsCustom(15, 17);
 				break;
 			}
 			case 3:{
 				// STAR
-				helper.SetCellValue(13, 2, ui->detectorStarMaxSizeLabel->text());
-				helper.SetCellValueSecondRow(13, ui->detectorStarMaxSizeText->text());
-				helper.SetCellValue(14, 2, ui->detectorStarResponseThresholdLabel->text());
-				helper.SetCellValueSecondRow(14, ui->detectorStarResponseThresholdText->text());
-				helper.SetCellValue(15, 2, ui->detectorStarLineThresholdProjectedLabel->text());
-				helper.SetCellValueSecondRow(15, ui->detectorStarThresholdProjectedText->text());
-				helper.SetCellValue(16, 2, ui->detectorStarLineThresholdBinarizedLabel->text());
-				helper.SetCellValueSecondRow(16, ui->detectorStarThresholdBinarizedText->text());
-				helper.SetCellValue(17, 2, ui->detectorStarSuppressNonmaxSizeLabel->text());
-				helper.SetCellValueSecondRow(17, ui->detectorStarSuppressNonmaxSizeText->text());
+				excelReader->SetCellValue(13, 2, ui->detectorStarMaxSizeLabel->text());
+				excelReader->SetCellValueSecondRow(13, ui->detectorStarMaxSizeText->text());
+				excelReader->SetCellValue(14, 2, ui->detectorStarResponseThresholdLabel->text());
+				excelReader->SetCellValueSecondRow(14, ui->detectorStarResponseThresholdText->text());
+				excelReader->SetCellValue(15, 2, ui->detectorStarLineThresholdProjectedLabel->text());
+				excelReader->SetCellValueSecondRow(15, ui->detectorStarThresholdProjectedText->text());
+				excelReader->SetCellValue(16, 2, ui->detectorStarLineThresholdBinarizedLabel->text());
+				excelReader->SetCellValueSecondRow(16, ui->detectorStarThresholdBinarizedText->text());
+				excelReader->SetCellValue(17, 2, ui->detectorStarSuppressNonmaxSizeLabel->text());
+				excelReader->SetCellValueSecondRow(17, ui->detectorStarSuppressNonmaxSizeText->text());
 				break;
 			}
 			case 4: {
@@ -656,63 +643,63 @@ void MainWindow::runCustom()
 				QString detectorFastNonmaxSuppressionCheck = ui->detectorFastNonmaxSuppressionCheck->isChecked() ? "TRUE" : "FALSE";
 				QString detectorFastXCheck = ui->detectorFastXCheck->isChecked() ? "TRUE" : "FALSE";
 
-				helper.SetCellValue(13, 2, ui->detectorFastThresholdLabel->text());
-				helper.SetCellValueSecondRow(13, ui->detectorFastThresholdText->text());
-				helper.SetCellValue(14, 2, ui->detectorFastNonmaxSuppressionLabel->text());
-				helper.SetCellValueSecondRow(14, detectorFastNonmaxSuppressionCheck);
-				helper.SetCellValue(15, 2, ui->detectorFastXLabel->text());
-				helper.SetCellValueSecondRow(15, detectorFastXCheck);
-				helper.SetCellValue(16, 2, ui->detectorFastTypeLabel->text());
-				helper.SetCellValueSecondRow(16, ui->detectorFastTypeText->currentText());
-				helper.mergeRowsCells(17);
+				excelReader->SetCellValue(13, 2, ui->detectorFastThresholdLabel->text());
+				excelReader->SetCellValueSecondRow(13, ui->detectorFastThresholdText->text());
+				excelReader->SetCellValue(14, 2, ui->detectorFastNonmaxSuppressionLabel->text());
+				excelReader->SetCellValueSecondRow(14, detectorFastNonmaxSuppressionCheck);
+				excelReader->SetCellValue(15, 2, ui->detectorFastXLabel->text());
+				excelReader->SetCellValueSecondRow(15, detectorFastXCheck);
+				excelReader->SetCellValue(16, 2, ui->detectorFastTypeLabel->text());
+				excelReader->SetCellValueSecondRow(16, ui->detectorFastTypeText->currentText());
+				excelReader->mergeRowsCells(17);
 				break;
 			}
 			case 5: {
 				// SIFT
-				helper.SetCellValue(13, 2, ui->detectorSiftContrastThresholdLabel->text());
-				helper.SetCellValueSecondRow(13, ui->detectorSiftContrastThresholdText->text());
-				helper.SetCellValue(14, 2, ui->detectorSiftEdgeThresholdLab->text());
-				helper.SetCellValueSecondRow(14, ui->detectorSiftEdgeThresholdText->text());
-				helper.SetCellValue(15, 2, ui->detectorSiftNfeaturesLabel->text());
-				helper.SetCellValueSecondRow(15, ui->detectorSiftNfeaturesText->text());
-				helper.SetCellValue(16, 2, ui->detectorSiftNOctaveLayersLabel->text());
-				helper.SetCellValueSecondRow(16, ui->detectorSiftNOctaveLayersText->text());
-				helper.SetCellValue(17, 2, ui->detectorSiftSigmaLabel->text());
-				helper.SetCellValueSecondRow(17, ui->detectorSiftSigmaText->text());
+				excelReader->SetCellValue(13, 2, ui->detectorSiftContrastThresholdLabel->text());
+				excelReader->SetCellValueSecondRow(13, ui->detectorSiftContrastThresholdText->text());
+				excelReader->SetCellValue(14, 2, ui->detectorSiftEdgeThresholdLab->text());
+				excelReader->SetCellValueSecondRow(14, ui->detectorSiftEdgeThresholdText->text());
+				excelReader->SetCellValue(15, 2, ui->detectorSiftNfeaturesLabel->text());
+				excelReader->SetCellValueSecondRow(15, ui->detectorSiftNfeaturesText->text());
+				excelReader->SetCellValue(16, 2, ui->detectorSiftNOctaveLayersLabel->text());
+				excelReader->SetCellValueSecondRow(16, ui->detectorSiftNOctaveLayersText->text());
+				excelReader->SetCellValue(17, 2, ui->detectorSiftSigmaLabel->text());
+				excelReader->SetCellValueSecondRow(17, ui->detectorSiftSigmaText->text());
 				break;
 			}
 			case 6: {
 				//SURF
 				QString detectorSurfUprightText = ui->detectorSurfUprightText->isChecked() ? "TRUE" : "FALSE";
 
-				helper.SetCellValue(13, 2, ui->detectorSurfHessianThresholdLabel->text());
-				helper.SetCellValueSecondRow(13, ui->detectorSurfHessianThresholdText->text());
-				helper.SetCellValue(14, 2, ui->detectorSurfNOctavesLabel->text());
-				helper.SetCellValueSecondRow(14, ui->detectorSurfNOctavesText->text());
-				helper.SetCellValue(15, 2, ui->detectorSurfNLayersLabel->text());
-				helper.SetCellValueSecondRow(15, ui->detectorSurfNLayersText->text());
-				helper.SetCellValue(16, 2, ui->detectorSurfUprightLabel->text());
-				helper.SetCellValueSecondRow(16, detectorSurfUprightText);
-				helper.mergeRowsCells(17);
+				excelReader->SetCellValue(13, 2, ui->detectorSurfHessianThresholdLabel->text());
+				excelReader->SetCellValueSecondRow(13, ui->detectorSurfHessianThresholdText->text());
+				excelReader->SetCellValue(14, 2, ui->detectorSurfNOctavesLabel->text());
+				excelReader->SetCellValueSecondRow(14, ui->detectorSurfNOctavesText->text());
+				excelReader->SetCellValue(15, 2, ui->detectorSurfNLayersLabel->text());
+				excelReader->SetCellValueSecondRow(15, ui->detectorSurfNLayersText->text());
+				excelReader->SetCellValue(16, 2, ui->detectorSurfUprightLabel->text());
+				excelReader->SetCellValueSecondRow(16, detectorSurfUprightText);
+				excelReader->mergeRowsCells(17);
 				break;
 			}
 			case 7: {
 				//Dense
-				helper.SetCellValue(13, 2, ui->detectorDenseInitFeatureScaleLabel->text());
-				helper.SetCellValueSecondRow(13, ui->detectorDenseInitFeatureScaleText->text());
-				helper.SetCellValue(14, 2, ui->detectorDenseFeatureScaleLevelsLabel->text());
-				helper.SetCellValueSecondRow(14, ui->detectorDenseFeatureScaleLevelsText->text());
-				helper.SetCellValue(15, 2, ui->detectorDenseFeatureScaleMulLabel->text());
-				helper.SetCellValueSecondRow(15, ui->detectorDenseFeatureScaleMulText->text());
-				helper.SetCellValue(16, 2, ui->detectorDenseInitXyStepLabel->text());
-				helper.SetCellValueSecondRow(16, ui->detectorDenseInitXyStepText->text());
-				helper.SetCellValue(17, 2, ui->detectorDenseInitImgBoundLabel->text());
-				helper.SetCellValueSecondRow(17, ui->detectorDenseInitImgBoundText->text());
+				excelReader->SetCellValue(13, 2, ui->detectorDenseInitFeatureScaleLabel->text());
+				excelReader->SetCellValueSecondRow(13, ui->detectorDenseInitFeatureScaleText->text());
+				excelReader->SetCellValue(14, 2, ui->detectorDenseFeatureScaleLevelsLabel->text());
+				excelReader->SetCellValueSecondRow(14, ui->detectorDenseFeatureScaleLevelsText->text());
+				excelReader->SetCellValue(15, 2, ui->detectorDenseFeatureScaleMulLabel->text());
+				excelReader->SetCellValueSecondRow(15, ui->detectorDenseFeatureScaleMulText->text());
+				excelReader->SetCellValue(16, 2, ui->detectorDenseInitXyStepLabel->text());
+				excelReader->SetCellValueSecondRow(16, ui->detectorDenseInitXyStepText->text());
+				excelReader->SetCellValue(17, 2, ui->detectorDenseInitImgBoundLabel->text());
+				excelReader->SetCellValueSecondRow(17, ui->detectorDenseInitImgBoundText->text());
 				break;
 			}
 		}
 
-		helper.SetCellValue(18, 1, QString::fromStdString(descriptorName));
+		excelReader->SetCellValue(18, 1, QString::fromStdString(descriptorName));
 		switch (descriptorIndex)
 		{
 			case 0:
@@ -721,36 +708,36 @@ void MainWindow::runCustom()
 				QString descriptorFreakOrientationNormalizedCheck = ui->descriptorFreakOrientationNormalizedCheck->isChecked() ? "TRUE" : "FALSE";
 				QString descriptorFreakScaleNormalizedCheck = ui->descriptorFreakScaleNormalizedCheck->isChecked() ? "TRUE" : "FALSE";
 
-				helper.SetCellValue(19, 2, ui->descriptorFreakOrientationNormalizedLabel->text());
-				helper.SetCellValueSecondRow(19, descriptorFreakOrientationNormalizedCheck);
-				helper.SetCellValue(20, 2, ui->descriptorFreakScaleNormalizedLabel->text());
-				helper.SetCellValueSecondRow(20, descriptorFreakScaleNormalizedCheck);
-				helper.SetCellValue(21, 2, ui->descriptorFreakPatternScaleLabel->text());
-				helper.SetCellValueSecondRow(21, ui->descriptorFreakPatternScaleText->text());
-				helper.SetCellValue(22, 2, ui->descriptorFreakNOctavesLabel->text());
-				helper.SetCellValueSecondRow(22, ui->descriptorFreakNOctavesText->text());
-				helper.SetCellValue(23, 2, ui->descriptorFreakNelectedPairsLabel->text());
-				helper.SetCellValueSecondRow(23, ui->descriptorFreakSelectedPairsText->text());
+				excelReader->SetCellValue(19, 2, ui->descriptorFreakOrientationNormalizedLabel->text());
+				excelReader->SetCellValueSecondRow(19, descriptorFreakOrientationNormalizedCheck);
+				excelReader->SetCellValue(20, 2, ui->descriptorFreakScaleNormalizedLabel->text());
+				excelReader->SetCellValueSecondRow(20, descriptorFreakScaleNormalizedCheck);
+				excelReader->SetCellValue(21, 2, ui->descriptorFreakPatternScaleLabel->text());
+				excelReader->SetCellValueSecondRow(21, ui->descriptorFreakPatternScaleText->text());
+				excelReader->SetCellValue(22, 2, ui->descriptorFreakNOctavesLabel->text());
+				excelReader->SetCellValueSecondRow(22, ui->descriptorFreakNOctavesText->text());
+				excelReader->SetCellValue(23, 2, ui->descriptorFreakNelectedPairsLabel->text());
+				excelReader->SetCellValueSecondRow(23, ui->descriptorFreakSelectedPairsText->text());
 				break;
 			}
 			case 1:
 			{
 				// BRIEF
-				helper.SetCellValue(19, 2, ui->descriptorBriefPATCH_SIZELabel->text());
-				helper.SetCellValueSecondRow(19, ui->descriptorBriefPATCH_SIZEText->text());
-				helper.SetCellValue(20, 2, ui->descriptorBriefKERNEL_SIZELabel->text());
-				helper.SetCellValueSecondRow(20, ui->descriptorBriefKERNEL_SIZEText->text());
-				helper.SetCellValue(21, 2, ui->descriptorBriefLengthLabel->text());
-				helper.SetCellValueSecondRow(21, ui->descriptorBriefLengthText->text());
-				helper.mergeCellsCustom(22, 23);
+				excelReader->SetCellValue(19, 2, ui->descriptorBriefPATCH_SIZELabel->text());
+				excelReader->SetCellValueSecondRow(19, ui->descriptorBriefPATCH_SIZEText->text());
+				excelReader->SetCellValue(20, 2, ui->descriptorBriefKERNEL_SIZELabel->text());
+				excelReader->SetCellValueSecondRow(20, ui->descriptorBriefKERNEL_SIZEText->text());
+				excelReader->SetCellValue(21, 2, ui->descriptorBriefLengthLabel->text());
+				excelReader->SetCellValueSecondRow(21, ui->descriptorBriefLengthText->text());
+				excelReader->mergeCellsCustom(22, 23);
 				break;
 			}
 			case 2:
 			{
 				// SIFT
-				helper.SetCellValue(19, 2, ui->descriptorSiftLengthLabel->text());
-				helper.SetCellValueSecondRow(19, ui->descriptorSiftLengthText->text());
-				helper.mergeCellsCustom(20, 23);
+				excelReader->SetCellValue(19, 2, ui->descriptorSiftLengthLabel->text());
+				excelReader->SetCellValueSecondRow(19, ui->descriptorSiftLengthText->text());
+				excelReader->mergeCellsCustom(20, 23);
 				break;
 			}
 			case 3:
@@ -758,40 +745,40 @@ void MainWindow::runCustom()
 				//SURF
 				QString descriptorSurfExtended = ui->descriptorSurfExtended->isChecked() ? "128" : "64";
 
-				helper.SetCellValue(19, 2, ui->descriptorSurfExtendedLabel->text());
-				helper.SetCellValueSecondRow(19, descriptorSurfExtended);
-				helper.mergeCellsCustom(20, 23);
+				excelReader->SetCellValue(19, 2, ui->descriptorSurfExtendedLabel->text());
+				excelReader->SetCellValueSecondRow(19, descriptorSurfExtended);
+				excelReader->mergeCellsCustom(20, 23);
 				break;
 			}
 			default:
 			{
-				helper.SetCellValue(19, 2, ui->descriptorMethod2Param1Label->text());
-				helper.SetCellValueSecondRow(19, ui->descriptorMethod2Param1Text->text());
-				helper.SetCellValue(20, 2, ui->descriptorMethod2Param2Label->text());
-				helper.SetCellValueSecondRow(20, ui->descriptorMethod2Param2Text->text());
-				helper.SetCellValue(21, 2, ui->descriptorMethod2Param3Label->text());
-				helper.SetCellValueSecondRow(21, ui->descriptorMethod2Param3Text->text());
-				helper.SetCellValue(22, 2, ui->descriptorMethod2LengthLabel->text());
-				helper.SetCellValueSecondRow(22, ui->descriptorMethod2LengthText->text());
-				helper.mergeRowsCells(23);
+				excelReader->SetCellValue(19, 2, ui->descriptorMethod2Param1Label->text());
+				excelReader->SetCellValueSecondRow(19, ui->descriptorMethod2Param1Text->text());
+				excelReader->SetCellValue(20, 2, ui->descriptorMethod2Param2Label->text());
+				excelReader->SetCellValueSecondRow(20, ui->descriptorMethod2Param2Text->text());
+				excelReader->SetCellValue(21, 2, ui->descriptorMethod2Param3Label->text());
+				excelReader->SetCellValueSecondRow(21, ui->descriptorMethod2Param3Text->text());
+				excelReader->SetCellValue(22, 2, ui->descriptorMethod2LengthLabel->text());
+				excelReader->SetCellValueSecondRow(22, ui->descriptorMethod2LengthText->text());
+				excelReader->mergeRowsCells(23);
 				break;
 			}
 		}
 
-		helper.SetCellValue(24, 1, QString::fromStdString(matcherName));
+		excelReader->SetCellValue(24, 1, QString::fromStdString(matcherName));
 
 		QString matcher1toNtype = ui->matcher1toNtype1->isChecked() ? "Type 1" : "Type 2";
-		helper.SetCellValue(25, 2, ui->matcher1toNtypeLabel->text());
-		helper.SetCellValueSecondRow(25, matcher1toNtype);
+		excelReader->SetCellValue(25, 2, ui->matcher1toNtypeLabel->text());
+		excelReader->SetCellValueSecondRow(25, matcher1toNtype);
 
-		helper.SetCellValue(26, 2, ui->matcherKBestLabel->text());
-		if (ui->matcherInlierNoTest->isChecked()) helper.SetCellValueSecondRow(26, ui->matcherInlierNoTest->text());
+		excelReader->SetCellValue(26, 2, ui->matcherKBestLabel->text());
+		if (ui->matcherInlierNoTest->isChecked()) excelReader->SetCellValueSecondRow(26, ui->matcherInlierNoTest->text());
 		else {
-			if (ui->matcherInlierInversMatches->isChecked()) helper.SetCellValueSecondRow(26, ui->matcherInlierInversMatches->text());
-			else helper.SetCellValueSecondRow(26, ui->matcherInlierLoweRatio->text() + ":" + ui->matcherInlierLoweRatioText->text());
+			if (ui->matcherInlierInversMatches->isChecked()) excelReader->SetCellValueSecondRow(26, ui->matcherInlierInversMatches->text());
+			else excelReader->SetCellValueSecondRow(26, ui->matcherInlierLoweRatio->text() + ":" + ui->matcherInlierLoweRatioText->text());
 		}
-		helper.SetCellValue(27, 2, "Limit Distance:");
-		if (ui->matcherInlierLimitDistance->isChecked()) helper.SetCellValueSecondRow(27, ui->matcherInlierLimitDistanceText->text());
+		excelReader->SetCellValue(27, 2, "Limit Distance:");
+		if (ui->matcherInlierLimitDistance->isChecked()) excelReader->SetCellValueSecondRow(27, ui->matcherInlierLimitDistanceText->text());
 		switch (matcherIndex)
 		{
 			case 0:
@@ -799,72 +786,72 @@ void MainWindow::runCustom()
 				// BruteForce
 				QString matcherBruteForceCrossCheckText = ui->matcherBruteForceCrossCheckText->isChecked() ? "TRUE" : "FALSE";
 
-				helper.SetCellValue(28, 2, ui->matcherBruteForceNormTypeLabel->text());
-				helper.SetCellValueSecondRow(28, ui->matcherBruteForceNormTypeText->currentText());
-				helper.SetCellValue(29, 2, ui->matcherBruteForceCrossCheckLabel->text());
-				helper.SetCellValueSecondRow(29, matcherBruteForceCrossCheckText);
-				helper.mergeRowsCells(30);
+				excelReader->SetCellValue(28, 2, ui->matcherBruteForceNormTypeLabel->text());
+				excelReader->SetCellValueSecondRow(28, ui->matcherBruteForceNormTypeText->currentText());
+				excelReader->SetCellValue(29, 2, ui->matcherBruteForceCrossCheckLabel->text());
+				excelReader->SetCellValueSecondRow(29, matcherBruteForceCrossCheckText);
+				excelReader->mergeRowsCells(30);
 				break;
 			}
 			case 1:
 			{
 				// FlannBased
-				helper.SetCellValue(28, 2, ui->matcherFlannBasedIndexParamsLabel->text());
-				helper.SetCellValueSecondRow(28, getFlannBasedNameParamsType());
-				helper.SetCellValue(29, 2, ui->matcherFlannBasedSearchParamsLabel->text());
-				helper.SetCellValueSecondRow(29, ui->matcherFlannBasedSearchParamsText->text());
-				helper.mergeRowsCells(30);
+				excelReader->SetCellValue(28, 2, ui->matcherFlannBasedIndexParamsLabel->text());
+				excelReader->SetCellValueSecondRow(28, getFlannBasedNameParamsType());
+				excelReader->SetCellValue(29, 2, ui->matcherFlannBasedSearchParamsLabel->text());
+				excelReader->SetCellValueSecondRow(29, ui->matcherFlannBasedSearchParamsText->text());
+				excelReader->mergeRowsCells(30);
 				break;
 			}
 			default:
 			{
-				helper.SetCellValue(28, 2, ui->matcherMethodParam1Label->text());
-				helper.SetCellValueSecondRow(28, ui->matcherMethodParam1Text->text());
-				helper.SetCellValue(29, 2, ui->matcherMethodParam2Label->text());
-				helper.SetCellValueSecondRow(29, ui->matcherMethodParam2Text->text());
-				helper.SetCellValue(30, 2, ui->matcherMethodParam3Label->text());
-				helper.SetCellValueSecondRow(30, ui->matcherMethodParam3Text->text());
+				excelReader->SetCellValue(28, 2, ui->matcherMethodParam1Label->text());
+				excelReader->SetCellValueSecondRow(28, ui->matcherMethodParam1Text->text());
+				excelReader->SetCellValue(29, 2, ui->matcherMethodParam2Label->text());
+				excelReader->SetCellValueSecondRow(29, ui->matcherMethodParam2Text->text());
+				excelReader->SetCellValue(30, 2, ui->matcherMethodParam3Label->text());
+				excelReader->SetCellValueSecondRow(30, ui->matcherMethodParam3Text->text());
 				break;
 			}
 		}
 
-		helper.SetCellValue(31, 0, ui->decisionStageThresholdLabel->text());
-		helper.SetCellValueSecondRow(31, ui->decisionStageThresholdText->text());
+		excelReader->SetCellValue(31, 0, ui->decisionStageThresholdLabel->text());
+		excelReader->SetCellValueSecondRow(31, ui->decisionStageThresholdText->text());
 
 		QString opponentColor = ui->opponentColor->isChecked() ? "TRUE" : "FALSE";
-		helper.SetCellValue(32, 1, opponentColor);
+		excelReader->SetCellValue(32, 1, opponentColor);
 
-		helper.SetCellValue(33, 1, QString::number(firstImgKeypoints.size()));
+		excelReader->SetCellValue(33, 1, QString::number(firstImgKeypoints.size()));
 
-		helper.SetCellValue(35, 1, QString::number(detectionTime) + " (s)");
-		helper.SetCellValue(36, 1, QString::number(descriptionTime) + " (s)");
-		helper.SetCellValue(37, 1, QString::number(matchingTime) + " (s)");
-		helper.SetCellValue(38, 1, QString::number(detectionTime + descriptionTime + matchingTime) + " (s)");
+		excelReader->SetCellValue(35, 1, QString::number(detectionTime) + " (s)");
+		excelReader->SetCellValue(36, 1, QString::number(descriptionTime) + " (s)");
+		excelReader->SetCellValue(37, 1, QString::number(matchingTime) + " (s)");
+		excelReader->SetCellValue(38, 1, QString::number(detectionTime + descriptionTime + matchingTime) + " (s)");
 
 		if (!ui->oneToN->isChecked()) {
-			helper.SetCellValue(34, 1, QString::number(secondImgKeypoints.size()));
-			helper.SetCellValue(39, 1, QString::number(goodMatches.size()));
-			helper.SetCellValue(40, 1, QString::number(badMatches.size()));
-			helper.SetCellValue(41, 1, QString::number(sumDistances / static_cast<float>(goodMatches.size())));
-			helper.SetCellValue(42, 1, QString::number(score));
-			helper.mergeRowsCells(43);
-			helper.mergeRowsCells(44);
-			helper.mergeRowsCells(45);
+			excelReader->SetCellValue(34, 1, QString::number(secondImgKeypoints.size()));
+			excelReader->SetCellValue(39, 1, QString::number(goodMatches.size()));
+			excelReader->SetCellValue(40, 1, QString::number(badMatches.size()));
+			excelReader->SetCellValue(41, 1, QString::number(sumDistances / static_cast<float>(goodMatches.size())));
+			excelReader->SetCellValue(42, 1, QString::number(score));
+			excelReader->mergeRowsCells(43);
+			excelReader->mergeRowsCells(44);
+			excelReader->mergeRowsCells(45);
 		}
 		else {
-			helper.SetCellValue(34, 1, QString::number(setImgsKeypoints[bestScoreIndex].size()));
-			helper.SetCellValue(39, 1, QString::number(goodMatchesSet[bestScoreIndex].size()));
-			helper.SetCellValue(40, 1, QString::number(badMatchesSet[bestScoreIndex].size()));
-			helper.SetCellValue(41, 1, QString::number(sumDistancesSet[bestScoreIndex] / static_cast<float>(goodMatchesSet[bestScoreIndex].size())));
-			helper.SetCellValue(42, 1, QString::number(scoreSet[bestScoreIndex]));
-			helper.SetCellValue(43, 1, QString::number(scoreSet[ui->bddImageNames->currentIndex()]));
-			helper.SetCellValue(44, 1, QString::fromStdString(setImgs[bestScoreIndex].first));
+			excelReader->SetCellValue(34, 1, QString::number(setImgsKeypoints[bestScoreIndex].size()));
+			excelReader->SetCellValue(39, 1, QString::number(goodMatchesSet[bestScoreIndex].size()));
+			excelReader->SetCellValue(40, 1, QString::number(badMatchesSet[bestScoreIndex].size()));
+			excelReader->SetCellValue(41, 1, QString::number(sumDistancesSet[bestScoreIndex] / static_cast<float>(goodMatchesSet[bestScoreIndex].size())));
+			excelReader->SetCellValue(42, 1, QString::number(scoreSet[bestScoreIndex]));
+			excelReader->SetCellValue(43, 1, QString::number(scoreSet[ui->bddImageNames->currentIndex()]));
+			excelReader->SetCellValue(44, 1, QString::fromStdString(setImgs[bestScoreIndex].first));
 			float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
-			if (ui->imageExistsInBdd->isChecked() && ui->imageExistsInBdd->isEnabled()) helper.SetCellValue(45, 1, QString::number(computeRankK(scoreThreshold)));
-			else helper.mergeRowsCells(45);
+			if (ui->imageExistsInBdd->isChecked() && ui->imageExistsInBdd->isEnabled()) excelReader->SetCellValue(45, 1, QString::number(computeRankK(scoreThreshold)));
+			else excelReader->mergeRowsCells(45);
 		}
 
-		helper.~ExcelExportHelper();
+		excelReader->~ExcelExportHelper();
 	}
 	catch (const std::exception& e)
 	{
@@ -931,29 +918,7 @@ void MainWindow::on_pushButton_pressed()
 		{
 		case 0:
 			// default
-			switch (ui->defaultTabs->currentIndex())
-			{
-			case 0:
-				// SIFT
-				runSIFT();
-				break;
-
-			case 1:
-				// SURF
-				runSURF();
-				break;
-
-			case 2:
-				// ORB
-				runORB();
-				break;
-
-			case 3:
-			default:
-				// BRISK
-				runBRISK();
-				break;
-			}
+			runDefault();
 			break;
 		case 1:
 		default:
@@ -968,26 +933,26 @@ void MainWindow::on_pushButton_pressed()
 		try
 		{
 			bool exist = false;
-			ExcelExportHelper helper(true, 0);
+			excelReader = new ExcelExportHelper(true, 0);
 			for (int i = 1; i <= 5; i++) {
-				helper.GetIntRows(i);
-				for (int j = 2; j <= helper.getSheetCount(); j++) {
-					if (helper.GetCellValue(j, 1) == ui->spinBox->text()) {
+				excelReader->GetIntRows(i);
+				for (int j = 2; j <= excelReader->getSheetCount(); j++) {
+					if (excelReader->GetCellValue(j, 1) == ui->spinBox->text()) {
 
 						cv::Mat firstImage, secondImage, firstImageKeypoints, secondImageKeypoints, outputImage;
 						ui->tabWidget_2->setCurrentIndex(0);
 						ui->allMethodsTabs->setCurrentIndex(0);
 
-						firstImage = cv::imread(helper.GetCellValue(j, 3).toString().toStdString(), CV_LOAD_IMAGE_COLOR);
+						firstImage = cv::imread(excelReader->GetCellValue(j, 3).toString().toStdString(), CV_LOAD_IMAGE_COLOR);
 						displayImage(firstImage, 1);
-						ui->firstImgText->setText(helper.GetCellValue(j, 3).toString());
+						ui->firstImgText->setText(excelReader->GetCellValue(j, 3).toString());
 
 						firstImageKeypoints = cv::imread(("Tests/" + ui->spinBox->text() + "/keypoints1.bmp").toStdString(), CV_LOAD_IMAGE_COLOR);
 						displayFeature(firstImageKeypoints, 1);
 
-						secondImage = cv::imread(helper.GetCellValue(j, 4).toString().toStdString(), CV_LOAD_IMAGE_COLOR);
+						secondImage = cv::imread(excelReader->GetCellValue(j, 4).toString().toStdString(), CV_LOAD_IMAGE_COLOR);
 						displayImage(secondImage, 2);
-						ui->secondImgText->setText(helper.GetCellValue(j, 4).toString());
+						ui->secondImgText->setText(excelReader->GetCellValue(j, 4).toString());
 
 						secondImageKeypoints = cv::imread(("Tests/" + ui->spinBox->text() + "/keypoints2.bmp").toStdString(), CV_LOAD_IMAGE_COLOR);
 						displayFeature(secondImageKeypoints, 2);
@@ -995,30 +960,30 @@ void MainWindow::on_pushButton_pressed()
 						outputImage = cv::imread(("Tests/" + ui->spinBox->text() + "/output.jpg").toStdString(), CV_LOAD_IMAGE_COLOR);
 						displayFeature(outputImage, 3);
 
-						ui->siftContThreshText->setText(helper.GetCellValue(j, 8).toString());
+						ui->siftContThreshText->setText(excelReader->GetCellValue(j, 8).toString());
 
-						ui->siftEdgeThreshText->setText(helper.GetCellValue(j, 9).toString());
+						ui->siftEdgeThreshText->setText(excelReader->GetCellValue(j, 9).toString());
 
-						ui->siftNumFeatText->setText(helper.GetCellValue(j, 10).toString());
+						ui->siftNumFeatText->setText(excelReader->GetCellValue(j, 10).toString());
 
-						ui->siftNumOctText->setText(helper.GetCellValue(j, 11).toString());
+						ui->siftNumOctText->setText(excelReader->GetCellValue(j, 11).toString());
 
-						ui->siftSigmaText->setText(helper.GetCellValue(j, 12).toString());
+						ui->siftSigmaText->setText(excelReader->GetCellValue(j, 12).toString());
 
-						ui->siftBruteForceCheck->setChecked(helper.GetCellValue(j, 13).toBool());
+						ui->siftBruteForceCheck->setChecked(excelReader->GetCellValue(j, 13).toBool());
 
 
 						ui->logPlainText->appendHtml("<b style='color:green'>Starting SIFT object importation !</b>");
 
-						ui->logPlainText->appendHtml("Found " + helper.GetCellValue(j, 14).toString() + " key points in the first image!");
+						ui->logPlainText->appendHtml("Found " + excelReader->GetCellValue(j, 14).toString() + " key points in the first image!");
 
-						ui->logPlainText->appendHtml("Found " + helper.GetCellValue(j, 15).toString() + " key points in the second image!");
+						ui->logPlainText->appendHtml("Found " + excelReader->GetCellValue(j, 15).toString() + " key points in the second image!");
 
-						ui->logPlainText->appendHtml("Number of Best key point matches = " + helper.GetCellValue(j, 16).toString() + "/" + QString::number(std::min(helper.GetCellValue(j, 14).toString().toInt(), helper.GetCellValue(j, 15).toString().toInt())));
+						ui->logPlainText->appendHtml("Number of Best key point matches = " + excelReader->GetCellValue(j, 16).toString() + "/" + QString::number(std::min(excelReader->GetCellValue(j, 14).toString().toInt(), excelReader->GetCellValue(j, 15).toString().toInt())));
 
-						ui->logPlainText->appendHtml("Sum of distances = " + helper.GetCellValue(j, 17).toString());
+						ui->logPlainText->appendHtml("Sum of distances = " + excelReader->GetCellValue(j, 17).toString());
 
-						ui->logPlainText->appendHtml("Probability = " + QString::number(helper.GetCellValue(j, 18).toString().toFloat() * 100) + "%");
+						ui->logPlainText->appendHtml("Probability = " + QString::number(excelReader->GetCellValue(j, 18).toString().toFloat() * 100) + "%");
 
 						exist = true;
 						break;
@@ -1027,7 +992,7 @@ void MainWindow::on_pushButton_pressed()
 			}
 			if (!exist) ui->logPlainText->appendHtml("<b style='color:red'>Please check the entered number because no ID matches this number!</b>");
 
-			helper.~ExcelExportHelper();
+			excelReader->~ExcelExportHelper();
 		}
 		catch (const std::exception& e)
 		{
@@ -1110,26 +1075,7 @@ void MainWindow::on_refreshEerGraph_pressed(){
 		= { { 10, std::make_pair<int, int>(65, 70) }, { 15, std::make_pair<int, int>(89, 100) }, { 80, std::make_pair<int, int>(45, 70) }, { 100, std::make_pair<int, int>(35, 77) }, { 230, std::make_pair<int, int>(20, 100) }, { 400, std::make_pair<int, int>(5, 80) }, { 500, std::make_pair<int, int>(0, 10) } };
 	std::map<float, std::pair<int, int>>/*<threshold, <nbFNM, nbExists>>*/ FNMR_dataFromExcel
 		= { { 18, std::make_pair<int, int>(0, 10) }, { 25, std::make_pair<int, int>(5, 80) }, { 30, std::make_pair<int, int>(20, 100) }, { 50, std::make_pair<int, int>(35, 77) }, { 105, std::make_pair<int, int>(45, 70) }, { 190, std::make_pair<int, int>(80, 100) }, { 260, std::make_pair<int, int>(88, 100) }, { 410, std::make_pair<int, int>(120, 130) }, { 580, std::make_pair<int, int>(70, 75) } };
-	std::map<float, std::pair<int, int>>::iterator it;
-	FMR_dataFromExcel.insert({ 9, std::make_pair<int, int>(99, 999) });
-
-	for (it = FMR_dataFromExcel.begin(); it != FMR_dataFromExcel.end(); ++it){
-		qDebug() << it->first << ": " << it->second.first << ", " << it->second.second;
-	}
-
-	qDebug() << "===========================";
-	FMR_dataFromExcel.insert({ 11, std::make_pair<int, int>(11, 111) });
-
-	for (it = FMR_dataFromExcel.begin(); it != FMR_dataFromExcel.end(); ++it){
-		qDebug() << it->first << ": " << it->second.first << ", " << it->second.second;
-	}
-
-	qDebug() << "===========================";
-	FMR_dataFromExcel.insert({ 9, std::make_pair<int, int>(999, 111) });
-
-	for (it = FMR_dataFromExcel.begin(); it != FMR_dataFromExcel.end(); ++it){
-		qDebug() << it->first << ": " << it->second.first << ", " << it->second.second;
-	}
+		
 	if (ui->eerGraphWidget->graphCount()){
 		ui->eerGraphWidget->clearGraphs();
 		ui->eerGraphWidget->clearItems();
@@ -1749,6 +1695,9 @@ void MainWindow::writeMatches(int imgIndex){
 				ui->logPlainText->appendHtml("<b style='color:orange'>Image " + QString::fromStdString(filename) + "  can not be saved (may be because directory " + QString::fromStdString(directoryPath) + "  does not exist) !</b>");
 				
 			if (i == bestScoreIndex){
+				if (!cv::imwrite(directoryPath + "output.jpg", drawImg))
+					ui->logPlainText->appendHtml("<b style='color:orange'>Image " + QString::fromStdString(directoryPath + "output.jpg") + "  can not be saved (may be because directory " + QString::fromStdString(directoryPath) + "  does not exist) !</b>");
+
 				// Add the image to the viewer
 				QGraphicsScene *matchingScene = new QGraphicsScene();
 
@@ -1916,6 +1865,7 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 
 void MainWindow::customisingDetector(int detectorIndex, std::string detectorName){
 	// Creating Detector...	
+	setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
 	switch (detectorIndex){
 	case 0:{
 		// Minutiae-detection using Crossing Number By Dr. Faiçal
@@ -2126,7 +2076,6 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			detectionTime = (double)cv::getTickCount();
 			ptrDetector->detect(firstImg, firstImgKeypoints);
 			if (oneToN){
-				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
 				for (int i = 0; i < setImgs.size(); i++){
 					ptrDetector->detect(setImgs[i].second, setImgsKeypoints[i]);
 				}
@@ -2207,7 +2156,6 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 	}
 
 	try{
-		// Aissa !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! affichinna firstImgKeypoints avant et après pour voir si compute va les changer ou pas!!!!
 		descriptionTime = (double)cv::getTickCount();
 		ptrDescriptor->compute(firstImg, firstImgKeypoints, firstImgDescriptor);
 		if (oneToN)
@@ -2366,9 +2314,11 @@ void MainWindow::outlierElimination(){
 					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
 					scoreSet[i] = 1.0 / average * goodProbability;
 					// update the best score index
-					if (scoreSet[i] > bestScore) {
-						bestScoreIndex = i;
-						bestScore = scoreSet[i];
+					if (scoreSet[i] >= bestScore) {
+						if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
+							bestScoreIndex = i;
+							bestScore = scoreSet[i];
+						}
 					}
 				}
 				else scoreSet[i] = 0.0;
@@ -2384,9 +2334,11 @@ void MainWindow::outlierElimination(){
 					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
 					scoreSet[i] = 1.0 / average * goodProbability;
 					// update the best score index
-					if (scoreSet[i] > bestScore) {
-						bestScoreIndex = i;
-						bestScore = scoreSet[i];
+					if (scoreSet[i] >= bestScore) {
+						if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
+							bestScoreIndex = i;
+							bestScore = scoreSet[i];
+						}
 					}
 				}
 				else scoreSet[i] = 0.0;
@@ -2410,9 +2362,11 @@ void MainWindow::outlierElimination(){
 						float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
 						scoreSet[i] = 1.0 / average * goodProbability;
 						// update the best score index
-						if (scoreSet[i] > bestScore) {
-							bestScoreIndex = i;
-							bestScore = scoreSet[i];
+						if (scoreSet[i] >= bestScore) {
+								if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
+									bestScoreIndex = i;
+									bestScore = scoreSet[i];
+								}
 						}
 					}
 					else scoreSet[i] = 0.0;
@@ -2434,9 +2388,11 @@ void MainWindow::outlierElimination(){
 						float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
 						scoreSet[i] = 1.0 / average * goodProbability;
 						// update the best score index
-						if (scoreSet[i] > bestScore) {
-							bestScoreIndex = i;
-							bestScore = scoreSet[i];
+						if (scoreSet[i] >= bestScore) {
+								if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
+									bestScoreIndex = i;
+									bestScore = scoreSet[i];
+								}
 						}
 					}
 					else scoreSet[i] = 0.0;
@@ -2586,26 +2542,27 @@ cv::Mat MainWindow::maskMatchesByMinutiaeNature(std::vector<Minutiae> firstImgKe
 void MainWindow::showDecision(){
 	float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
 
-	if (oneToN){
-		QTextCursor current_cursor = QTextCursor(ui->logPlainText->document());
-		current_cursor.setPosition(prev_cursor_position);
-		current_cursor.insertText("\nFound " + QString::number(setImgsKeypoints[bestScoreIndex].size()) + " key points in the most similar image!");
+	if (oneToN) {
+		if (bestScoreIndex > -1){
+			QTextCursor current_cursor = QTextCursor(ui->logPlainText->document());
+			current_cursor.setPosition(prev_cursor_position);
+			current_cursor.insertText("\nFound " + QString::number(setImgsKeypoints[bestScoreIndex].size()) + " key points in the most similar image!");
 
-		if (scoreSet[bestScoreIndex] >= scoreThreshold)
-			ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
-		else ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
+			if (scoreSet[bestScoreIndex] >= scoreThreshold)
+				ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
+			else ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
 
-		if (ui->imageExistsInBdd->isEnabled() && ui->imageExistsInBdd->isChecked()){
-			ui->logPlainText->appendHtml("The first image is Rank-<b>" + QString::number(computeRankK(scoreThreshold)) + "</b> ");
-			if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml("There is a False Non-Match (FNM)");
+			if (ui->imageExistsInBdd->isEnabled() && ui->imageExistsInBdd->isChecked()){
+				ui->logPlainText->appendHtml("The first image is Rank-<b>" + QString::number(computeRankK(scoreThreshold)) + "</b> ");
+				if (ui->bddImageNames->currentIndex() > -1) if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml("There is a False Non-Match (FNM)");
+			}
+			else{
+				if (scoreSet[bestScoreIndex] >= scoreThreshold)ui->logPlainText->appendHtml("There is a False Match (FM)");
+			}
+			// View results
+			displayMatches(bestScoreIndex);
+			writeMatches(bestScoreIndex);
 		}
-		else{
-			if (scoreSet[bestScoreIndex] >= scoreThreshold)ui->logPlainText->appendHtml("There is a False Match (FM)");
-		}
-
-		// View results
-		displayMatches(bestScoreIndex);
-		writeMatches(bestScoreIndex);
 	}
 	else {
 		if (score >= scoreThreshold)
@@ -2934,7 +2891,7 @@ void ExcelExportHelper::Create()
 }
 void MainWindow::exportSuccess()
 {
-	ui->logPlainText->appendHtml("<b style='color:green'>This test has been exported with success with the identifier :" + QString::number(cpt) + "</b>");
+	ui->logPlainText->appendHtml("<b style='color:green'>This test has been exported with success with the identifier number: " + QString::number(cpt) + "</b>");
 }
 
 ExcelExportHelper::~ExcelExportHelper()
@@ -3084,17 +3041,20 @@ void MainWindow::showRankkToolTip(QMouseEvent *event)
 void MainWindow::drowEer(std::map<float, std::pair<int, int>> FMR_dataFromExcel, std::map<float, std::pair<int, int>> FNMR_dataFromExcel){
 	// drow ERR gragh
 	// generate data:
-	/*QVector<double> xFMR(FMR_dataFromExcel.size()), yFMR(FMR_dataFromExcel.size());
-	QVector<double> xFNMR(FNMR_dataFromExcel.size()), yFNMR(FNMR_dataFromExcel.size());
-	for (int i = 0; i < FMR_dataFromExcel.size(); i++)
+	QVector<double> xFMR, yFMR;
+	QVector<double> xFNMR, yFNMR;
+	
+	std::map<float, std::pair<int, int>>::iterator it;
+
+	for (it = FMR_dataFromExcel.begin(); it != FMR_dataFromExcel.end(); ++it)
 	{
-		xFMR[i] = std::get<0>(FMR_dataFromExcel[i]); // threshold
-		yFMR[i] = static_cast<float>(std::get<1>(FMR_dataFromExcel[i])) / static_cast<float>(std::get<2>(FMR_dataFromExcel[i])) * 100; // nbFM / nbExists %
+		xFMR.push_back(it->first); // threshold
+		yFMR.push_back(static_cast<float>(it->second.first) / static_cast<float>(it->second.second) * 100); // nbFM / nbExists %
 	}
-	for (int i = 0; i < FNMR_dataFromExcel.size(); i++)
+	for (it = FNMR_dataFromExcel.begin(); it != FNMR_dataFromExcel.end(); ++it)
 	{
-		xFNMR[i] = std::get<0>(FNMR_dataFromExcel[i]); // threshold
-		yFNMR[i] = static_cast<float>(std::get<1>(FNMR_dataFromExcel[i])) / static_cast<float>(std::get<2>(FNMR_dataFromExcel[i])) * 100; // nbFNM / nbNonExists %
+		xFNMR.push_back(it->first); // threshold
+		yFNMR.push_back(static_cast<float>(it->second.first) / static_cast<float>(it->second.second) * 100); // nbFM / nbExists %
 	}
 
 	double *xFMRmaxValue = std::max_element(xFMR.begin(), xFMR.end()), *xFNMRmaxValue = std::max_element(xFNMR.begin(), xFNMR.end());
@@ -3157,7 +3117,7 @@ void MainWindow::drowEer(std::map<float, std::pair<int, int>> FMR_dataFromExcel,
 	ui->eerGraphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 	ui->eerGraphWidget->axisRect()->setRangeDrag(Qt::Horizontal); // drag only on x
 	ui->eerGraphWidget->axisRect()->setRangeZoom(Qt::Horizontal); // zoom only on x
-	*/
+	
 	// drow
 	ui->eerGraphWidget->replot();
 
