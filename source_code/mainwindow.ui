@@ -212,7 +212,7 @@
                <item>
                 <widget class="QLineEdit" name="inputPath">
                  <property name="text">
-                  <string>Resources/images/box1.png</string>
+                  <string>C:/Users/Aissa/Desktop/input.xlsx</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
@@ -571,7 +571,7 @@
        <bool>false</bool>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabDefault">
        <attribute name="title">
@@ -3334,7 +3334,7 @@ Higher values gives better precision, but also takes more time.</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="typeOfMatchButtonGroup"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="typeOfMatchButtonGroup"/>
  </buttongroups>
 </ui>
