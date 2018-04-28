@@ -378,8 +378,7 @@ void MainWindow::runDefault()
 	detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
 	writeKeyPoints(firstImg, firstImgKeypoints, 1, "KeyPoints1");
-	if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1].second, setImgsKeypoints[setImgs.size() - 1], 2, "KeyPoints2");
-	else writeKeyPoints(secondImg, secondImgKeypoints, 2, "KeyPoints2");
+	if (!oneToN) writeKeyPoints(secondImg, secondImgKeypoints, 2, "KeyPoints2");
 	if (noKeyPoints("first", firstImgKeypoints) || (!oneToN && noKeyPoints("second", secondImgKeypoints))) return;
 	if (oneToN) {
 		ui->logPlainText->textCursor().movePosition(QTextCursor::End);
@@ -1196,7 +1195,7 @@ bool MainWindow::readSetOfImages(){
 	}
 	ui->bddImageNames->setCurrentIndex(savedIndex);
 	// display the last image
-	displayImage(setImgs[setImgs.size() - 1].second, 2);
+	//displayImage(setImgs[setImgs.size() - 1].second, 2);
 	return true;
 }
 
@@ -1502,9 +1501,6 @@ void MainWindow::displayImage(cv::Mat imageMat, int first_second)
 
 void MainWindow::displayFeature(cv::Mat featureMat, int first_second)
 {
-	//cv::Mat imgFeatureShow;
-	//cv::drawKeypoints(featureMat, (first_second == 1) ? firstImgKeypoints : secondImgKeypoints, imgFeatureShow, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
-
 	QGraphicsScene *featureScene = new QGraphicsScene();
 	QImage featureImg((const uchar *)featureMat.data, featureMat.cols, featureMat.rows, featureMat.step, QImage::Format_RGB888);
 	featureScene->addPixmap(QPixmap::fromImage(featureImg));
@@ -1515,7 +1511,6 @@ void MainWindow::displayFeature(cv::Mat featureMat, int first_second)
 	else myUiScene = ui->viewMatches;
 	myUiScene->setScene(featureScene);
 	myUiScene->fitInView(featureScene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
-	//myUiScene->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 }
 
 void MainWindow::displayMatches(int imgIndex){
@@ -1913,8 +1908,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
 		writeKeyPoints(firstImg, firstMinutiae, 1, "keypoints1");
-		if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1].second, setMinutiaes[setMinutiaes.size() - 1], 2, "keypoints2");
-		else writeKeyPoints(secondImg, secondMinutiae, 2, "keypoints2");
+		if (!oneToN) writeKeyPoints(secondImg, secondMinutiae, 2, "keypoints2");
 
 		// images must be segmented if not Minutiae will be empty
 		try{
@@ -2115,8 +2109,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			return;
 		}
 		writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
-		if (oneToN) writeKeyPoints(setImgs[setImgs.size() - 1].second, setImgsKeypoints[setImgs.size() - 1], 2, "keypoints2");
-		else writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
+		if (!oneToN) writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
 	}
 	if (noKeyPoints("first", firstImgKeypoints) || (!oneToN && noKeyPoints("second", secondImgKeypoints))) return;
 	if (oneToN) {
@@ -2572,9 +2565,12 @@ void MainWindow::showDecision(){
 
 	if (oneToN) {
 		if (bestScoreIndex > -1){
+			// Show infos related to best image
 			QTextCursor current_cursor = QTextCursor(ui->logPlainText->document());
 			current_cursor.setPosition(prev_cursor_position);
 			current_cursor.insertText("\nFound " + QString::number(setImgsKeypoints[bestScoreIndex].size()) + " key points in the most similar image!");
+			displayImage(setImgs[bestScoreIndex].second, 2);
+			writeKeyPoints(setImgs[bestScoreIndex].second, setImgsKeypoints[bestScoreIndex], 2, "keypoints2");
 
 			if (scoreSet[bestScoreIndex] >= scoreThreshold)
 				ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
