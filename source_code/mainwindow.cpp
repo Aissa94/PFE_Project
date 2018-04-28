@@ -2619,6 +2619,7 @@ void MainWindow::importExcelFile(int type)
 			excelRecover->GetIntRows(methodIndex);
 			column = excelRecover->getColumnsCount();
 			for (int j = 2; j <= excelRecover->getSheetCount(); j++) {
+				if (type == 2 && methodIndex == 5 && j == excelRecover->getSheetCount()) break;
 				if ((type == 2) || ((ui->tabWidget_2->currentIndex() == 1) && (excelRecover->GetCellValue(j, 1) == ui->spinBox->text()))) {
 					cv::Mat image;
 					ui->tabWidget_2->setCurrentIndex(0);
@@ -2629,6 +2630,7 @@ void MainWindow::importExcelFile(int type)
 						ui->defaultTabs->setCurrentIndex(methodIndex - 1);
 					}
 					else {
+						if (type == 2 && (j % 2) == 1) j++;
 						ui->allMethodsTabs->setCurrentIndex(1);
 						ui->customTabs->setCurrentIndex(0);
 					}
@@ -3013,8 +3015,9 @@ void MainWindow::importExcelFile(int type)
 		{
 			if (!exist) QMessageBox::warning(this, "Import Excel Error!", "Please check the number that has been entered because no ID matches this number !");
 		}
-
+		else QMessageBox::information(this, "Import Input file!", "The execution of all commands has been finished with success !");
 		excelRecover->~ExcelExportHelper();
+		system("taskkill /im EXCEL.EXE /f");
 	}
 	catch (const std::exception& e)
 	{
@@ -3075,12 +3078,15 @@ void MainWindow::OutliersEliminationToInt(const QString& value)
 		}
 		else
 		{
-			ui->matcherInlierLoweRatio->setChecked(true);
-			ui->matcherInlierLoweRatioText->setEnabled(true);
+			if (!value.isEmpty())
+			{
+				ui->matcherInlierLoweRatio->setChecked(true);
+				ui->matcherInlierLoweRatioText->setEnabled(true);
 
-			QRegExp rx("(\\:)"); //RegEx for ':'
-			QStringList matcher = value.split(rx);
-			ui->matcherInlierLoweRatioText->setText(matcher[1]);
+				QRegExp rx("(\\:)"); //RegEx for ':'
+				QStringList matcher = value.split(rx);
+				ui->matcherInlierLoweRatioText->setText(matcher[1]);
+			}
 		}
 	}
 }
@@ -3131,6 +3137,7 @@ QString MainWindow::GetTableValue(QAxObject* sheet, int rowIndex, int columnInde
 
 void MainWindow::exportTable(int rowsCount) {
 	const QString tableName = QDir::toNativeSeparators(QDir::currentPath()) + "\\Tests\\" + QString::number(cpt) + "\\table.xlsx";
+	system("taskkill /fi \"WINDOWTITLE eq table.xlsx - Excel\" /f");
 	QAxObject *excelApplication = new QAxObject("Excel.Application", 0);
 	if (excelApplication == nullptr) throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
 	excelApplication->dynamicCall("SetVisible(bool)", false); // display excel
@@ -3158,6 +3165,7 @@ void MainWindow::exportTable(int rowsCount) {
 }
 
 void MainWindow::importTable(int identifierNumber) {
+	system("taskkill /fi \"WINDOWTITLE eq table.xlsx - Excel\" /f");
 	const QString tableName = QDir::toNativeSeparators(QDir::currentPath()) + "\\Tests\\" + QString::number(identifierNumber) + "\\table.xlsx";
 	QAxObject *excelApplication = new QAxObject("Excel.Application", 0);
 	if (excelApplication == nullptr) throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
@@ -3229,7 +3237,7 @@ ExcelExportHelper::ExcelExportHelper(bool closeExcelOnExit, const QString& fileN
 	m_workbooks = nullptr;
 	m_excelApplication = nullptr;
 	
-	system("taskkill /im EXCEL.exe /f");
+	system("taskkill /fi \"WINDOWTITLE eq palmprint_registration_log_file.xlsx - Excel\" /f");
 	m_excelApplication = new QAxObject("Excel.Application", 0);//{00024500-0000-0000-C000-000000000046}
 
 	if (m_excelApplication == nullptr)
