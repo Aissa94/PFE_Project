@@ -24,6 +24,8 @@ private slots:
 
     void on_secondImgBtn_pressed();
 
+	void on_inputBrowse_pressed();
+
 	void on_refreshBddImageNames_pressed();
 
 	void on_pushButton_pressed();
@@ -62,6 +64,7 @@ private:
 	bool readFirstImage();
 	bool readSecondImage();
 	bool readSetOfImages();
+	bool readInputFile();
 	bool createTestFolder();
 	void writeToFile(std::string fileName, cv::Algorithm * algoToWrite);
 	bool noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints);
@@ -82,7 +85,20 @@ private:
 
 	QImage matToQImage(const cv::Mat& mat);
 	QString getCurrentTime();
-	void exportSuccess();
+	int segmentationNameToInt(const QString& value);
+	int detectorNameToInt(const QString& value);
+	int descriptorNameToInt(const QString& value);
+	int matcherNameToInt(const QString& value);
+	void OutliersEliminationToInt(const QString& value);
+	void FlannBasedNameToIndex(const QString& value);
+	void exportSuccess(int showMethod);
+	void initializeTable();
+	bool takeTest();
+	void importExcelFile(int type);
+	void setTableValue(QAxObject* sheet, int lineIndex, int columnIndex, const QString& value);
+	QString GetTableValue(QAxObject* sheet, int rowIndex, int columnIndex);
+	void exportTable(int rowsCount);
+	void importTable(int identifierNumber);
 
 	void customisingBinarization(int segmentationIndex);
 	void customisingSegmentor(int segmentationIndex);
