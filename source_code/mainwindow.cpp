@@ -36,6 +36,7 @@
 	
 	//Excel data
 	ExcelExportHelper *excelReader;
+	ExcelExportHelper *excelRecover;
 	QStandardItemModel *model;
 	std::vector<std::pair<int, float>> rankkData;
 
@@ -1047,6 +1048,17 @@ void MainWindow::on_refreshRankkGraph_pressed(){
 }
 
 void MainWindow::on_refreshEerGraph_pressed(){
+	std::map<float, std::pair<int, int>>/*<threshold, <nbFM, nbNonExists>>*/ FMR_dataFromExcel
+		= { { 10, std::make_pair<int, int>(65, 70) }, { 15, std::make_pair<int, int>(89, 100) }, { 80, std::make_pair<int, int>(45, 70) }, { 100, std::make_pair<int, int>(35, 77) }, { 230, std::make_pair<int, int>(20, 100) }, { 400, std::make_pair<int, int>(5, 80) }, { 500, std::make_pair<int, int>(0, 10) } };
+	std::map<float, std::pair<int, int>>/*<threshold, <nbFNM, nbExists>>*/ FNMR_dataFromExcel
+		= { { 18, std::make_pair<int, int>(0, 10) }, { 25, std::make_pair<int, int>(5, 80) }, { 30, std::make_pair<int, int>(20, 100) }, { 50, std::make_pair<int, int>(35, 77) }, { 105, std::make_pair<int, int>(45, 70) }, { 190, std::make_pair<int, int>(80, 100) }, { 260, std::make_pair<int, int>(88, 100) }, { 410, std::make_pair<int, int>(120, 130) }, { 580, std::make_pair<int, int>(70, 75) } };
+		
+	if (ui->eerGraphWidget->graphCount()){
+		ui->eerGraphWidget->clearGraphs();
+		ui->eerGraphWidget->clearItems();
+	}
+
+	drowEer(FMR_dataFromExcel, FNMR_dataFromExcel);
 }
 
 int MainWindow::computeRankK(float scoreThreshold){
@@ -2596,14 +2608,14 @@ void MainWindow::importExcelFile(int type)
 		bool exist = false;
 		int column;
 		float scoreThreshold, acceptedMatches, rejectedMatches, bestImageAverage, bestImageScore, goodProbability, badProbability;
-		if (type == 0) excelReader = new ExcelExportHelper(true, exportFile, 0);
-		else excelReader = new ExcelExportHelper(true, inputFile, 0);
+		if (type == 0) excelRecover = new ExcelExportHelper(true, exportFile, 0);
+		else excelRecover = new ExcelExportHelper(true, inputFile, 0);
 
 		for (int methodIndex = 1; methodIndex <= 5; methodIndex++) {
-			column = excelReader->getColumnsCount();
-			excelReader->GetIntRows(methodIndex);
-			for (int j = 2; j <= excelReader->getSheetCount(); j++) {
-				if ((type == 2) || ((ui->tabWidget_2->currentIndex() == 1) && (excelReader->GetCellValue(j, 1) == ui->spinBox->text()))) {
+			excelRecover->GetIntRows(methodIndex);
+			column = excelRecover->getColumnsCount();
+			for (int j = 2; j <= excelRecover->getSheetCount(); j++) {
+				if ((type == 2) || ((ui->tabWidget_2->currentIndex() == 1) && (excelRecover->GetCellValue(j, 1) == ui->spinBox->text()))) {
 					cv::Mat image;
 					ui->tabWidget_2->setCurrentIndex(0);
 					ui->viewTabs->setCurrentIndex(0);
@@ -2620,10 +2632,10 @@ void MainWindow::importExcelFile(int type)
 					if (type == 0)
 					{
 						for (int i = 0; i < 5; i++) ui->viewTabs->setCurrentIndex(i); // just to center contents
-						image = cv::imread(excelReader->GetCellValue(j, 3).toString().toStdString(), CV_LOAD_IMAGE_COLOR);
+						image = cv::imread(excelRecover->GetCellValue(j, 3).toString().toStdString(), CV_LOAD_IMAGE_COLOR);
 						displayImage(image, 1);
 					}
-					ui->firstImgText->setText(excelReader->GetCellValue(j, 3 - type).toString());
+					ui->firstImgText->setText(excelRecover->GetCellValue(j, 3 - type).toString());
 
 					if (type == 0)
 					{
@@ -2631,7 +2643,7 @@ void MainWindow::importExcelFile(int type)
 						displayFeature(image, 1);
 					}
 
-					ui->secondImgText->setText(excelReader->GetCellValue(j, 4 - type).toString());
+					ui->secondImgText->setText(excelRecover->GetCellValue(j, 4 - type).toString());
 
 					if (type == 0)
 					{
@@ -2646,94 +2658,94 @@ void MainWindow::importExcelFile(int type)
 					case 1:
 					{
 						// SIFT
-						ui->siftContThreshText->setText(excelReader->GetCellValue(j, 8 - type).toString());
-						ui->siftEdgeThreshText->setText(excelReader->GetCellValue(j, 9 - type).toString());
-						ui->siftNumFeatText->setText(excelReader->GetCellValue(j, 10 - type).toString());
-						ui->siftNumOctText->setText(excelReader->GetCellValue(j, 11 - type).toString());
-						ui->siftSigmaText->setText(excelReader->GetCellValue(j, 12 - type).toString());
-						ui->siftBruteForceCheck->setChecked(excelReader->GetCellValue(j, 13 - type).toBool());
+						ui->siftContThreshText->setText(excelRecover->GetCellValue(j, 8 - type).toString());
+						ui->siftEdgeThreshText->setText(excelRecover->GetCellValue(j, 9 - type).toString());
+						ui->siftNumFeatText->setText(excelRecover->GetCellValue(j, 10 - type).toString());
+						ui->siftNumOctText->setText(excelRecover->GetCellValue(j, 11 - type).toString());
+						ui->siftSigmaText->setText(excelRecover->GetCellValue(j, 12 - type).toString());
+						ui->siftBruteForceCheck->setChecked(excelRecover->GetCellValue(j, 13 - type).toBool());
 						break;
 					}
 					case 2:
 					{
 						// SURF
-						ui->surfHessianThreshText->setText(excelReader->GetCellValue(j, 8 - type).toString());
-						ui->surfNumOctavesText->setText(excelReader->GetCellValue(j, 9 - type).toString());
-						ui->surfNumOctLayersText->setText(excelReader->GetCellValue(j, 10 - type).toString());
-						ui->surfExtendedText->setChecked(excelReader->GetCellValue(j, 11 - type).toBool());
-						ui->surfUprightText->setChecked(excelReader->GetCellValue(j, 12 - type).toBool());
-						ui->surfBruteForceCheck->setChecked(excelReader->GetCellValue(j, 13 - type).toBool());
+						ui->surfHessianThreshText->setText(excelRecover->GetCellValue(j, 8 - type).toString());
+						ui->surfNumOctavesText->setText(excelRecover->GetCellValue(j, 9 - type).toString());
+						ui->surfNumOctLayersText->setText(excelRecover->GetCellValue(j, 10 - type).toString());
+						ui->surfExtendedText->setChecked(excelRecover->GetCellValue(j, 11 - type).toBool());
+						ui->surfUprightText->setChecked(excelRecover->GetCellValue(j, 12 - type).toBool());
+						ui->surfBruteForceCheck->setChecked(excelRecover->GetCellValue(j, 13 - type).toBool());
 						break;
 					}
 					case 3:
 					{
 						// ORB
-						ui->orbNumFeatText->setText(excelReader->GetCellValue(j, 8 - type).toString());
-						ui->orbScaleFactText->setText(excelReader->GetCellValue(j, 9 - type).toString());
-						ui->orbNumLevelsText->setText(excelReader->GetCellValue(j, 10 - type).toString());
-						ui->orbEdgeThreshText->setText(excelReader->GetCellValue(j, 11 - type).toString());
-						ui->orbFirstLevText->setText(excelReader->GetCellValue(j, 12 - type).toString());
-						ui->orbWTAKText->setText(excelReader->GetCellValue(j, 13 - type).toString());
-						if (excelReader->GetCellValue(j, 14 - type).toString() == "Harris") ui->orbScoreHarrisRadioBtn->setChecked(true);
+						ui->orbNumFeatText->setText(excelRecover->GetCellValue(j, 8 - type).toString());
+						ui->orbScaleFactText->setText(excelRecover->GetCellValue(j, 9 - type).toString());
+						ui->orbNumLevelsText->setText(excelRecover->GetCellValue(j, 10 - type).toString());
+						ui->orbEdgeThreshText->setText(excelRecover->GetCellValue(j, 11 - type).toString());
+						ui->orbFirstLevText->setText(excelRecover->GetCellValue(j, 12 - type).toString());
+						ui->orbWTAKText->setText(excelRecover->GetCellValue(j, 13 - type).toString());
+						if (excelRecover->GetCellValue(j, 14 - type).toString() == "Harris") ui->orbScoreHarrisRadioBtn->setChecked(true);
 						else ui->orbScoreFastRadioBtn->setChecked(true);
-						ui->orbPatchSizeText->setText(excelReader->GetCellValue(j, 15 - type).toString());
+						ui->orbPatchSizeText->setText(excelRecover->GetCellValue(j, 15 - type).toString());
 						break;
 					}
 					case 4:
 					{
 						// BRISK
-						ui->briskPatternScaleText->setText(excelReader->GetCellValue(j, 8 - type).toString());
-						ui->briskOctavesText->setText(excelReader->GetCellValue(j, 9 - type).toString());
-						ui->briskThreshText->setText(excelReader->GetCellValue(j, 10 - type).toString());
+						ui->briskPatternScaleText->setText(excelRecover->GetCellValue(j, 8 - type).toString());
+						ui->briskOctavesText->setText(excelRecover->GetCellValue(j, 9 - type).toString());
+						ui->briskThreshText->setText(excelRecover->GetCellValue(j, 10 - type).toString());
 						break;
 					}
 					default:
 					{
 						// Custom
-						int segmentationName = segmentationNameToInt(excelReader->GetCellValue(j, 8 - type).toString()),
-							detectorName = detectorNameToInt(excelReader->GetCellValue(j, 13 - type).toString()),
-							descriptorName = descriptorNameToInt(excelReader->GetCellValue(j, 19 - type).toString()),
-							matcherName = matcherNameToInt(excelReader->GetCellValue(j, 25 - type).toString());
+						int segmentationName = segmentationNameToInt(excelRecover->GetCellValue(j, 8 - type).toString()),
+							detectorName = detectorNameToInt(excelRecover->GetCellValue(j, 13 - type).toString()),
+							descriptorName = descriptorNameToInt(excelRecover->GetCellValue(j, 19 - type).toString()),
+							matcherName = matcherNameToInt(excelRecover->GetCellValue(j, 25 - type).toString());
 
 						ui->segmentationTabs->setCurrentIndex(segmentationName);
 						ui->detectorTabs->setCurrentIndex(detectorName);
 						ui->descriptorTabs->setCurrentIndex(descriptorName);
 						ui->matcherTabs->setCurrentIndex(matcherName);
 
-						ui->segmentationThresholdText->setText(excelReader->GetCellValue(j + 1, 9 - type).toString());
+						ui->segmentationThresholdText->setText(excelRecover->GetCellValue(j + 1, 9 - type).toString());
 
 						switch (segmentationName)
 						{
 						case 1:
 						{
 							// Skeletonization of Morphological Skeleton
-							ui->segmentationMorphologicalSkeletonParam1Text->setText(excelReader->GetCellValue(j + 1, 10 - type).toString());
-							ui->segmentationMorphologicalSkeletonParam2Text->setText(excelReader->GetCellValue(j + 1, 11 - type).toString());
-							ui->segmentationMorphologicalSkeletonParam3Text->setText(excelReader->GetCellValue(j + 1, 12 - type).toString());
+							ui->segmentationMorphologicalSkeletonParam1Text->setText(excelRecover->GetCellValue(j + 1, 10 - type).toString());
+							ui->segmentationMorphologicalSkeletonParam2Text->setText(excelRecover->GetCellValue(j + 1, 11 - type).toString());
+							ui->segmentationMorphologicalSkeletonParam3Text->setText(excelRecover->GetCellValue(j + 1, 12 - type).toString());
 							break;
 						}
 						case 2:
 						{
 							// Thinning of Zhang-Suen
-							ui->segmentationZhangSuenParam1Text->setText(excelReader->GetCellValue(j + 1, 10 - type).toString());
-							ui->segmentationZhangSuenParam2Text->setText(excelReader->GetCellValue(j + 1, 11 - type).toString());
-							ui->segmentationZhangSuenParam3Text->setText(excelReader->GetCellValue(j + 1, 12 - type).toString());
+							ui->segmentationZhangSuenParam1Text->setText(excelRecover->GetCellValue(j + 1, 10 - type).toString());
+							ui->segmentationZhangSuenParam2Text->setText(excelRecover->GetCellValue(j + 1, 11 - type).toString());
+							ui->segmentationZhangSuenParam3Text->setText(excelRecover->GetCellValue(j + 1, 12 - type).toString());
 							break;
 						}
 						case 3:
 						{
 							// Thinning of Lin-Hong implemented by Mrs. Faiçal
-							ui->segmentationLinHongParam1Text->setText(excelReader->GetCellValue(j + 1, 10 - type).toString());
-							ui->segmentationLinHongParam2Text->setText(excelReader->GetCellValue(j + 1, 11 - type).toString());
-							ui->segmentationLinHongParam3Text->setText(excelReader->GetCellValue(j + 1, 12 - type).toString());
+							ui->segmentationLinHongParam1Text->setText(excelRecover->GetCellValue(j + 1, 10 - type).toString());
+							ui->segmentationLinHongParam2Text->setText(excelRecover->GetCellValue(j + 1, 11 - type).toString());
+							ui->segmentationLinHongParam3Text->setText(excelRecover->GetCellValue(j + 1, 12 - type).toString());
 							break;
 						}
 						case 4:
 						{
 							// Thinning of Guo-Hall
-							ui->segmentationGuoHallParam1Text->setText(excelReader->GetCellValue(j + 1, 10 - type).toString());
-							ui->segmentationGuoHallParam2Text->setText(excelReader->GetCellValue(j + 1, 11 - type).toString());
-							ui->segmentationGuoHallParam3Text->setText(excelReader->GetCellValue(j + 1, 12 - type).toString());
+							ui->segmentationGuoHallParam1Text->setText(excelRecover->GetCellValue(j + 1, 10 - type).toString());
+							ui->segmentationGuoHallParam2Text->setText(excelRecover->GetCellValue(j + 1, 11 - type).toString());
+							ui->segmentationGuoHallParam3Text->setText(excelRecover->GetCellValue(j + 1, 12 - type).toString());
 							break;
 						}
 
@@ -2742,40 +2754,40 @@ void MainWindow::importExcelFile(int type)
 						switch (detectorName){
 						case 0:{
 							// Minutiae-detection using Crossing Number By Dr. Faiçal
-							ui->detectorMinutiaeParam1Text->setText(excelReader->GetCellValue(j + 1, 14 - type).toString());
-							ui->detectorMinutiaeParam2Text->setText(excelReader->GetCellValue(j + 1, 15 - type).toString());
+							ui->detectorMinutiaeParam1Text->setText(excelRecover->GetCellValue(j + 1, 14 - type).toString());
+							ui->detectorMinutiaeParam2Text->setText(excelRecover->GetCellValue(j + 1, 15 - type).toString());
 							break;
 						}
 						case 1:{
 							// Minutiae-detection using Crossing Number
-							ui->detectorCrossingNumberBorderText->setText(excelReader->GetCellValue(j + 1, 14 - type).toString());
-							ui->detectorCrossingNumberParamText->setText(excelReader->GetCellValue(j + 1, 15 - type).toString());
+							ui->detectorCrossingNumberBorderText->setText(excelRecover->GetCellValue(j + 1, 14 - type).toString());
+							ui->detectorCrossingNumberParamText->setText(excelRecover->GetCellValue(j + 1, 15 - type).toString());
 							break;
 						}
 						case 2:{
 							// Harris-Corners
-							ui->detectorHarrisThresholdText->setText(excelReader->GetCellValue(j + 1, 14 - type).toString());
-							ui->detectorHarrisParamText->setText(excelReader->GetCellValue(j + 1, 15 - type).toString());
+							ui->detectorHarrisThresholdText->setText(excelRecover->GetCellValue(j + 1, 14 - type).toString());
+							ui->detectorHarrisParamText->setText(excelRecover->GetCellValue(j + 1, 15 - type).toString());
 							break;
 						}
 						case 3:{
 							// STAR
-							ui->detectorStarMaxSizeText->setText(excelReader->GetCellValue(j + 1, 14 - type).toString());
-							ui->detectorStarResponseThresholdText->setText(excelReader->GetCellValue(j + 1, 15 - type).toString());
-							ui->detectorStarThresholdProjectedText->setText(excelReader->GetCellValue(j + 1, 16 - type).toString());
-							ui->detectorStarThresholdBinarizedText->setText(excelReader->GetCellValue(j + 1, 17 - type).toString());
-							ui->detectorStarSuppressNonmaxSizeText->setText(excelReader->GetCellValue(j + 1, 18 - type).toString());
+							ui->detectorStarMaxSizeText->setText(excelRecover->GetCellValue(j + 1, 14 - type).toString());
+							ui->detectorStarResponseThresholdText->setText(excelRecover->GetCellValue(j + 1, 15 - type).toString());
+							ui->detectorStarThresholdProjectedText->setText(excelRecover->GetCellValue(j + 1, 16 - type).toString());
+							ui->detectorStarThresholdBinarizedText->setText(excelRecover->GetCellValue(j + 1, 17 - type).toString());
+							ui->detectorStarSuppressNonmaxSizeText->setText(excelRecover->GetCellValue(j + 1, 18 - type).toString());
 							break;
 						}
 						case 4: {
 							// FAST
-							ui->detectorFastThresholdText->setText(excelReader->GetCellValue(j + 1, 14 - type).toString());
-							ui->detectorFastNonmaxSuppressionCheck->setChecked(excelReader->GetCellValue(j + 1, 15 - type).toBool());
-							ui->detectorFastXCheck->setChecked(excelReader->GetCellValue(j + 1, 16 - type).toBool());
-							if (excelReader->GetCellValue(j + 1, 16 - type).toBool())
+							ui->detectorFastThresholdText->setText(excelRecover->GetCellValue(j + 1, 14 - type).toString());
+							ui->detectorFastNonmaxSuppressionCheck->setChecked(excelRecover->GetCellValue(j + 1, 15 - type).toBool());
+							ui->detectorFastXCheck->setChecked(excelRecover->GetCellValue(j + 1, 16 - type).toBool());
+							if (excelRecover->GetCellValue(j + 1, 16 - type).toBool())
 							{
 								ui->detectorFastTypeText->setEnabled(true);
-								int index = ui->detectorFastTypeText->findText(excelReader->GetCellValue(j + 1, 17 - type).toString());
+								int index = ui->detectorFastTypeText->findText(excelRecover->GetCellValue(j + 1, 17 - type).toString());
 								ui->detectorFastTypeText->setCurrentIndex(index);
 							}
 							else ui->detectorFastTypeText->setEnabled(false);
@@ -2783,28 +2795,28 @@ void MainWindow::importExcelFile(int type)
 						}
 						case 5: {
 							// SIFT
-							ui->detectorSiftContrastThresholdText->setText(excelReader->GetCellValue(j + 1, 14 - type).toString());
-							ui->detectorSiftEdgeThresholdText->setText(excelReader->GetCellValue(j + 1, 15 - type).toString());
-							ui->detectorSiftNfeaturesText->setText(excelReader->GetCellValue(j + 1, 16 - type).toString());
-							ui->detectorSiftNOctaveLayersText->setText(excelReader->GetCellValue(j + 1, 17 - type).toString());
-							ui->detectorSiftSigmaText->setText(excelReader->GetCellValue(j + 1, 18 - type).toString());
+							ui->detectorSiftContrastThresholdText->setText(excelRecover->GetCellValue(j + 1, 14 - type).toString());
+							ui->detectorSiftEdgeThresholdText->setText(excelRecover->GetCellValue(j + 1, 15 - type).toString());
+							ui->detectorSiftNfeaturesText->setText(excelRecover->GetCellValue(j + 1, 16 - type).toString());
+							ui->detectorSiftNOctaveLayersText->setText(excelRecover->GetCellValue(j + 1, 17 - type).toString());
+							ui->detectorSiftSigmaText->setText(excelRecover->GetCellValue(j + 1, 18 - type).toString());
 							break;
 						}
 						case 6: {
 							//SURF
-							ui->detectorSurfHessianThresholdText->setText(excelReader->GetCellValue(j + 1, 14 - type).toString());
-							ui->detectorSurfNOctavesText->setText(excelReader->GetCellValue(j + 1, 15 - type).toString());
-							ui->detectorSurfNLayersText->setText(excelReader->GetCellValue(j + 1, 16 - type).toString());
-							ui->detectorSurfUprightText->setChecked(excelReader->GetCellValue(j + 1, 17 - type).toBool());
+							ui->detectorSurfHessianThresholdText->setText(excelRecover->GetCellValue(j + 1, 14 - type).toString());
+							ui->detectorSurfNOctavesText->setText(excelRecover->GetCellValue(j + 1, 15 - type).toString());
+							ui->detectorSurfNLayersText->setText(excelRecover->GetCellValue(j + 1, 16 - type).toString());
+							ui->detectorSurfUprightText->setChecked(excelRecover->GetCellValue(j + 1, 17 - type).toBool());
 							break;
 						}
 						case 7: {
 							//Dense
-							ui->detectorDenseInitFeatureScaleText->setText(excelReader->GetCellValue(j + 1, 14 - type).toString());
-							ui->detectorDenseFeatureScaleLevelsText->setText(excelReader->GetCellValue(j + 1, 15 - type).toString());
-							ui->detectorDenseFeatureScaleMulText->setText(excelReader->GetCellValue(j + 1, 16 - type).toString());
-							ui->detectorDenseInitXyStepText->setText(excelReader->GetCellValue(j + 1, 17 - type).toString());
-							ui->detectorDenseInitImgBoundText->setText(excelReader->GetCellValue(j + 1, 18 - type).toString());
+							ui->detectorDenseInitFeatureScaleText->setText(excelRecover->GetCellValue(j + 1, 14 - type).toString());
+							ui->detectorDenseFeatureScaleLevelsText->setText(excelRecover->GetCellValue(j + 1, 15 - type).toString());
+							ui->detectorDenseFeatureScaleMulText->setText(excelRecover->GetCellValue(j + 1, 16 - type).toString());
+							ui->detectorDenseInitXyStepText->setText(excelRecover->GetCellValue(j + 1, 17 - type).toString());
+							ui->detectorDenseInitImgBoundText->setText(excelRecover->GetCellValue(j + 1, 18 - type).toString());
 							break;
 						}
 						}
@@ -2814,50 +2826,50 @@ void MainWindow::importExcelFile(int type)
 						case 0:
 						{
 							// FREAK
-							ui->descriptorFreakOrientationNormalizedCheck->setChecked(excelReader->GetCellValue(j + 1, 20 - type).toBool());
-							ui->descriptorFreakScaleNormalizedCheck->setChecked(excelReader->GetCellValue(j + 1, 21 - type).toBool());
-							ui->descriptorFreakPatternScaleText->setText(excelReader->GetCellValue(j + 1, 22 - type).toString());
-							ui->descriptorFreakNOctavesText->setText(excelReader->GetCellValue(j + 1, 23 - type).toString());
-							ui->descriptorFreakSelectedPairsText->setText(excelReader->GetCellValue(j + 1, 24 - type).toString());
+							ui->descriptorFreakOrientationNormalizedCheck->setChecked(excelRecover->GetCellValue(j + 1, 20 - type).toBool());
+							ui->descriptorFreakScaleNormalizedCheck->setChecked(excelRecover->GetCellValue(j + 1, 21 - type).toBool());
+							ui->descriptorFreakPatternScaleText->setText(excelRecover->GetCellValue(j + 1, 22 - type).toString());
+							ui->descriptorFreakNOctavesText->setText(excelRecover->GetCellValue(j + 1, 23 - type).toString());
+							ui->descriptorFreakSelectedPairsText->setText(excelRecover->GetCellValue(j + 1, 24 - type).toString());
 							break;
 						}
 						case 1:
 						{
 							// BRIEF
-							ui->descriptorBriefPATCH_SIZEText->setText(excelReader->GetCellValue(j + 1, 20 - type).toString());
-							ui->descriptorBriefKERNEL_SIZEText->setText(excelReader->GetCellValue(j + 1, 21 - type).toString());
-							ui->descriptorBriefLengthText->setText(excelReader->GetCellValue(j + 1, 22 - type).toString());
+							ui->descriptorBriefPATCH_SIZEText->setText(excelRecover->GetCellValue(j + 1, 20 - type).toString());
+							ui->descriptorBriefKERNEL_SIZEText->setText(excelRecover->GetCellValue(j + 1, 21 - type).toString());
+							ui->descriptorBriefLengthText->setText(excelRecover->GetCellValue(j + 1, 22 - type).toString());
 							break;
 						}
 						case 2:
 						{
 							// SIFT
-							ui->descriptorSiftLengthText->setText(excelReader->GetCellValue(j + 1, 20 - type).toString());
+							ui->descriptorSiftLengthText->setText(excelRecover->GetCellValue(j + 1, 20 - type).toString());
 							break;
 						}
 						case 3:
 						{
 							//SURF
-							if (excelReader->GetCellValue(j + 1, 20 - type).toString() == "128") ui->descriptorSurfExtended->setChecked(true);
+							if (excelRecover->GetCellValue(j + 1, 20 - type).toString() == "128") ui->descriptorSurfExtended->setChecked(true);
 							else ui->descriptorSurfNotExtended->setChecked(true);
 							break;
 						}
 						default:
 						{
-							ui->descriptorMethod2Param1Text->setText(excelReader->GetCellValue(j + 1, 20 - type).toString());
-							ui->descriptorMethod2Param2Text->setText(excelReader->GetCellValue(j + 1, 21 - type).toString());
-							ui->descriptorMethod2Param3Text->setText(excelReader->GetCellValue(j + 1, 22 - type).toString());
-							ui->descriptorMethod2LengthText->setText(excelReader->GetCellValue(j + 1, 23 - type).toString());
+							ui->descriptorMethod2Param1Text->setText(excelRecover->GetCellValue(j + 1, 20 - type).toString());
+							ui->descriptorMethod2Param2Text->setText(excelRecover->GetCellValue(j + 1, 21 - type).toString());
+							ui->descriptorMethod2Param3Text->setText(excelRecover->GetCellValue(j + 1, 22 - type).toString());
+							ui->descriptorMethod2LengthText->setText(excelRecover->GetCellValue(j + 1, 23 - type).toString());
 							break;
 						}
 						}
 
-						if (excelReader->GetCellValue(j + 1, 26 - type).toString() == "Type 1") ui->matcher1toNtype1->setChecked(true);
+						if (excelRecover->GetCellValue(j + 1, 26 - type).toString() == "Type 1") ui->matcher1toNtype1->setChecked(true);
 						else ui->matcher1toNtype2->setChecked(true);
 
-						OutliersEliminationToInt(excelReader->GetCellValue(j + 1, 27 - type).toString());
+						OutliersEliminationToInt(excelRecover->GetCellValue(j + 1, 27 - type).toString());
 
-						if (excelReader->GetCellValue(j, 28 - type).toString().isEmpty())
+						if (excelRecover->GetCellValue(j, 28 - type).toString().isEmpty())
 						{
 							ui->matcherInlierLimitDistance->setChecked(false);
 							ui->matcherInlierLimitDistanceText->setEnabled(false);
@@ -2866,7 +2878,7 @@ void MainWindow::importExcelFile(int type)
 						{
 							ui->matcherInlierLimitDistance->setChecked(true);
 							ui->matcherInlierLimitDistanceText->setEnabled(true);
-							ui->matcherInlierLimitDistanceText->setText(excelReader->GetCellValue(j + 1, 28 - type).toString());
+							ui->matcherInlierLimitDistanceText->setText(excelRecover->GetCellValue(j + 1, 28 - type).toString());
 						}
 
 						switch (matcherName)
@@ -2874,28 +2886,28 @@ void MainWindow::importExcelFile(int type)
 						case 0:
 						{
 							// BruteForce
-							int index = ui->matcherBruteForceNormTypeText->findText(excelReader->GetCellValue(j + 1, 29 - type).toString());
+							int index = ui->matcherBruteForceNormTypeText->findText(excelRecover->GetCellValue(j + 1, 29 - type).toString());
 							ui->matcherBruteForceNormTypeText->setCurrentIndex(index);
-							ui->matcherBruteForceCrossCheckText->setChecked(excelReader->GetCellValue(j + 1, 30 - type).toBool());
+							ui->matcherBruteForceCrossCheckText->setChecked(excelRecover->GetCellValue(j + 1, 30 - type).toBool());
 							break;
 						}
 						case 1:
 						{
 							// FlannBased
-							FlannBasedNameToIndex(excelReader->GetCellValue(j + 1, 29 - type).toString());
-							ui->matcherFlannBasedSearchParamsText->setText(excelReader->GetCellValue(j + 1, 30 - type).toString());
+							FlannBasedNameToIndex(excelRecover->GetCellValue(j + 1, 29 - type).toString());
+							ui->matcherFlannBasedSearchParamsText->setText(excelRecover->GetCellValue(j + 1, 30 - type).toString());
 							break;
 						}
 						default:
 						{
-							ui->matcherMethodParam1Text->setText(excelReader->GetCellValue(j + 1, 29 - type).toString());
-							ui->matcherMethodParam2Text->setText(excelReader->GetCellValue(j + 1, 30 - type).toString());
-							ui->matcherMethodParam3Text->setText(excelReader->GetCellValue(j + 1, 31 - type).toString());
+							ui->matcherMethodParam1Text->setText(excelRecover->GetCellValue(j + 1, 29 - type).toString());
+							ui->matcherMethodParam2Text->setText(excelRecover->GetCellValue(j + 1, 30 - type).toString());
+							ui->matcherMethodParam3Text->setText(excelRecover->GetCellValue(j + 1, 31 - type).toString());
 							break;
 						}
 						}
 
-						ui->opponentColor->setChecked(excelReader->GetCellValue(j, 32 - type).toBool());
+						ui->opponentColor->setChecked(excelRecover->GetCellValue(j, 32 - type).toBool());
 
 						break;
 					}
@@ -2903,22 +2915,22 @@ void MainWindow::importExcelFile(int type)
 					}
 					if (type == 0)
 					{
-						ui->logPlainText->appendHtml("<b style='color:green'>Starting " + excelReader->GetSheetName() + " test (Done on: " + excelReader->GetCellValue(j, 2).toString() + "):</b>");
+						ui->logPlainText->appendHtml("<b style='color:green'>Starting " + excelRecover->GetSheetName() + " test (Done on: " + excelRecover->GetCellValue(j, 2).toString() + "):</b>");
 
-						ui->decisionStageThresholdText->setText(excelReader->GetCellValue(j, column - 13).toString());
+						ui->decisionStageThresholdText->setText(excelRecover->GetCellValue(j, column - 13).toString());
 
-						ui->logPlainText->appendHtml("Found " + excelReader->GetCellValue(j, column - 12).toString() + " key points in the first image!");
+						ui->logPlainText->appendHtml("Found " + excelRecover->GetCellValue(j, column - 12).toString() + " key points in the first image!");
 
-						scoreThreshold = excelReader->GetCellValue(j, column - 13).toString().toFloat();
-						acceptedMatches = excelReader->GetCellValue(j, column - 6).toString().toFloat();
-						rejectedMatches = excelReader->GetCellValue(j, column - 5).toString().toFloat();
-						bestImageAverage = excelReader->GetCellValue(j, column - 4).toString().toFloat();
-						bestImageScore = excelReader->GetCellValue(j, column - 3).toString().toFloat();
+						scoreThreshold = excelRecover->GetCellValue(j, column - 13).toString().toFloat();
+						acceptedMatches = excelRecover->GetCellValue(j, column - 6).toString().toFloat();
+						rejectedMatches = excelRecover->GetCellValue(j, column - 5).toString().toFloat();
+						bestImageAverage = excelRecover->GetCellValue(j, column - 4).toString().toFloat();
+						bestImageScore = excelRecover->GetCellValue(j, column - 3).toString().toFloat();
 
 						goodProbability = acceptedMatches / (acceptedMatches + rejectedMatches) * 100;
 						badProbability = rejectedMatches / (acceptedMatches + rejectedMatches) * 100;
 					}
-					else ui->decisionStageThresholdText->setText(excelReader->GetCellValue(j, column).toString());
+					else ui->decisionStageThresholdText->setText(excelRecover->GetCellValue(j, column).toString());
 
 					//ui->refreshBddImageNames->setEnabled(false);
 					ui->bddImageNames->clear();
@@ -2927,12 +2939,12 @@ void MainWindow::importExcelFile(int type)
 					disconnect(ui->viewTableImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
 					ui->viewTableImageNameText->clear();
 
-					if (excelReader->GetCellValue(j, 5 - type).toBool())
+					if (excelRecover->GetCellValue(j, 5 - type).toBool())
 					{
-						if (type == 0) image = cv::imread(excelReader->GetCellValue(j, 4).toString().toStdString() + '/' + excelReader->GetCellValue(j, column - 1).toString().toStdString(), CV_LOAD_IMAGE_COLOR);
+						if (type == 0) image = cv::imread(excelRecover->GetCellValue(j, 4).toString().toStdString() + '/' + excelRecover->GetCellValue(j, column - 1).toString().toStdString(), CV_LOAD_IMAGE_COLOR);
 						ui->oneToN->setChecked(true);
-						ui->imageExistsInBdd->setChecked(excelReader->GetCellValue(j, 6 - type).toBool());
-						if (excelReader->GetCellValue(j, 6 - type).toBool()) ui->bddImageNames->addItem(excelReader->GetCellValue(j, 7 - type).toString());
+						ui->imageExistsInBdd->setChecked(excelRecover->GetCellValue(j, 6 - type).toBool());
+						if (excelRecover->GetCellValue(j, 6 - type).toBool()) ui->bddImageNames->addItem(excelRecover->GetCellValue(j, 7 - type).toString());
 						else
 						{
 							ui->imageExistsInBdd->setEnabled(false);
@@ -2940,22 +2952,22 @@ void MainWindow::importExcelFile(int type)
 						}
 						if (type == 0)
 						{
-							ui->logPlainText->appendHtml("Found " + excelReader->GetCellValue(j, column - 11).toString() + " key points in the most similar image!");
-							ui->logPlainText->appendHtml("Detection time : " + excelReader->GetCellValue(j, column - 10).toString());
-							ui->logPlainText->appendHtml("Description time : " + excelReader->GetCellValue(j, column - 9).toString());
-							ui->logPlainText->appendHtml("Matching time : " + excelReader->GetCellValue(j, column - 8).toString());
-							ui->logPlainText->appendHtml("Total time : " + excelReader->GetCellValue(j, column - 7).toString());
-							ui->viewMatchesImageNameText->addItem(excelReader->GetCellValue(j, column - 1).toString());
-							ui->viewTableImageNameText->addItem(excelReader->GetCellValue(j, column - 1).toString());
+							ui->logPlainText->appendHtml("Found " + excelRecover->GetCellValue(j, column - 11).toString() + " key points in the most similar image!");
+							ui->logPlainText->appendHtml("Detection time : " + excelRecover->GetCellValue(j, column - 10).toString());
+							ui->logPlainText->appendHtml("Description time : " + excelRecover->GetCellValue(j, column - 9).toString());
+							ui->logPlainText->appendHtml("Matching time : " + excelRecover->GetCellValue(j, column - 8).toString());
+							ui->logPlainText->appendHtml("Total time : " + excelRecover->GetCellValue(j, column - 7).toString());
+							ui->viewMatchesImageNameText->addItem(excelRecover->GetCellValue(j, column - 1).toString());
+							ui->viewTableImageNameText->addItem(excelRecover->GetCellValue(j, column - 1).toString());
 							if (bestImageScore >= scoreThreshold)
-								ui->logPlainText->appendHtml("The image <b>" + excelReader->GetCellValue(j, column - 1).toString() + "</b> has the best matching score = <b>" + QString::number(bestImageScore) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
-							else ui->logPlainText->appendHtml("The image <b>" + excelReader->GetCellValue(j, column - 1).toString() + "</b> has the best matching score = <b>" + QString::number(bestImageScore) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
-							if (excelReader->GetCellValue(j, 6).toBool()) ui->logPlainText->appendHtml("The first image is Rank-<b>" + excelReader->GetCellValue(j, column).toString() + "</b>");
+								ui->logPlainText->appendHtml("The image <b>" + excelRecover->GetCellValue(j, column - 1).toString() + "</b> has the best matching score = <b>" + QString::number(bestImageScore) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
+							else ui->logPlainText->appendHtml("The image <b>" + excelRecover->GetCellValue(j, column - 1).toString() + "</b> has the best matching score = <b>" + QString::number(bestImageScore) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
+							if (excelRecover->GetCellValue(j, 6).toBool()) ui->logPlainText->appendHtml("The first image is Rank-<b>" + excelRecover->GetCellValue(j, column).toString() + "</b>");
 						}
 					}
 					else
 					{
-						if (type == 0) image = cv::imread(excelReader->GetCellValue(j, 4).toString().toStdString(), CV_LOAD_IMAGE_COLOR);
+						if (type == 0) image = cv::imread(excelRecover->GetCellValue(j, 4).toString().toStdString(), CV_LOAD_IMAGE_COLOR);
 						ui->oneToN->setChecked(false);
 						ui->imageExistsInBdd->setChecked(false);
 						ui->imageExistsInBdd->setEnabled(false);
@@ -2964,11 +2976,11 @@ void MainWindow::importExcelFile(int type)
 						ui->viewTableImageNameText->setEnabled(false);
 						if (type == 0)
 						{
-							ui->logPlainText->appendHtml("Found " + excelReader->GetCellValue(j, column - 11).toString() + " key points in the second image!");
-							ui->logPlainText->appendHtml("Detection time : " + excelReader->GetCellValue(j, column - 10).toString());
-							ui->logPlainText->appendHtml("Description time : " + excelReader->GetCellValue(j, column - 9).toString());
-							ui->logPlainText->appendHtml("Matching time : " + excelReader->GetCellValue(j, column - 8).toString());
-							ui->logPlainText->appendHtml("Total time : " + excelReader->GetCellValue(j, column - 7).toString());
+							ui->logPlainText->appendHtml("Found " + excelRecover->GetCellValue(j, column - 11).toString() + " key points in the second image!");
+							ui->logPlainText->appendHtml("Detection time : " + excelRecover->GetCellValue(j, column - 10).toString());
+							ui->logPlainText->appendHtml("Description time : " + excelRecover->GetCellValue(j, column - 9).toString());
+							ui->logPlainText->appendHtml("Matching time : " + excelRecover->GetCellValue(j, column - 8).toString());
+							ui->logPlainText->appendHtml("Total time : " + excelRecover->GetCellValue(j, column - 7).toString());
 							if (bestImageScore >= scoreThreshold)
 								ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(bestImageScore) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
 							else ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(bestImageScore) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
@@ -2981,7 +2993,7 @@ void MainWindow::importExcelFile(int type)
 						ui->viewMatchesBadMatchesText->setText("<b style='color:red'>" + QString::number(rejectedMatches) + "</b>/" + QString::number(acceptedMatches + rejectedMatches) + " = <b style = 'color:red'>" + QString::number(badProbability) + "</b>%");
 						ui->viewMatchesAverageMatchesText->setText(QString::number(bestImageAverage));
 						ui->viewMatchesScoreMatchesText->setText("<b>" + QString::number(bestImageScore) + "</b>");
-						if (!excelReader->GetCellValue(j, column - 11).toString().isEmpty()) importTable(ui->spinBox->text().toInt());
+						if (!excelRecover->GetCellValue(j, column - 11).toString().isEmpty()) importTable(ui->spinBox->text().toInt());
 						exist = true;
 						QMessageBox::information(this, "Import Excel Success!", "The test N°: " + QString(ui->spinBox->text()) + " has been imported with success !");
 						break;
@@ -2998,7 +3010,7 @@ void MainWindow::importExcelFile(int type)
 			if (!exist) QMessageBox::warning(this, "Import Excel Error!", "Please check the number that has been entered because no ID matches this number !");
 		}
 
-		excelReader->~ExcelExportHelper();
+		excelRecover->~ExcelExportHelper();
 	}
 	catch (const std::exception& e)
 	{
