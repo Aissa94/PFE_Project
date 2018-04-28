@@ -76,20 +76,32 @@
     <logicalClassDesignerModelHasPackages>
       <package Id="7dd9c9eb-e0ed-4fc1-9b36-4685180d61d4" name="Application">
         <ownedCommentsInternal>
-          <comment Id="241eb941-8d05-4d75-925f-64e04d3b163e">
-            <elementDefinition Id="19015a06-daa0-4128-a3ba-e67c96d399bf" />
-            <body>https://matthieu-brucher.developpez.com/tutoriels/conception/object-Pool/</body>
+          <comment Id="e1327d2d-f8a2-468d-9df2-6deb920bc68e">
+            <elementDefinition Id="6bd0a0ed-c206-42b1-a3c5-40dc13bc6eca" />
+            <body>process() {
+   // ... processing ...
+    successor.process();
+}</body>
             <annotatedElements>
-              <classMoniker Id="2f476825-a280-4e08-8284-a3502b65aaeb" LastKnownName="Starter" />
+              <classMoniker Id="4a7f01c2-ab75-4eae-a6c9-96347b9c20db" LastKnownName="DescriptionProcess" />
             </annotatedElements>
           </comment>
-          <comment Id="2043d919-4429-4797-8a0e-08aecefefaed">
-            <elementDefinition Id="7d5371ec-34cf-4c3b-af03-ecc9b357d601" />
-            <body>synchronized:
-Only one thread can execute getInstance() at a time.
-https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
+          <comment Id="c2172ea5-a14d-4ba3-b022-3837a427541f">
+            <elementDefinition Id="2989396a-4ea1-40fc-8613-9d5bc43fddb3" />
+            <body>setNext(nextStep : IdentificationProcess) {
+    successor &lt;-- nextProcess;
+}</body>
             <annotatedElements>
-              <classMoniker Id="85e1d609-71e2-4d0d-b268-a0dd17e340ec" LastKnownName="Logger" />
+              <classMoniker Id="4a7f01c2-ab75-4eae-a6c9-96347b9c20db" LastKnownName="DescriptionProcess" />
+            </annotatedElements>
+          </comment>
+          <comment Id="d0f26516-0419-43e5-9774-4c601604cf1c">
+            <elementDefinition Id="faa6323a-ef4b-43e8-8db1-66da2fc8eaf8" />
+            <body>setNext(nextStep : IdentificationProcess) {
+    // nothing
+}</body>
+            <annotatedElements>
+              <classMoniker Id="da26f866-ce7c-489d-ac15-6f36a5905a44" LastKnownName="ValidationProcess" />
             </annotatedElements>
           </comment>
         </ownedCommentsInternal>
@@ -124,6 +136,10 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                 <dependency Id="58b2668a-16f7-40e6-851b-8cd4afd3cd64">
                   <classMoniker Id="1cec0ba4-c8d2-4235-bc8f-af424e06645d" LastKnownName="Viewer" />
                   <elementDefinition Id="f4845f6e-464f-418d-bb41-436008218e02" />
+                </dependency>
+                <dependency Id="d6c9eff5-a282-442a-8cd7-96ef4af6c15a">
+                  <classMoniker Id="47233989-03f4-4ef2-b752-bad2826f1e5b" LastKnownName="ExcelManager" />
+                  <elementDefinition Id="c76bd78d-3670-4936-88bf-fe2e94be8be6" />
                 </dependency>
               </suppliersInternal>
               <targetEnds>
@@ -364,7 +380,7 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                 </property>
               </ownedAttributesInternal>
               <ownedOperationsInternal>
-                <operation Id="9d108750-f8de-43ea-a984-b5829d21e954" name="getInstance" isLeaf="false" isStatic="true" isAbstract="false" concurrency="Sequential" isQuery="false">
+                <operation Id="9d108750-f8de-43ea-a984-b5829d21e954" name="synchronized getInstance" isLeaf="false" isStatic="true" isAbstract="false" concurrency="Sequential" isQuery="false">
                   <elementDefinition Id="10fc0d62-6278-41f0-a044-ece1a21912f9" />
                   <ownedParameters>
                     <operationHasOwnedParameters>
@@ -390,12 +406,12 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                     </operationHasOwnedParameters>
                   </ownedParameters>
                 </operation>
-                <operation Id="527b6a76-ee9f-492e-b8cc-7a701b540806" name="releaseObject" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
+                <operation Id="527b6a76-ee9f-492e-b8cc-7a701b540806" name="releaseExecution" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
                   <elementDefinition Id="1e975953-664f-453f-bd18-20496481a991" />
                   <ownedParameters>
                     <operationHasOwnedParameters>
-                      <parameter Id="1ffd77e4-6c27-442c-a77b-bf0570cb2696" name="rendExecution" direction="In" isUnique="false">
-                        <elementDefinition Id="ba55dc1f-6f88-4682-b668-c74e294e44f4" />
+                      <parameter Id="25324fe6-5d81-4b65-b3de-37d55bb3badc" name="execution" direction="In" isUnique="false">
+                        <elementDefinition Id="1c4ec367-9965-4b75-870f-96a0f0e0b902" />
                         <type_NamedElement>
                           <referencedTypeMoniker Id="1190e967-bba3-42e2-93f9-0f439f27081d" LastKnownName="Execution" />
                         </type_NamedElement>
@@ -407,8 +423,8 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                   <elementDefinition Id="7df2fb4a-f4c6-4c50-9102-bf5dfab718e5" />
                   <ownedParameters>
                     <operationHasOwnedParameters>
-                      <parameter Id="53ef67f8-a36b-431e-8907-361caf934979" name="rendBadExecution" direction="In" isUnique="false">
-                        <elementDefinition Id="da6e741e-34c2-4d0b-aa80-51350178db35" />
+                      <parameter Id="fa7adea0-0461-4d5e-ad3c-2689c3a87361" name="badExecution" direction="In" isUnique="false">
+                        <elementDefinition Id="2f829f3f-1ca5-4375-8135-eeb1460f8632" />
                         <type_NamedElement>
                           <referencedTypeMoniker Id="1190e967-bba3-42e2-93f9-0f439f27081d" LastKnownName="Execution" />
                         </type_NamedElement>
@@ -429,11 +445,11 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                 </dependency>
               </suppliersInternal>
               <targetEnds>
-                <association Id="742b7b4b-4d6e-4555-b394-b71d1ce0ba42" isDerived="false" sourceEndRoleName="Execution" targetEndRoleName="IdentificationProcess" isLeaf="false" isAbstract="false">
+                <association Id="742b7b4b-4d6e-4555-b394-b71d1ce0ba42" isDerived="false" sourceEndRoleName="" targetEndRoleName="IdentificationProcess" isLeaf="false" isAbstract="false">
                   <interfaceMoniker Id="592d5eb8-b5d5-451e-b19e-2c0adf4fa467" LastKnownName="IdentificationProcess" />
                   <relationshipOwnedElementsInternal>
                     <associationHasOwnedEnds>
-                      <memberEnd Id="6592e0e6-b14e-49bc-8b84-4a26a94190bb" name="Execution" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false" isNavigableOwned="false">
+                      <memberEnd Id="6592e0e6-b14e-49bc-8b84-4a26a94190bb" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false" isNavigableOwned="false">
                         <lowerValueInternal>
                           <literalString Id="6958c320-4a59-4a1c-952e-f4c652f5b993" name="Lower" value="0">
                             <elementDefinition Id="87bc82fd-0aa9-4641-be74-aababc06e977" />
@@ -566,6 +582,9 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                       </parameter>
                     </operationHasOwnedParameters>
                   </ownedParameters>
+                </operation>
+                <operation Id="5eba3f42-d8c5-4d2f-b397-2dc03988adb1" name="start" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
+                  <elementDefinition Id="e9d26df5-2e9c-47c7-bfb2-5db25449e0cf" />
                 </operation>
               </ownedOperationsInternal>
             </class>
@@ -756,22 +775,6 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
             <Interface Id="592d5eb8-b5d5-451e-b19e-2c0adf4fa467" name="IdentificationProcess" isAbstract="false" isLeaf="false">
               <elementDefinition Id="68448c07-11fb-446f-baff-a8f29f744df8" />
               <targetEnds>
-                <association Id="14a52f27-0903-43f2-a79f-7462bf170c2e" isDerived="false" sourceEndRoleName="IdentificationProcess" targetEndRoleName="IdentificationProcess" isLeaf="false" isAbstract="false">
-                  <interfaceMoniker Id="592d5eb8-b5d5-451e-b19e-2c0adf4fa467" LastKnownName="IdentificationProcess" />
-                  <relationshipOwnedElementsInternal>
-                    <associationHasOwnedEnds>
-                      <memberEnd Id="10d5e196-0c69-4f1f-b417-9046d780bf46" name="IdentificationProcess" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="Shared" isComposite="false" isNavigableOwned="false">
-                        <elementDefinition Id="7dc2e8b9-ee70-4778-9f96-cf9b03e973a9" />
-                      </memberEnd>
-                    </associationHasOwnedEnds>
-                    <associationHasOwnedEnds>
-                      <memberEnd Id="d6fc443e-ea0b-428e-9011-3d254ba02bd5" name="IdentificationProcess" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false">
-                        <elementDefinition Id="ab841143-260f-44ea-92d6-891bcd00a7b9" />
-                      </memberEnd>
-                    </associationHasOwnedEnds>
-                  </relationshipOwnedElementsInternal>
-                  <elementDefinition Id="d27738b9-69a7-4aff-b235-40b9f43b2f6c" />
-                </association>
                 <association Id="f3eeec92-fa0a-4788-80bd-ef045e86dceb" isDerived="false" sourceEndRoleName="IdentificationProcess" targetEndRoleName="Command" isLeaf="false" isAbstract="false">
                   <interfaceMoniker Id="e4b527d5-6b70-4d3b-aa45-e6c42374974c" LastKnownName="Command" />
                   <relationshipOwnedElementsInternal>
@@ -793,7 +796,7 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                 <property Id="39a6d219-cdf2-410b-b873-d28fb589e371" name="command" isLeaf="false" isStatic="false" isReadOnly="false" isUnique="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false">
                   <elementDefinition Id="bfe9807a-df63-4f18-9499-40a823b5512d" />
                   <type_NamedElement>
-                    <referencedTypeMoniker Id="97190b66-e1be-4026-82e8-691fa7279d40" LastKnownName="DetectionCommand" />
+                    <referencedTypeMoniker Id="1871a3b2-5019-4934-a6c5-62a6e5f10f3b" LastKnownName="Command" />
                   </type_NamedElement>
                 </property>
               </ownedAttributes>
@@ -813,16 +816,6 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                 </operation>
                 <operation Id="802ce269-2065-4396-8b88-51c523943074" name="process" isLeaf="false" isStatic="false" isAbstract="true" concurrency="Sequential" isQuery="false">
                   <elementDefinition Id="62bd5cbb-f942-4f69-83e8-173698fa889c" />
-                  <ownedParameters>
-                    <operationHasOwnedParameters>
-                      <parameter Id="615280ae-a6ea-41ce-964e-c19b458e46eb" name="step" direction="In" isUnique="false">
-                        <elementDefinition Id="89b03ad0-990e-4790-9d5c-6a5f131da4c4" />
-                        <type_NamedElement>
-                          <referencedTypeMoniker Id="50dd0429-fecf-411f-ab30-2613bd6e60ed" LastKnownName="Integer" />
-                        </type_NamedElement>
-                      </parameter>
-                    </operationHasOwnedParameters>
-                  </ownedParameters>
                 </operation>
                 <operation Id="feef8640-83a7-4625-94df-36d239ed683a" name="setCommand" isLeaf="false" isStatic="false" isAbstract="true" concurrency="Sequential" isQuery="false">
                   <elementDefinition Id="2b4d9b15-dee0-4b3b-9964-273a19b80520" />
@@ -860,6 +853,24 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                   <elementDefinition Id="96b5cecc-46f9-4910-ae4e-597f4b8f08f1" />
                 </interfaceRealization>
               </suppliersInternal>
+              <targetEnds>
+                <association Id="975a0687-8dc2-461b-aa96-2f92e6b14e06" isDerived="false" sourceEndRoleName="successor" targetEndRoleName="" isLeaf="false" isAbstract="false">
+                  <interfaceMoniker Id="592d5eb8-b5d5-451e-b19e-2c0adf4fa467" LastKnownName="IdentificationProcess" />
+                  <relationshipOwnedElementsInternal>
+                    <associationHasOwnedEnds>
+                      <memberEnd Id="87162de7-7295-433c-ac4e-6c4ccb47e5a0" name="successor" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="Shared" isComposite="false" isNavigableOwned="false">
+                        <elementDefinition Id="f8869cdc-070c-4545-a4b1-4337aad15b2a" />
+                      </memberEnd>
+                    </associationHasOwnedEnds>
+                    <associationHasOwnedEnds>
+                      <memberEnd Id="66860938-fc68-4893-bdf0-e57457b9fc13" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false">
+                        <elementDefinition Id="974f869e-beb6-466e-b829-28fda2aa0181" />
+                      </memberEnd>
+                    </associationHasOwnedEnds>
+                  </relationshipOwnedElementsInternal>
+                  <elementDefinition Id="6471045c-bc51-4de2-8b55-050d95125879" />
+                </association>
+              </targetEnds>
               <ownedOperationsInternal>
                 <operation Id="db4b190b-8b77-4f35-846a-31379ace260a" name="setNext" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
                   <elementDefinition Id="fb2c549c-3446-4995-be87-42b859d753b4" />
@@ -876,16 +887,6 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                 </operation>
                 <operation Id="4dc8eb18-18ab-4893-9c5e-0d6e2794928b" name="process" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
                   <elementDefinition Id="386b686a-e8e3-41a5-8dc7-c9831a93987a" />
-                  <ownedParameters>
-                    <operationHasOwnedParameters>
-                      <parameter Id="2b0079d9-68ba-4e77-9d3c-77bc53d8fe79" name="step" direction="In" isUnique="false">
-                        <elementDefinition Id="cbda08f8-a2dc-4dde-8bea-eaad015e2cec" />
-                        <type_NamedElement>
-                          <referencedTypeMoniker Id="50dd0429-fecf-411f-ab30-2613bd6e60ed" LastKnownName="Integer" />
-                        </type_NamedElement>
-                      </parameter>
-                    </operationHasOwnedParameters>
-                  </ownedParameters>
                 </operation>
                 <operation Id="7be572e2-4ed2-42da-8cd8-511f00ffa37a" name="setCommand" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
                   <elementDefinition Id="5955e26e-0f52-4d60-a14a-63026c14411a" />
@@ -918,9 +919,9 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
             <class Id="010b0bb9-0be0-43d0-994b-773c31dc7e71" name="ThinningProcess" isAbstract="false" isLeaf="false" isActiveClass="false">
               <elementDefinition Id="fee88644-b13c-45b9-85cb-7a7ea006636b" />
               <generalsInternal>
-                <generalization Id="622b4a77-4ca6-4fd3-9604-3f75f24fbcc2" isSubstitutable="false">
+                <generalization Id="53549328-af43-41f9-b60a-1f6edd0f8839" isSubstitutable="false">
                   <classMoniker Id="ad417b8b-08ac-4542-a1f7-9899f2914d53" LastKnownName="EnhancementProcess" />
-                  <elementDefinition Id="f49e0c2e-7d13-4f08-818f-074a1c02b511" />
+                  <elementDefinition Id="f509da16-2642-45e0-aa0c-e39dace2dae9" />
                 </generalization>
               </generalsInternal>
             </class>
@@ -963,16 +964,6 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                 </operation>
                 <operation Id="e01a920d-b29f-4d48-bd7d-9deb8c2be4ff" name="process" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
                   <elementDefinition Id="956e6619-f306-40f0-8141-becc8e937cd2" />
-                  <ownedParameters>
-                    <operationHasOwnedParameters>
-                      <parameter Id="532406a9-0f1f-4488-bca6-c621664f151b" name="step" direction="In" isUnique="false">
-                        <elementDefinition Id="315d86b0-df4d-4e48-b9ec-b999ea09a04d" />
-                        <type_NamedElement>
-                          <referencedTypeMoniker Id="50dd0429-fecf-411f-ab30-2613bd6e60ed" LastKnownName="Integer" />
-                        </type_NamedElement>
-                      </parameter>
-                    </operationHasOwnedParameters>
-                  </ownedParameters>
                 </operation>
               </ownedOperationsInternal>
             </class>
@@ -1025,9 +1016,9 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
             <Interface Id="268cf2f8-9e0b-484c-853a-e94cd5c4f4cf" name="SegmentationCommand" isAbstract="false" isLeaf="false">
               <elementDefinition Id="0caf9cd8-b316-4dcb-af37-90cc90a6d2c7" />
               <generalsInternal>
-                <generalization Id="f08209ad-b8bc-426b-b4e0-84555b514ec9" isSubstitutable="false">
+                <generalization Id="96812170-d8b8-48ce-a4ba-03091f1c9b10" isSubstitutable="false">
                   <interfaceMoniker Id="5f717258-20ea-452d-b46e-127af5dfea30" LastKnownName="EnhancementCommand" />
-                  <elementDefinition Id="e4dd9464-f11a-458e-aa37-60fc51fcac2f" />
+                  <elementDefinition Id="ff97b33a-4012-4d9e-acee-494b2040d265" />
                 </generalization>
               </generalsInternal>
             </Interface>
@@ -1093,8 +1084,8 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                 </property>
               </ownedAttributesInternal>
               <ownedOperationsInternal>
-                <operation Id="faa003e6-fbf5-45b1-9c44-4c776eac21e6" name="execute" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
-                  <elementDefinition Id="5b5e05b5-3733-4bdb-9ef7-5548f4d17e83" />
+                <operation Id="a2c4a2f3-f518-4a98-893c-780822ed8025" name="execute" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
+                  <elementDefinition Id="59a32a8d-394c-4830-8d44-c2c969d8b0a3" />
                 </operation>
               </ownedOperationsInternal>
             </class>
@@ -1124,16 +1115,6 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                 </operation>
                 <operation Id="cd5fe3c4-bdb9-4e37-833a-4688e2e3392d" name="process" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
                   <elementDefinition Id="bab80967-712c-424e-9727-90daccbe44c5" />
-                  <ownedParameters>
-                    <operationHasOwnedParameters>
-                      <parameter Id="9b52d3cd-c417-4596-a593-3bafa34290aa" name="step" direction="In" isUnique="false">
-                        <elementDefinition Id="7bbbd426-4a57-496c-b99e-912bc1d43ee4" />
-                        <type_NamedElement>
-                          <referencedTypeMoniker Id="50dd0429-fecf-411f-ab30-2613bd6e60ed" LastKnownName="Integer" />
-                        </type_NamedElement>
-                      </parameter>
-                    </operationHasOwnedParameters>
-                  </ownedParameters>
                 </operation>
                 <operation Id="b34fbffd-36c9-41f7-96f8-ef38afbeaa28" name="setCommand" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
                   <elementDefinition Id="150cd318-313a-4196-be17-8bde19204cc2" />
@@ -1176,16 +1157,6 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                 </operation>
                 <operation Id="5b110268-6940-4f12-905e-24d13118e0af" name="process" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
                   <elementDefinition Id="385e8ffa-3fe6-4b73-a0d4-7d02a25844ea" />
-                  <ownedParameters>
-                    <operationHasOwnedParameters>
-                      <parameter Id="c5dae191-ea77-4c3f-b520-62cfc603907f" name="step" direction="In" isUnique="false">
-                        <elementDefinition Id="a19104b1-ea94-4ca2-8e97-4605b10bfe2d" />
-                        <type_NamedElement>
-                          <referencedTypeMoniker Id="50dd0429-fecf-411f-ab30-2613bd6e60ed" LastKnownName="Integer" />
-                        </type_NamedElement>
-                      </parameter>
-                    </operationHasOwnedParameters>
-                  </ownedParameters>
                 </operation>
                 <operation Id="e63c18b1-1625-4701-84f7-c5cf04f8d49d" name="setCommand" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
                   <elementDefinition Id="d0c4909d-d85b-4009-98f2-74b6e839b150" />
@@ -1221,8 +1192,8 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                 </property>
               </ownedAttributesInternal>
               <ownedOperationsInternal>
-                <operation Id="f7dda64e-34ad-4965-8f60-6ee6ca5dfbf2" name="execute" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
-                  <elementDefinition Id="39d43f91-cc7f-4974-a3ce-7f3c261ebc3c" />
+                <operation Id="cb2ae763-ace1-455e-9dd6-d639765f4586" name="execute" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
+                  <elementDefinition Id="c87659dd-0672-4188-a56d-d9331e6d3a81" />
                 </operation>
               </ownedOperationsInternal>
             </class>
@@ -1248,8 +1219,8 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                 </interfaceRealization>
               </suppliersInternal>
               <ownedOperationsInternal>
-                <operation Id="f3bc65ad-4bde-4db5-8acb-28a527acef88" name="execute" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
-                  <elementDefinition Id="443baf84-d48a-4102-9fdf-785e4da56f48" />
+                <operation Id="4d09a2ea-e86d-4542-ac0f-575d4058897b" name="execute" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
+                  <elementDefinition Id="7eea62e2-a306-4775-b457-93a8e1dadc96" />
                 </operation>
               </ownedOperationsInternal>
             </class>
@@ -1264,8 +1235,8 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                 </interfaceRealization>
               </suppliersInternal>
               <ownedOperationsInternal>
-                <operation Id="aa9e455d-6672-4e7b-a306-112fc63bbb18" name="execute" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
-                  <elementDefinition Id="851df369-315c-4df5-8527-9f40947028a1" />
+                <operation Id="8836c207-8b0b-4ac2-aa66-bcd316cbe201" name="execute" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
+                  <elementDefinition Id="125e7e63-8ec2-4a59-b9d8-8e2eafa9cc62" />
                 </operation>
               </ownedOperationsInternal>
             </class>
@@ -1328,9 +1299,9 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
             <Interface Id="6719d2a7-799d-42c3-854b-93338aa09f71" name="NormalizationCommand" isAbstract="false" isLeaf="false">
               <elementDefinition Id="086a94fe-1c9b-4059-8e96-2f0f9224761d" />
               <generalsInternal>
-                <generalization Id="ef989aff-163e-4bae-ae3d-64e002917289" isSubstitutable="false">
+                <generalization Id="b7b3cd4f-fb08-4af7-b820-25596f7eb9c9" isSubstitutable="false">
                   <interfaceMoniker Id="5f717258-20ea-452d-b46e-127af5dfea30" LastKnownName="EnhancementCommand" />
-                  <elementDefinition Id="3f493a37-6324-4684-8a4b-48238cd26bf8" />
+                  <elementDefinition Id="2fae4a6d-d9fc-4e4c-8b17-8f62a383caa4" />
                 </generalization>
               </generalsInternal>
             </Interface>
@@ -1636,9 +1607,9 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
             <class Id="1cec0ba4-c8d2-4235-bc8f-af424e06645d" name="Viewer" isAbstract="true" isLeaf="false" isActiveClass="false">
               <elementDefinition Id="e109eada-d268-486f-9a7d-95eb5f0b1fb3" />
               <suppliersInternal>
-                <dependency Id="bde1cf9f-ad72-4896-b0ee-b79657d776df">
+                <dependency Id="2ac5f9e0-1e09-4af6-a247-e3672317dde1">
                   <interfaceMoniker Id="940a16c1-711f-4a9e-9a7c-29243cdd705f" LastKnownName="qTab" />
-                  <elementDefinition Id="e5d95ec6-7e62-4a8c-b621-227cce354aa5" />
+                  <elementDefinition Id="7e99f5f3-db8f-4105-970c-191796683d5b" />
                 </dependency>
               </suppliersInternal>
             </class>
@@ -1822,25 +1793,15 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                 </operation>
                 <operation Id="54ce7e32-e8ef-4888-bf91-94027b70f1b6" name="process" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
                   <elementDefinition Id="5505937f-314b-48c7-8c92-83e40b0e01ea" />
-                  <ownedParameters>
-                    <operationHasOwnedParameters>
-                      <parameter Id="b20d348c-c070-4f90-b1c2-2434b345a912" name="step" direction="In" isUnique="false">
-                        <elementDefinition Id="a585a217-025b-4d84-85e0-916e070ed5e0" />
-                        <type_NamedElement>
-                          <referencedTypeMoniker Id="50dd0429-fecf-411f-ab30-2613bd6e60ed" LastKnownName="Integer" />
-                        </type_NamedElement>
-                      </parameter>
-                    </operationHasOwnedParameters>
-                  </ownedParameters>
                 </operation>
                 <operation Id="6aa46bbd-f67b-4d76-8ab6-5e8d0d71dbc0" name="setCommand" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
                   <elementDefinition Id="60c6711d-42dd-4160-8418-6502341036aa" />
                   <ownedParameters>
                     <operationHasOwnedParameters>
-                      <parameter Id="a24c9d27-256d-419a-821f-c06026bff6c4" name="command" direction="In" isUnique="false">
-                        <elementDefinition Id="630a8bff-a7bf-473a-8fa4-efb37b97d332" />
+                      <parameter Id="fabbc7c8-cee4-4dd2-85c3-8b4cad25b23f" name="command" direction="In" isUnique="false">
+                        <elementDefinition Id="67be5c75-4b36-4cdc-992f-aa712c4e7b88" />
                         <type_NamedElement>
-                          <referencedTypeMoniker Id="9a6ae50f-1e69-4d07-9742-aa0f6976270d" LastKnownName="Command" />
+                          <referencedTypeMoniker Id="d1caa9c1-9b4a-4ecb-88f8-96911899ba27" LastKnownName="ValidationCommand" />
                         </type_NamedElement>
                       </parameter>
                     </operationHasOwnedParameters>
@@ -1901,6 +1862,193 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
                         <elementDefinition Id="b4e128a2-5497-4fd6-9ba7-00918c21a6e2" />
                         <type_NamedElement>
                           <referencedTypeMoniker Id="936f000d-764c-4176-84a6-4915f4fff3c5" LastKnownName="float" />
+                        </type_NamedElement>
+                      </parameter>
+                    </operationHasOwnedParameters>
+                  </ownedParameters>
+                </operation>
+              </ownedOperationsInternal>
+            </class>
+          </packageHasNamedElement>
+          <packageHasNamedElement>
+            <class Id="47233989-03f4-4ef2-b752-bad2826f1e5b" name="ExcelManager" isAbstract="false" isLeaf="false" isActiveClass="false">
+              <elementDefinition Id="1160c84f-33c4-49b1-b8d0-bc883817e9f4" />
+              <suppliersInternal>
+                <dependency Id="fe755d48-ab1d-4d58-9260-d1bbe1ec0ee2">
+                  <classMoniker Id="29eafb83-0d78-44a0-b23a-c4d559bfc30b" LastKnownName="Execution" />
+                  <elementDefinition Id="0eae5a8d-b400-4b04-bf0e-bc28c7a61b1b" />
+                </dependency>
+              </suppliersInternal>
+              <ownedAttributesInternal>
+                <property Id="4f86d074-475f-4a29-b8d1-5bce125905a5" name="instance" visibility="Private" isLeaf="false" isStatic="false" isReadOnly="false" isUnique="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false">
+                  <elementDefinition Id="ae6362f4-f41b-4936-8048-1ff4ed78856f" />
+                  <type_NamedElement>
+                    <referencedTypeMoniker Id="d4184d12-497a-42fd-a59d-310db88b275c" LastKnownName="ExcelManager" />
+                  </type_NamedElement>
+                </property>
+              </ownedAttributesInternal>
+              <ownedOperationsInternal>
+                <operation Id="250ec6fe-98e3-4bbb-8c9d-c3f3683f4fc5" name="synchronized getInstance" isLeaf="false" isStatic="true" isAbstract="false" concurrency="Sequential" isQuery="false">
+                  <elementDefinition Id="9a760f89-76a2-45a4-b8bc-43e93bb6ec05" />
+                  <ownedParameters>
+                    <operationHasOwnedParameters>
+                      <parameter Id="3c8b2c9c-517c-4d1c-b99f-ba18fad1c5dd" direction="Return" isUnique="false">
+                        <elementDefinition Id="5f2bd778-afe3-4a6d-b04c-f4a91dc3c738" />
+                        <type_NamedElement>
+                          <referencedTypeMoniker Id="d4184d12-497a-42fd-a59d-310db88b275c" LastKnownName="ExcelManager" />
+                        </type_NamedElement>
+                      </parameter>
+                    </operationHasOwnedParameters>
+                  </ownedParameters>
+                </operation>
+                <operation Id="62672003-d379-4924-89e3-c18826e72472" name="calculateRank-k" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
+                  <elementDefinition Id="3e037faf-aead-490b-ba11-b437a5f48dda" />
+                  <ownedParameters>
+                    <operationHasOwnedParameters>
+                      <parameter Id="5e74a834-b277-4c63-bc46-9423f51ae7a5" name="x" direction="Out" isUnique="false">
+                        <lowerValueInternal>
+                          <literalString Id="6edd973d-c5a7-45dc-b95b-55c580dd919e" name="Lower" value="0">
+                            <elementDefinition Id="7a232b38-c6c2-4c8a-afb3-2f6aa6f01d07" />
+                          </literalString>
+                        </lowerValueInternal>
+                        <upperValueInternal>
+                          <literalString Id="1af63d18-2ea3-4282-bef1-ff520e10b862" name="Upper" value="*">
+                            <elementDefinition Id="b5d56fff-06aa-4c4b-9ce7-50288ebc9a06" />
+                          </literalString>
+                        </upperValueInternal>
+                        <elementDefinition Id="5cd8453c-0b88-4863-85f9-e45b799d05c5" />
+                        <type_NamedElement>
+                          <referencedTypeMoniker Id="936f000d-764c-4176-84a6-4915f4fff3c5" LastKnownName="float" />
+                        </type_NamedElement>
+                      </parameter>
+                    </operationHasOwnedParameters>
+                    <operationHasOwnedParameters>
+                      <parameter Id="892948b4-2866-4cbd-aeae-18b30af7bfd4" name="y" direction="Out" isUnique="false">
+                        <lowerValueInternal>
+                          <literalString Id="a7e8aa31-2c25-4882-920f-1112f0f6b62c" name="Lower" value="0">
+                            <elementDefinition Id="79c77cc3-f2a3-4d53-ba10-01ebd394cd60" />
+                          </literalString>
+                        </lowerValueInternal>
+                        <upperValueInternal>
+                          <literalString Id="e215c315-a1e5-4655-9077-cfbedf130078" name="Upper" value="*">
+                            <elementDefinition Id="e1eca398-1f50-4439-b48f-3e9e9fa81bbd" />
+                          </literalString>
+                        </upperValueInternal>
+                        <elementDefinition Id="d8f770ab-5faa-472a-88e5-fb121860c4c8" />
+                        <type_NamedElement>
+                          <referencedTypeMoniker Id="936f000d-764c-4176-84a6-4915f4fff3c5" LastKnownName="float" />
+                        </type_NamedElement>
+                      </parameter>
+                    </operationHasOwnedParameters>
+                  </ownedParameters>
+                </operation>
+                <operation Id="42932d55-c6fd-4640-8679-98326fdd2401" name="calculateEer" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
+                  <elementDefinition Id="0e67376d-a000-4696-adfb-ab580ee21b9c" />
+                  <ownedParameters>
+                    <operationHasOwnedParameters>
+                      <parameter Id="cb97cfc0-aaa8-4b8d-88e2-d1f9867e07c4" direction="Return" isUnique="false">
+                        <elementDefinition Id="05082d85-c07c-40e7-9290-e3f92579abf7" />
+                        <type_NamedElement>
+                          <referencedTypeMoniker Id="936f000d-764c-4176-84a6-4915f4fff3c5" LastKnownName="float" />
+                        </type_NamedElement>
+                      </parameter>
+                    </operationHasOwnedParameters>
+                    <operationHasOwnedParameters>
+                      <parameter Id="3c6500d4-9898-4af2-b5fb-d1437e2f527c" name="x" direction="Out" isUnique="false">
+                        <lowerValueInternal>
+                          <literalString Id="c9f594a2-caaa-4468-b87d-89ab390f8e7d" name="Lower" value="0">
+                            <elementDefinition Id="b4beb4af-fdb7-472a-a67e-61544a00e0c8" />
+                          </literalString>
+                        </lowerValueInternal>
+                        <upperValueInternal>
+                          <literalString Id="c3e7829e-9301-47ae-b570-7bd4f3659db9" name="Upper" value="*">
+                            <elementDefinition Id="a3a79695-1c45-4fb2-9ecf-f138897d6266" />
+                          </literalString>
+                        </upperValueInternal>
+                        <elementDefinition Id="752106e5-8c4e-4636-920e-77944d634606" />
+                        <type_NamedElement>
+                          <referencedTypeMoniker Id="ad0b5442-1d00-468d-9740-c2747082de75" LastKnownName="float[2]" />
+                        </type_NamedElement>
+                      </parameter>
+                    </operationHasOwnedParameters>
+                    <operationHasOwnedParameters>
+                      <parameter Id="0b3ff93e-2e75-4104-8bf1-2228e65f3a32" name="y" direction="Out" isUnique="false">
+                        <lowerValueInternal>
+                          <literalString Id="bd031f34-e332-4b77-8385-47915aca150b" name="Lower" value="0">
+                            <elementDefinition Id="1dc137e5-99aa-4782-b3ec-09d6af8a1b7b" />
+                          </literalString>
+                        </lowerValueInternal>
+                        <upperValueInternal>
+                          <literalString Id="9faba00f-0482-4ba5-b596-993063f0635a" name="Upper" value="*">
+                            <elementDefinition Id="08259b41-d3bf-43fc-bfe9-8d09ffaee04b" />
+                          </literalString>
+                        </upperValueInternal>
+                        <elementDefinition Id="a70a49ca-21a1-4698-a2cf-c256b3fd477d" />
+                        <type_NamedElement>
+                          <referencedTypeMoniker Id="ad0b5442-1d00-468d-9740-c2747082de75" LastKnownName="float[2]" />
+                        </type_NamedElement>
+                      </parameter>
+                    </operationHasOwnedParameters>
+                  </ownedParameters>
+                </operation>
+                <operation Id="e6178d96-a5d1-4c2c-90bd-ea387806f8ef" name="saveExecution" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
+                  <elementDefinition Id="b21ac3d9-0a12-43f4-b204-5174a3dfaa42" />
+                  <ownedParameters>
+                    <operationHasOwnedParameters>
+                      <parameter Id="90ae77f2-be42-4cd5-a899-f22f023ee830" direction="Return" isUnique="false">
+                        <elementDefinition Id="2e0105a5-6bb9-4f8c-8bb1-15866baf789a" />
+                        <type_NamedElement>
+                          <referencedTypeMoniker Id="4a777865-af97-482c-b177-93031d9a880a" LastKnownName="Boolean" />
+                        </type_NamedElement>
+                      </parameter>
+                    </operationHasOwnedParameters>
+                    <operationHasOwnedParameters>
+                      <parameter Id="7f0a48fc-d6b3-41eb-9d19-a25153d4d4d1" name="execution" direction="In" isUnique="false">
+                        <elementDefinition Id="e7352f0d-2111-4b2c-97c1-5e6898cc94cc" />
+                        <type_NamedElement>
+                          <referencedTypeMoniker Id="1cfb0ee1-f0ab-44b5-8086-b305a1ea2df8" LastKnownName="Execution" />
+                        </type_NamedElement>
+                      </parameter>
+                    </operationHasOwnedParameters>
+                  </ownedParameters>
+                </operation>
+                <operation Id="b8bda920-a71b-4913-a7e3-ed8b65e0aaae" name="reloadExecution" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
+                  <elementDefinition Id="fc701964-328d-444b-a3b0-497471fc43ad" />
+                  <ownedParameters>
+                    <operationHasOwnedParameters>
+                      <parameter Id="35d517e1-811f-4297-a378-817f272d6876" name="execution" direction="In" isUnique="false">
+                        <elementDefinition Id="d721efdf-1dd6-4d8a-975f-ebd37e12dc3b" />
+                        <type_NamedElement>
+                          <referencedTypeMoniker Id="eecd678a-349a-441b-8548-ea60327b8883" LastKnownName="Execution" />
+                        </type_NamedElement>
+                      </parameter>
+                    </operationHasOwnedParameters>
+                    <operationHasOwnedParameters>
+                      <parameter Id="6c4b77c5-dba1-4a4a-ba46-2a4b49290089" direction="Return" isUnique="false">
+                        <elementDefinition Id="22cc8149-9159-4256-980d-0ee66adeafd1" />
+                        <type_NamedElement>
+                          <referencedTypeMoniker Id="66e1d242-3622-4862-8854-acbbc5a42284" LastKnownName="Boolean" />
+                        </type_NamedElement>
+                      </parameter>
+                    </operationHasOwnedParameters>
+                  </ownedParameters>
+                </operation>
+                <operation Id="37f2302e-2a76-4132-8297-ede51dff61d1" name="importCommands" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
+                  <elementDefinition Id="dbbd1926-7c4a-48f7-a1a8-b075c1c326db" />
+                  <ownedParameters>
+                    <operationHasOwnedParameters>
+                      <parameter Id="ab416499-151f-43a4-b8a5-bf7bdcab1605" name="excelPath" direction="In" isUnique="false">
+                        <elementDefinition Id="bb17867a-1da2-4315-88b6-efde8bae62e9" />
+                        <type_NamedElement>
+                          <referencedTypeMoniker Id="2dc9b00a-0cc9-4097-b166-907fcc651748" LastKnownName="String" />
+                        </type_NamedElement>
+                      </parameter>
+                    </operationHasOwnedParameters>
+                    <operationHasOwnedParameters>
+                      <parameter Id="4906dcf1-a6f5-4f48-8ff7-d582903c87ee" direction="Return" isUnique="false">
+                        <elementDefinition Id="47108e55-847a-481b-84a4-3d6beed94c16" />
+                        <type_NamedElement>
+                          <referencedTypeMoniker Id="66e1d242-3622-4862-8854-acbbc5a42284" LastKnownName="Boolean" />
                         </type_NamedElement>
                       </parameter>
                     </operationHasOwnedParameters>
@@ -2460,6 +2608,41 @@ https://www.jmdoudoux.fr/java/dej/chap-logging.htm</body>
     <packageHasNamedElement>
       <referencedType Id="ad0b5442-1d00-468d-9740-c2747082de75" name="float[2]" isAbstract="false" isLeaf="false" cachedFullName="float[2]">
         <elementDefinition Id="d1391ce3-ab39-4cc4-b0c6-cbb8363e3ed6" />
+      </referencedType>
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <referencedType Id="d1caa9c1-9b4a-4ecb-88f8-96911899ba27" name="ValidationCommand" isAbstract="false" isLeaf="false" cachedFullName="Palmprint Registration::Application::ValidationCommand">
+        <elementDefinition Id="4e21dc31-fe72-4aab-90d3-4e3af527b9e7" />
+      </referencedType>
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <referencedType Id="1871a3b2-5019-4934-a6c5-62a6e5f10f3b" name="Command" isAbstract="false" isLeaf="false" cachedFullName="Palmprint Registration::Application::Command">
+        <elementDefinition Id="7ab5e971-bfd9-4c76-9987-10803ee9fe1b" />
+      </referencedType>
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <referencedType Id="d4184d12-497a-42fd-a59d-310db88b275c" name="ExcelManager" isAbstract="false" isLeaf="false" cachedFullName="Palmprint Registration::Application::ExcelManager">
+        <elementDefinition Id="1160c84f-33c4-49b1-b8d0-bc883817e9f4" />
+      </referencedType>
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <referencedType Id="4a777865-af97-482c-b177-93031d9a880a" name="Boolean" isAbstract="false" isLeaf="false" cachedFullName="Boolean">
+        <elementDefinition Id="8943dc84-709e-4f62-b15a-a3273aa6f165" />
+      </referencedType>
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <referencedType Id="1cfb0ee1-f0ab-44b5-8086-b305a1ea2df8" name="Execution" isAbstract="false" isLeaf="false" cachedFullName="Palmprint Registration::Execution">
+        <elementDefinition Id="c203a056-6793-4188-9ce9-5f146033cdd5" />
+      </referencedType>
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <referencedType Id="eecd678a-349a-441b-8548-ea60327b8883" name="Execution" isAbstract="false" isLeaf="false" cachedFullName="Palmprint Registration::Execution">
+        <elementDefinition Id="04f05436-c8d6-4f7b-8097-a27b0067764e" />
+      </referencedType>
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <referencedType Id="dbd71461-11e5-477d-92f2-fddab5f6b186" name="Boolean" isAbstract="false" isLeaf="false" cachedFullName="Boolean">
+        <elementDefinition Id="8943dc84-709e-4f62-b15a-a3273aa6f165" />
       </referencedType>
     </packageHasNamedElement>
   </packagedElements>
