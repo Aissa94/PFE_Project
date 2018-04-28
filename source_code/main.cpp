@@ -10,19 +10,20 @@ int main(int argc, char *argv[])
 	if (isConsole) {
 		InitializeDualMode(true);
 		std::cout << "Starting console app ..." << std::endl;
-		char currentPath[] = "C:/Users/Nabil/Desktop/PFE_Project/PalmprintRegistration/PalmprintRegistration/Tests/";
-		std::ifstream excelFile(strcat(currentPath, argv[1]));
+		std::ifstream excelFile(argv[1]);
 		if (!excelFile) {
-			std::cout << "Error while trying to open: '" << currentPath << "'" << std::endl;
-			std::getchar();
-			return 1;
+			std::cout << "Error while trying to open: '" << argv[1] << "'" << std::endl;
+			exit(-1);
 		}
 		else {
 			std::cout << "File opened successfully" << std::endl;
-			mainWindow.launchInCMD();
+			mainWindow.launchInCMD(argv[1]);
+			std::cout << "Finished..." << std::endl;
+			exit(0);
 		}
 	}
-	else mainWindow.show();
-
-	return app.exec();
+	else {
+		mainWindow.show();
+		return app.exec();
+	}
 }
