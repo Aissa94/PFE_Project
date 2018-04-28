@@ -905,6 +905,11 @@ void MainWindow::runCustom()
 	}
 }
 
+void MainWindow::launchInCMD(){
+	ui->tabWidget_2->setCurrentIndex(2);
+	on_pushButton_pressed();
+}
+
 void MainWindow::on_firstImgBtn_pressed()
 {
 	// Read First Image ...
@@ -951,6 +956,7 @@ void MainWindow::on_pushButton_pressed()
 			importExcelFile(0);
 			break;
 		}
+		case 2:
 		default:
 		{
 			if (!readInputFile()) {
@@ -959,6 +965,7 @@ void MainWindow::on_pushButton_pressed()
 			}
 			importExcelFile(2);
 		}
+		break;
 	}
 }
 
@@ -3091,7 +3098,6 @@ void MainWindow::FlannBasedNameToIndex(const QString& value)
 	else ui->matcherFlannBasedAutotunedIndexParams->setChecked(true);
 }
 
-
 void MainWindow::setTableValue(QAxObject* sheet, int lineIndex, int columnIndex, const QString& value)
 {
 	QAxObject *cell = sheet->querySubObject("Cells(int,int)", lineIndex, columnIndex);
@@ -3116,6 +3122,7 @@ void MainWindow::initializeTable() {
 	model->setHorizontalHeaderItem(4, new QStandardItem(QString("Distance")));
 	model->setHorizontalHeaderItem(5, new QStandardItem(QString("Accepted/Rejected")));
 }
+
 QString MainWindow::GetTableValue(QAxObject* sheet, int rowIndex, int columnIndex)
 {
 	QString value;
@@ -3226,6 +3233,8 @@ ExcelExportHelper::ExcelExportHelper(bool closeExcelOnExit, const QString& fileN
 	m_excelApplication = nullptr;
 	
 	system("taskkill /im EXCEL.exe /f");
+	//WinExec("taskkill /im EXCEL.exe /f", SW_HIDE);
+
 	m_excelApplication = new QAxObject("Excel.Application", 0);//{00024500-0000-0000-C000-000000000046}
 
 	if (m_excelApplication == nullptr)

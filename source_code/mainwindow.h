@@ -14,7 +14,8 @@ class MainWindow : public QMainWindow
 public:
 	Ui::MainWindow *ui;
     explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+	~MainWindow(); 
+	void launchInCMD();
 
 protected:
 	virtual void wheelEvent(QWheelEvent* event);
