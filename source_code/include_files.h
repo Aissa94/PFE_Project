@@ -16,17 +16,11 @@
 #include <ctime>
 #include <functional>
 #include <map>
-#include <windows.h>
-#include <process.h>
-#include <Tlhelp32.h>
-#include <winbase.h>
-#include <comdef.h> 
 
 // Include Qt
 #include <QMainWindow>
 #include <QtWidgets>
 #include <QFile>
-#include <QProcess>
 
 // Include Opencv
 #include <opencv2/core/core.hpp>
@@ -48,7 +42,7 @@
 #include "thinning\ZhangSuen.h"
 #include "file-reader\tinydir.h"
 #include "dualMod\DualModeI.h"
-#include "ExcelExportHelper.h"
+#include "ExcelManager.h"
 #include "graph\qcustomplot.h"
 #include "graph\cSpline.h"
 

@@ -1,16 +1,16 @@
-#ifndef EXCELHELPER_H
-#define EXCELHELPER_H
+#ifndef EXCELMANAGER_H
+#define EXCELMANAGER_H
 
 #include <ActiveQt/qaxobject.h>
 
 //Expected in .pro file: QT += axcontainer
 //Application must be of UI type for ActiveX work.
-class ExcelExportHelper
+class ExcelManager
 {
 public:
-    ExcelExportHelper(const ExcelExportHelper& other) = delete;
-    ExcelExportHelper& operator=(const ExcelExportHelper& other) = delete;
-	ExcelExportHelper(bool closeExcelOnExit, const QString& fileName, int numSheet);
+    ExcelManager(const ExcelManager& other) = delete;
+    ExcelManager& operator=(const ExcelManager& other) = delete;
+	ExcelManager(bool closeExcelOnExit, const QString& fileName, int numSheet);
 
 	void SetCellValue(int columnIndex, int type, const QString& value);
 	void SetCellValueSecondRow(int columnIndex, const QString& value);
@@ -33,9 +33,8 @@ public:
 	void GetIntRows(int numSheet);
 	int getSheetCount();
 	int getColumnsCount();
-	void killProcessByName(const char *filename);
 
-	~ExcelExportHelper();
+	~ExcelManager();
 
 private:
     QAxObject* m_excelApplication;
@@ -56,4 +55,4 @@ private:
     bool m_closeExcelOnExit;
 };
 
-#endif // EXCELHELPER_H
+#endif // EXCELMANAGER_H

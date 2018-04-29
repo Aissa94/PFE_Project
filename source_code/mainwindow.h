@@ -111,7 +111,7 @@ private:
 	void maskMatchesByTrainImgIdx(const std::vector<cv::DMatch> matches, int trainImgIdx, std::vector<char>& mask);
 	int computeRankK(float scoreThreshold);
 	cv::Mat maskMatchesByMinutiaeNature(std::vector<Minutiae> firstImgKeypoints, std::vector<Minutiae> secondImgKeypoints);
-	void showDecision();
+	bool showDecision();
 
 	int fileCounter(std::string dir, std::string prefix, std::string suffix, std::string extension);
 	bool fileExistenceCheck(const std::string& name);

@@ -36,8 +36,8 @@
 	std::vector<cv::Mat> matchingMasks;
 	
 	//Excel data
-	ExcelExportHelper *excelReader;
-	ExcelExportHelper *excelRecover;
+	ExcelManager *excelReader, *excelRecover;
+	
 	QStandardItemModel *model;
 	std::vector<std::pair<int, float>> rankkData;
 
@@ -323,7 +323,7 @@ void MainWindow::runDefault()
 	int excelColumn;
 	try
 	{
-		excelReader = new ExcelExportHelper(true, exportFile, methodIndex + 1);
+		excelReader = new ExcelManager(true, exportFile, methodIndex + 1);
 		excelReader->SetCellValue(1, 0, QString::number(cpt));
 		excelReader->SetCellValue(2, 0, getCurrentTime());
 		excelReader->SetCellValue(3, 0, ui->firstImgText->text());
@@ -482,7 +482,7 @@ void MainWindow::runDefault()
 			}
 		}
 
-		excelReader->~ExcelExportHelper();
+		excelReader->~ExcelManager();
 	}
 	catch (const std::exception& e)
 	{
@@ -537,7 +537,7 @@ void MainWindow::runCustom()
 	try
 	{
 
-		excelReader = new ExcelExportHelper(true, exportFile, 5);
+		excelReader = new ExcelManager(true, exportFile, 5);
 
 		excelReader->SetCellValue(1, 1, QString::number(cpt));
 		excelReader->SetCellValue(2, 1, curtime);
@@ -898,7 +898,7 @@ void MainWindow::runCustom()
 			}
 		}
 
-		excelReader->~ExcelExportHelper();
+		excelReader->~ExcelManager();
 	}
 	catch (const std::exception& e)
 	{
@@ -1004,25 +1004,40 @@ void MainWindow::on_actionAbout_Me_triggered()
 }
 
 void MainWindow::on_refreshRankkGraph_pressed(){
-	std::vector<int> rankkDataFromExcel; // = { 1, 1, 2, 3, 1, 8, 1, 2, 3, 5, 5, 10, 9, 13, 12, 13, 25, 23, 24, 2, 3, 6, 1, 1, 2, 3, 1, 8, 1, 2, 3, 5, 5, 10, 9, 13, 12, 13, 2, 3, 6, 5, 1 };
-	int rankValue;
+	std::vector<int> rankkDataFromExcel;
+	int rankValue, column, segmentationName, detectorName, descriptorName, matcherName;
 	int nbRank0FromExcel = 0, maxRank = 0;
 
-	/*QAxObject* excel = new QAxObject("Excel.Application");
-	QAxObject* workbooks = excel->querySubObject("Workbooks");
-	QAxObject* workbook = workbooks->querySubObject("Open(const QString&)", exportFile);
-	QAxObject* worksheet = workbook->querySubObject("Worksheets");
-	QAxObject* sheet = worksheet->querySubObject("Item(int)", 5);
-	QAxObject* usedrange = sheet->querySubObject("UsedRange");
-	QAxObject* rows = usedrange->querySubObject("Rows");
-	int intRows = rows->property("Count").toInt();
-	for (int j = 2; j <= intRows; j++) {
-		QAxObject* rankTabs = sheet->querySubObject("Cells(Int, Int)", j, 46);
-		rankValue = rankTabs->dynamicCall("Value()").toString().toInt();
-		if (rankValue == 0) nbRank0FromExcel++;
-		else rankkDataFromExcel.push_back(rankValue);
+	excelRecover = new ExcelManager(true, exportFile, 0);
+	if (ui->allMethodsTabs->currentIndex() == 0) excelRecover->GetIntRows(ui->defaultTabs->currentIndex() + 1);
+	else excelRecover->GetIntRows(5);
+	column = excelRecover->getColumnsCount();
+	for (int j = 2; j <= excelRecover->getSheetCount(); j++) {
+		if (excelRecover->GetCellValue(j, 5).toBool() && excelRecover->GetCellValue(j, 6).toBool() && !excelRecover->GetCellValue(j, column).toString().isEmpty())
+			if (ui->allMethodsTabs->currentIndex() == 0)
+			{
+				rankValue = excelRecover->GetCellValue(j, column).toString().toInt();
+				if (rankValue == 0) nbRank0FromExcel++;
+				else rankkDataFromExcel.push_back(rankValue);
+			}
+			else
+			{
+				segmentationName = segmentationNameToInt(excelRecover->GetCellValue(j, 8).toString());
+				detectorName = detectorNameToInt(excelRecover->GetCellValue(j, 13).toString());
+				descriptorName = descriptorNameToInt(excelRecover->GetCellValue(j, 19).toString());
+				matcherName = matcherNameToInt(excelRecover->GetCellValue(j, 25).toString());
+				if ((ui->segmentationTabs->currentIndex() == segmentationName) && (ui->detectorTabs->currentIndex() == detectorName) && (ui->descriptorTabs->currentIndex() == descriptorName) && (ui->matcherTabs->currentIndex() == matcherName))
+				{
+					rankValue = excelRecover->GetCellValue(j, column).toString().toInt();
+					if (rankValue == 0) nbRank0FromExcel++;
+					else rankkDataFromExcel.push_back(rankValue);
+				}
+				j++;
+			}
 	}
-	maxRank = rankkDataFromExcel.size();*/
+	excelRecover->~ExcelManager();
+
+	maxRank = rankkDataFromExcel.size();
 	
 	if (ui->rankkGraphWidget->graphCount()){ 
 		ui->rankkGraphWidget->clearGraphs();
@@ -1051,23 +1066,116 @@ void MainWindow::on_refreshRankkGraph_pressed(){
 		drowRankk(maxRank);
 	}
 	else {
-		showError("Show Rank-k Graph", "No data to show!", "You can Show Rank-k Graph after launching some tests!");
+		QMessageBox::warning(this, "Show Rank-k Graph", "No data to show! You can Show Rank-k Graph after launching some tests!");
 		//disconnect(ui->rankkGraphWidget, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showRankkToolTip(QMouseEvent*)));
 	}
 }
 
 void MainWindow::on_refreshEerGraph_pressed(){
-	std::map<float, std::pair<int, int>>/*<threshold, <nbFM, nbNonExists>>*/ FMR_dataFromExcel
-		= { { 10, std::make_pair<int, int>(65, 70) }, { 15, std::make_pair<int, int>(89, 100) }, { 80, std::make_pair<int, int>(45, 70) }, { 100, std::make_pair<int, int>(35, 77) }, { 230, std::make_pair<int, int>(20, 100) }, { 400, std::make_pair<int, int>(5, 80) }, { 500, std::make_pair<int, int>(0, 10) } };
-	std::map<float, std::pair<int, int>>/*<threshold, <nbFNM, nbExists>>*/ FNMR_dataFromExcel
-		= { { 18, std::make_pair<int, int>(0, 10) }, { 25, std::make_pair<int, int>(5, 80) }, { 30, std::make_pair<int, int>(20, 100) }, { 50, std::make_pair<int, int>(35, 77) }, { 105, std::make_pair<int, int>(45, 70) }, { 190, std::make_pair<int, int>(80, 100) }, { 260, std::make_pair<int, int>(88, 100) }, { 410, std::make_pair<int, int>(120, 130) }, { 580, std::make_pair<int, int>(70, 75) } };
+	std::map<float, std::pair<int, int>>/*<threshold, <nbFM, nbNonExists>>*/ FMR_dataFromExcel = {};
+	std::map<float, std::pair<int, int>>::iterator FMR_itr = {};
+
+	std::map<float, std::pair<int, int>>/*<threshold, <nbFNM, nbExists>>*/ FNMR_dataFromExcel = {};
+	std::map<float, std::pair<int, int>>::iterator FNMR_itr = {};
 		
+	int column, segmentationName, detectorName, descriptorName, matcherName;
+	QString bestScore, requestedScore, scoreThreshold;
+
+	excelRecover = new ExcelManager(true, exportFile, 0);
+	if (ui->allMethodsTabs->currentIndex() == 0) excelRecover->GetIntRows(ui->defaultTabs->currentIndex() + 1);
+	else excelRecover->GetIntRows(5);
+	column = excelRecover->getColumnsCount();
+
+	for (int j = 2; j <= excelRecover->getSheetCount(); j++) {
+
+		scoreThreshold = excelRecover->GetCellValue(j, column - 13).toString();
+
+		if (excelRecover->GetCellValue(j, 5).toBool() && (!scoreThreshold.isEmpty()))
+		{
+
+			if (ui->allMethodsTabs->currentIndex() == 0)
+			{
+				if (excelRecover->GetCellValue(j, 6).toBool())
+				{
+					FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold.toFloat());
+					if (FNMR_itr == FNMR_dataFromExcel.end()) FNMR_dataFromExcel.insert(std::make_pair(scoreThreshold.toFloat(), std::make_pair(0, 1)));
+					else FNMR_itr->second.second = FNMR_itr->second.second + 1;
+
+					requestedScore = excelRecover->GetCellValue(j, column - 2).toString();
+					if ((!requestedScore.isEmpty()))
+						if (requestedScore.toFloat() < scoreThreshold.toFloat())
+						{
+							FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold.toFloat());
+							FNMR_itr->second.first = FNMR_itr->second.first + 1;
+						}
+				}
+				else
+				{
+					FMR_itr = FMR_dataFromExcel.find(scoreThreshold.toFloat());
+					if (FMR_itr == FMR_dataFromExcel.end()) FMR_dataFromExcel.insert(std::make_pair(scoreThreshold.toFloat(), std::make_pair(0, 1)));
+					else FMR_itr->second.second = FMR_itr->second.second + 1;
+
+					bestScore = excelRecover->GetCellValue(j, column - 3).toString();
+					if ((!bestScore.isEmpty()))
+						if (bestScore.toFloat() >= scoreThreshold.toFloat())
+						{
+							FMR_itr = FMR_dataFromExcel.find(scoreThreshold.toFloat());
+							FMR_itr->second.first = FMR_itr->second.first + 1;
+						}
+				}
+
+			}
+			else
+			{
+				segmentationName = segmentationNameToInt(excelRecover->GetCellValue(j, 8).toString());
+				detectorName = detectorNameToInt(excelRecover->GetCellValue(j, 13).toString());
+				descriptorName = descriptorNameToInt(excelRecover->GetCellValue(j, 19).toString());
+				matcherName = matcherNameToInt(excelRecover->GetCellValue(j, 25).toString());
+
+				if ((ui->segmentationTabs->currentIndex() == segmentationName) && (ui->detectorTabs->currentIndex() == detectorName) && (ui->descriptorTabs->currentIndex() == descriptorName) && (ui->matcherTabs->currentIndex() == matcherName))
+				{
+					if (excelRecover->GetCellValue(j, 6).toBool())
+					{
+						FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold.toFloat());
+						if (FNMR_itr == FNMR_dataFromExcel.end()) FNMR_dataFromExcel.insert(std::make_pair(scoreThreshold.toFloat(), std::make_pair(0, 1)));
+						else FNMR_itr->second.second = FNMR_itr->second.second + 1;
+
+						requestedScore = excelRecover->GetCellValue(j, column - 2).toString();
+						if ((!requestedScore.isEmpty()))	
+							if (requestedScore.toFloat() < scoreThreshold.toFloat())
+							{
+								FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold.toFloat());
+								FNMR_itr->second.first = FNMR_itr->second.first + 1;
+							}
+					}
+					else
+					{
+						FMR_itr = FMR_dataFromExcel.find(scoreThreshold.toFloat());
+						if (FMR_itr == FMR_dataFromExcel.end()) FMR_dataFromExcel.insert(std::make_pair(scoreThreshold.toFloat(), std::make_pair(0, 1)));
+						else FMR_itr->second.second = FMR_itr->second.second + 1;
+
+						bestScore = excelRecover->GetCellValue(j, column - 3).toString();
+						if ((!bestScore.isEmpty()))
+							if (bestScore.toFloat() >= scoreThreshold.toFloat())
+							{
+								FMR_itr = FMR_dataFromExcel.find(scoreThreshold.toFloat());
+								FMR_itr->second.first = FMR_itr->second.first + 1;
+							}
+					}
+				}
+				j++;
+			}
+		}
+	}
+	excelRecover->~ExcelManager();
+
 	if (ui->eerGraphWidget->graphCount()){
 		ui->eerGraphWidget->clearGraphs();
 		ui->eerGraphWidget->clearItems();
 	}
 
-	drowEer(FMR_dataFromExcel, FNMR_dataFromExcel);
+	if (FMR_dataFromExcel.empty() || FNMR_dataFromExcel.empty()) QMessageBox::warning(this, "Show EER Graph", "No data to show! You can Show EER Graph after having some FM et FNM tests !");
+	else drowEer(FMR_dataFromExcel, FNMR_dataFromExcel);
 }
 
 int MainWindow::computeRankK(float scoreThreshold){
@@ -1767,8 +1875,8 @@ bool MainWindow::takeTest() {
 		runCustom();
 		break;
 	}
-	showDecision();
-	return true;
+	if (showDecision()) return true;
+	else return false;
 }
 
 void MainWindow::customisingBinarization(int segmentationIndex){
@@ -2562,7 +2670,7 @@ cv::Mat MainWindow::maskMatchesByMinutiaeNature(std::vector<Minutiae> firstImgKe
 	return mask;
 }
 
-void MainWindow::showDecision(){
+bool MainWindow::showDecision(){
 	float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
 
 	if (oneToN) {
@@ -2590,6 +2698,7 @@ void MainWindow::showDecision(){
 			displayMatches(bestScoreIndex);
 			writeMatches(bestScoreIndex);
 			exportTable(goodMatchesSet[bestScoreIndex].size() + badMatchesSet[bestScoreIndex].size());
+			return true;
 		}
 	}
 	else {
@@ -2601,6 +2710,7 @@ void MainWindow::showDecision(){
 		displayMatches();
 		writeMatches();
 		exportTable(goodMatches.size() + badMatches.size());
+		return true;
 	}
 }
 
@@ -2611,14 +2721,13 @@ void MainWindow::importExcelFile(int type)
 		bool exist = false;
 		int column;
 		float scoreThreshold, acceptedMatches, rejectedMatches, bestImageAverage, bestImageScore, goodProbability, badProbability;
-		if (type == 0) excelRecover = new ExcelExportHelper(true, exportFile, 0);
-		else excelRecover = new ExcelExportHelper(true, inputFile, 0);
+		if (type == 0) excelRecover = new ExcelManager(true, exportFile, 0);
+		else excelRecover = new ExcelManager(true, inputFile, 0);
 
 		for (int methodIndex = 1; methodIndex <= 5; methodIndex++) {
 			excelRecover->GetIntRows(methodIndex);
 			column = excelRecover->getColumnsCount();
 			for (int j = 2; j <= excelRecover->getSheetCount(); j++) {
-				if (type == 2 && methodIndex == 5 && j == excelRecover->getSheetCount()) break;
 				if ((type == 2) || ((ui->tabWidget_2->currentIndex() == 1) && (excelRecover->GetCellValue(j, 1) == ui->spinBox->text()))) {
 					cv::Mat image;
 					ui->tabWidget_2->setCurrentIndex(0);
@@ -2629,7 +2738,6 @@ void MainWindow::importExcelFile(int type)
 						ui->defaultTabs->setCurrentIndex(methodIndex - 1);
 					}
 					else {
-						if (type == 2 && (j % 2) == 1) j++;
 						ui->allMethodsTabs->setCurrentIndex(1);
 						ui->customTabs->setCurrentIndex(0);
 					}
@@ -3006,6 +3114,7 @@ void MainWindow::importExcelFile(int type)
 					else
 					{
 						if (takeTest()) exportSuccess(1);
+						if (methodIndex == 5) j++;
 					}
 				}
 			}
@@ -3014,8 +3123,12 @@ void MainWindow::importExcelFile(int type)
 		{
 			if (!exist) QMessageBox::warning(this, "Import Excel Error!", "Please check the number that has been entered because no ID matches this number !");
 		}
-		else QMessageBox::information(this, "Import Input file!", "The execution of all commands has been finished with success !");
-		excelRecover->~ExcelExportHelper();
+		else
+		{
+			//QMessageBox::information(this, "Import Input file!", "The execution of all commands has been finished with success !");
+			ui->logPlainText->appendHtml("<b style='color:blue'>he execution of all commands has been finished with success !</b>");
+		}
+		excelRecover->~ExcelManager();
 		system("taskkill /im EXCEL.EXE /f");
 	}
 	catch (const std::exception& e)
@@ -3199,413 +3312,11 @@ void MainWindow::importTable(int identifierNumber) {
 	ui->viewTable->setModel(model);
 }
 
-void ExcelExportHelper::killProcessByName(const char *filename)
-{
-	HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
-	PROCESSENTRY32 pEntry;
-	pEntry.dwSize = sizeof(pEntry);
-	BOOL hRes = Process32First(hSnapShot, &pEntry);
-	while (hRes)
-	{
-		_bstr_t b(pEntry.szExeFile);
-		if (strcmp(b, filename) == 0)
-		{
-			HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, 0,
-				(DWORD)pEntry.th32ProcessID);
-			if (hProcess != NULL)
-			{
-				TerminateProcess(hProcess, 9);
-				CloseHandle(hProcess);
-			}
-		}
-		hRes = Process32Next(hSnapShot, &pEntry);
-	}
-	CloseHandle(hSnapShot);
-}
-
-ExcelExportHelper::ExcelExportHelper(bool closeExcelOnExit, const QString& fileName, int numSheet)
-{
-	m_closeExcelOnExit = closeExcelOnExit;
-	m_excelApplication = nullptr;
-	m_rows = nullptr;
-	m_columns = nullptr;
-	m_usedrange = nullptr;
-	m_sheet = nullptr;
-	m_sheets = nullptr;
-	m_workbook = nullptr;
-	m_workbooks = nullptr;
-	m_excelApplication = nullptr;
-	
-	system("taskkill /fi \"WINDOWTITLE eq palmprint_registration_log_file.xlsx - Excel\" /f");
-	//WinExec("taskkill /fi \"WINDOWTITLE eq palmprint_registration_log_file.xlsx - Excel\" /f", SW_HIDE);
-	m_excelApplication = new QAxObject("Excel.Application", 0);//{00024500-0000-0000-C000-000000000046}
-
-	if (m_excelApplication == nullptr)
-		throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
-
-	m_excelApplication->dynamicCall("SetVisible(bool)", false); // display excel
-	m_excelApplication->setProperty("DisplayAlerts", 0); // disable alerts
-
-	m_workbooks = m_excelApplication->querySubObject("Workbooks");
-	if (!QFile::exists(fileName))
-	{
-
-		m_workbook = m_workbooks->querySubObject("Add");
-		m_sheets = m_workbook->querySubObject("Worksheets");
-		
-		m_sheet_custom = m_sheets->querySubObject("Item(int)", 1);
-		m_sheet_custom->setProperty("Name", "Custom");
-
-		SetNewCellValueFirst(m_sheet_custom);
-		SetNewCellValue(m_sheet_custom, 8, 1, "Segmentation");
-		SetNewCellValue(m_sheet_custom, 9, 4, "Parameters of Segmentation");
-		SetNewCellValue(m_sheet_custom, 13, 1, "Detector");
-		SetNewCellValue(m_sheet_custom, 14, 5, "Parameters of Detector");
-		SetNewCellValue(m_sheet_custom, 19, 1, "Descriptor");
-		SetNewCellValue(m_sheet_custom, 20, 5, "Parameters of Descriptor");
-		SetNewCellValue(m_sheet_custom, 25, 1, "Matcher");
-		SetNewCellValue(m_sheet_custom, 26, 6, "Parameters of Matcher");
-		SetNewCellValue(m_sheet_custom, 32, 1, "Opponent Color");
-		SetNewCellValueLast(m_sheet_custom, 33);
-
-		m_sheet_brisk = AddNewSheet("BRISK");
-
-		SetNewCellValueFirst(m_sheet_brisk);
-		SetNewCellValue(m_sheet_brisk, 8, 1, "Pattern Scale");
-		SetNewCellValue(m_sheet_brisk, 9, 1, "Number of Octaves");
-		SetNewCellValue(m_sheet_brisk, 10, 1, "Threshold");
-		SetNewCellValueLast(m_sheet_brisk, 11);
-
-		m_sheet_orb = AddNewSheet("ORB");
-
-		SetNewCellValueFirst(m_sheet_orb);
-		SetNewCellValue(m_sheet_orb, 8, 1, "Number of Features");
-		SetNewCellValue(m_sheet_orb, 9, 1, "Scale Factor");
-		SetNewCellValue(m_sheet_orb, 10, 1, "Number of Levels");
-		SetNewCellValue(m_sheet_orb, 11, 1, "Edge Threshold");
-		SetNewCellValue(m_sheet_orb, 12, 1, "First Level");
-		SetNewCellValue(m_sheet_orb, 13, 1, "WTA K");
-		SetNewCellValue(m_sheet_orb, 14, 1, "Score Type");
-		SetNewCellValue(m_sheet_orb, 15, 1, "Patch Size");
-		SetNewCellValueLast(m_sheet_orb, 16);
-		
-		m_sheet_surf = AddNewSheet("SURF");
-
-		SetNewCellValueFirst(m_sheet_surf);
-		SetNewCellValue(m_sheet_surf, 8, 1, "Hessian Threshold");
-		SetNewCellValue(m_sheet_surf, 9, 1, "Number of Octaves");
-		SetNewCellValue(m_sheet_surf, 10, 1, "Number of Octave Layers");
-		SetNewCellValue(m_sheet_surf, 11, 1, "Extended");
-		SetNewCellValue(m_sheet_surf, 12, 1, "Features Orientation");
-		SetNewCellValue(m_sheet_surf, 13, 1, "Brute Force Matching");
-		SetNewCellValueLast(m_sheet_surf, 14);
-		
-		m_sheet_sift = AddNewSheet("SIFT");
-
-		SetNewCellValueFirst(m_sheet_sift);
-		SetNewCellValue(m_sheet_sift, 8, 1, "Contrast Threshold");
-		SetNewCellValue(m_sheet_sift, 9, 1, "Edge Threshold");
-		SetNewCellValue(m_sheet_sift, 10, 1, "Number of Features");
-		SetNewCellValue(m_sheet_sift, 11, 1, "Number of Octave Layers");
-		SetNewCellValue(m_sheet_sift, 12, 1, "Sigma");
-		SetNewCellValue(m_sheet_sift, 13, 1, "Brute Force Matching");
-		SetNewCellValueLast(m_sheet_sift, 14);
-		
-		m_workbook->dynamicCall("SaveAs (const QString&)", fileName);
-	}
-	else 
-	{
-		m_workbook = m_workbooks->querySubObject("Open(const QString&)", fileName);
-		m_sheets = m_workbook->querySubObject("Worksheets");
-	}
-
-	if (numSheet != 0) {
-		GetIntRows(numSheet);
-	}
-}
-
-void ExcelExportHelper::GetIntRows(int numSheet)
-{
-	m_sheet = m_sheets->querySubObject("Item(int)", numSheet);
-	m_usedrange = m_sheet->querySubObject("UsedRange");
-	m_rows = m_usedrange->querySubObject("Rows");
-	intRows = m_rows->property("Count").toInt();
-}
-
-QVariant ExcelExportHelper::GetCellValue(int rowIndex, int columnIndex)
-{
-	QVariant value;
-	QAxObject* cell = m_sheet->querySubObject("Cells(Int, Int)", rowIndex, columnIndex);
-	value = cell->dynamicCall("Value()");
-	delete cell;
-	return value;
-}
-
-QString ExcelExportHelper::GetSheetName()
-{
-	return m_sheet->dynamicCall("Name()").toString();
-}
-
-void ExcelExportHelper::SetCellValue(int columnIndex, int type, const QString& value)
-{
-	if (type == 1) mergeRowsCells(columnIndex);
-	QAxObject *cell = m_sheet->querySubObject("Cells(int,int)", intRows + 1, columnIndex);
-	cell->setProperty("Value", value);
-	cell->setProperty("HorizontalAlignment", -4108);
-	cell->setProperty("VerticalAlignment", -4108);
-	if (type == 2) cell->setProperty("ColumnWidth", value.size() + 4);
-	if (columnIndex == 1) {
-		setCellBackgroundColored(cell, 255, 235, 156);
-		setCellBordersColored(cell, 255, 0, 0);
-		if (type == 1)
-		{
-			QAxObject *nextCell = m_sheet->querySubObject("Cells(int,int)", intRows + 2, columnIndex);
-			setCellBordersColored(nextCell, 255, 0, 0);
-			delete nextCell;
-		}
-		cell->setProperty("RowHeight", 18);
-	}
-	delete cell;
-}
-
-void ExcelExportHelper::SetCellValueSecondRow(int columnIndex, const QString& value)
-{
-	QAxObject *cell = m_sheet->querySubObject("Cells(int,int)", intRows + 2, columnIndex);
-	cell->setProperty("Value", value);
-	cell->setProperty("HorizontalAlignment", -4108);
-	delete cell;
-}
-
-int ExcelExportHelper::getSheetCount()
-{
-	return intRows;
-}
-
-int ExcelExportHelper::getColumnsCount()
-{
-	m_columns = m_usedrange->querySubObject("Columns");
-	intColumns = m_columns->property("Count").toInt(); 
-	return intColumns;
-}
-
-QString ExcelExportHelper::IndexesToRange(int rowIndex, int columnIndex, int length)
-{
-	QString cellRange;
-
-	if (columnIndex <= 26) {
-		cellRange.append(QChar(columnIndex - 1 + 'A'));
-		cellRange.append(QString::number(rowIndex));
-		if ((columnIndex + length) <= 26) {
-			cellRange.append(":");
-			cellRange.append(QChar(columnIndex + length - 2 + 'A'));
-			cellRange.append(QString::number(rowIndex));
-		}
-		else {
-			cellRange.append(":A");
-			cellRange.append(QChar(columnIndex + length - 28 + 'A'));
-			cellRange.append(QString::number(rowIndex));
-		}
-	}
-	else {
-		cellRange.append("A");
-		cellRange.append(QChar(columnIndex - 27 + 'A'));
-		cellRange.append(QString::number(rowIndex));
-		cellRange.append(":A");
-		cellRange.append(QChar(columnIndex + length - 28 + 'A'));
-		cellRange.append(QString::number(rowIndex));
-	}
-
-	return cellRange;
-}
-
-void ExcelExportHelper::mergeCells(int topLeftRow, int topLeftColumn, int bottomRightRow, int bottomRightColumn)
-{
-	QString cell;
-	cell.append(QChar(topLeftColumn - 1 + 'A'));
-	cell.append(QString::number(topLeftRow));
-	cell.append(":");
-	cell.append(QChar(bottomRightColumn - 1 + 'A'));
-	cell.append(QString::number(bottomRightRow));
-
-	QAxObject *range = m_sheet->querySubObject("Range(const QString&)", cell);
-	range->setProperty("VerticalAlignment", -4108);//ylCenter    
-	range->setProperty("WrapText", true);
-	range->setProperty("MergeCells", true);
-}
-
-void ExcelExportHelper::mergeCellsCustom(int topLeftColumn, int bottomRightColumn)
-{
-	QString cell;
-	cell.append(QChar(topLeftColumn - 1 + 'A'));
-	cell.append(QString::number(intRows + 1));
-	cell.append(":");
-	cell.append(QChar(bottomRightColumn - 1 + 'A'));
-	cell.append(QString::number(intRows + 2));
-
-	QAxObject *range = m_sheet->querySubObject("Range(const QString&)", cell);
-	range->setProperty("VerticalAlignment", -4108);//ylCenter    
-	range->setProperty("WrapText", true);
-	range->setProperty("MergeCells", true);
-}
-
-void ExcelExportHelper::mergeRowsCells(int columnIndex)
-{
-	QString cell;
-	if (columnIndex > 26) {
-		cell.append('A');
-		columnIndex -= 26;
-		cell.append(QChar(columnIndex - 1 + 'A'));
-		cell.append(QString::number(intRows + 1));
-		cell.append(":A");
-	}
-	else {
-		cell.append(QChar(columnIndex - 1 + 'A'));
-		cell.append(QString::number(intRows + 1));
-		cell.append(":");
-	}
-	cell.append(QChar(columnIndex - 1 + 'A'));
-	cell.append(QString::number(intRows + 2));
-
-	QAxObject *range = m_sheet->querySubObject("Range(const QString&)", cell);
-	range->setProperty("VerticalAlignment", -4108);//ylCenter    
-	range->setProperty("WrapText", true);
-	range->setProperty("MergeCells", true);
-}
-
-QString ExcelExportHelper::IndexToRange(int rowIndex, int columnIndex)
-{
-	QString cellRange;
-	if (columnIndex > 26) {
-		cellRange.append('A');
-		columnIndex -= 26;
-	}
-	cellRange.append(QChar(columnIndex - 1 + 'A'));
-	cellRange.append(QString::number(rowIndex));
-	return cellRange;
-}
-
-void ExcelExportHelper::setCellTextCenter(QAxObject* sheet, int rowIndex, int columnIndex)
-{
-	QString cell = IndexToRange(rowIndex, columnIndex);
-	QAxObject *range = sheet->querySubObject("Range(const QString&)", cell);
-	range->setProperty("HorizontalAlignment", -4108);//xlCenter    
-}
-
-void ExcelExportHelper::SetNewCellValueFirst(QAxObject* sheet)
-{
-	SetNewCellValue(sheet, 1, 1, "Identifier");
-	SetNewCellValue(sheet, 2, 1, "Current Time");
-	SetNewCellValue(sheet, 3, 1, "First Image");
-	SetNewCellValue(sheet, 4, 1, "Second Image(s)");
-	SetNewCellValue(sheet, 5, 1, "1 to N images");
-	SetNewCellValue(sheet, 6, 1, "First Image Exists in Bdd");
-	SetNewCellValue(sheet, 7, 1, "Requested Image");
-}
-void ExcelExportHelper::SetNewCellValueLast(QAxObject* sheet, int startColumnIndex)
-{
-	SetNewCellValue(sheet, startColumnIndex, 1, "Threshold Score");
-	SetNewCellValue(sheet, startColumnIndex + 1, 1, "key Points 1");
-	SetNewCellValue(sheet, startColumnIndex + 2, 1, "key Points 2");
-	SetNewCellValue(sheet, startColumnIndex + 3, 1, "Detection Time");
-	SetNewCellValue(sheet, startColumnIndex + 4, 1, "Description Time");
-	SetNewCellValue(sheet, startColumnIndex + 5, 1, "Matching Time");
-	SetNewCellValue(sheet, startColumnIndex + 6, 1, "Total Time");
-	SetNewCellValue(sheet, startColumnIndex + 7, 1, "Accepted Matches");
-	SetNewCellValue(sheet, startColumnIndex + 8, 1, "Rejected Matches");
-	SetNewCellValue(sheet, startColumnIndex + 9, 1, "Best Image Average");
-	SetNewCellValue(sheet, startColumnIndex + 10, 1, "Best Image Score");
-	SetNewCellValue(sheet, startColumnIndex + 11, 1, "Requested Image Score");
-	SetNewCellValue(sheet, startColumnIndex + 12, 1, "Best Image");
-	SetNewCellValue(sheet, startColumnIndex + 13, 1, "Rank");
-}
-
-void ExcelExportHelper::setCellFontBold(QAxObject* cell, int size) {
-	QAxObject* chars = cell->querySubObject("Characters(int, int)", 1, size);
-	QAxObject* font = chars->querySubObject("Font");
-	font->setProperty("Bold", true);
-}
-
-void ExcelExportHelper::setCellFontColored(QAxObject* cell, int size) {
-	QAxObject* chars = cell->querySubObject("Characters(int, int)", 1, size);
-	QAxObject* font = chars->querySubObject("Font");
-	font->setProperty("Color", QColor(255, 255, 255));
-}
-
-void ExcelExportHelper::setCellBackgroundColored(QAxObject* cell, int r, int g, int b) {
-	QAxObject* Interior = cell->querySubObject("Interior");
-	Interior->setProperty("Color", QColor(r, g, b));
-	QAxObject* borders = cell->querySubObject("Borders");
-	borders->setProperty("Color", QColor(255, 255, 255));
-}
-
-void ExcelExportHelper::setCellBordersColored(QAxObject* cell, int r, int g, int b) {
-	QAxObject* borders = cell->querySubObject("Borders");
-	borders->setProperty("Color", QColor(r, g, b));
-}
-
-void ExcelExportHelper::SetNewCellValue(QAxObject* sheet, int columnIndex, int intHorizontallyRange, const QString& value)
-{
-	if (intHorizontallyRange == 1) {
-		QAxObject *cell = sheet->querySubObject("Cells(int,int)", 1, columnIndex);
-		cell->setProperty("Value", value);
-		cell->setProperty("VerticalAlignment", -4108);
-		cell->setProperty("HorizontalAlignment", -4108);
-		cell->setProperty("ColumnWidth", value.size() + 4);	
-		cell->setProperty("RowHeight", 25);
-		setCellFontBold(cell, value.size());
-		setCellFontColored(cell, value.size());
-		setCellBackgroundColored(cell, 0, 0, 80);
-		setCellBordersColored(cell, 255, 255, 255);
-		delete cell;
-	}
-	else {
-		QString cellRange = IndexesToRange(1, columnIndex, intHorizontallyRange);
-		QAxObject *range = sheet->querySubObject("Range(const QString&)", cellRange);
-		range->setProperty("VerticalAlignment", -4108);
-		range->setProperty("HorizontalAlignment", -4108); //xlCenter 
-		range->setProperty("WrapText", true);
-		range->setProperty("MergeCells", true);
-		range->setProperty("Value", value);
-		setCellFontBold(range, value.size());
-		setCellFontColored(range, value.size());
-		setCellBackgroundColored(range, 0, 0, 80);
-		setCellBordersColored(range, 255, 255, 255);
-		delete range;
-	}
-}
-
-QAxObject* ExcelExportHelper::AddNewSheet(const QString& value)
-{
-	m_sheets->querySubObject("Add");
-	QAxObject * sheet = m_sheets->querySubObject("Item(int)", 1);
-	sheet->setProperty("Name", value);
-	return sheet;
-}
-
 void MainWindow::exportSuccess(int showMethod)
 {
 	if (showMethod == 1) ui->logPlainText->appendHtml("<b style='color:green'>This test has been exported with success under the identifier number: " + QString::number(cpt) + "</b>");
 	else QMessageBox::information(this, "Export Excel !", "This test has been exported with success under the identifier number: " + QString::number(cpt));
 }
-
-ExcelExportHelper::~ExcelExportHelper()
-{
-	if (m_excelApplication != nullptr)
-	{
-		if (!m_closeExcelOnExit)
-		{
-			m_excelApplication->setProperty("DisplayAlerts", 1);
-			m_excelApplication->dynamicCall("SetVisible(bool)", true);
-		}
-
-		if (m_workbook != nullptr && m_closeExcelOnExit)
-		{
-			m_workbook->dynamicCall("Close (Boolean)", true);
-			m_excelApplication->dynamicCall("Quit (void)");
-		}
-	}
-}
-
 QString MainWindow::getCurrentTime() {
 	auto t = std::time(nullptr);
 	auto tm = *std::localtime(&t);
