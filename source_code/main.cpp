@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
 		}
 		else {
 			std::cout << "File opened successfully" << std::endl;
+			mainWindow.launchInCMD();
 		}
 	}
 	else mainWindow.show();
