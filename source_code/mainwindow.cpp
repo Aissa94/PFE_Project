@@ -3,7 +3,7 @@
 
 // Images Declaration
 	cv::Mat firstImg, secondImg;
-	std::vector<std::pair<std::string, cv::Mat>> setImgs;
+	std::vector<std::tuple<std::string, cv::Mat, cv::Mat>> setImgs;
 
 // Vectors Declaration
 	// Segmentation parameters for First and Second Image ...
@@ -12,6 +12,7 @@
 	// Keypoints Vectors for the First & Second Image ...
 	std::vector<cv::KeyPoint> firstImgKeypoints, secondImgKeypoints;
 	std::vector<std::vector<cv::KeyPoint>> setImgsKeypoints;
+	std::vector<std::vector<Minutiae>> setMinutiaes;
 	// Descriptors for the First & Second Image ...
 	cv::Mat firstImgDescriptor, secondImgDescriptor;
 	std::vector<cv::Mat> setImgsDescriptors;
@@ -371,7 +372,7 @@ void MainWindow::runDefault()
 	ptrDefault->detect(firstImg, firstImgKeypoints);
 	if (oneToN){
 		for (int i = 0; i < setImgs.size(); i++){
-			ptrDefault->detect(setImgs[i].second, setImgsKeypoints[i]);
+			ptrDefault->detect(std::get<1>(setImgs[i]), setImgsKeypoints[i]);
 		}
 	}
 	else ptrDefault->detect(secondImg, secondImgKeypoints);
@@ -391,7 +392,7 @@ void MainWindow::runDefault()
 	ptrDefault->compute(firstImg, firstImgKeypoints, firstImgDescriptor);
 	if (oneToN){
 		for (int i = 0; i < setImgs.size(); i++){
-			ptrDefault->compute(setImgs[i].second, setImgsKeypoints[i], setImgsDescriptors[i]);
+			ptrDefault->compute(std::get<1>(setImgs[i]), setImgsKeypoints[i], setImgsDescriptors[i]);
 		}
 	}
 	else ptrDefault->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
@@ -472,7 +473,7 @@ void MainWindow::runDefault()
 				excelReader->SetCellValue(excelColumn + 9, 0, QString::number(badMatchesSet[bestScoreIndex].size()));
 				excelReader->SetCellValue(excelColumn + 10, 0, QString::number(sumDistancesSet[bestScoreIndex] / static_cast<float>(goodMatchesSet[bestScoreIndex].size())));
 				excelReader->SetCellValue(excelColumn + 11, 0, QString::number(scoreSet[bestScoreIndex]));
-				excelReader->SetCellValue(excelColumn + 13, 0, QString::fromStdString(setImgs[bestScoreIndex].first));
+				excelReader->SetCellValue(excelColumn + 13, 0, QString::fromStdString(std::get<0>(setImgs[bestScoreIndex])));
 			}
 			if (ui->imageExistsInBdd->isChecked() && ui->imageExistsInBdd->isEnabled()) {
 				if (ui->bddImageNames->currentIndex() > -1) excelReader->SetCellValue(excelColumn + 12, 0, QString::number(scoreSet[ui->bddImageNames->currentIndex()]));
@@ -873,7 +874,7 @@ void MainWindow::runCustom()
 				excelReader->SetCellValue(41, 1, QString::number(badMatchesSet[bestScoreIndex].size()));
 				excelReader->SetCellValue(42, 1, QString::number(sumDistancesSet[bestScoreIndex] / static_cast<float>(goodMatchesSet[bestScoreIndex].size())));
 				excelReader->SetCellValue(43, 1, QString::number(scoreSet[bestScoreIndex]));
-				excelReader->SetCellValue(45, 1, QString::fromStdString(setImgs[bestScoreIndex].first));
+				excelReader->SetCellValue(45, 1, QString::fromStdString(std::get<0>(setImgs[bestScoreIndex])));
 			}
 			else
 			{
@@ -1183,7 +1184,7 @@ bool MainWindow::readSetOfImages(){
 					cv::resize(img, img, cv::Size(), 200 / img.rows, 200 / img.cols);
 				}
 				// store the name and the image
-				setImgs.push_back(std::make_pair(filename, img));
+				setImgs.push_back(std::make_tuple(filename, img, img));
 
 				// show names in the combobox
 				ui->bddImageNames->addItem(QString::fromStdString(filename));
@@ -1197,13 +1198,11 @@ bool MainWindow::readSetOfImages(){
 		return false;
 	}
 	else if (setImgs.size() == 1){
-		// one to one image
-		secondImg = setImgs[setImgs.size() - 1].second;
+		// treat as one to one image
+		secondImg = std::get<1>(setImgs[setImgs.size() - 1]);
 		oneToN = false;
 	}
 	ui->bddImageNames->setCurrentIndex(savedIndex);
-	// display the last image
-	//displayImage(setImgs[setImgs.size() - 1].second, 2);
 	return true;
 }
 
@@ -1349,7 +1348,7 @@ void MainWindow::resetParams()
 	sumDistances = 0; score = 0;
 	bestScoreIndex = -1;
 	try{
-		firstImgKeypoints.clear(); secondImgKeypoints.clear(); setImgsKeypoints.clear();
+		firstImgKeypoints.clear(); secondImgKeypoints.clear(); setImgsKeypoints.clear(); setMinutiaes.clear();
 		firstImgDescriptor.release(); secondImgDescriptor.release(); setImgsDescriptors.clear();
 		firstEnhancedImage.release(); secondEnhancedImage.release(); setEnhancedImages.clear();
 		firstSegmentedImage.release(); secondSegmentedImage.release(); setSegmentedImages.clear();
@@ -1666,14 +1665,14 @@ void MainWindow::writeMatches(int imgIndex){
 		// 1 to N and There is a best match  
 		for (size_t i = 0; i < setImgs.size(); i++)
 		{
-			ui->viewMatchesImageNameText->addItem(QString::fromStdString(setImgs[i].first));
-			ui->viewTableImageNameText->addItem(QString::fromStdString(setImgs[i].first));
+			ui->viewMatchesImageNameText->addItem(QString::fromStdString(std::get<0>(setImgs[i])));
+			ui->viewTableImageNameText->addItem(QString::fromStdString(std::get<0>(setImgs[i])));
 			// Draw and Store bad matches
-			cv::drawMatches(firstImg, firstImgKeypoints, setImgs[i].second, setImgsKeypoints[i],
+			cv::drawMatches(firstImg, firstImgKeypoints, std::get<1>(setImgs[i]), setImgsKeypoints[i],
 				badMatchesSet[i], drawImg, cv::Scalar(0, 0, 255), cv::Scalar(0, 255, 255));
 
 			// Draw and Store best matches
-			cv::drawMatches(firstImg, firstImgKeypoints, setImgs[i].second, setImgsKeypoints[i],
+			cv::drawMatches(firstImg, firstImgKeypoints, std::get<1>(setImgs[i]), setImgsKeypoints[i],
 				goodMatchesSet[i], drawImg, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 255), std::vector<char>(), cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
 
 			std::string filename = directoryPath + "/all matches/" + std::to_string(i) + ".jpg";
@@ -1785,9 +1784,9 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 		if (oneToN)
 		{
 			for (int i = 0; i < setImgs.size(); i++){
-				try{ localThreshold::binarisation(setImgs[i].second, 41, 56); }
+				try{ localThreshold::binarisation(std::get<1>(setImgs[i]), 41, 56); }
 				catch (cv::Exception e){
-					showError("Binarization", "Error in the image '" + setImgs[i].first + "'", e.msg);
+					showError("Binarization", "Error in the image '" + std::get<0>(setImgs[i]) + "'", e.msg);
 				}
 			}
 		}
@@ -1797,18 +1796,18 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 		cv::threshold(firstImg, firstImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
 		if (oneToN)
 			for (int i = 0; i < setImgs.size(); i++){
-				try{ cv::threshold(setImgs[i].second, setImgs[i].second, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU); }
+				try{ cv::threshold(std::get<1>(setImgs[i]), std::get<1>(setImgs[i]), threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU); }
 				catch (cv::Exception e){
-					showError("Thresholding", "Error in the image '" + setImgs[i].first + "'", e.msg);
+					showError("Thresholding", "Error in the image '" + std::get<0>(setImgs[i]) + "'", e.msg);
 				}
 			}
 		else cv::threshold(secondImg, secondImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
 		
 		//ideka::binOptimisation(firstImg);
 		//ideka::binOptimisation(secondImg);
-		cv::imwrite(directoryPath + "f-1_Binarization.bmp", firstImg);
-		if (oneToN) cv::imwrite(directoryPath + "l-1_Binarization.bmp", setImgs[setImgs.size() - 1].second);
-		else cv::imwrite(directoryPath + "s-1_Binarization.bmp", secondImg);
+		/*cv::imwrite(directoryPath + "f-1_Binarization.bmp", firstImg);
+		if (oneToN) cv::imwrite(directoryPath + "l-1_Binarization.bmp", std::get<1>(setImgs[setImgs.size() - 1]));
+		else cv::imwrite(directoryPath + "s-1_Binarization.bmp", secondImg);*/
 	}
 }
 
@@ -1820,55 +1819,55 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		// Skeletonization of Morphological Skeleton
 		// This will create more unique and stronger interest points
 		firstImg = skeletonization(firstImg);
-		cv::imwrite(directoryPath + "f-2_Morphological Skeleton.bmp", firstImg);
+		//cv::imwrite(directoryPath + "f-2_Morphological Skeleton.bmp", firstImg);
 		if (oneToN)
 		{
 			for (int i = 0; i < setImgs.size();i++){
-				setImgs[i].second = skeletonization(setImgs[i].second);
+				std::get<1>(setImgs[i]) = skeletonization(std::get<1>(setImgs[i]));
 			}
-			cv::imwrite(directoryPath + "l-2_Morphological Skeleton.bmp", setImgs[setImgs.size() - 1].second);
+			//cv::imwrite(directoryPath + "l-2_Morphological Skeleton.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			secondImg = skeletonization(secondImg);
-			cv::imwrite(directoryPath + "s-2_Morphological Skeleton.bmp", secondImg);
+			//cv::imwrite(directoryPath + "s-2_Morphological Skeleton.bmp", secondImg);
 		}
 		break;
 	case 2:
 		// Thinning of Zhang-Suen
 		//This is the same Thinning Algorithme used by BluePrints
 		ZhangSuen::thinning(firstImg);
-		cv::imwrite(directoryPath + "f-2_Zhang-Suen Thinning.bmp", firstImg);
+		//cv::imwrite(directoryPath + "f-2_Zhang-Suen Thinning.bmp", firstImg);
 		if (oneToN)
 		{
 			for (int i = 0; i < setImgs.size(); i++){
-				ZhangSuen::thinning(setImgs[i].second);
+				ZhangSuen::thinning(std::get<1>(setImgs[i]));
 			}
-			cv::imwrite(directoryPath + "l-2_Zhang-Suen Thinning.bmp", setImgs[setImgs.size() - 1].second);
+			//cv::imwrite(directoryPath + "l-2_Zhang-Suen Thinning.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			ZhangSuen::thinning(secondImg);
-			cv::imwrite(directoryPath + "s-2_Zhang-Suen Thinning.bmp", secondImg);
+			//cv::imwrite(directoryPath + "s-2_Zhang-Suen Thinning.bmp", secondImg);
 		}
 	break;
 	case 3:{
 		// Thinning of Lin-Hong implemented by Mrs. Faiçal
 		firstImg = Image_processing::thinning(firstImg, firstEnhancedImage, firstSegmentedImage);
 		firstImg.convertTo(firstImg, CV_8UC3, 255);
-		cv::imwrite(directoryPath + "f-2_Lin-Hong Thinning.bmp", firstImg);
+		//cv::imwrite(directoryPath + "f-2_Lin-Hong Thinning.bmp", firstImg);
 		if (oneToN)
 		{
 			setEnhancedImages = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
 			setSegmentedImages = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
 			for (int i = 0; i < setImgs.size(); i++){
-				setImgs[i].second = Image_processing::thinning(setImgs[i].second, setEnhancedImages[i], setSegmentedImages[i]);
-				setImgs[i].second.convertTo(setImgs[i].second, CV_8UC3, 255);
+				std::get<1>(setImgs[i]) = Image_processing::thinning(std::get<1>(setImgs[i]), setEnhancedImages[i], setSegmentedImages[i]);
+				std::get<1>(setImgs[i]).convertTo(std::get<1>(setImgs[i]), CV_8UC3, 255);
 			}
-			cv::imwrite(directoryPath + "l-2_Lin-Hong Thinning.bmp", setImgs[setImgs.size() - 1].second);
+			//cv::imwrite(directoryPath + "l-2_Lin-Hong Thinning.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			secondImg = Image_processing::thinning(secondImg, secondEnhancedImage, secondSegmentedImage);
 			secondImg.convertTo(secondImg, CV_8UC3, 255);
-			cv::imwrite(directoryPath + "s-2_Lin-Hong Thinning.bmp", secondImg);
+			//cv::imwrite(directoryPath + "s-2_Lin-Hong Thinning.bmp", secondImg);
 		}		
 		break;
 	}
@@ -1876,17 +1875,17 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		// Thinning of Guo-Hall
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Exception !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		GuoHall::thinning(firstImg);
-		cv::imwrite(directoryPath + "f-2_Guo-Hall Thinning.bmp", firstImg);
+		//cv::imwrite(directoryPath + "f-2_Guo-Hall Thinning.bmp", firstImg);
 		if (oneToN)
 		{
 			for (int i = 0; i < setImgs.size(); i++){
-				GuoHall::thinning(setImgs[i].second);
+				GuoHall::thinning(std::get<1>(setImgs[i]));
 			}
-			cv::imwrite(directoryPath + "l-2_Guo-Hall Thinning.bmp", setImgs[setImgs.size() - 1].second);
+			//cv::imwrite(directoryPath + "l-2_Guo-Hall Thinning.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			GuoHall::thinning(secondImg);
-			cv::imwrite(directoryPath + "s-2_Guo-Hall Thinning.bmp", secondImg);
+			//cv::imwrite(directoryPath + "s-2_Guo-Hall Thinning.bmp", secondImg);
 		}
 		break;
 
@@ -1901,7 +1900,6 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 	case 0:{
 		// Minutiae-detection using Crossing Number By Dr. Faiçal
 		std::vector<Minutiae> firstMinutiae, secondMinutiae;
-		std::vector<std::vector<Minutiae>> setMinutiaes;
 		detectionTime = (double)cv::getTickCount();
 		// change this to firstImage and originalInput !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		firstMinutiae = Image_processing::extracting(firstImg, firstEnhancedImage, firstSegmentedImage, firstImg);
@@ -1909,7 +1907,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		{
 			setMinutiaes = std::vector<std::vector<Minutiae>>(setImgs.size(), std::vector<Minutiae>());
 			for (int i = 0; i < setImgs.size(); i++){
-				setMinutiaes[i] = Image_processing::extracting(setImgs[i].second, setEnhancedImages[i], setSegmentedImages[i], setImgs[i].second);
+				setMinutiaes[i] = Image_processing::extracting(std::get<1>(setImgs[i]), setEnhancedImages[i], setSegmentedImages[i], std::get<1>(setImgs[i]));
 			}
 		}
 		else secondMinutiae = Image_processing::extracting(secondImg, secondEnhancedImage, secondSegmentedImage, secondImg);
@@ -1954,7 +1952,6 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		// Minutiae-detection using Crossing Number
 		// http://www.codelooker.com/id/217/1100103.html
 		std::vector<Minutiae> firstMinutiae, secondMinutiae;
-		std::vector<std::vector<Minutiae>> setMinutiaes;
 
 		detectionTime = (double)cv::getTickCount();
 		firstMinutiae = crossingNumber::getMinutiae(firstImg, ui->detectorCrossingNumberBorderText->text().toInt());
@@ -1965,7 +1962,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		{
 			setMinutiaes = std::vector<std::vector<Minutiae>>(setImgs.size(), std::vector<Minutiae>());
 			for (int i = 0; i < setImgs.size(); i++){
-				setMinutiaes[i] = crossingNumber::getMinutiae(setImgs[i].second, ui->detectorCrossingNumberBorderText->text().toInt());
+				setMinutiaes[i] = crossingNumber::getMinutiae(std::get<1>(setImgs[i]), ui->detectorCrossingNumberBorderText->text().toInt());
 				Filter::filterMinutiae(setMinutiaes[i]);
 			}
 		}
@@ -1976,13 +1973,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
 		writeKeyPoints(firstImg, firstMinutiae, 1, "keypoints1");
-		if (oneToN)
-		{
-			for (int i = 0; i < setImgs.size(); i++){
-				writeKeyPoints(setImgs[i].second, setMinutiaes[i], 2, "keypoints2");
-			}
-		}
-		else writeKeyPoints(secondImg, secondMinutiae, 2, "keypoints2");
+		if (!oneToN) writeKeyPoints(secondImg, secondMinutiae, 2, "keypoints2");
 
 		// images must be segmented if not Minutiae will be empty
 		try{
@@ -2023,11 +2014,14 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		if (oneToN)
 		{
 			for (int i = 0; i < setImgs.size(); i++){
-				harrisCorners(setImgs[i].second, setImgsKeypoints[i], ui->detectorHarrisThresholdText->text().toFloat());
+				harrisCorners(std::get<1>(setImgs[i]), setImgsKeypoints[i], ui->detectorHarrisThresholdText->text().toFloat());
 			}
 		}
 		else harrisCorners(secondImg, secondImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+
+		writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
+		if (!oneToN) writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
 	}
 		   break;
 	case 3:{
@@ -2052,7 +2046,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			if (oneToN)
 			{
 				for (int i = 0; i < setImgs.size(); i++){
-					cv::FASTX(setImgs[i].second, setImgsKeypoints[i], ui->detectorFastThresholdText->text().toInt(),
+					cv::FASTX(std::get<1>(setImgs[i]), setImgsKeypoints[i], ui->detectorFastThresholdText->text().toInt(),
 						ui->detectorFastNonmaxSuppressionCheck->isChecked(),
 						ui->detectorFastTypeText->currentIndex());
 				}
@@ -2107,7 +2101,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			ptrDetector->detect(firstImg, firstImgKeypoints);
 			if (oneToN){
 				for (int i = 0; i < setImgs.size(); i++){
-					ptrDetector->detect(setImgs[i].second, setImgsKeypoints[i]);
+					ptrDetector->detect(std::get<1>(setImgs[i]), setImgsKeypoints[i]);
 				}
 			}else ptrDetector->detect(secondImg, secondImgKeypoints);
 			detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
@@ -2191,7 +2185,7 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 		{
 			setImgsDescriptors = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
 			for (int i = 0; i < setImgs.size(); i++){
-				ptrDescriptor->compute(setImgs[i].second, setImgsKeypoints[i], setImgsDescriptors[i]);
+				ptrDescriptor->compute(std::get<1>(setImgs[i]), setImgsKeypoints[i], setImgsDescriptors[i]);
 			}
 		}
 		else ptrDescriptor->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
@@ -2577,12 +2571,13 @@ void MainWindow::showDecision(){
 			QTextCursor current_cursor = QTextCursor(ui->logPlainText->document());
 			current_cursor.setPosition(prev_cursor_position);
 			current_cursor.insertText("\nFound " + QString::number(setImgsKeypoints[bestScoreIndex].size()) + " key points in the most similar image!");
-			displayImage(setImgs[bestScoreIndex].second, 2);
-			writeKeyPoints(setImgs[bestScoreIndex].second, setImgsKeypoints[bestScoreIndex], 2, "keypoints2");
+			displayImage(std::get<2>(setImgs[bestScoreIndex]), 2);
+			if (setMinutiaes.size()) writeKeyPoints(std::get<1>(setImgs[bestScoreIndex]), setMinutiaes[bestScoreIndex], 2, "keypoints2");
+			else writeKeyPoints(std::get<1>(setImgs[bestScoreIndex]), setImgsKeypoints[bestScoreIndex], 2, "keypoints2");
 
 			if (scoreSet[bestScoreIndex] >= scoreThreshold)
-				ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
-			else ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(setImgs[bestScoreIndex].first) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
+				ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(std::get<0>(setImgs[bestScoreIndex])) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
+			else ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(std::get<0>(setImgs[bestScoreIndex])) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
 
 			if (ui->imageExistsInBdd->isEnabled() && ui->imageExistsInBdd->isChecked()){
 				ui->logPlainText->appendHtml("The first image is Rank-<b>" + QString::number(computeRankK(scoreThreshold)) + "</b> ");
