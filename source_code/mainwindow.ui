@@ -53,7 +53,7 @@
           <item row="1" column="1" colspan="2">
            <widget class="QLineEdit" name="secondImgText">
             <property name="text">
-             <string>Resources/images/box2.png</string>
+             <string>Resources</string>
             </property>
             <property name="buddy" stdset="0">
              <cstring>label_4</cstring>
@@ -571,7 +571,7 @@
        <bool>false</bool>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabDefault">
        <attribute name="title">
@@ -3334,7 +3334,7 @@ Higher values gives better precision, but also takes more time.</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="typeOfMatchButtonGroup"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>
