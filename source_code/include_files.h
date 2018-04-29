@@ -42,7 +42,7 @@
 #include "thinning\ZhangSuen.h"
 #include "file-reader\tinydir.h"
 #include "dualMod\DualModeI.h"
-#include "ExcelManager.h"
+#include "excel\ExcelManager.h"
 #include "graph\qcustomplot.h"
 #include "graph\cSpline.h"
 
