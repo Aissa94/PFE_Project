@@ -35,8 +35,7 @@
 	std::vector<cv::Mat> matchingMasks;
 	
 	//Excel data
-	ExcelExportHelper *excelReader;
-	ExcelExportHelper *excelRecover;
+	ExcelExportHelper *excelReader, *excelRecover;
 	QStandardItemModel *model;
 	std::vector<std::pair<int, float>> rankkData;
 
@@ -995,25 +994,40 @@ void MainWindow::on_actionAbout_Me_triggered()
 }
 
 void MainWindow::on_refreshRankkGraph_pressed(){
-	std::vector<int> rankkDataFromExcel; // = { 1, 1, 2, 3, 1, 8, 1, 2, 3, 5, 5, 10, 9, 13, 12, 13, 25, 23, 24, 2, 3, 6, 1, 1, 2, 3, 1, 8, 1, 2, 3, 5, 5, 10, 9, 13, 12, 13, 2, 3, 6, 5, 1 };
-	int rankValue;
+	std::vector<int> rankkDataFromExcel;
+	int rankValue, column, segmentationName, detectorName, descriptorName, matcherName;
 	int nbRank0FromExcel = 0, maxRank = 0;
 
-	/*QAxObject* excel = new QAxObject("Excel.Application");
-	QAxObject* workbooks = excel->querySubObject("Workbooks");
-	QAxObject* workbook = workbooks->querySubObject("Open(const QString&)", exportFile);
-	QAxObject* worksheet = workbook->querySubObject("Worksheets");
-	QAxObject* sheet = worksheet->querySubObject("Item(int)", 5);
-	QAxObject* usedrange = sheet->querySubObject("UsedRange");
-	QAxObject* rows = usedrange->querySubObject("Rows");
-	int intRows = rows->property("Count").toInt();
-	for (int j = 2; j <= intRows; j++) {
-		QAxObject* rankTabs = sheet->querySubObject("Cells(Int, Int)", j, 46);
-		rankValue = rankTabs->dynamicCall("Value()").toString().toInt();
-		if (rankValue == 0) nbRank0FromExcel++;
-		else rankkDataFromExcel.push_back(rankValue);
+	excelRecover = new ExcelExportHelper(true, exportFile, 0);
+	if (ui->allMethodsTabs->currentIndex() == 0) excelRecover->GetIntRows(ui->defaultTabs->currentIndex() + 1);
+	else excelRecover->GetIntRows(5);
+	column = excelRecover->getColumnsCount();
+	for (int j = 2; j <= excelRecover->getSheetCount(); j++) {
+		if (excelRecover->GetCellValue(j, 5).toBool() && excelRecover->GetCellValue(j, 6).toBool() && !excelRecover->GetCellValue(j, column).toString().isEmpty())
+			if (ui->allMethodsTabs->currentIndex() == 0)
+			{
+				rankValue = excelRecover->GetCellValue(j, column).toString().toInt();
+				if (rankValue == 0) nbRank0FromExcel++;
+				else rankkDataFromExcel.push_back(rankValue);
+			}
+			else
+			{
+				segmentationName = segmentationNameToInt(excelRecover->GetCellValue(j, 8).toString());
+				detectorName = detectorNameToInt(excelRecover->GetCellValue(j, 13).toString());
+				descriptorName = descriptorNameToInt(excelRecover->GetCellValue(j, 19).toString());
+				matcherName = matcherNameToInt(excelRecover->GetCellValue(j, 25).toString());
+				if ((ui->segmentationTabs->currentIndex() == segmentationName) && (ui->detectorTabs->currentIndex() == detectorName) && (ui->descriptorTabs->currentIndex() == descriptorName) && (ui->matcherTabs->currentIndex() == matcherName))
+				{
+					rankValue = excelRecover->GetCellValue(j, column).toString().toInt();
+					if (rankValue == 0) nbRank0FromExcel++;
+					else rankkDataFromExcel.push_back(rankValue);
+				}
+				j++;
+			}
 	}
-	maxRank = rankkDataFromExcel.size();*/
+	excelRecover->~ExcelExportHelper();
+
+	maxRank = rankkDataFromExcel.size();
 	
 	if (ui->rankkGraphWidget->graphCount()){ 
 		ui->rankkGraphWidget->clearGraphs();
@@ -1042,23 +1056,116 @@ void MainWindow::on_refreshRankkGraph_pressed(){
 		drowRankk(maxRank);
 	}
 	else {
-		showError("Show Rank-k Graph", "No data to show!", "You can Show Rank-k Graph after launching some tests!");
+		QMessageBox::warning(this, "Show Rank-k Graph", "No data to show! You can Show Rank-k Graph after launching some tests!");
 		//disconnect(ui->rankkGraphWidget, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showRankkToolTip(QMouseEvent*)));
 	}
 }
 
 void MainWindow::on_refreshEerGraph_pressed(){
-	std::map<float, std::pair<int, int>>/*<threshold, <nbFM, nbNonExists>>*/ FMR_dataFromExcel
-		= { { 10, std::make_pair<int, int>(65, 70) }, { 15, std::make_pair<int, int>(89, 100) }, { 80, std::make_pair<int, int>(45, 70) }, { 100, std::make_pair<int, int>(35, 77) }, { 230, std::make_pair<int, int>(20, 100) }, { 400, std::make_pair<int, int>(5, 80) }, { 500, std::make_pair<int, int>(0, 10) } };
-	std::map<float, std::pair<int, int>>/*<threshold, <nbFNM, nbExists>>*/ FNMR_dataFromExcel
-		= { { 18, std::make_pair<int, int>(0, 10) }, { 25, std::make_pair<int, int>(5, 80) }, { 30, std::make_pair<int, int>(20, 100) }, { 50, std::make_pair<int, int>(35, 77) }, { 105, std::make_pair<int, int>(45, 70) }, { 190, std::make_pair<int, int>(80, 100) }, { 260, std::make_pair<int, int>(88, 100) }, { 410, std::make_pair<int, int>(120, 130) }, { 580, std::make_pair<int, int>(70, 75) } };
+	std::map<float, std::pair<int, int>>/*<threshold, <nbFM, nbNonExists>>*/ FMR_dataFromExcel = {};
+	std::map<float, std::pair<int, int>>::iterator FMR_itr = {};
+
+	std::map<float, std::pair<int, int>>/*<threshold, <nbFNM, nbExists>>*/ FNMR_dataFromExcel = {};
+	std::map<float, std::pair<int, int>>::iterator FNMR_itr = {};
 		
+	int column, segmentationName, detectorName, descriptorName, matcherName;
+	QString bestScore, requestedScore, scoreThreshold;
+
+	excelRecover = new ExcelExportHelper(true, exportFile, 0);
+	if (ui->allMethodsTabs->currentIndex() == 0) excelRecover->GetIntRows(ui->defaultTabs->currentIndex() + 1);
+	else excelRecover->GetIntRows(5);
+	column = excelRecover->getColumnsCount();
+
+	for (int j = 2; j <= excelRecover->getSheetCount(); j++) {
+
+		scoreThreshold = excelRecover->GetCellValue(j, column - 13).toString();
+
+		if (excelRecover->GetCellValue(j, 5).toBool() && (!scoreThreshold.isEmpty()))
+		{
+
+			if (ui->allMethodsTabs->currentIndex() == 0)
+			{
+				if (excelRecover->GetCellValue(j, 6).toBool())
+				{
+					FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold.toFloat());
+					if (FNMR_itr == FNMR_dataFromExcel.end()) FNMR_dataFromExcel.insert(std::make_pair(scoreThreshold.toFloat(), std::make_pair(0, 1)));
+					else FNMR_itr->second.second = FNMR_itr->second.second + 1;
+
+					requestedScore = excelRecover->GetCellValue(j, column - 2).toString();
+					if ((!requestedScore.isEmpty()))
+						if (requestedScore.toFloat() < scoreThreshold.toFloat())
+						{
+							FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold.toFloat());
+							FNMR_itr->second.first = FNMR_itr->second.first + 1;
+						}
+				}
+				else
+				{
+					FMR_itr = FMR_dataFromExcel.find(scoreThreshold.toFloat());
+					if (FMR_itr == FMR_dataFromExcel.end()) FMR_dataFromExcel.insert(std::make_pair(scoreThreshold.toFloat(), std::make_pair(0, 1)));
+					else FMR_itr->second.second = FMR_itr->second.second + 1;
+
+					bestScore = excelRecover->GetCellValue(j, column - 3).toString();
+					if ((!bestScore.isEmpty()))
+						if (bestScore.toFloat() >= scoreThreshold.toFloat())
+						{
+							FMR_itr = FMR_dataFromExcel.find(scoreThreshold.toFloat());
+							FMR_itr->second.first = FMR_itr->second.first + 1;
+						}
+				}
+
+			}
+			else
+			{
+				segmentationName = segmentationNameToInt(excelRecover->GetCellValue(j, 8).toString());
+				detectorName = detectorNameToInt(excelRecover->GetCellValue(j, 13).toString());
+				descriptorName = descriptorNameToInt(excelRecover->GetCellValue(j, 19).toString());
+				matcherName = matcherNameToInt(excelRecover->GetCellValue(j, 25).toString());
+
+				if ((ui->segmentationTabs->currentIndex() == segmentationName) && (ui->detectorTabs->currentIndex() == detectorName) && (ui->descriptorTabs->currentIndex() == descriptorName) && (ui->matcherTabs->currentIndex() == matcherName))
+				{
+					if (excelRecover->GetCellValue(j, 6).toBool())
+					{
+						FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold.toFloat());
+						if (FNMR_itr == FNMR_dataFromExcel.end()) FNMR_dataFromExcel.insert(std::make_pair(scoreThreshold.toFloat(), std::make_pair(0, 1)));
+						else FNMR_itr->second.second = FNMR_itr->second.second + 1;
+
+						requestedScore = excelRecover->GetCellValue(j, column - 2).toString();
+						if ((!requestedScore.isEmpty()))	
+							if (requestedScore.toFloat() < scoreThreshold.toFloat())
+							{
+								FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold.toFloat());
+								FNMR_itr->second.first = FNMR_itr->second.first + 1;
+							}
+					}
+					else
+					{
+						FMR_itr = FMR_dataFromExcel.find(scoreThreshold.toFloat());
+						if (FMR_itr == FMR_dataFromExcel.end()) FMR_dataFromExcel.insert(std::make_pair(scoreThreshold.toFloat(), std::make_pair(0, 1)));
+						else FMR_itr->second.second = FMR_itr->second.second + 1;
+
+						bestScore = excelRecover->GetCellValue(j, column - 3).toString();
+						if ((!bestScore.isEmpty()))
+							if (bestScore.toFloat() >= scoreThreshold.toFloat())
+							{
+								FMR_itr = FMR_dataFromExcel.find(scoreThreshold.toFloat());
+								FMR_itr->second.first = FMR_itr->second.first + 1;
+							}
+					}
+				}
+				j++;
+			}
+		}
+	}
+	excelRecover->~ExcelExportHelper();
+
 	if (ui->eerGraphWidget->graphCount()){
 		ui->eerGraphWidget->clearGraphs();
 		ui->eerGraphWidget->clearItems();
 	}
 
-	drowEer(FMR_dataFromExcel, FNMR_dataFromExcel);
+	if (FMR_dataFromExcel.empty() || FNMR_dataFromExcel.empty()) QMessageBox::warning(this, "Show EER Graph", "No data to show! You can Show EER Graph after having some FM et FNM tests !");
+	else drowEer(FMR_dataFromExcel, FNMR_dataFromExcel);
 }
 
 int MainWindow::computeRankK(float scoreThreshold){
@@ -1760,8 +1867,8 @@ bool MainWindow::takeTest() {
 		runCustom();
 		break;
 	}
-	showDecision();
-	return true;
+	if (showDecision()) return true;
+	else return false;
 }
 
 void MainWindow::customisingBinarization(int segmentationIndex){
@@ -2560,7 +2667,7 @@ cv::Mat MainWindow::maskMatchesByMinutiaeNature(std::vector<Minutiae> firstImgKe
 	return mask;
 }
 
-void MainWindow::showDecision(){
+bool MainWindow::showDecision(){
 	float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
 
 	if (oneToN) {
@@ -2587,6 +2694,7 @@ void MainWindow::showDecision(){
 			displayMatches(bestScoreIndex);
 			writeMatches(bestScoreIndex);
 			exportTable(goodMatchesSet[bestScoreIndex].size() + badMatchesSet[bestScoreIndex].size());
+			return true;
 		}
 	}
 	else {
@@ -2598,6 +2706,7 @@ void MainWindow::showDecision(){
 		displayMatches();
 		writeMatches();
 		exportTable(goodMatches.size() + badMatches.size());
+		return true;
 	}
 }
 
@@ -2615,7 +2724,6 @@ void MainWindow::importExcelFile(int type)
 			excelRecover->GetIntRows(methodIndex);
 			column = excelRecover->getColumnsCount();
 			for (int j = 2; j <= excelRecover->getSheetCount(); j++) {
-				if (type == 2 && methodIndex == 5 && j == excelRecover->getSheetCount()) break;
 				if ((type == 2) || ((ui->tabWidget_2->currentIndex() == 1) && (excelRecover->GetCellValue(j, 1) == ui->spinBox->text()))) {
 					cv::Mat image;
 					ui->tabWidget_2->setCurrentIndex(0);
@@ -2626,7 +2734,6 @@ void MainWindow::importExcelFile(int type)
 						ui->defaultTabs->setCurrentIndex(methodIndex - 1);
 					}
 					else {
-						if (type == 2 && (j % 2) == 1) j++;
 						ui->allMethodsTabs->setCurrentIndex(1);
 						ui->customTabs->setCurrentIndex(0);
 					}
@@ -3003,6 +3110,7 @@ void MainWindow::importExcelFile(int type)
 					else
 					{
 						if (takeTest()) exportSuccess(1);
+						if (methodIndex == 5) j++;
 					}
 				}
 			}
@@ -3011,7 +3119,11 @@ void MainWindow::importExcelFile(int type)
 		{
 			if (!exist) QMessageBox::warning(this, "Import Excel Error!", "Please check the number that has been entered because no ID matches this number !");
 		}
-		else QMessageBox::information(this, "Import Input file!", "The execution of all commands has been finished with success !");
+		else
+		{
+			//QMessageBox::information(this, "Import Input file!", "The execution of all commands has been finished with success !");
+			ui->logPlainText->appendHtml("<b style='color:blue'>he execution of all commands has been finished with success !</b>");
+		}
 		excelRecover->~ExcelExportHelper();
 		system("taskkill /im EXCEL.EXE /f");
 	}
