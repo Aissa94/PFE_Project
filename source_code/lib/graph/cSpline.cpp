@@ -120,12 +120,13 @@ double cSpline::getY( double x)
         }
     }
     j--;
-
-    double dx = x - mySplineSet[j].x;
-    double y = mySplineSet[j].a + mySplineSet[j].b * dx + mySplineSet[j].c * dx* dx +
-               mySplineSet[j].d * dx* dx * dx;
-
-    return y;
+	if (j < mySplineSet.size()){
+		double dx = x - mySplineSet[j].x;
+		double y = mySplineSet[j].a + mySplineSet[j].b * dx + mySplineSet[j].c * dx* dx +
+			mySplineSet[j].d * dx* dx * dx;
+		return y;
+	}
+    else return -1;
 
 }
 

@@ -1174,8 +1174,10 @@ void MainWindow::on_refreshEerGraph_pressed(){
 		ui->eerGraphWidget->clearItems();
 	}
 
-	if (FMR_dataFromExcel.empty() || FNMR_dataFromExcel.empty()) QMessageBox::warning(this, "Show EER Graph", "No data to show! You can Show EER Graph after having some FM et FNM tests !");
-	else drowEer(FMR_dataFromExcel, FNMR_dataFromExcel);
+	if (FMR_dataFromExcel.empty() && FNMR_dataFromExcel.empty()) QMessageBox::warning(this, "Show EER Graph", "No data to show! You can Show EER Graph after having some FM et FNM tests !");
+	else try{
+		drowEer(FMR_dataFromExcel, FNMR_dataFromExcel);
+	} catch (...){}
 }
 
 int MainWindow::computeRankK(float scoreThreshold){
@@ -1611,13 +1613,13 @@ void MainWindow::displayImage(cv::Mat imageMat, int first_second)
 
 	myUiScene->setScene(featureScene);
 	myUiScene->fitInView(featureScene->sceneRect(), Qt::AspectRatioMode::KeepAspectRatio);
-	//myUiScene->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 }
 
 void MainWindow::displayFeature(cv::Mat featureMat, int first_second)
 {
 	QGraphicsScene *featureScene = new QGraphicsScene();
-	QImage featureImg((const uchar *)featureMat.data, featureMat.cols, featureMat.rows, featureMat.step, QImage::Format_RGB888);
+	//QImage featureImg((const uchar *)featureMat.data, featureMat.cols, featureMat.rows, featureMat.step, QImage::Format_RGB888);
+	QImage featureImg = matToQImage(featureMat);
 	featureScene->addPixmap(QPixmap::fromImage(featureImg));
 
 	QGraphicsView *myUiScene;
@@ -2446,7 +2448,7 @@ void MainWindow::outlierElimination(){
 					scoreSet[i] = 1.0 / average * goodProbability;
 					// update the best score index
 					if (scoreSet[i] >= bestScore) {
-						if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
+						if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScoreIndex].size()){
 							bestScoreIndex = i;
 							bestScore = scoreSet[i];
 						}
@@ -2466,7 +2468,7 @@ void MainWindow::outlierElimination(){
 					scoreSet[i] = 1.0 / average * goodProbability;
 					// update the best score index
 					if (scoreSet[i] >= bestScore) {
-						if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
+						if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScoreIndex].size()){
 							bestScoreIndex = i;
 							bestScore = scoreSet[i];
 						}
@@ -2494,7 +2496,7 @@ void MainWindow::outlierElimination(){
 						scoreSet[i] = 1.0 / average * goodProbability;
 						// update the best score index
 						if (scoreSet[i] >= bestScore) {
-								if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
+								if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScoreIndex].size()){
 									bestScoreIndex = i;
 									bestScore = scoreSet[i];
 								}
@@ -2520,7 +2522,7 @@ void MainWindow::outlierElimination(){
 						scoreSet[i] = 1.0 / average * goodProbability;
 						// update the best score index
 						if (scoreSet[i] >= bestScore) {
-								if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
+								if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScoreIndex].size()){
 									bestScoreIndex = i;
 									bestScore = scoreSet[i];
 								}
@@ -2699,6 +2701,16 @@ bool MainWindow::showDecision(){
 			writeMatches(bestScoreIndex);
 			exportTable(goodMatchesSet[bestScoreIndex].size() + badMatchesSet[bestScoreIndex].size());
 			return true;
+		}
+		else {
+			if (ui->imageExistsInBdd->isEnabled() && ui->imageExistsInBdd->isChecked()){
+				ui->logPlainText->appendHtml("The first image is Rank-<b>" + QString::number(computeRankK(scoreThreshold)) + "</b> ");
+				if (ui->bddImageNames->currentIndex() > -1) if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml("There is a False Non-Match (FNM)");
+			}
+			// View results
+			ui->logPlainText->appendHtml("<b style='color:red'>All obtained scores are null.</b>");
+			displayMatches(0);
+			writeMatches(0);
 		}
 	}
 	else {
