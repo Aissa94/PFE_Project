@@ -608,7 +608,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
         <item row="0" column="0">
          <widget class="QTabWidget" name="customTabs">
           <property name="currentIndex">
-           <number>3</number>
+           <number>4</number>
           </property>
           <widget class="QWidget" name="tabSegmentation">
            <attribute name="title">
@@ -1055,7 +1055,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
             <item row="0" column="0">
              <widget class="QTabWidget" name="detectorTabs">
               <property name="currentIndex">
-               <number>0</number>
+               <number>6</number>
               </property>
               <widget class="QWidget" name="tabDetectorMinutiaeMme">
                <attribute name="title">
@@ -1969,7 +1969,7 @@ So a 100x100 image, with an initImgBound of 10, would create keypoints in the ce
             <item row="0" column="0">
              <widget class="QTabWidget" name="descriptorTabs">
               <property name="currentIndex">
-               <number>2</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="tabDescriptorFreak">
                <attribute name="title">
