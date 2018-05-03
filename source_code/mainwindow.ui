@@ -608,7 +608,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
         <item row="0" column="0">
          <widget class="QTabWidget" name="customTabs">
           <property name="currentIndex">
-           <number>4</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tabSegmentation">
            <attribute name="title">
