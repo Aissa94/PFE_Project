@@ -67,17 +67,19 @@ private:
 	bool readSetOfImages();
 	bool readInputFile();
 	bool createTestFolder();
-	void writeToFile(std::string fileName, cv::Algorithm * algoToWrite);
 	bool noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints);
 	int  getNormByText(std::string norm);
 	cv::Ptr<cv::flann::IndexParams> getFlannBasedIndexParamsType();
 	QString getFlannBasedNameParamsType();
 	cv::Mat skeletonization(cv::Mat img);
 	void harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &keypoints, float threshold = 125.0);
-	double kMeans(std::vector<cv::Mat> features_vector, int k);
-	void clustering();
-	float testInReverse(std::vector<cv::DMatch> directMatches, std::vector<cv::DMatch> inverseMatches, std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints, float limitDistance, std::vector<cv::DMatch> &bestMatches, std::vector<cv::DMatch> &badMatches);
-	float testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, float lowesRatio, float limitDistance, std::vector<cv::DMatch> &bestMatches, std::vector<cv::DMatch> &badMatches);
+	double kMeans(std::vector<cv::Mat> features_vector, int k, int attempts);
+	void clustering(int nbClusters = 40, int nbAttempts = 3);
+	void maskMatchesByCluster(std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints);
+	void maskMatchesByCluster(std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints, int imgIndx);
+	float testInReverse(std::vector<cv::DMatch> directMatches, std::vector<cv::DMatch> inverseMatches, float limitDistance, std::vector<cv::DMatch> &goodMatches, std::vector<cv::DMatch> &badMatches);
+	float testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, float lowesRatio, float limitDistance, std::vector<cv::DMatch> &goodMatches, std::vector<cv::DMatch> &badMatches);
+	float MainWindow::testRansac(std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints, float limitDistance, float confidence, std::vector<cv::DMatch> &goodMatches, std::vector<cv::DMatch> &badMatches, cv::Mat &fundamental);
 	template <typename T>
 	void writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first_second, std::string fileName = "", int squareSize = 5);
 	void writeMatches(int imgIndex = 0);

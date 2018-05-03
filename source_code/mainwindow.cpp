@@ -14,11 +14,12 @@
 	std::vector<std::vector<cv::KeyPoint>> setImgsKeypoints;
 	std::vector<std::vector<Minutiae>> setMinutiaes;
 	// Descriptors for the First & Second Image ...
-	cv::Mat firstImgDescriptor, secondImgDescriptor;
+	cv::Mat firstImgDescriptors, secondImgDescriptors;
 	std::vector<cv::Mat> setImgsDescriptors;
 	// Clustering parameters ...
 	cv::Mat labels, centers;
-	
+	std::vector<std::vector<int>> clusterAffectation;
+
 	// 1 to 1 ...
 	// Matches for the Direct & Invers matching
 	std::vector<cv::DMatch> directMatches, inverseMatches, goodMatches, badMatches;
@@ -32,6 +33,7 @@
 	std::vector<std::vector<std::vector<cv::DMatch>>> twoMatchesSet;
 
 	//Masks
+	bool masksAreEmpty=true;
 	cv::Mat matchingMask;
 	std::vector<cv::Mat> matchingMasks;
 	
@@ -87,10 +89,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->oneToN, &QCheckBox::toggled, [=](bool checked) {
 		if (checked){
 			if (ui->matcher1toNtype1->isChecked()) {
-				ui->matcherInlierLoweRatio->setEnabled(false);
-				ui->matcherInlierLoweRatioText->setEnabled(false);
-				ui->matcherInlierInversMatches->setEnabled(false);
-				ui->matcherInlierNoTest->setChecked(true);
+				ui->eliminationLoweRatio->setEnabled(false);
+				ui->eliminationLoweRatioText->setEnabled(false);
+				ui->eliminationInversMatches->setEnabled(false);
+				ui->eliminationNoTest->setChecked(true);
 			}
 			if (ui->imageExistsInBdd->isChecked()){
 				ui->bddImageNames->setEnabled(true);
@@ -102,16 +104,16 @@ MainWindow::MainWindow(QWidget *parent) :
 			}
 		}
 		else {
-			ui->matcherInlierLoweRatio->setEnabled(true);
-			ui->matcherInlierLoweRatioText->setEnabled(true);
-			ui->matcherInlierInversMatches->setEnabled(true);
+			ui->eliminationLoweRatio->setEnabled(true);
+			ui->eliminationLoweRatioText->setEnabled(true);
+			ui->eliminationInversMatches->setEnabled(true);
 		}
-		if (!ui->matcherInlierLoweRatio->isChecked()){
-			ui->matcherBruteForceCrossCheckLabel->setDisabled(ui->matcherInlierLoweRatio->isChecked() || (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()));
-			ui->matcherBruteForceCrossCheckText->setDisabled(ui->matcherInlierLoweRatio->isChecked() || (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()));
+		if (!ui->eliminationLoweRatio->isChecked()){
+			ui->matcherBruteForceCrossCheckLabel->setDisabled(ui->eliminationLoweRatio->isChecked() || (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()));
+			ui->matcherBruteForceCrossCheckText->setDisabled(ui->eliminationLoweRatio->isChecked() || (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()));
 		}
 	});
-	connect(ui->matcherInlierLoweRatio, &QCheckBox::toggled, [=](bool checked) {
+	connect(ui->eliminationLoweRatio, &QCheckBox::toggled, [=](bool checked) {
 		if (checked){
 			ui->matcherBruteForceCrossCheckLabel->setEnabled(false);
 			ui->matcherBruteForceCrossCheckText->setEnabled(false);
@@ -122,7 +124,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		}
 	});
 	connect(ui->matcher1toNtype1, &QCheckBox::toggled, [=](bool checked) {
-		ui->matcherInlierNoTest->setChecked(true);
+		ui->eliminationNoTest->setChecked(true);
 		if (checked){
 			ui->matcherBruteForceCrossCheckLabel->setEnabled(false);
 			ui->matcherBruteForceCrossCheckText->setEnabled(false);
@@ -389,13 +391,13 @@ void MainWindow::runDefault()
 
 	// Computing the descriptors
 	descriptionTime = (double)cv::getTickCount();
-	ptrDefault->compute(firstImg, firstImgKeypoints, firstImgDescriptor);
+	ptrDefault->compute(firstImg, firstImgKeypoints, firstImgDescriptors);
 	if (oneToN){
 		for (int i = 0; i < setImgs.size(); i++){
 			ptrDefault->compute(std::get<1>(setImgs[i]), setImgsKeypoints[i], setImgsDescriptors[i]);
 		}
 	}
-	else ptrDefault->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
+	else ptrDefault->compute(secondImg, secondImgKeypoints, secondImgDescriptors);
 	descriptionTime = ((double)cv::getTickCount() - descriptionTime) / cv::getTickFrequency();
 	ui->logPlainText->appendPlainText("Description time: " + QString::number(descriptionTime) + " (s)");
 
@@ -403,11 +405,11 @@ void MainWindow::runDefault()
 	matchingTime = (double)cv::getTickCount();
 	if (oneToN){
 		for (int i = 0; i < setImgs.size(); i++){
-			ptrMatcher->match(firstImgDescriptor, setImgsDescriptors[i], goodMatchesSet[i]);
+			ptrMatcher->match(firstImgDescriptors, setImgsDescriptors[i], goodMatchesSet[i]);
 		}
 	}
 	else {
-		ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, goodMatches);
+		ptrMatcher->match(firstImgDescriptors, secondImgDescriptors, goodMatches);
 	}
 	matchingTime = ((double)cv::getTickCount() - matchingTime) / cv::getTickFrequency();
 	ui->logPlainText->appendPlainText("Matching time: " + QString::number(matchingTime) + " (s)");
@@ -516,9 +518,22 @@ void MainWindow::runCustom()
 	// Customising Descriptor...
 	customisingDescriptor(descriptorIndex, descriptorName);
 
-	// Clustering descriptor
-	if (false){
-		clustering();
+	// Clustering Descriptors...
+	if (ui->withClusteringChecker->isChecked()){
+		int nbClusters = ui->clusteringNbClustersText->text().toInt(),
+			nbAttempts = ui->clusteringNbAttemptsText->text().toInt();
+		if (nbClusters<1) {
+			ui->logPlainText->appendHtml("<b style='color:red'>Invalid number of clusters: " + QString::number(nbClusters) + ", the default value is maintained!</b>");
+			nbClusters = 40;
+		}
+		if (nbAttempts<1) {
+			ui->logPlainText->appendHtml("<b style='color:red'>Invalid number of attempts: " + QString::number(nbAttempts) + ", the default value is maintained!</b>");
+			nbAttempts = 3;
+		}
+		clustering(nbClusters, nbAttempts);
+		// use masks to matche descriptors from the same cluster
+		if(oneToN)for (int i = 0; i < setImgs.size(); i++) maskMatchesByCluster(firstImgKeypoints, setImgsKeypoints[i], i);
+		else maskMatchesByCluster(firstImgKeypoints, secondImgKeypoints);
 	}
 
 	// Customising Matcher...
@@ -796,15 +811,15 @@ void MainWindow::runCustom()
 		excelReader->SetCellValue(26, 2, ui->matcher1toNtypeLabel->text());
 		excelReader->SetCellValueSecondRow(26, matcher1toNtype);
 
-		excelReader->SetCellValue(27, 2, ui->matcherKBestLabel->text());
-		if (ui->matcherInlierNoTest->isChecked()) excelReader->SetCellValueSecondRow(27, ui->matcherInlierNoTest->text());
+		excelReader->SetCellValue(27, 2, ui->customTabs->tabText(4));
+		if (ui->eliminationNoTest->isChecked()) excelReader->SetCellValueSecondRow(27, ui->eliminationNoTest->text());
 		else {
-			if (ui->matcherInlierInversMatches->isChecked()) excelReader->SetCellValueSecondRow(27, ui->matcherInlierInversMatches->text());
-			else excelReader->SetCellValueSecondRow(27, ui->matcherInlierLoweRatio->text() + ":" + ui->matcherInlierLoweRatioText->text());
+			if (ui->eliminationInversMatches->isChecked()) excelReader->SetCellValueSecondRow(27, ui->eliminationInversMatches->text());
+			else excelReader->SetCellValueSecondRow(27, ui->eliminationLoweRatio->text() + ":" + ui->eliminationLoweRatioText->text());
 		}
-		if (ui->matcherInlierLimitDistance->isChecked()) {
-			excelReader->SetCellValue(28, 2, ui->matcherInlierLimitDistance->text());
-			excelReader->SetCellValueSecondRow(28, ui->matcherInlierLimitDistanceText->text());
+		if (ui->eliminationLimitDistance->isChecked()) {
+			excelReader->SetCellValue(28, 2, ui->eliminationLimitDistance->text());
+			excelReader->SetCellValueSecondRow(28, ui->eliminationLimitDistanceText->text());
 		}
 		else excelReader->mergeRowsCells(28);
 
@@ -1430,15 +1445,6 @@ QString MainWindow::getFlannBasedNameParamsType(){
 	else return ui->matcherFlannBasedKDTreeIndexParams->text();
 }
 
-void MainWindow::writeToFile(std::string fileName, cv::Algorithm * algoToWrite){
-// Open a file and write parameters of an algorithm
-	// Open the file in WRITE mode
-	cv::FileStorage fs("params/" + fileName + "_params.yaml", cv::FileStorage::WRITE);
-	// Write the parameters
-	algoToWrite->write(fs);
-	// fs in WRITE mode automatically released
-}
-
 void MainWindow::wheelEvent(QWheelEvent *event){
 
 	// Scale the view / do the zoom
@@ -1456,16 +1462,17 @@ void MainWindow::wheelEvent(QWheelEvent *event){
 void MainWindow::resetParams()
 {
 	sumDistances = 0; score = 0;
-	bestScoreIndex = -1;
+	bestScoreIndex = -1; masksAreEmpty = true;
 	try{
 		firstImgKeypoints.clear(); secondImgKeypoints.clear(); setImgsKeypoints.clear(); setMinutiaes.clear();
-		firstImgDescriptor.release(); secondImgDescriptor.release(); setImgsDescriptors.clear();
+		firstImgDescriptors.release(); secondImgDescriptors.release(); setImgsDescriptors.clear();
 		firstEnhancedImage.release(); secondEnhancedImage.release(); setEnhancedImages.clear();
 		firstSegmentedImage.release(); secondSegmentedImage.release(); setSegmentedImages.clear();
 		directMatches.clear(); inverseMatches.clear(); twoMatches.clear(); goodMatches.clear(); badMatches.clear();
 		directMatchesSet.clear(); inverseMatchesSet.clear(); twoMatchesSet.clear(); goodMatchesSet.clear(); badMatchesSet.clear();
 		sumDistancesSet.clear(); scoreSet.clear();
 		matchingMask.release(); matchingMasks.clear();
+		clusterAffectation.clear();
 	}
 	catch (...){
 		ui->logPlainText->appendHtml("<b style='color:yellow'>Enable to free some structures!</b>");
@@ -1524,40 +1531,50 @@ void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &
 	}
 }
 
-double MainWindow::kMeans(std::vector<cv::Mat> features_vector, int k){
+double MainWindow::kMeans(std::vector<cv::Mat> features_vector, int k, int attempts){
 // K : The number of clusters to split the samples in rawFeatureData (retrieved from 'OpenCV 3 Blueprints' book)
-	int nbRows = firstImgDescriptor.rows;
+	int nbRows = firstImgDescriptors.rows;
 	if (oneToN){
 		for (cv::Mat descriptor : setImgsDescriptors)
 		{
 			nbRows += descriptor.rows;
 		}
 	}
-	else nbRows += secondImgDescriptor.rows;
-	cv::Mat rawFeatureData = cv::Mat::zeros(nbRows, firstImgDescriptor.cols, CV_32FC1);
+	else nbRows += secondImgDescriptors.rows;
+	cv::Mat rawFeatureData = cv::Mat::zeros(nbRows, firstImgDescriptors.cols, CV_32FC1);
 	// We need to copy the data from the vector of key points features_vector to imageFeatureData:
 	int cur_idx = 0;
 	for (int i = 0; i < features_vector.size(); i++){
 		features_vector[i].copyTo(rawFeatureData.rowRange(cur_idx, cur_idx + features_vector[i].rows));
 		cur_idx += features_vector[i].rows;
 	}
-	double result; //This is the sum of the squared distance between each sample to the corresponding centroid;
-	result = cv::kmeans(rawFeatureData, k, labels, cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::COUNT, 100, 1.0),
-		3, cv::KMEANS_PP_CENTERS, centers);
-	return result;
+	double compactness; //This is the sum of the squared distance between each sample to the corresponding centroid;
+	compactness = cv::kmeans(rawFeatureData, k, labels, cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::COUNT, 100, 1.0),
+		attempts, cv::KMEANS_PP_CENTERS, centers);
+	return compactness;
 }
 // <--------------
-void MainWindow::clustering(){
+void MainWindow::clustering(int nbClusters, int nbAttempts){
 	// use kmeans algorithme to cluster descriptors
 	clusteringTime = (double)cv::getTickCount();
 	std::vector<cv::Mat> matrix;
 	if (oneToN) {
-		matrix = { firstImgDescriptor };
+		matrix = { firstImgDescriptors };
 		matrix.insert(matrix.end(), setImgsDescriptors.begin(), setImgsDescriptors.end());
 	}
-	else matrix = { firstImgDescriptor, secondImgDescriptor };
+	else matrix = { firstImgDescriptors, secondImgDescriptors };
 	try{
-		double compactness = kMeans(matrix, 40);
+		double sumSquaredDistances = kMeans(matrix, nbClusters, nbAttempts);
+		int k = firstImgKeypoints.size();
+		if (oneToN){
+			clusterAffectation = std::vector<std::vector<int>>(setImgs.size(), std::vector<int>());
+			for (int i = 0; i < setImgs.size(); i++){
+				for (int j = 0; j < setImgsKeypoints[i].size(); j++){
+					clusterAffectation[i].push_back(labels.at<int>(k, 0));
+					k++;
+				}
+			}
+		}
 	}
 	catch (...){
 		ui->logPlainText->appendHtml("<i style='color:red'>The number of clusters is too high, try another!</i>");
@@ -1569,7 +1586,7 @@ void MainWindow::clustering(){
 	fs << "Centers" << centers;
 	fs.release();
 	clusteringTime = ((double)cv::getTickCount() - clusteringTime) / cv::getTickFrequency();
-	ui->logPlainText->appendPlainText("clustering time: " + QString::number(clusteringTime) + " (s)");
+	ui->logPlainText->appendPlainText("Clustering time: " + QString::number(clusteringTime) + " (s)");
 }
 
 QImage MainWindow::matToQImage(const cv::Mat& mat)
@@ -2043,13 +2060,14 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 					for (Minutiae minutiae : setMinutiaes[i]) setImgsKeypoints[i].push_back(minutiae);
 					// use masks to matche minutiae of the same type
 					matchingMasks[i] = maskMatchesByMinutiaeNature(firstMinutiae, setMinutiaes[i]);
-					}
+				}
 			}
 			else {
 				for (Minutiae minutiae : secondMinutiae) secondImgKeypoints.push_back(minutiae);
 				// use masks to matche minutiae of the same type
 				matchingMask = maskMatchesByMinutiaeNature(firstMinutiae, secondMinutiae);
 			}
+			masksAreEmpty = false;
 		}
 		catch (...){
 			ui->logPlainText->appendHtml("<i style='color:red'>Before detecting Minutiae you must select a segmentation method !</i>");
@@ -2109,6 +2127,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 				// use masks to matche minutiae of the same type
 				matchingMask = maskMatchesByMinutiaeNature(firstMinutiae, secondMinutiae);
 			}
+			masksAreEmpty = false;
 		}
 		catch (...){
 			ui->logPlainText->appendHtml("<i style='color:red'>Before detecting Minutiae you must select a segmentation method !</i>");
@@ -2202,9 +2221,6 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 	}
 
 	if (detectorIndex > 2 && (detectorIndex != 4 || !ui->detectorFastXCheck->isChecked())){
-		// Write the parameters
-		writeToFile("detector_" + detectorName, ptrDetector);
-		// fs in WRITE mode automatically released
 		try{
 			// Detecting Keypoints ...
 			detectionTime = (double)cv::getTickCount();
@@ -2278,19 +2294,14 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 		break;
 	}
 
-	// Write the parameters
-	writeToFile("descriptor_" + descriptorName, ptrDescriptor);
-
 	if (ui->opponentColor->isChecked()){
 		//OpponentColor
 		ptrDescriptor = new cv::OpponentColorDescriptorExtractor(ptrDescriptor);
-		// Write the parameters
-		writeToFile("descriptorOppCol_" + descriptorName, ptrDescriptor);
 	}
 
 	try{
 		descriptionTime = (double)cv::getTickCount();
-		ptrDescriptor->compute(firstImg, firstImgKeypoints, firstImgDescriptor);
+		ptrDescriptor->compute(firstImg, firstImgKeypoints, firstImgDescriptors);
 		if (oneToN)
 		{
 			setImgsDescriptors = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
@@ -2298,7 +2309,7 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 				ptrDescriptor->compute(std::get<1>(setImgs[i]), setImgsKeypoints[i], setImgsDescriptors[i]);
 			}
 		}
-		else ptrDescriptor->compute(secondImg, secondImgKeypoints, secondImgDescriptor);
+		else ptrDescriptor->compute(secondImg, secondImgKeypoints, secondImgDescriptors);
 		descriptionTime = ((double)cv::getTickCount() - descriptionTime) / cv::getTickFrequency();
 		ui->logPlainText->appendPlainText("Description time: " + QString::number(descriptionTime) + " (s)");
 	}
@@ -2335,35 +2346,32 @@ void MainWindow::customisingMatcher(int matcherIndex, std::string matcherName){
 		return;
 		break;
 	}
-
-	// Write the parameters
-	writeToFile("matcher_" + matcherName, ptrMatcher);
 }
 
 bool MainWindow::matching(){
 	// Start matching ...
 	try{
-		if (ui->matcherInlierNoTest->isChecked() || ui->matcherInlierInversMatches->isChecked()){
+		if (ui->eliminationNoTest->isChecked() || ui->eliminationInversMatches->isChecked()){
 			// Only the best direct match
 			matchingTime = (double)cv::getTickCount();
 			if (oneToN){
 				if (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()){
 					ptrMatcher->add(setImgsDescriptors);
 					//ptrMatcher->train();
-					ptrMatcher->match(firstImgDescriptor, directMatches, matchingMasks);
+					ptrMatcher->match(firstImgDescriptors, directMatches, matchingMasks);
 				}
 				else {//(ui->matcher1toNtype2->isChecked())
 					directMatchesSet = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
 					for (int i = 0; i < setImgs.size(); i++){
-						ptrMatcher->match(firstImgDescriptor, setImgsDescriptors[i], directMatchesSet[i], matchingMasks[i]);
+						ptrMatcher->match(firstImgDescriptors, setImgsDescriptors[i], directMatchesSet[i], matchingMasks[i]);
 					}
 				}
 			}
 			else {
-				ptrMatcher->match(firstImgDescriptor, secondImgDescriptor, directMatches, matchingMask);
+				ptrMatcher->match(firstImgDescriptors, secondImgDescriptors, directMatches, matchingMask);
 			}
 
-			if (ui->matcherInlierInversMatches->isEnabled() && ui->matcherInlierInversMatches->isChecked()){
+			if (ui->eliminationInversMatches->isEnabled() && ui->eliminationInversMatches->isChecked()){
 				// Also the best match in reverse
 				cv::Mat inverseMatchingMask;
 				if (oneToN){
@@ -2373,7 +2381,7 @@ bool MainWindow::matching(){
 							inverseMatchingMask = matchingMasks[i].t();
 						}
 						catch (cv::Exception){ inverseMatchingMask = cv::Mat(); }
-						ptrMatcher->match(setImgsDescriptors[i], firstImgDescriptor, inverseMatchesSet[i], inverseMatchingMask);
+						ptrMatcher->match(setImgsDescriptors[i], firstImgDescriptors, inverseMatchesSet[i], inverseMatchingMask);
 					}
 				}
 				else {
@@ -2381,21 +2389,21 @@ bool MainWindow::matching(){
 						inverseMatchingMask = matchingMask.t();
 					}
 					catch (cv::Exception){ inverseMatchingMask = cv::Mat(); }
-					ptrMatcher->match(secondImgDescriptor, firstImgDescriptor, inverseMatches, inverseMatchingMask);
+					ptrMatcher->match(secondImgDescriptors, firstImgDescriptors, inverseMatches, inverseMatchingMask);
 				}
 			}
 			matchingTime = ((double)cv::getTickCount() - matchingTime) / cv::getTickFrequency();
 		}
-		else if (ui->matcherInlierLoweRatio->isEnabled() && ui->matcherInlierLoweRatio->isChecked()){
+		else if (ui->eliminationLoweRatio->isEnabled() && ui->eliminationLoweRatio->isChecked()){
 			// Best two set of matches
 			matchingTime = (double)cv::getTickCount();
 			if (oneToN){
 				twoMatchesSet = std::vector<std::vector<std::vector<cv::DMatch>>>(setImgs.size(), std::vector<std::vector<cv::DMatch>>());
 				for (int i = 0; i < setImgs.size(); i++){
-					ptrMatcher->knnMatch(firstImgDescriptor, setImgsDescriptors[i], twoMatchesSet[i], 2, matchingMasks[i]);
+					ptrMatcher->knnMatch(firstImgDescriptors, setImgsDescriptors[i], twoMatchesSet[i], 2, matchingMasks[i]);
 				}
 			}
-			else ptrMatcher->knnMatch(firstImgDescriptor, secondImgDescriptor, twoMatches, 2, matchingMask);
+			else ptrMatcher->knnMatch(firstImgDescriptors, secondImgDescriptors, twoMatches, 2, matchingMask);
 			matchingTime = ((double)cv::getTickCount() - matchingTime) / cv::getTickFrequency();
 		}
 	}
@@ -2404,6 +2412,8 @@ bool MainWindow::matching(){
 		// And also, some descriptors must be used with specific NORM_s
 		if (ui->matcherTabs->currentIndex() == 0 && ui->matcherBruteForceCrossCheckText->isEnabled() && ui->matcherBruteForceCrossCheckText->isChecked() && ui->detectorTabs->currentIndex()<2)
 			ui->logPlainText->appendHtml("<b style='color:orange'>Set <i>Cross Check</i> in Brute Force as false while matching Minutias!.</b>");
+		if (ui->matcherTabs->currentIndex() == 0 && ui->matcherBruteForceCrossCheckText->isEnabled() && ui->matcherBruteForceCrossCheckText->isChecked())
+			ui->logPlainText->appendHtml("<b style='color:orange'>Set <i>Cross Check</i> in Brute Force as false while using clustering!.</b>");
 		else ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one.</b>");
 		return false;
 	}
@@ -2413,16 +2423,16 @@ bool MainWindow::matching(){
 
 void MainWindow::outlierElimination(){
 	// Eliminate outliers, and calculate the sum of best matches distance
-	float limitDistance = ui->matcherInlierLimitDistanceText->text().toFloat();
-	float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
-	if (ui->matcherInlierLimitDistance->isChecked() && limitDistance < 0) {
+	float limitDistance = ui->eliminationLimitDistanceText->text().toFloat();
+	if (ui->eliminationLimitDistance->isChecked() && limitDistance < 0) {
 		ui->logPlainText->appendHtml("<b style='color:red'>Invalid Limit Distance: " + QString::number(limitDistance) + ", the default value is maintained!</b>");
-		limitDistance = 0.4;
+		limitDistance = 0.4f;
 	}
-	/*if (use_ransac == false)
-	compute_inliers_homography(matches_surf, inliers_surf, H, MAX_H_ERROR);
-	else
-	compute_inliers_ransac(matches_surf, inliers_surf, MAX_H_ERROR, false);*/
+	/*float confidence = ui->matcherRansacTestConfidence->text().toFloat();
+	if (ui->matcherRansacTest->isChecked() && (confidence < 0 || confidence > 1)) {
+		ui->logPlainText->appendHtml("<b style='color:red'>Invalid Confidence: " + QString::number(confidence) + ", the default value is maintained!</b>");
+		confidence = 0.99f;
+	}*/
 	if (oneToN){
 		sumDistancesSet = std::vector<float>(setImgs.size());
 		scoreSet = std::vector<float>(setImgs.size());
@@ -2431,13 +2441,13 @@ void MainWindow::outlierElimination(){
 		goodMatchesSet = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
 		badMatchesSet  = std::vector<std::vector<cv::DMatch>>(setImgs.size(), std::vector<cv::DMatch>());
 
-		if (ui->matcherInlierLoweRatio->isEnabled() && ui->matcherInlierLoweRatio->isChecked()){
+		if (ui->eliminationLoweRatio->isEnabled() && ui->eliminationLoweRatio->isChecked()){
 			// Lowe's ratio test = 0.7 by default
-			float lowesRatio = ui->matcherInlierLoweRatioText->text().toFloat();
+			float lowesRatio = ui->eliminationLoweRatioText->text().toFloat();
 			if (lowesRatio <= 0 || 1 <= lowesRatio) {
 				ui->logPlainText->appendHtml("<b style='color:red'>Invalid Lowe's Ratio: " + QString::number(lowesRatio) + ", the default value is maintained!</b>");
 				lowesRatio = 0.7;
-				ui->matcherInlierLoweRatioText->setText("0.7");
+				ui->eliminationLoweRatioText->setText("0.7");
 			}
 			for (int i = 0; i < setImgs.size(); i++){
 				sumDistancesSet[i] = testOfLowe(twoMatchesSet[i], lowesRatio, limitDistance, goodMatchesSet[i], badMatchesSet[i]);
@@ -2457,10 +2467,10 @@ void MainWindow::outlierElimination(){
 				else scoreSet[i] = 0.0;
 			}
 		}
-		else if (ui->matcherInlierInversMatches->isEnabled() && ui->matcherInlierInversMatches->isChecked()){
+		else if (ui->eliminationInversMatches->isEnabled() && ui->eliminationInversMatches->isChecked()){
 			// in reverse matching test
 			for (int i = 0; i < setImgs.size(); i++){
-				sumDistancesSet[i] = testInReverse(directMatchesSet[i], inverseMatchesSet[i], firstImgKeypoints, setImgsKeypoints[i], limitDistance, goodMatchesSet[i], badMatchesSet[i]);
+				sumDistancesSet[i] = testInReverse(directMatchesSet[i], inverseMatchesSet[i], limitDistance, goodMatchesSet[i], badMatchesSet[i]);
 				
 				if (goodMatchesSet[i].size() > 0){
 					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
@@ -2481,7 +2491,7 @@ void MainWindow::outlierElimination(){
 			// No elimination test
 			if (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()){// Type1
 				for (int i = 0; i < directMatches.size(); i++){
-					if (directMatches[i].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
+					if (directMatches[i].distance <= limitDistance || !ui->eliminationLimitDistance->isChecked()){
 						sumDistancesSet[directMatches[i].imgIdx] += directMatches[i].distance;
 						goodMatchesSet[directMatches[i].imgIdx].push_back(directMatches[i]);
 					}
@@ -2508,7 +2518,7 @@ void MainWindow::outlierElimination(){
 			else {// Type2
 				for (int i = 0; i < setImgs.size(); i++){
 					for (int j = 0; j < directMatchesSet[i].size(); j++){
-						if (directMatchesSet[i][j].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
+						if (directMatchesSet[i][j].distance <= limitDistance || !ui->eliminationLimitDistance->isChecked()){
 							sumDistancesSet[i] += directMatchesSet[i][j].distance;
 							goodMatchesSet[i].push_back(directMatchesSet[i][j]);
 						}
@@ -2534,24 +2544,24 @@ void MainWindow::outlierElimination(){
 		}
 	}
 	else {// 1 to 1
-		if (ui->matcherInlierLoweRatio->isChecked()){
+		if (ui->eliminationLoweRatio->isChecked()){
 			// Lowe's ratio test = 0.7 by default
-			float lowesRatio = ui->matcherInlierLoweRatioText->text().toFloat();
+			float lowesRatio = ui->eliminationLoweRatioText->text().toFloat();
 			if (lowesRatio <= 0 || 1 <= lowesRatio) {
 				ui->logPlainText->appendHtml("<b style='color:red'>Invalid Lowe's Ratio: " + QString::number(lowesRatio) + ", the default value is maintained!</b>");
-				lowesRatio = 0.7;
+				lowesRatio = 0.7f;
 			}
 			sumDistances = testOfLowe(twoMatches, lowesRatio, limitDistance, goodMatches, badMatches);
 		}
-		else if (ui->matcherInlierInversMatches->isChecked()){
+		else if (ui->eliminationInversMatches->isChecked()){
 			// in reverse matching test
-			sumDistances = testInReverse(directMatches, inverseMatches, firstImgKeypoints, secondImgKeypoints, limitDistance, goodMatches, badMatches);
+			sumDistances = testInReverse(directMatches, inverseMatches, limitDistance, goodMatches, badMatches);
 		}
 		else {
 			// No elimination test
 			// 1 to 1
 			for (int i = 0; i < directMatches.size(); i++){
-				if (directMatches[i].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
+				if (directMatches[i].distance <= limitDistance || !ui->eliminationLimitDistance->isChecked()){
 					sumDistances += directMatches[i].distance;
 					goodMatches.push_back(directMatches[i]);
 				}
@@ -2560,6 +2570,10 @@ void MainWindow::outlierElimination(){
 				}
 			}
 		}
+		/*if (ui->matcherRansacTest->isChecked()) {
+			float ransacLimitDistance = ui->eliminationLimitDistance->isChecked() ? limitDistance : std::numeric_limits<float>::max();
+			sumDistances -= testRansac(firstImgKeypoints, secondImgKeypoints, ransacLimitDistance, confidence, goodMatches, badMatches, cv::Mat());
+		}*/
 		if (goodMatches.size() > 0){
 			float average = sumDistances / static_cast<float>(goodMatches.size());
 			float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size() + badMatches.size()) * 100;
@@ -2619,7 +2633,7 @@ float MainWindow::testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, fl
 	// and return sum of distances of goodMatches
 	double sumDistances = 0; 
 	for (int i = 0; i < twoMatches.size(); i++){
-		if ((twoMatches[i][0].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked())
+		if ((twoMatches[i][0].distance <= limitDistance || !ui->eliminationLimitDistance->isChecked())
 		  &&(twoMatches[i][0].distance <= lowesRatio*twoMatches[i][1].distance)){
 			sumDistances += twoMatches[i][0].distance;
 			goodMatches.push_back(twoMatches[i][0]);
@@ -2631,19 +2645,19 @@ float MainWindow::testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, fl
 	return sumDistances;
 }
 
-float MainWindow::testInReverse(std::vector<cv::DMatch> directMatches, std::vector<cv::DMatch> inverseMatches, std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints, float limitDistance, std::vector<cv::DMatch> &goodMatches, std::vector<cv::DMatch> &badMatches){
+float MainWindow::testInReverse(std::vector<cv::DMatch> directMatches, std::vector<cv::DMatch> inverseMatches, float limitDistance, std::vector<cv::DMatch> &goodMatches, std::vector<cv::DMatch> &badMatches){
 	// put matches that are in direct and reverse Matches in goodMatches
 	// and put the other matches in badMatches
 	// and return sum of distances of goodMatches
  	double sumDistances = 0;
 	for (int i = 0; i < directMatches.size(); i++){
-		if (directMatches[i].distance <= limitDistance || !ui->matcherInlierLimitDistance->isChecked()){
+		if (directMatches[i].distance <= limitDistance || !ui->eliminationLimitDistance->isChecked()){
 			// Check if the match is the same in reverse
 			for (int j = 0; j < inverseMatches.size(); j++)
 			{
-				if ((secondImgKeypoints[j].pt == secondImgKeypoints[directMatches[i].trainIdx].pt)
-					&& (firstImgKeypoints[inverseMatches[j].trainIdx].pt == firstImgKeypoints[i].pt))
+				if ((directMatches[i].queryIdx == inverseMatches[j].trainIdx) && (inverseMatches[j].queryIdx == directMatches[i].trainIdx))
 				{
+					// add symmetrical match
 					sumDistances += directMatches[i].distance;
 					goodMatches.push_back(directMatches[i]);
 					// go out the loop
@@ -2657,19 +2671,92 @@ float MainWindow::testInReverse(std::vector<cv::DMatch> directMatches, std::vect
 	return sumDistances;
 }
 
+float MainWindow::testRansac(std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints, float limitDistance, float confidence, std::vector<cv::DMatch> &goodMatches, std::vector<cv::DMatch> &badMatches, cv::Mat &fundamental) {
+	// Identify good matches using RANSAC
+	// Return fundamental matrix
+	float distanceToRemove = 0.0f;
+	// Convert keypoints into Point2f
+	std::vector<cv::Point2f> points1, points2;
+	for (std::vector<cv::DMatch>::
+		const_iterator it = goodMatches.begin();
+		it != goodMatches.end(); ++it) {
+		// Get the position of left keypoints
+		float x = firstImgKeypoints[it->queryIdx].pt.x;
+		float y = firstImgKeypoints[it->queryIdx].pt.y;
+		points1.push_back(cv::Point2f(x, y));
+		// Get the position of right keypoints
+		x = secondImgKeypoints[it->trainIdx].pt.x;
+		y = secondImgKeypoints[it->trainIdx].pt.y;
+		points2.push_back(cv::Point2f(x, y));
+	}
+	// Compute F matrix using RANSAC
+	std::vector<cv::DMatch> outMatches;
+	std::vector<uchar> inliers(points1.size(), 0);
+	if (points1.size()>0 && points2.size()>0){
+		fundamental = cv::findFundamentalMat(cv::Mat(points1), cv::Mat(points2), // matching points
+			inliers,       // match status (inlier or outlier)
+			cv::FM_RANSAC, // RANSAC method
+			limitDistance,      // distance to epipolar line
+			confidence); // confidence probability
+		// extract the surviving (inliers) matches
+		std::vector<uchar>::const_iterator
+			itIn = inliers.begin();
+		std::vector<cv::DMatch>::const_iterator
+			itM = goodMatches.begin();
+		// for all matches
+		for (; itIn != inliers.end(); ++itIn, ++itM) {
+			if (*itIn) { // it is a valid match
+				outMatches.push_back(*itM);
+			}
+			else {
+				badMatches.push_back(*itM);
+				distanceToRemove += (*itM).distance;
+			}
+		}
+		goodMatches = outMatches;
+	}
+	return distanceToRemove;
+}
+
 cv::Mat MainWindow::maskMatchesByMinutiaeNature(std::vector<Minutiae> firstImgKeypoints, std::vector<Minutiae> secondImgKeypoints){
 	// To matche bifurcation with bifurcation and ridge ending with ridge ending...
 	// Only if keypoints are minutiae
-	cv::Mat mask = cv::Mat(firstImgKeypoints.size(), secondImgKeypoints.size(), CV_8UC1);
+	cv::Mat mask = cv::Mat::zeros(firstImgKeypoints.size(), secondImgKeypoints.size(), CV_8UC1);
 	for (size_t i = 0; i < firstImgKeypoints.size(); i++)
 	{
 		for (size_t j = 0; j < secondImgKeypoints.size(); j++)
 		{
 			if (firstImgKeypoints[i].getType() == secondImgKeypoints[j].getType()) mask.at<uchar>(i, j) = 1;
-			else mask.at<uchar>(i, j) = 0;
+			//else mask.at<uchar>(i, j) = 0;
 		}
 	}
 	return mask;
+}
+
+void MainWindow::maskMatchesByCluster(std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints){
+	// To matche only descriptors in the same cluster...
+	// Only if we have clusters
+	if (masksAreEmpty) matchingMask = cv::Mat::zeros(firstImgKeypoints.size(), secondImgKeypoints.size(), CV_8UC1);
+	for (size_t i = 0; i < firstImgKeypoints.size(); i++)
+	{
+		for (size_t j = 0; j < secondImgKeypoints.size(); j++)
+		{
+			if (labels.at<int>(i) == labels.at<int>(firstImgKeypoints.size() + j)) matchingMask.at<uchar>(i, j) = 1;
+		}
+	}
+}
+
+void MainWindow::maskMatchesByCluster(std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints, int imgIndx){
+	// To matche only descriptors in the same cluster...
+	// Only if we have clusters
+	if (masksAreEmpty) matchingMasks[imgIndx] = cv::Mat::zeros(firstImgKeypoints.size(), secondImgKeypoints.size(), CV_8UC1);
+	for (size_t i = 0; i < firstImgKeypoints.size(); i++)
+	{
+		for (size_t j = 0; j < secondImgKeypoints.size(); j++)
+		{
+			if (labels.at<int>(i) == clusterAffectation[imgIndx][j]) matchingMasks[imgIndx].at<uchar>(i, j) = 1;
+		}
+	}
 }
 
 bool MainWindow::showDecision(){
@@ -2996,14 +3083,14 @@ void MainWindow::importExcelFile(int type)
 
 						if (excelRecover->GetCellValue(j, 28 - type).toString().isEmpty())
 						{
-							ui->matcherInlierLimitDistance->setChecked(false);
-							ui->matcherInlierLimitDistanceText->setEnabled(false);
+							ui->eliminationLimitDistance->setChecked(false);
+							ui->eliminationLimitDistanceText->setEnabled(false);
 						}
 						else
 						{
-							ui->matcherInlierLimitDistance->setChecked(true);
-							ui->matcherInlierLimitDistanceText->setEnabled(true);
-							ui->matcherInlierLimitDistanceText->setText(excelRecover->GetCellValue(j + 1, 28 - type).toString());
+							ui->eliminationLimitDistance->setChecked(true);
+							ui->eliminationLimitDistanceText->setEnabled(true);
+							ui->eliminationLimitDistanceText->setText(excelRecover->GetCellValue(j + 1, 28 - type).toString());
 						}
 
 						switch (matcherName)
@@ -3190,26 +3277,26 @@ void MainWindow::OutliersEliminationToInt(const QString& value)
 {
 	if (value == "Without test")
 	{
-		ui->matcherInlierNoTest->setChecked(true);
-		ui->matcherInlierLoweRatioText->setEnabled(false);
+		ui->eliminationNoTest->setChecked(true);
+		ui->eliminationLoweRatioText->setEnabled(false);
 	}
 	else
 	{
 		if (value == "In reverse matching test")
 		{
-			ui->matcherInlierInversMatches->setChecked(true);
-			ui->matcherInlierLoweRatioText->setEnabled(false);
+			ui->eliminationInversMatches->setChecked(true);
+			ui->eliminationLoweRatioText->setEnabled(false);
 		}
 		else
 		{
 			if (!value.isEmpty())
 			{
-				ui->matcherInlierLoweRatio->setChecked(true);
-				ui->matcherInlierLoweRatioText->setEnabled(true);
+				ui->eliminationLoweRatio->setChecked(true);
+				ui->eliminationLoweRatioText->setEnabled(true);
 
 				QRegExp rx("(\\:)"); //RegEx for ':'
 				QStringList matcher = value.split(rx);
-				ui->matcherInlierLoweRatioText->setText(matcher[1]);
+				ui->eliminationLoweRatioText->setText(matcher[1]);
 			}
 		}
 	}
