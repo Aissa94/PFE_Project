@@ -38,15 +38,15 @@ ExcelManager::ExcelManager(bool closeExcelOnExit, const QString& fileName, int n
 
 		SetNewCellValueFirst(m_sheet_custom);
 		SetNewCellValue(m_sheet_custom, 8, 1, "Segmentation");
-		SetNewCellValue(m_sheet_custom, 9, 4, "Parameters of Segmentation");
-		SetNewCellValue(m_sheet_custom, 13, 1, "Detector");
-		SetNewCellValue(m_sheet_custom, 14, 5, "Parameters of Detector");
-		SetNewCellValue(m_sheet_custom, 19, 1, "Descriptor");
-		SetNewCellValue(m_sheet_custom, 20, 5, "Parameters of Descriptor");
-		SetNewCellValue(m_sheet_custom, 25, 1, "Matcher");
-		SetNewCellValue(m_sheet_custom, 26, 6, "Parameters of Matcher");
-		SetNewCellValue(m_sheet_custom, 32, 1, "Opponent Color");
-		SetNewCellValueLast(m_sheet_custom, 33);
+		SetNewCellValue(m_sheet_custom, 9, 1, "Parameters of Segmentation");
+		SetNewCellValue(m_sheet_custom, 10, 1, "Detector");
+		SetNewCellValue(m_sheet_custom, 11, 5, "Parameters of Detector");
+		SetNewCellValue(m_sheet_custom, 16, 1, "Descriptor");
+		SetNewCellValue(m_sheet_custom, 17, 5, "Parameters of Descriptor");
+		SetNewCellValue(m_sheet_custom, 22, 1, "Matcher");
+		SetNewCellValue(m_sheet_custom, 23, 8, "Parameters of Matcher");
+		SetNewCellValue(m_sheet_custom, 31, 1, "Opponent Color");
+		SetNewCellValueLast(m_sheet_custom, 32);
 
 		m_sheet_brisk = AddNewSheet("BRISK");
 
@@ -288,15 +288,16 @@ void ExcelManager::SetNewCellValueLast(QAxObject* sheet, int startColumnIndex)
 	SetNewCellValue(sheet, startColumnIndex + 2, 1, "key Points 2");
 	SetNewCellValue(sheet, startColumnIndex + 3, 1, "Detection Time");
 	SetNewCellValue(sheet, startColumnIndex + 4, 1, "Description Time");
-	SetNewCellValue(sheet, startColumnIndex + 5, 1, "Matching Time");
-	SetNewCellValue(sheet, startColumnIndex + 6, 1, "Total Time");
-	SetNewCellValue(sheet, startColumnIndex + 7, 1, "Accepted Matches");
-	SetNewCellValue(sheet, startColumnIndex + 8, 1, "Rejected Matches");
-	SetNewCellValue(sheet, startColumnIndex + 9, 1, "Best Image Average");
-	SetNewCellValue(sheet, startColumnIndex + 10, 1, "Best Image Score");
-	SetNewCellValue(sheet, startColumnIndex + 11, 1, "Requested Image Score");
-	SetNewCellValue(sheet, startColumnIndex + 12, 1, "Best Image");
-	SetNewCellValue(sheet, startColumnIndex + 13, 1, "Rank");
+	SetNewCellValue(sheet, startColumnIndex + 5, 1, "Clustering Time");
+	SetNewCellValue(sheet, startColumnIndex + 6, 1, "Matching Time");
+	SetNewCellValue(sheet, startColumnIndex + 7, 1, "Total Time");
+	SetNewCellValue(sheet, startColumnIndex + 8, 1, "Accepted Matches");
+	SetNewCellValue(sheet, startColumnIndex + 9, 1, "Rejected Matches");
+	SetNewCellValue(sheet, startColumnIndex + 10, 1, "Best Image Average");
+	SetNewCellValue(sheet, startColumnIndex + 11, 1, "Best Image Score");
+	SetNewCellValue(sheet, startColumnIndex + 12, 1, "Requested Image Score");
+	SetNewCellValue(sheet, startColumnIndex + 13, 1, "Best Image");
+	SetNewCellValue(sheet, startColumnIndex + 14, 1, "Rank");
 }
 
 void ExcelManager::setCellFontBold(QAxObject* cell, int size) {

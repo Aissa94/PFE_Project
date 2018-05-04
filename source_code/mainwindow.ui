@@ -24,7 +24,7 @@
        <bool>false</bool>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabDefault">
        <attribute name="title">
@@ -685,61 +685,6 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
                   </property>
                  </spacer>
                 </item>
-                <item row="0" column="1">
-                 <layout class="QGridLayout" name="segmentationMorphologicalSkeletonParams">
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="segmentationMorphologicalSkeletonParam1Label">
-                    <property name="text">
-                     <string>Parameter1 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="segmentationMorphologicalSkeletonParam2Label">
-                    <property name="text">
-                     <string>Parameter2 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="segmentationMorphologicalSkeletonParam3Label">
-                    <property name="text">
-                     <string>Parameter3 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="segmentationMorphologicalSkeletonParam1Text">
-                    <property name="text">
-                     <string>10</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="segmentationMorphologicalSkeletonParam2Text">
-                    <property name="text">
-                     <string>20</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QLineEdit" name="segmentationMorphologicalSkeletonParam3Text">
-                    <property name="text">
-                     <string>30</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
                 <item row="0" column="2">
                  <spacer name="horizontalSpacer_39">
                   <property name="orientation">
@@ -752,6 +697,20 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
                    </size>
                   </property>
                  </spacer>
+                </item>
+                <item row="0" column="1">
+                 <layout class="QGridLayout" name="segmentationMorphologicalSkeletonParams">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="segmentationMorphologicalSkeletonParam3Label">
+                    <property name="text">
+                     <string>No parameters to load</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                </layout>
               </widget>
@@ -779,53 +738,12 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
                 <item row="0" column="1">
                  <layout class="QGridLayout" name="segmentationZhangSuenParams">
                   <item row="0" column="0">
-                   <widget class="QLabel" name="segmentationZhangSuenParam1Label">
-                    <property name="text">
-                     <string>Parameter1 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="segmentationZhangSuenParam2Label">
-                    <property name="text">
-                     <string>Parameter2 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
                    <widget class="QLabel" name="segmentationZhangSuenParam3Label">
                     <property name="text">
-                     <string>Parameter3 :</string>
+                     <string>No parameters to load</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="segmentationZhangSuenParam1Text">
-                    <property name="text">
-                     <string>10</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="segmentationZhangSuenParam2Text">
-                    <property name="text">
-                     <string>20</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QLineEdit" name="segmentationZhangSuenParam3Text">
-                    <property name="text">
-                     <string>30</string>
                     </property>
                    </widget>
                   </item>
@@ -867,53 +785,12 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
                 <item row="0" column="1">
                  <layout class="QGridLayout" name="segmentationLinHongParams">
                   <item row="0" column="0">
-                   <widget class="QLabel" name="segmentationLinHongParam1Label">
-                    <property name="text">
-                     <string>Parameter1 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="segmentationLinHongParam2Label">
-                    <property name="text">
-                     <string>Parameter2 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
                    <widget class="QLabel" name="segmentationLinHongParam3Label">
                     <property name="text">
-                     <string>Parameter3 :</string>
+                     <string>No parameters to load</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="segmentationLinHongParam1Text">
-                    <property name="text">
-                     <string>10</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="segmentationLinHongParam2Text">
-                    <property name="text">
-                     <string>20</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QLineEdit" name="segmentationLinHongParam3Text">
-                    <property name="text">
-                     <string>30</string>
                     </property>
                    </widget>
                   </item>
@@ -955,53 +832,12 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
                 <item row="0" column="1">
                  <layout class="QGridLayout" name="segmentationGuoHallParams">
                   <item row="0" column="0">
-                   <widget class="QLabel" name="segmentationGuoHallParam1Label">
-                    <property name="text">
-                     <string>Parameter1 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="segmentationGuoHallParam2Label">
-                    <property name="text">
-                     <string>Parameter2 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
                    <widget class="QLabel" name="segmentationGuoHallParam3Label">
                     <property name="text">
-                     <string>Parameter3 :</string>
+                     <string>No parameters to load</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="segmentationGuoHallParam1Text">
-                    <property name="text">
-                     <string>10</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="segmentationGuoHallParam2Text">
-                    <property name="text">
-                     <string>20</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QLineEdit" name="segmentationGuoHallParam3Text">
-                    <property name="text">
-                     <string>30</string>
                     </property>
                    </widget>
                   </item>
@@ -1055,7 +891,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
             <item row="0" column="0">
              <widget class="QTabWidget" name="detectorTabs">
               <property name="currentIndex">
-               <number>6</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="tabDetectorMinutiaeMme">
                <attribute name="title">
@@ -1081,36 +917,12 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
                 <item row="0" column="1">
                  <layout class="QGridLayout" name="detectorMinutiaeParams">
                   <item row="0" column="0">
-                   <widget class="QLabel" name="detectorMinutiaeParam1Label">
-                    <property name="text">
-                     <string>Param1 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
                    <widget class="QLabel" name="detectorMinutiaeParam2Label">
                     <property name="text">
-                     <string>param2 :</string>
+                     <string>No parameters to load</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="detectorMinutiaeParam1Text">
-                    <property name="text">
-                     <string>0</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="detectorMinutiaeParam2Text">
-                    <property name="text">
-                     <string>0</string>
                     </property>
                    </widget>
                   </item>
@@ -1154,6 +966,13 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
                 </item>
                 <item row="0" column="1">
                  <layout class="QGridLayout" name="detectorCrossingNumberParams">
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="detectorCrossingNumberBorderText">
+                    <property name="text">
+                     <string>30</string>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="0" column="0">
                    <widget class="QLabel" name="detectorCrossingNumberBorderLabel">
                     <property name="toolTip">
@@ -1164,30 +983,6 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="detectorCrossingNumberParamLabel">
-                    <property name="text">
-                     <string>param :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="detectorCrossingNumberBorderText">
-                    <property name="text">
-                     <string>30</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="detectorCrossingNumberParamText">
-                    <property name="text">
-                     <string>0</string>
                     </property>
                    </widget>
                   </item>
@@ -1238,27 +1033,10 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="detectorHarrisParamLabel">
-                    <property name="text">
-                     <string>param :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="0" column="1">
                    <widget class="QLineEdit" name="detectorHarrisThresholdText">
                     <property name="text">
                      <string>125.0</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="detectorHarrisParamText">
-                    <property name="text">
-                     <string>0</string>
                     </property>
                    </widget>
                   </item>
@@ -2326,111 +2104,6 @@ So a 100x100 image, with an initImgBound of 10, would create keypoints in the ce
                 </item>
                </layout>
               </widget>
-              <widget class="QWidget" name="tabDescriptorMethod2">
-               <attribute name="title">
-                <string>Method2</string>
-               </attribute>
-               <layout class="QGridLayout" name="gridLayout_13">
-                <item row="0" column="1">
-                 <layout class="QGridLayout" name="descriptorMethod2Params">
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="descriptorMethod2Param2Label">
-                    <property name="text">
-                     <string>Parameter2 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="descriptorMethod2Param3Label">
-                    <property name="text">
-                     <string>Parameter3 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="descriptorMethod2LengthLabel">
-                    <property name="text">
-                     <string>Descriptor Length in Bytes :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="descriptorMethod2Param1Text">
-                    <property name="text">
-                     <string>10</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="descriptorMethod2Param2Text">
-                    <property name="text">
-                     <string>20</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QLineEdit" name="descriptorMethod2Param3Text">
-                    <property name="text">
-                     <string>30</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="1">
-                   <widget class="QLineEdit" name="descriptorMethod2LengthText">
-                    <property name="text">
-                     <string>32</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="descriptorMethod2Param1Label">
-                    <property name="text">
-                     <string>Parameter1 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="0" column="0">
-                 <spacer name="horizontalSpacer_18">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="0" column="2">
-                 <spacer name="horizontalSpacer_19">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </widget>
              </widget>
             </item>
            </layout>
@@ -2816,94 +2489,6 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
                 </item>
                </layout>
               </widget>
-              <widget class="QWidget" name="tabMatcherMethod">
-               <attribute name="title">
-                <string>Method</string>
-               </attribute>
-               <layout class="QGridLayout" name="gridLayout_13">
-                <item row="0" column="1">
-                 <layout class="QGridLayout" name="matcherMethodParams">
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="matcherMethodParam1Label">
-                    <property name="text">
-                     <string>Parameter1 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="matcherMethodParam2Label">
-                    <property name="text">
-                     <string>Parameter2 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="matcherMethodParam3Label">
-                    <property name="text">
-                     <string>Parameter3 :</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="matcherMethodParam1Text">
-                    <property name="text">
-                     <string>10</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="matcherMethodParam2Text">
-                    <property name="text">
-                     <string>20</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QLineEdit" name="matcherMethodParam3Text">
-                    <property name="text">
-                     <string>30</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="0" column="2">
-                 <spacer name="horizontalSpacer_8">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="0" column="0">
-                 <spacer name="horizontalSpacer_9">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </widget>
              </widget>
             </item>
            </layout>
@@ -2931,22 +2516,6 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
                 </attribute>
                </widget>
               </item>
-              <item row="3" column="1">
-               <widget class="QRadioButton" name="eliminationLoweRatio">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Performs Lowe's test (default ratio is 0.7)&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; Two sets of matches will be found.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string>Lowe's ratio test</string>
-                </property>
-                <property name="checked">
-                 <bool>false</bool>
-                </property>
-                <attribute name="buttonGroup">
-                 <string notr="true">buttonGroup</string>
-                </attribute>
-               </widget>
-              </item>
               <item row="2" column="1">
                <widget class="QRadioButton" name="eliminationInversMatches">
                 <property name="toolTip">
@@ -2963,20 +2532,36 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
                 </attribute>
                </widget>
               </item>
-              <item row="0" column="2">
-               <widget class="QLineEdit" name="eliminationLimitDistanceText">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
+              <item row="3" column="1">
+               <widget class="QRadioButton" name="eliminationLoweRatio">
                 <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Limit distance.&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note: &lt;/span&gt;must be &amp;gt; 0&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Performs Lowe's test (default ratio is 0.7)&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; Two sets of matches will be found.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
-                 <string>0.4</string>
+                 <string>Lowe's ratio test</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QLineEdit" name="eliminationLoweRatioText">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Lowe's Ratio.&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; must be in [0..1]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>0.7</string>
                 </property>
                </widget>
               </item>
-              <item row="0" column="1">
+              <item row="4" column="1">
                <widget class="QCheckBox" name="eliminationLimitDistance">
                 <property name="enabled">
                  <bool>true</bool>
@@ -2995,16 +2580,16 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
                 </property>
                </widget>
               </item>
-              <item row="3" column="2">
-               <widget class="QLineEdit" name="eliminationLoweRatioText">
+              <item row="4" column="2">
+               <widget class="QLineEdit" name="eliminationLimitDistanceText">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Lowe's Ratio.&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; must be in [0..1]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Limit distance.&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note: &lt;/span&gt;must be &amp;gt; 0&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
-                 <string>0.7</string>
+                 <string>0.4</string>
                 </property>
                </widget>
               </item>
@@ -3065,32 +2650,6 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
          <string>250</string>
         </property>
        </widget>
-      </item>
-      <item row="0" column="3">
-       <spacer name="horizontalSpacer_54">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="0" column="2">
-       <spacer name="horizontalSpacer_55">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </item>
@@ -3760,26 +3319,10 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
   <tabstop>briskThreshText</tabstop>
   <tabstop>customTabs</tabstop>
   <tabstop>segmentationTabs</tabstop>
-  <tabstop>segmentationMorphologicalSkeletonParam1Text</tabstop>
-  <tabstop>segmentationMorphologicalSkeletonParam2Text</tabstop>
-  <tabstop>segmentationMorphologicalSkeletonParam3Text</tabstop>
-  <tabstop>segmentationZhangSuenParam1Text</tabstop>
-  <tabstop>segmentationZhangSuenParam2Text</tabstop>
-  <tabstop>segmentationZhangSuenParam3Text</tabstop>
-  <tabstop>segmentationLinHongParam1Text</tabstop>
-  <tabstop>segmentationLinHongParam2Text</tabstop>
-  <tabstop>segmentationLinHongParam3Text</tabstop>
-  <tabstop>segmentationGuoHallParam1Text</tabstop>
-  <tabstop>segmentationGuoHallParam2Text</tabstop>
-  <tabstop>segmentationGuoHallParam3Text</tabstop>
   <tabstop>segmentationThresholdText</tabstop>
   <tabstop>detectorTabs</tabstop>
-  <tabstop>detectorMinutiaeParam1Text</tabstop>
-  <tabstop>detectorMinutiaeParam2Text</tabstop>
   <tabstop>detectorCrossingNumberBorderText</tabstop>
-  <tabstop>detectorCrossingNumberParamText</tabstop>
   <tabstop>detectorHarrisThresholdText</tabstop>
-  <tabstop>detectorHarrisParamText</tabstop>
   <tabstop>detectorStarMaxSizeText</tabstop>
   <tabstop>detectorStarResponseThresholdText</tabstop>
   <tabstop>detectorStarThresholdProjectedText</tabstop>
@@ -3815,19 +3358,12 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
   <tabstop>descriptorSiftLengthText</tabstop>
   <tabstop>descriptorSurfNotExtended</tabstop>
   <tabstop>descriptorSurfExtended</tabstop>
-  <tabstop>descriptorMethod2Param1Text</tabstop>
-  <tabstop>descriptorMethod2Param2Text</tabstop>
-  <tabstop>descriptorMethod2Param3Text</tabstop>
-  <tabstop>descriptorMethod2LengthText</tabstop>
   <tabstop>matcherTabs</tabstop>
   <tabstop>matcherBruteForceNormTypeText</tabstop>
   <tabstop>matcherBruteForceCrossCheckText</tabstop>
   <tabstop>matcherFlannBasedLinearIndexParams</tabstop>
   <tabstop>matcherFlannBasedKMeansIndexParams</tabstop>
   <tabstop>matcherFlannBasedSearchParamsText</tabstop>
-  <tabstop>matcherMethodParam1Text</tabstop>
-  <tabstop>matcherMethodParam2Text</tabstop>
-  <tabstop>matcherMethodParam3Text</tabstop>
   <tabstop>opponentColor</tabstop>
   <tabstop>viewTabs</tabstop>
   <tabstop>viewImage1</tabstop>
