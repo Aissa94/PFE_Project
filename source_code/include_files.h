@@ -16,6 +16,9 @@
 #include <ctime>
 #include <functional>
 #include <map>
+#include <windows.h>
+#include <shlobj.h>
+#include <wchar.h>
 
 // Include Qt
 #include <QMainWindow>
@@ -29,6 +32,12 @@
 #include <opencv2/nonfree/nonfree.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/highgui/highgui.hpp>
+/*#include <CL/cl.hpp>
+//#include <GL/GL.h>
+#include <opencv2/ocl/ocl.hpp>
+#include <opencv2/gpu/gpu.hpp>
+#include <opencv2/nonfree/ocl.hpp>
+#include <opencv2/nonfree/gpu.hpp>*/
 
 // Include lib
 // http://www.codelooker.com/id/217/1100103.html
@@ -51,9 +60,6 @@
 
 // Our
 #include "image-processing\MinutiaeToKeyPointAdapter.h"
-
-// Include classes
-
 
 
 #endif
