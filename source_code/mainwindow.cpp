@@ -62,8 +62,8 @@
 	int bestMatchesCount;
 	double minKeypoints;
 	int cpt;
-	QString exportFile;
-	QString inputFile;
+	QString exportFile = QDir::toNativeSeparators(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)) + "\\Tests\\palmprint_registration_log_file.xlsx";
+	QString inputFile = QDir::toNativeSeparators(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)) + "\\Tests\\excel_input.xlsx";
 	int prev_cursor_position;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -1028,30 +1028,15 @@ void MainWindow::on_actionAdd_Command_triggered()
 
 void MainWindow::on_actionDelete_All_Commands_triggered()
 {
-	system("taskkill /fi \"WINDOWTITLE eq excel_input.xlsx - Excel\" /f");
-	QAxObject *excelApplication = new QAxObject("Excel.Application", 0);
-	if (excelApplication == nullptr) throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
-	excelApplication->dynamicCall("SetVisible(bool)", false); // display excel
-	excelApplication->setProperty("DisplayAlerts", 0); // disable alerts
-	QAxObject *workbooks = excelApplication->querySubObject("Workbooks");
-	QAxObject *workbook = workbooks->querySubObject("Open(const QString&)", inputFile);
-	QAxObject *sheets = workbook->querySubObject("Worksheets");
+	excelRecover = new ExcelManager(true, inputFile, 11);
 
 	for (int j = 1; j <= 5; j++)
-	{
-		QAxObject *sheet = sheets->querySubObject("Item(int)", j);
-		QAxObject *usedrange = sheet->querySubObject("UsedRange");
-		QAxObject *rows = usedrange->querySubObject("Rows");
-		int rowsCount = rows->property("Count").toInt();
-
-		for (int i = 2; i <= rowsCount; i++)
-		{
-			QAxObject *row = usedrange->querySubObject("Rows(int)", 2);
-			row->dynamicCall("Delete");
-		}
+	{	
+		excelRecover->GetIntRows(j);
+		for (int i = 2; i <= excelRecover->getSheetCount(); i++) excelRecover->DeleteRow();
 	}
-	workbook->dynamicCall("Close (Boolean)", true);
-	excelApplication->dynamicCall("Quit (void)");
+
+	excelRecover->~ExcelManager();
 	QMessageBox::information(this, "Delete All Commands", "All commands have been deleted with success from Excel input file !");
 }
 
@@ -1391,8 +1376,6 @@ bool MainWindow::createTestFolder(){
 	HRESULT hr = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, tests_folderPath);
 	wcscat(tests_folderPath, L"\\Tests");
 	if (CreateDirectory(tests_folderPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError()){
-		exportFile = QString::fromWCharArray(tests_folderPath) + "\\palmprint_registration_log_file.xlsx";
-		inputFile = QString::fromWCharArray(tests_folderPath) + "\\excel_input.xlsx";
 		std::ifstream if_next_file;
 		FILE *next_file;
 		/*first check if the file exists...*/

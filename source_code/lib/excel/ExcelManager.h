@@ -31,6 +31,7 @@ public:
 	void SetNewCellValueLast(QAxObject* sheet, int startColumnIndex, int type);
 	QVariant GetCellValue(int rowIndex, int columnIndex);
 	void GetIntRows(int numSheet);
+	void DeleteRow();
 	int getSheetCount();
 	int getColumnsCount();
 

@@ -1,5 +1,6 @@
 #include <QFile>
 #include <QColor>
+#include <QDebug>
 
 #include "ExcelManager.h"
 
@@ -16,6 +17,8 @@ ExcelManager::ExcelManager(bool closeExcelOnExit, const QString& fileName, int n
 	m_workbooks = nullptr;
 	m_excelApplication = nullptr;
 	int testType;
+	
+	qDebug() << fileName;
 
 	if (numSheet < 6)
 	{
@@ -121,6 +124,13 @@ void ExcelManager::GetIntRows(int numSheet)
 	m_usedrange = m_sheet->querySubObject("UsedRange");
 	m_rows = m_usedrange->querySubObject("Rows");
 	intRows = m_rows->property("Count").toInt();
+}
+
+void ExcelManager::DeleteRow()
+{
+	QAxObject *row = m_usedrange->querySubObject("Rows(int)", 2);
+	row->dynamicCall("Delete");
+	delete row;
 }
 
 QVariant ExcelManager::GetCellValue(int rowIndex, int columnIndex)
