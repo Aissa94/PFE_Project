@@ -57,12 +57,12 @@
 	std::vector<float> sumDistancesSet;
 	std::vector<float> scoreSet;
 	int bestScoreIndex = -1;
-	std::string directoryPath;
+	std::string currentTest_folderPath;
 	bool oneToN;
 	int bestMatchesCount;
 	double minKeypoints;
 	int cpt;
-	const QString exportFile = QDir::toNativeSeparators(QDir::currentPath()) + "\\Tests\\palmprint_registration_log_file.xlsx";
+	QString exportFile;
 	QString inputFile;
 	int prev_cursor_position;
 
@@ -1322,53 +1322,62 @@ bool MainWindow::readSetOfImages(){
 
 bool MainWindow::createTestFolder(){
 	// create a new folder test
-	if (CreateDirectory(L"Tests", NULL) || ERROR_ALREADY_EXISTS == GetLastError()){
-		std::ifstream infile;
-		FILE *file;
+	wchar_t tests_folderPath[100];
+	HRESULT hr = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, tests_folderPath);
+	wcscat(tests_folderPath, L"\\Tests");
+	if (CreateDirectory(tests_folderPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError()){
+		exportFile = QString::fromWCharArray(tests_folderPath) + "\\palmprint_registration_log_file.xlsx";
+		std::ifstream if_next_file;
+		FILE *next_file;
 		/*first check if the file exists...*/
-		infile.open("Tests/next.txt");
+		char next_filepath[50];
+		wchar_t next_filePath[100];
+		wsprintfW(next_filePath, L"%ls\\next.txt", tests_folderPath);
+		std::wcstombs(next_filepath, next_filePath, 50);
+		if_next_file.open(next_filePath);
 		/*...then open it in the appropriate way*/
-		if (infile.is_open()) {
+		if (if_next_file.is_open()) {
 			// existing file
-			while (infile.eof() == false)infile >> cpt;
-			infile.close();
-			file = fopen("Tests/next.txt", "r+b");
+			while (if_next_file.eof() == false)if_next_file >> cpt;
+			if_next_file.close();
+			next_file = fopen(next_filepath, "r+b");
 		}
 		else{
 			// new file
-			file = fopen("Tests/next.txt", "w+b");
+			next_file = fopen(next_filepath, "w+b");
 			cpt = 0;
-			wchar_t* fileLPCWSTR = L"Tests/next.txt";
-			int attr = GetFileAttributes(fileLPCWSTR);
+			int attr = GetFileAttributes(next_filePath);
 			if ((attr & FILE_ATTRIBUTE_HIDDEN) == 0) {
-				SetFileAttributes(fileLPCWSTR, attr | FILE_ATTRIBUTE_HIDDEN);
+				SetFileAttributes(next_filePath, attr | FILE_ATTRIBUTE_HIDDEN);
 			}
 		}
 
-		if (file != NULL)
+		if (next_file != NULL)
 		{
-			fprintf(file, std::to_string(cpt + 1).c_str());
-			fclose(file);
+			fprintf(next_file, std::to_string(cpt + 1).c_str());
+			fclose(next_file);
 		}
 
-		wchar_t _directoryPath[256];
-		wsprintfW(_directoryPath, L"Tests/%d", cpt);
-		if (CreateDirectory(_directoryPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
+		wchar_t _currentTest_folderPath[100];
+		wsprintfW(_currentTest_folderPath, L"%ls\\%d", tests_folderPath, cpt);
+		if (CreateDirectory(_currentTest_folderPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
 		{
 			// created with succes
 			// Rest parameters :
 			resetParams();
-			directoryPath = "Tests/" + std::to_string(cpt) + "/";
+			std::wstring ws(_currentTest_folderPath);
+			currentTest_folderPath = std::string(ws.begin(), ws.end());
+			currentTest_folderPath += "\\";
 			if (oneToN && setImgs.size() > 1){
-				// Create a sub directory for all outmput matches
-				wchar_t _outputsPath[256];
-				wsprintfW(_outputsPath, L"Tests/%d/all matches", cpt);
-				if (CreateDirectory(_outputsPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
+				// Create a sub directory for all output matches
+				wchar_t matches_folderPath[100];
+				wsprintfW(matches_folderPath, L"%ls\\all matches", _currentTest_folderPath);
+				if (CreateDirectory(matches_folderPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
 				{
 					// success
 				}
 				else {
-					showError("Creating directory", "Cannot create a directory to store matches", "Make sure that " + directoryPath + " existes");
+					showError("Creating directory", "Cannot create a directory to store matches", "Make sure that " + currentTest_folderPath + " existes");
 				}
 			}
 			return true;
@@ -1712,8 +1721,8 @@ void MainWindow::displayMatches(int imgIndex){
 	QGraphicsScene *matchingScene = new QGraphicsScene();
 
 	cv::Mat drawImg;
-	if (oneToN) drawImg = cv::imread(directoryPath + "/all matches/" + std::to_string(imgIndex) + ".jpg");
-	else drawImg = cv::imread(directoryPath + "output.jpg");
+	if (oneToN) drawImg = cv::imread(currentTest_folderPath + "/all matches/" + std::to_string(imgIndex) + ".jpg");
+	else drawImg = cv::imread(currentTest_folderPath + "output.jpg");
 	QImage img = matToQImage(drawImg);
 	matchingScene->addPixmap(QPixmap::fromImage(img));
 
@@ -1766,7 +1775,7 @@ void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first
 		;
 	}
 	displayFeature(outImg, first_second);  // Show our image inside the viewer.
-	if (fileName != "")cv::imwrite(directoryPath + fileName + ".bmp", outImg);
+	if (fileName != "")cv::imwrite(currentTest_folderPath + fileName + ".bmp", outImg);
 }
 
 void MainWindow::writeMatches(int imgIndex){
@@ -1791,13 +1800,13 @@ void MainWindow::writeMatches(int imgIndex){
 			cv::drawMatches(firstImg, firstImgKeypoints, std::get<1>(setImgs[i]), setImgsKeypoints[i],
 				goodMatchesSet[i], drawImg, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 255), std::vector<char>(), cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
 
-			std::string filename = directoryPath + "/all matches/" + std::to_string(i) + ".jpg";
+			std::string filename = currentTest_folderPath + "/all matches/" + std::to_string(i) + ".jpg";
 			if (!cv::imwrite(filename, drawImg))
-				ui->logPlainText->appendHtml("<b style='color:orange'>Image " + QString::fromStdString(filename) + "  can not be saved (may be because directory " + QString::fromStdString(directoryPath) + "  does not exist) !</b>");
+				ui->logPlainText->appendHtml("<b style='color:orange'>Image " + QString::fromStdString(filename) + "  can not be saved (may be because directory " + QString::fromStdString(currentTest_folderPath) + "  does not exist) !</b>");
 				
 			if (i == bestScoreIndex){
-				if (!cv::imwrite(directoryPath + "output.jpg", drawImg))
-					ui->logPlainText->appendHtml("<b style='color:orange'>Image " + QString::fromStdString(directoryPath + "output.jpg") + "  can not be saved (may be because directory " + QString::fromStdString(directoryPath) + "  does not exist) !</b>");
+				if (!cv::imwrite(currentTest_folderPath + "output.jpg", drawImg))
+					ui->logPlainText->appendHtml("<b style='color:orange'>Image " + QString::fromStdString(currentTest_folderPath + "output.jpg") + "  can not be saved (may be because directory " + QString::fromStdString(currentTest_folderPath) + "  does not exist) !</b>");
 
 				// Add the image to the viewer
 				QGraphicsScene *matchingScene = new QGraphicsScene();
@@ -1819,8 +1828,8 @@ void MainWindow::writeMatches(int imgIndex){
 		// Draw and Store best matches
 		cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
 			goodMatches, drawImg, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 255), std::vector<char>(), cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
-		if (!cv::imwrite(directoryPath + "output.jpg", drawImg))
-			ui->logPlainText->appendHtml("<b style='color:orange'>Matches Image can not be saved (may be because directory " + QString::fromStdString(directoryPath) + "  does not exist) !</b>");
+		if (!cv::imwrite(currentTest_folderPath + "output.jpg", drawImg))
+			ui->logPlainText->appendHtml("<b style='color:orange'>Matches Image can not be saved (may be because directory " + QString::fromStdString(currentTest_folderPath) + "  does not exist) !</b>");
 		
 		// Add the image to the viewer
 		QGraphicsScene *matchingScene = new QGraphicsScene();
@@ -1921,9 +1930,9 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 		
 		//ideka::binOptimisation(firstImg);
 		//ideka::binOptimisation(secondImg);
-		/*cv::imwrite(directoryPath + "f-1_Binarization.bmp", firstImg);
-		if (oneToN) cv::imwrite(directoryPath + "l-1_Binarization.bmp", std::get<1>(setImgs[setImgs.size() - 1]));
-		else cv::imwrite(directoryPath + "s-1_Binarization.bmp", secondImg);*/
+		/*cv::imwrite(currentTest_folderPath + "f-1_Binarization.bmp", firstImg);
+		if (oneToN) cv::imwrite(currentTest_folderPath + "l-1_Binarization.bmp", std::get<1>(setImgs[setImgs.size() - 1]));
+		else cv::imwrite(currentTest_folderPath + "s-1_Binarization.bmp", secondImg);*/
 	}
 }
 
@@ -1935,41 +1944,41 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		// Skeletonization of Morphological Skeleton
 		// This will create more unique and stronger interest points
 		firstImg = skeletonization(firstImg);
-		//cv::imwrite(directoryPath + "f-2_Morphological Skeleton.bmp", firstImg);
+		//cv::imwrite(currentTest_folderPath + "f-2_Morphological Skeleton.bmp", firstImg);
 		if (oneToN)
 		{
 			for (int i = 0; i < setImgs.size();i++){
 				std::get<1>(setImgs[i]) = skeletonization(std::get<1>(setImgs[i]));
 			}
-			//cv::imwrite(directoryPath + "l-2_Morphological Skeleton.bmp", setImgs[setImgs.size() - 1].second);
+			//cv::imwrite(currentTest_folderPath + "l-2_Morphological Skeleton.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			secondImg = skeletonization(secondImg);
-			//cv::imwrite(directoryPath + "s-2_Morphological Skeleton.bmp", secondImg);
+			//cv::imwrite(currentTest_folderPath + "s-2_Morphological Skeleton.bmp", secondImg);
 		}
 		break;
 	case 2:
 		// Thinning of Zhang-Suen
 		//This is the same Thinning Algorithme used by BluePrints
 		ZhangSuen::thinning(firstImg);
-		//cv::imwrite(directoryPath + "f-2_Zhang-Suen Thinning.bmp", firstImg);
+		//cv::imwrite(currentTest_folderPath + "f-2_Zhang-Suen Thinning.bmp", firstImg);
 		if (oneToN)
 		{
 			for (int i = 0; i < setImgs.size(); i++){
 				ZhangSuen::thinning(std::get<1>(setImgs[i]));
 			}
-			//cv::imwrite(directoryPath + "l-2_Zhang-Suen Thinning.bmp", setImgs[setImgs.size() - 1].second);
+			//cv::imwrite(currentTest_folderPath + "l-2_Zhang-Suen Thinning.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			ZhangSuen::thinning(secondImg);
-			//cv::imwrite(directoryPath + "s-2_Zhang-Suen Thinning.bmp", secondImg);
+			//cv::imwrite(currentTest_folderPath + "s-2_Zhang-Suen Thinning.bmp", secondImg);
 		}
 	break;
 	case 3:{
 		// Thinning of Lin-Hong implemented by Mrs. Faiçal
 		firstImg = Image_processing::thinning(firstImg, firstEnhancedImage, firstSegmentedImage);
 		firstImg.convertTo(firstImg, CV_8UC3, 255);
-		//cv::imwrite(directoryPath + "f-2_Lin-Hong Thinning.bmp", firstImg);
+		//cv::imwrite(currentTest_folderPath + "f-2_Lin-Hong Thinning.bmp", firstImg);
 		if (oneToN)
 		{
 			setEnhancedImages = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
@@ -1978,12 +1987,12 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 				std::get<1>(setImgs[i]) = Image_processing::thinning(std::get<1>(setImgs[i]), setEnhancedImages[i], setSegmentedImages[i]);
 				std::get<1>(setImgs[i]).convertTo(std::get<1>(setImgs[i]), CV_8UC3, 255);
 			}
-			//cv::imwrite(directoryPath + "l-2_Lin-Hong Thinning.bmp", setImgs[setImgs.size() - 1].second);
+			//cv::imwrite(currentTest_folderPath + "l-2_Lin-Hong Thinning.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			secondImg = Image_processing::thinning(secondImg, secondEnhancedImage, secondSegmentedImage);
 			secondImg.convertTo(secondImg, CV_8UC3, 255);
-			//cv::imwrite(directoryPath + "s-2_Lin-Hong Thinning.bmp", secondImg);
+			//cv::imwrite(currentTest_folderPath + "s-2_Lin-Hong Thinning.bmp", secondImg);
 		}		
 		break;
 	}
@@ -1991,17 +2000,17 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		// Thinning of Guo-Hall
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Exception !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		GuoHall::thinning(firstImg);
-		//cv::imwrite(directoryPath + "f-2_Guo-Hall Thinning.bmp", firstImg);
+		//cv::imwrite(currentTest_folderPath + "f-2_Guo-Hall Thinning.bmp", firstImg);
 		if (oneToN)
 		{
 			for (int i = 0; i < setImgs.size(); i++){
 				GuoHall::thinning(std::get<1>(setImgs[i]));
 			}
-			//cv::imwrite(directoryPath + "l-2_Guo-Hall Thinning.bmp", setImgs[setImgs.size() - 1].second);
+			//cv::imwrite(currentTest_folderPath + "l-2_Guo-Hall Thinning.bmp", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			GuoHall::thinning(secondImg);
-			//cv::imwrite(directoryPath + "s-2_Guo-Hall Thinning.bmp", secondImg);
+			//cv::imwrite(currentTest_folderPath + "s-2_Guo-Hall Thinning.bmp", secondImg);
 		}
 		break;
 
@@ -3335,7 +3344,7 @@ QString MainWindow::GetTableValue(QAxObject* sheet, int rowIndex, int columnInde
 }
 
 void MainWindow::exportTable(int rowsCount) {
-	const QString tableName = QDir::toNativeSeparators(QDir::currentPath()) + "\\Tests\\" + QString::number(cpt) + "\\table.xlsx";
+	const QString tableName = QStandardPaths::DocumentsLocation + "\\Tests\\" + QString::number(cpt) + "\\table.xlsx";
 	system("taskkill /fi \"WINDOWTITLE eq table.xlsx - Excel\" /f");
 	QAxObject *excelApplication = new QAxObject("Excel.Application", 0);
 	if (excelApplication == nullptr) throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
@@ -3365,7 +3374,7 @@ void MainWindow::exportTable(int rowsCount) {
 
 void MainWindow::importTable(int identifierNumber) {
 	system("taskkill /fi \"WINDOWTITLE eq table.xlsx - Excel\" /f");
-	const QString tableName = QDir::toNativeSeparators(QDir::currentPath()) + "\\Tests\\" + QString::number(identifierNumber) + "\\table.xlsx";
+	const QString tableName = QStandardPaths::DocumentsLocation + "\\Tests\\" + QString::number(identifierNumber) + "\\table.xlsx";
 	QAxObject *excelApplication = new QAxObject("Excel.Application", 0);
 	if (excelApplication == nullptr) throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
 	excelApplication->dynamicCall("SetVisible(bool)", false); // display excel
