@@ -25,7 +25,7 @@ private slots:
 
     void on_secondImgBtn_pressed();
 
-	void on_inputBrowse_pressed();
+	//void on_inputBrowse_pressed();
 
 	void on_refreshBddImageNames_pressed();
 
@@ -34,6 +34,10 @@ private slots:
     void on_actionDestroy_All_Windows_triggered();
 
     void on_actionRun_triggered();
+
+	void on_actionAdd_Command_triggered();
+
+	void on_actionDelete_All_Commands_triggered();
 
     void on_actionClear_Log_triggered();
 
@@ -56,16 +60,16 @@ private:
     QString outputImagesPath;
 
 	void resetParams();
-	void runSIFT(int &excelColumn);
-	void runSURF(int &excelColumn);
-	void runORB(int &excelColumn);
-	void runBRISK(int &excelColumn);
-	void runDefault();
-	void runCustom();
+	void runSIFT(int &excelColumn, int testType);
+	void runSURF(int &excelColumn, int testType);
+	void runORB(int &excelColumn, int testType);
+	void runBRISK(int &excelColumn, int testType);
+	void runDefault(int testType);
+	void runCustom(int testType);
 	bool readFirstImage();
 	bool readSecondImage();
 	bool readSetOfImages();
-	bool readInputFile();
+	//bool readInputFile();
 	bool createTestFolder();
 	bool noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints);
 	int  getNormByText(std::string norm);
@@ -96,7 +100,7 @@ private:
 	void FlannBasedNameToIndex(const QString& value);
 	void exportSuccess(int showMethod);
 	void initializeTable();
-	bool takeTest();
+	bool takeTest(int testType);
 	void importExcelFile(int type);
 	void setTableValue(QAxObject* sheet, int lineIndex, int columnIndex, const QString& value);
 	QString GetTableValue(QAxObject* sheet, int rowIndex, int columnIndex);

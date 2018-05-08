@@ -12,7 +12,7 @@ public:
     ExcelManager& operator=(const ExcelManager& other) = delete;
 	ExcelManager(bool closeExcelOnExit, const QString& fileName, int numSheet);
 
-	void SetCellValue(int columnIndex, int type, const QString& value);
+	void SetCellValue(int columnIndex, int type, const QString& value, bool typeTest = true);
 	void SetCellValueSecondRow(int columnIndex, const QString& value);
 	void SetNewCellValue(QAxObject* sheet, int columnIndex, int intHorizontallyRange, const QString& value);
 	QAxObject *AddNewSheet(const QString& value);
@@ -27,8 +27,8 @@ public:
 	void mergeCells(int topLeftRow, int topLeftColumn, int bottomRightRow, int bottomRightColumn);
 	void mergeCellsCustom(int topLeftColumn, int bottomRightColumn);
 	void mergeRowsCells(int columnIndex);
-	void SetNewCellValueFirst(QAxObject* sheet);
-	void SetNewCellValueLast(QAxObject* sheet, int startColumnIndex);
+	void SetNewCellValueFirst(QAxObject* sheet, int type);
+	void SetNewCellValueLast(QAxObject* sheet, int startColumnIndex, int type);
 	QVariant GetCellValue(int rowIndex, int columnIndex);
 	void GetIntRows(int numSheet);
 	int getSheetCount();

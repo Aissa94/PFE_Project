@@ -15,9 +15,19 @@ ExcelManager::ExcelManager(bool closeExcelOnExit, const QString& fileName, int n
 	m_workbook = nullptr;
 	m_workbooks = nullptr;
 	m_excelApplication = nullptr;
+	int testType;
 
-	system("taskkill /fi \"WINDOWTITLE eq palmprint_registration_log_file.xlsx - Excel\" /f");
-	//WinExec("taskkill /fi \"WINDOWTITLE eq palmprint_registration_log_file.xlsx - Excel\" /f", SW_HIDE);
+	if (numSheet < 6)
+	{
+		system("taskkill /fi \"WINDOWTITLE eq palmprint_registration_log_file.xlsx - Excel\" /f");
+		testType = 0;
+	}
+	else
+	{
+		system("taskkill /fi \"WINDOWTITLE eq excel_input.xlsx - Excel\" /f");
+		testType = 2;
+	}
+	
 	m_excelApplication = new QAxObject("Excel.Application", 0);//{00024500-0000-0000-C000-000000000046}
 
 	if (m_excelApplication == nullptr)
@@ -36,60 +46,60 @@ ExcelManager::ExcelManager(bool closeExcelOnExit, const QString& fileName, int n
 		m_sheet_custom = m_sheets->querySubObject("Item(int)", 1);
 		m_sheet_custom->setProperty("Name", "Custom");
 
-		SetNewCellValueFirst(m_sheet_custom);
-		SetNewCellValue(m_sheet_custom, 8, 1, "Segmentation");
-		SetNewCellValue(m_sheet_custom, 9, 1, "Parameters of Segmentation");
-		SetNewCellValue(m_sheet_custom, 10, 1, "Detector");
-		SetNewCellValue(m_sheet_custom, 11, 5, "Parameters of Detector");
-		SetNewCellValue(m_sheet_custom, 16, 1, "Descriptor");
-		SetNewCellValue(m_sheet_custom, 17, 5, "Parameters of Descriptor");
-		SetNewCellValue(m_sheet_custom, 22, 1, "Matcher");
-		SetNewCellValue(m_sheet_custom, 23, 8, "Parameters of Matcher");
-		SetNewCellValue(m_sheet_custom, 31, 1, "Opponent Color");
-		SetNewCellValueLast(m_sheet_custom, 32);
+		SetNewCellValueFirst(m_sheet_custom, testType);
+		SetNewCellValue(m_sheet_custom, 8 - testType, 1, "Segmentation");
+		SetNewCellValue(m_sheet_custom, 9 - testType, 1, "Parameters of Segmentation");
+		SetNewCellValue(m_sheet_custom, 10 - testType, 1, "Detector");
+		SetNewCellValue(m_sheet_custom, 11 - testType, 5, "Parameters of Detector");
+		SetNewCellValue(m_sheet_custom, 16 - testType, 1, "Descriptor");
+		SetNewCellValue(m_sheet_custom, 17 - testType, 5, "Parameters of Descriptor");
+		SetNewCellValue(m_sheet_custom, 22 - testType, 1, "Matcher");
+		SetNewCellValue(m_sheet_custom, 23 - testType, 8, "Parameters of Matcher");
+		SetNewCellValue(m_sheet_custom, 31 - testType, 1, "Opponent Color");
+		SetNewCellValueLast(m_sheet_custom, 32 - testType, testType);
 
 		m_sheet_brisk = AddNewSheet("BRISK");
 
-		SetNewCellValueFirst(m_sheet_brisk);
-		SetNewCellValue(m_sheet_brisk, 8, 1, "Pattern Scale");
-		SetNewCellValue(m_sheet_brisk, 9, 1, "Number of Octaves");
-		SetNewCellValue(m_sheet_brisk, 10, 1, "Threshold");
-		SetNewCellValueLast(m_sheet_brisk, 11);
+		SetNewCellValueFirst(m_sheet_brisk, testType);
+		SetNewCellValue(m_sheet_brisk, 8 - testType, 1, "Pattern Scale");
+		SetNewCellValue(m_sheet_brisk, 9 - testType, 1, "Number of Octaves");
+		SetNewCellValue(m_sheet_brisk, 10 - testType, 1, "Threshold");
+		SetNewCellValueLast(m_sheet_brisk, 11 - testType, testType);
 
 		m_sheet_orb = AddNewSheet("ORB");
 
-		SetNewCellValueFirst(m_sheet_orb);
-		SetNewCellValue(m_sheet_orb, 8, 1, "Number of Features");
-		SetNewCellValue(m_sheet_orb, 9, 1, "Scale Factor");
-		SetNewCellValue(m_sheet_orb, 10, 1, "Number of Levels");
-		SetNewCellValue(m_sheet_orb, 11, 1, "Edge Threshold");
-		SetNewCellValue(m_sheet_orb, 12, 1, "First Level");
-		SetNewCellValue(m_sheet_orb, 13, 1, "WTA K");
-		SetNewCellValue(m_sheet_orb, 14, 1, "Score Type");
-		SetNewCellValue(m_sheet_orb, 15, 1, "Patch Size");
-		SetNewCellValueLast(m_sheet_orb, 16);
+		SetNewCellValueFirst(m_sheet_orb, testType);
+		SetNewCellValue(m_sheet_orb, 8 - testType, 1, "Number of Features");
+		SetNewCellValue(m_sheet_orb, 9 - testType, 1, "Scale Factor");
+		SetNewCellValue(m_sheet_orb, 10 - testType, 1, "Number of Levels");
+		SetNewCellValue(m_sheet_orb, 11 - testType, 1, "Edge Threshold");
+		SetNewCellValue(m_sheet_orb, 12 - testType, 1, "First Level");
+		SetNewCellValue(m_sheet_orb, 13 - testType, 1, "WTA K");
+		SetNewCellValue(m_sheet_orb, 14 - testType, 1, "Score Type");
+		SetNewCellValue(m_sheet_orb, 15 - testType, 1, "Patch Size");
+		SetNewCellValueLast(m_sheet_orb, 16 - testType, testType);
 
 		m_sheet_surf = AddNewSheet("SURF");
 
-		SetNewCellValueFirst(m_sheet_surf);
-		SetNewCellValue(m_sheet_surf, 8, 1, "Hessian Threshold");
-		SetNewCellValue(m_sheet_surf, 9, 1, "Number of Octaves");
-		SetNewCellValue(m_sheet_surf, 10, 1, "Number of Octave Layers");
-		SetNewCellValue(m_sheet_surf, 11, 1, "Extended");
-		SetNewCellValue(m_sheet_surf, 12, 1, "Features Orientation");
-		SetNewCellValue(m_sheet_surf, 13, 1, "Brute Force Matching");
-		SetNewCellValueLast(m_sheet_surf, 14);
+		SetNewCellValueFirst(m_sheet_surf, testType);
+		SetNewCellValue(m_sheet_surf, 8 - testType, 1, "Hessian Threshold");
+		SetNewCellValue(m_sheet_surf, 9 - testType, 1, "Number of Octaves");
+		SetNewCellValue(m_sheet_surf, 10 - testType, 1, "Number of Octave Layers");
+		SetNewCellValue(m_sheet_surf, 11 - testType, 1, "Extended");
+		SetNewCellValue(m_sheet_surf, 12 - testType, 1, "Features Orientation");
+		SetNewCellValue(m_sheet_surf, 13 - testType, 1, "Brute Force Matching");
+		SetNewCellValueLast(m_sheet_surf, 14 - testType, testType);
 
 		m_sheet_sift = AddNewSheet("SIFT");
 
-		SetNewCellValueFirst(m_sheet_sift);
-		SetNewCellValue(m_sheet_sift, 8, 1, "Contrast Threshold");
-		SetNewCellValue(m_sheet_sift, 9, 1, "Edge Threshold");
-		SetNewCellValue(m_sheet_sift, 10, 1, "Number of Features");
-		SetNewCellValue(m_sheet_sift, 11, 1, "Number of Octave Layers");
-		SetNewCellValue(m_sheet_sift, 12, 1, "Sigma");
-		SetNewCellValue(m_sheet_sift, 13, 1, "Brute Force Matching");
-		SetNewCellValueLast(m_sheet_sift, 14);
+		SetNewCellValueFirst(m_sheet_sift, testType);
+		SetNewCellValue(m_sheet_sift, 8 - testType, 1, "Contrast Threshold");
+		SetNewCellValue(m_sheet_sift, 9 - testType, 1, "Edge Threshold");
+		SetNewCellValue(m_sheet_sift, 10 - testType, 1, "Number of Features");
+		SetNewCellValue(m_sheet_sift, 11 - testType, 1, "Number of Octave Layers");
+		SetNewCellValue(m_sheet_sift, 12 - testType, 1, "Sigma");
+		SetNewCellValue(m_sheet_sift, 13 - testType, 1, "Brute Force Matching");
+		SetNewCellValueLast(m_sheet_sift, 14 - testType, testType);
 
 		m_workbook->dynamicCall("SaveAs (const QString&)", fileName);
 	}
@@ -99,8 +109,9 @@ ExcelManager::ExcelManager(bool closeExcelOnExit, const QString& fileName, int n
 		m_sheets = m_workbook->querySubObject("Worksheets");
 	}
 
-	if (numSheet != 0) {
-		GetIntRows(numSheet);
+	if ((numSheet != 0) && (numSheet != 11)) {
+		if ((numSheet % 5) == 0) GetIntRows(5);
+		else GetIntRows(numSheet % 5);
 	}
 }
 
@@ -126,7 +137,7 @@ QString ExcelManager::GetSheetName()
 	return m_sheet->dynamicCall("Name()").toString();
 }
 
-void ExcelManager::SetCellValue(int columnIndex, int type, const QString& value)
+void ExcelManager::SetCellValue(int columnIndex, int type, const QString& value, bool typeTest)
 {
 	if (type == 1) mergeRowsCells(columnIndex);
 	QAxObject *cell = m_sheet->querySubObject("Cells(int,int)", intRows + 1, columnIndex);
@@ -134,7 +145,7 @@ void ExcelManager::SetCellValue(int columnIndex, int type, const QString& value)
 	cell->setProperty("HorizontalAlignment", -4108);
 	cell->setProperty("VerticalAlignment", -4108);
 	if (type == 2) cell->setProperty("ColumnWidth", value.size() + 4);
-	if (columnIndex == 1) {
+	if ((columnIndex == 1) && typeTest) {
 		setCellBackgroundColored(cell, 255, 235, 156);
 		setCellBordersColored(cell, 255, 0, 0);
 		if (type == 1)
@@ -271,33 +282,39 @@ void ExcelManager::setCellTextCenter(QAxObject* sheet, int rowIndex, int columnI
 	range->setProperty("HorizontalAlignment", -4108);//xlCenter    
 }
 
-void ExcelManager::SetNewCellValueFirst(QAxObject* sheet)
+void ExcelManager::SetNewCellValueFirst(QAxObject* sheet, int type)
 {
-	SetNewCellValue(sheet, 1, 1, "Identifier");
-	SetNewCellValue(sheet, 2, 1, "Current Time");
-	SetNewCellValue(sheet, 3, 1, "First Image");
-	SetNewCellValue(sheet, 4, 1, "Second Image(s)");
-	SetNewCellValue(sheet, 5, 1, "1 to N images");
-	SetNewCellValue(sheet, 6, 1, "First Image Exists in Bdd");
-	SetNewCellValue(sheet, 7, 1, "Requested Image");
+	if (type == 0)
+	{
+		SetNewCellValue(sheet, 1, 1, "Identifier");
+		SetNewCellValue(sheet, 2, 1, "Current Time");
+	}
+	SetNewCellValue(sheet, 3 - type, 1, "First Image");
+	SetNewCellValue(sheet, 4 - type, 1, "Second Image(s)");
+	SetNewCellValue(sheet, 5 - type, 1, "1 to N images");
+	SetNewCellValue(sheet, 6 - type, 1, "First Image Exists in Bdd");
+	SetNewCellValue(sheet, 7 - type, 1, "Requested Image");
 }
-void ExcelManager::SetNewCellValueLast(QAxObject* sheet, int startColumnIndex)
+void ExcelManager::SetNewCellValueLast(QAxObject* sheet, int startColumnIndex, int type)
 {
 	SetNewCellValue(sheet, startColumnIndex, 1, "Threshold Score");
-	SetNewCellValue(sheet, startColumnIndex + 1, 1, "key Points 1");
-	SetNewCellValue(sheet, startColumnIndex + 2, 1, "key Points 2");
-	SetNewCellValue(sheet, startColumnIndex + 3, 1, "Detection Time");
-	SetNewCellValue(sheet, startColumnIndex + 4, 1, "Description Time");
-	SetNewCellValue(sheet, startColumnIndex + 5, 1, "Clustering Time");
-	SetNewCellValue(sheet, startColumnIndex + 6, 1, "Matching Time");
-	SetNewCellValue(sheet, startColumnIndex + 7, 1, "Total Time");
-	SetNewCellValue(sheet, startColumnIndex + 8, 1, "Accepted Matches");
-	SetNewCellValue(sheet, startColumnIndex + 9, 1, "Rejected Matches");
-	SetNewCellValue(sheet, startColumnIndex + 10, 1, "Best Image Average");
-	SetNewCellValue(sheet, startColumnIndex + 11, 1, "Best Image Score");
-	SetNewCellValue(sheet, startColumnIndex + 12, 1, "Requested Image Score");
-	SetNewCellValue(sheet, startColumnIndex + 13, 1, "Best Image");
-	SetNewCellValue(sheet, startColumnIndex + 14, 1, "Rank");
+	if (type == 0)
+	{
+		SetNewCellValue(sheet, startColumnIndex + 1, 1, "key Points 1");
+		SetNewCellValue(sheet, startColumnIndex + 2, 1, "key Points 2");
+		SetNewCellValue(sheet, startColumnIndex + 3, 1, "Detection Time");
+		SetNewCellValue(sheet, startColumnIndex + 4, 1, "Description Time");
+		SetNewCellValue(sheet, startColumnIndex + 5, 1, "Clustering Time");
+		SetNewCellValue(sheet, startColumnIndex + 6, 1, "Matching Time");
+		SetNewCellValue(sheet, startColumnIndex + 7, 1, "Total Time");
+		SetNewCellValue(sheet, startColumnIndex + 8, 1, "Accepted Matches");
+		SetNewCellValue(sheet, startColumnIndex + 9, 1, "Rejected Matches");
+		SetNewCellValue(sheet, startColumnIndex + 10, 1, "Best Image Average");
+		SetNewCellValue(sheet, startColumnIndex + 11, 1, "Best Image Score");
+		SetNewCellValue(sheet, startColumnIndex + 12, 1, "Requested Image Score");
+		SetNewCellValue(sheet, startColumnIndex + 13, 1, "Best Image");
+		SetNewCellValue(sheet, startColumnIndex + 14, 1, "Rank");
+	}
 }
 
 void ExcelManager::setCellFontBold(QAxObject* cell, int size) {

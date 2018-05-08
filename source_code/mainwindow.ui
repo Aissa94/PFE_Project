@@ -15,6 +15,281 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_6">
+    <item row="0" column="1" rowspan="5">
+     <widget class="QTabWidget" name="viewTabs">
+      <property name="currentIndex">
+       <number>4</number>
+      </property>
+      <widget class="QWidget" name="tab_7">
+       <attribute name="title">
+        <string>Image 1</string>
+       </attribute>
+       <layout class="QGridLayout" name="image1GridLayoutTab">
+        <item row="0" column="0">
+         <widget class="QGraphicsView" name="viewImage1">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="dragMode">
+           <enum>QGraphicsView::ScrollHandDrag</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_7">
+       <attribute name="title">
+        <string>Keypoints 1</string>
+       </attribute>
+       <layout class="QGridLayout" name="keyPoints1GridLayoutTab">
+        <item row="0" column="0">
+         <widget class="QGraphicsView" name="viewKeyPoints1">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="dragMode">
+           <enum>QGraphicsView::ScrollHandDrag</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_7">
+       <attribute name="title">
+        <string>Image 2</string>
+       </attribute>
+       <layout class="QGridLayout" name="image2GridLayoutTab">
+        <item row="0" column="0">
+         <widget class="QGraphicsView" name="viewImage2">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="dragMode">
+           <enum>QGraphicsView::ScrollHandDrag</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_8">
+       <attribute name="title">
+        <string>Keypoints 2</string>
+       </attribute>
+       <layout class="QGridLayout" name="keyPoints2GridLayoutTab">
+        <item row="0" column="0">
+         <widget class="QGraphicsView" name="viewKeyPoints2">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="dragMode">
+           <enum>QGraphicsView::ScrollHandDrag</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabWidget_4Page1">
+       <attribute name="title">
+        <string>Matching</string>
+       </attribute>
+       <layout class="QGridLayout" name="viewMatchesGridLayoutTab">
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="viewMatchesGridSubLayoutTab">
+          <item row="0" column="0">
+           <widget class="QLabel" name="viewMatchesImageNameLabel">
+            <property name="text">
+             <string>Train Image Name :</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2" colspan="2">
+           <widget class="QComboBox" name="viewMatchesImageNameText"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="viewMatchesGoodMatchesLab">
+            <property name="text">
+             <string>Nb of accepted matches :</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="viewMatchesGoodMatchesText">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="viewMatchesBadMatchesLab">
+            <property name="text">
+             <string>Nb of rejected  matches :</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLabel" name="viewMatchesBadMatchesText">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="viewMatchesAverage">
+            <property name="text">
+             <string>Average :</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QLabel" name="viewMatchesAverageMatchesText">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLabel" name="viewMatchesScore">
+            <property name="text">
+             <string>Score :</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QLabel" name="viewMatchesScoreMatchesText">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
+         <widget class="QGraphicsView" name="viewMatches">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="dragMode">
+           <enum>QGraphicsView::ScrollHandDrag</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabWidget_4Page2">
+       <attribute name="title">
+        <string>Table</string>
+       </attribute>
+       <layout class="QGridLayout" name="viewTableGridLayoutTab">
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="viewTableGridSubLayoutTab">
+          <item row="0" column="0">
+           <widget class="QLabel" name="viewTableImageNameLabel">
+            <property name="text">
+             <string>Train Image Name :</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="viewTableImageNameText"/>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
+         <widget class="QTableView" name="viewTable">
+          <property name="autoFillBackground">
+           <bool>true</bool>
+          </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::NoEditTriggers</set>
+          </property>
+          <property name="showDropIndicator" stdset="0">
+           <bool>true</bool>
+          </property>
+          <property name="showGrid">
+           <bool>true</bool>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="viewRankkGraph">
+       <attribute name="title">
+        <string>Rank-k</string>
+       </attribute>
+       <layout class="QGridLayout" name="viewRankkGraphGridLayoutTab">
+        <item row="1" column="0">
+         <widget class="QCustomPlot" name="rankkGraphWidget" native="true"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QPushButton" name="refreshRankkGraph">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>Show Rank-k Graph</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="viewErrGraph">
+       <attribute name="title">
+        <string>EER</string>
+       </attribute>
+       <layout class="QGridLayout" name="viewEerGraphGridLayoutTab">
+        <item row="1" column="0">
+         <widget class="QCustomPlot" name="eerGraphWidget" native="true"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QPushButton" name="refreshEerGraph">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>Show EER Graph</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
     <item row="1" column="0">
      <widget class="QTabWidget" name="allMethodsTabs">
       <property name="enabled">
@@ -618,7 +893,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
             <item row="0" column="0">
              <widget class="QTabWidget" name="segmentationTabs">
               <property name="currentIndex">
-               <number>0</number>
+               <number>4</number>
               </property>
               <widget class="QWidget" name="tabSegmentationWithout">
                <attribute name="title">
@@ -2498,6 +2773,32 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
             <string>Outliers Elimination</string>
            </attribute>
            <layout class="QGridLayout" name="qridLayout_outlier_elimination">
+            <item row="1" column="0">
+             <spacer name="horizontalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="2">
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
             <item row="1" column="1">
              <layout class="QGridLayout" name="eliminationLayout">
               <item row="1" column="1">
@@ -2594,32 +2895,6 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
                </widget>
               </item>
              </layout>
-            </item>
-            <item row="1" column="0">
-             <spacer name="horizontalSpacer_7">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="1" column="2">
-             <spacer name="horizontalSpacer_5">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </widget>
@@ -2828,7 +3103,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
             <property name="sizeConstraint">
              <enum>QLayout::SetDefaultConstraint</enum>
             </property>
-            <item alignment="Qt::AlignBottom">
+            <item>
              <widget class="QWidget" name="widget" native="true">
               <layout class="QHBoxLayout" name="horizontalLayout">
                <property name="topMargin">
@@ -2838,58 +3113,16 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
                 <number>1</number>
                </property>
                <item>
-                <widget class="QLabel" name="inputText">
+                <widget class="QLabel" name="label_13">
                  <property name="text">
-                  <string>Select the input file:</string>
+                  <string>This task may take several hours !</string>
                  </property>
                  <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="inputPath">
-                 <property name="text">
-                  <string>C:/Users/Aissa/Desktop/input.xlsx</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="inputBrowse">
-                 <property name="text">
-                  <string>Browse</string>
-                 </property>
-                 <property name="autoRepeat">
-                  <bool>false</bool>
+                  <set>Qt::AlignCenter</set>
                  </property>
                 </widget>
                </item>
               </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_16">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>300</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">color:rgb(255, 0, 0)</string>
-              </property>
-              <property name="text">
-               <string>This task may take several hours !</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
-              </property>
              </widget>
             </item>
            </layout>
@@ -2925,281 +3158,6 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
       </item>
      </layout>
     </item>
-    <item row="0" column="1" rowspan="5">
-     <widget class="QTabWidget" name="viewTabs">
-      <property name="currentIndex">
-       <number>4</number>
-      </property>
-      <widget class="QWidget" name="tab_7">
-       <attribute name="title">
-        <string>Image 1</string>
-       </attribute>
-       <layout class="QGridLayout" name="image1GridLayoutTab">
-        <item row="0" column="0">
-         <widget class="QGraphicsView" name="viewImage1">
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="verticalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="dragMode">
-           <enum>QGraphicsView::ScrollHandDrag</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab_7">
-       <attribute name="title">
-        <string>Keypoints 1</string>
-       </attribute>
-       <layout class="QGridLayout" name="keyPoints1GridLayoutTab">
-        <item row="0" column="0">
-         <widget class="QGraphicsView" name="viewKeyPoints1">
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="verticalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="dragMode">
-           <enum>QGraphicsView::ScrollHandDrag</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab_7">
-       <attribute name="title">
-        <string>Image 2</string>
-       </attribute>
-       <layout class="QGridLayout" name="image2GridLayoutTab">
-        <item row="0" column="0">
-         <widget class="QGraphicsView" name="viewImage2">
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="verticalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="dragMode">
-           <enum>QGraphicsView::ScrollHandDrag</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab_8">
-       <attribute name="title">
-        <string>Keypoints 2</string>
-       </attribute>
-       <layout class="QGridLayout" name="keyPoints2GridLayoutTab">
-        <item row="0" column="0">
-         <widget class="QGraphicsView" name="viewKeyPoints2">
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="verticalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="dragMode">
-           <enum>QGraphicsView::ScrollHandDrag</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tabWidget_4Page1">
-       <attribute name="title">
-        <string>Matching</string>
-       </attribute>
-       <layout class="QGridLayout" name="viewMatchesGridLayoutTab">
-        <item row="0" column="0">
-         <layout class="QGridLayout" name="viewMatchesGridSubLayoutTab">
-          <item row="0" column="0">
-           <widget class="QLabel" name="viewMatchesImageNameLabel">
-            <property name="text">
-             <string>Train Image Name :</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2" colspan="2">
-           <widget class="QComboBox" name="viewMatchesImageNameText"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="viewMatchesGoodMatchesLab">
-            <property name="text">
-             <string>Nb of accepted matches :</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLabel" name="viewMatchesGoodMatchesText">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="viewMatchesBadMatchesLab">
-            <property name="text">
-             <string>Nb of rejected  matches :</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="viewMatchesBadMatchesText">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="viewMatchesAverage">
-            <property name="text">
-             <string>Average :</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QLabel" name="viewMatchesAverageMatchesText">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QLabel" name="viewMatchesScore">
-            <property name="text">
-             <string>Score :</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="3">
-           <widget class="QLabel" name="viewMatchesScoreMatchesText">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="1" column="0">
-         <widget class="QGraphicsView" name="viewMatches">
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="verticalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="dragMode">
-           <enum>QGraphicsView::ScrollHandDrag</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tabWidget_4Page2">
-       <attribute name="title">
-        <string>Table</string>
-       </attribute>
-       <layout class="QGridLayout" name="viewTableGridLayoutTab">
-        <item row="0" column="0">
-         <layout class="QGridLayout" name="viewTableGridSubLayoutTab">
-          <item row="0" column="0">
-           <widget class="QLabel" name="viewTableImageNameLabel">
-            <property name="text">
-             <string>Train Image Name :</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="viewTableImageNameText"/>
-          </item>
-         </layout>
-        </item>
-        <item row="1" column="0">
-         <widget class="QTableView" name="viewTable">
-          <property name="autoFillBackground">
-           <bool>true</bool>
-          </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
-          </property>
-          <property name="showDropIndicator" stdset="0">
-           <bool>true</bool>
-          </property>
-          <property name="showGrid">
-           <bool>true</bool>
-          </property>
-          <property name="sortingEnabled">
-           <bool>true</bool>
-          </property>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>true</bool>
-          </attribute>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="viewRankkGraph">
-       <attribute name="title">
-        <string>Rank-k</string>
-       </attribute>
-       <layout class="QGridLayout" name="viewRankkGraphGridLayoutTab">
-        <item row="1" column="0">
-         <widget class="QCustomPlot" name="rankkGraphWidget" native="true"/>
-        </item>
-        <item row="0" column="0">
-         <widget class="QPushButton" name="refreshRankkGraph">
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="text">
-           <string>Show Rank-k Graph</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="viewErrGraph">
-       <attribute name="title">
-        <string>EER</string>
-       </attribute>
-       <layout class="QGridLayout" name="viewEerGraphGridLayoutTab">
-        <item row="1" column="0">
-         <widget class="QCustomPlot" name="eerGraphWidget" native="true"/>
-        </item>
-        <item row="0" column="0">
-         <widget class="QPushButton" name="refreshEerGraph">
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="text">
-           <string>Show EER Graph</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -3224,6 +3182,9 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
     <addaction name="actionRun"/>
     <addaction name="separator"/>
     <addaction name="actionClear_Log"/>
+    <addaction name="separator"/>
+    <addaction name="actionAdd_Command"/>
+    <addaction name="actionDelete_All_Commands"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -3270,6 +3231,16 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
   <action name="actionAbout_Me">
    <property name="text">
     <string>About Us</string>
+   </property>
+  </action>
+  <action name="actionAdd_Command">
+   <property name="text">
+    <string>Add Command</string>
+   </property>
+  </action>
+  <action name="actionDelete_All_Commands">
+   <property name="text">
+    <string>Delete All Commands</string>
    </property>
   </action>
  </widget>
