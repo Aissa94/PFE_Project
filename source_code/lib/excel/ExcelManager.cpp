@@ -1,6 +1,5 @@
 #include <QFile>
 #include <QColor>
-#include <QDebug>
 
 #include "ExcelManager.h"
 
@@ -17,8 +16,6 @@ ExcelManager::ExcelManager(bool closeExcelOnExit, const QString& fileName, int n
 	m_workbooks = nullptr;
 	m_excelApplication = nullptr;
 	int testType;
-	
-	qDebug() << fileName;
 
 	if (numSheet < 6)
 	{
