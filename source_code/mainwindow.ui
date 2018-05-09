@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1150</width>
+    <width>1243</width>
     <height>721</height>
    </rect>
   </property>
@@ -3081,7 +3081,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
              <set>Qt::AlignCenter</set>
             </property>
             <property name="text" stdset="0">
-             <string>0</string>
+             <string/>
             </property>
             <property name="accelerated">
              <bool>true</bool>
@@ -3165,7 +3165,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1150</width>
+     <width>1243</width>
      <height>21</height>
     </rect>
    </property>

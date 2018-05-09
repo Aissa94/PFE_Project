@@ -71,6 +71,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+	
+	QFile File("stylesheet.qss");
+	File.open(QFile::ReadOnly);
+	QString StyleSheet = QLatin1String(File.readAll());
+
+	qApp->setStyleSheet(StyleSheet);
 	// cusomizing ToolTips :
 	//qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white;}");
     ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
@@ -1741,6 +1747,7 @@ void MainWindow::displayMatches(int imgIndex){
 		model->setItem(i, 4, dist);
 
 		QStandardItem *accepted = new QStandardItem("Accepted");
+		accepted->setData(QColor(Qt::black), Qt::TextColorRole);
 		accepted->setData(QColor(Qt::green), Qt::BackgroundRole);
 		model->setItem(i, 5, accepted);
 		i++;
@@ -1767,6 +1774,7 @@ void MainWindow::displayMatches(int imgIndex){
 		model->setItem(i, 4, dist);
 
 		QStandardItem *rejected = new QStandardItem("Rejected");
+		rejected->setData(QColor(Qt::black), Qt::TextColorRole);
 		rejected->setData(QColor(Qt::red), Qt::BackgroundRole);
 		model->setItem(i, 5, rejected);
 		i++;
@@ -2913,7 +2921,7 @@ void MainWindow::importExcelFile(int type)
 
 					if (type == 0)
 					{
-						image = cv::imread(("Tests/" + ui->spinBox->text() + "/keypoints1.bmp").toStdString(), CV_LOAD_IMAGE_COLOR);
+						image = cv::imread((QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Tests/" + ui->spinBox->text() + "/keypoints1.bmp").toStdString(), CV_LOAD_IMAGE_COLOR);
 						displayFeature(image, 1);
 					}
 
@@ -2921,10 +2929,10 @@ void MainWindow::importExcelFile(int type)
 
 					if (type == 0)
 					{
-						image = cv::imread(("Tests/" + ui->spinBox->text() + "/keypoints2.bmp").toStdString(), CV_LOAD_IMAGE_COLOR);
+						image = cv::imread((QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Tests/" + ui->spinBox->text() + "/keypoints2.bmp").toStdString(), CV_LOAD_IMAGE_COLOR);
 						displayFeature(image, 2);
 
-						image = cv::imread(("Tests/" + ui->spinBox->text() + "/output.jpg").toStdString(), CV_LOAD_IMAGE_COLOR);
+						image = cv::imread((QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Tests/" + ui->spinBox->text() + "/output.jpg").toStdString(), CV_LOAD_IMAGE_COLOR);
 						displayFeature(image, 3);
 					}
 
@@ -3462,8 +3470,16 @@ void MainWindow::importTable(int identifierNumber) {
 			model->setItem(i - 2, j - 1, value);
 			if (j == 6)
 			{
-				if (GetTableValue(sheet, i, 6) == "Accepted") value->setData(QColor(Qt::green), Qt::BackgroundRole);
-				else value->setData(QColor(Qt::red), Qt::BackgroundRole);
+				if (GetTableValue(sheet, i, 6) == "Accepted")
+				{
+					value->setData(QColor(Qt::black), Qt::TextColorRole);
+					value->setData(QColor(Qt::green), Qt::BackgroundRole);
+				}
+				else
+				{
+					value->setData(QColor(Qt::black), Qt::TextColorRole);
+					value->setData(QColor(Qt::red), Qt::BackgroundRole);
+				}
 			}
 		}
 	}
