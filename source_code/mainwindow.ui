@@ -18,7 +18,7 @@
     <item row="0" column="1" rowspan="5">
      <widget class="QTabWidget" name="viewTabs">
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab_7">
        <attribute name="title">
@@ -127,7 +127,11 @@
            </widget>
           </item>
           <item row="0" column="2" colspan="2">
-           <widget class="QComboBox" name="viewMatchesImageNameText"/>
+           <widget class="QComboBox" name="viewMatchesImageNameText">
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+           </widget>
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="viewMatchesGoodMatchesLab">
@@ -220,7 +224,11 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QComboBox" name="viewTableImageNameText"/>
+           <widget class="QComboBox" name="viewTableImageNameText">
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -561,6 +569,9 @@
             </item>
             <item row="1" column="1">
              <widget class="QCheckBox" name="surfBruteForceCheck">
+              <property name="cursor">
+               <cursorShape>PointingHandCursor</cursorShape>
+              </property>
               <property name="text">
                <string>Use Brute Force Matching</string>
               </property>
@@ -1567,6 +1578,9 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
+                    <property name="cursor">
+                     <cursorShape>PointingHandCursor</cursorShape>
+                    </property>
                     <property name="currentText">
                      <string>5_8</string>
                     </property>
@@ -2451,6 +2465,9 @@ So a 100x100 image, with an initImgBound of 10, would create keypoints in the ce
               </item>
               <item row="0" column="3">
                <widget class="QCheckBox" name="withClusteringChecker">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>Cluster before matching :</string>
                 </property>
@@ -2537,6 +2554,9 @@ So a 100x100 image, with an initImgBound of 10, would create keypoints in the ce
                   </item>
                   <item row="0" column="2">
                    <widget class="QComboBox" name="matcherBruteForceNormTypeText">
+                    <property name="cursor">
+                     <cursorShape>PointingHandCursor</cursorShape>
+                    </property>
                     <property name="currentText">
                      <string>NORM_L2</string>
                     </property>
@@ -2978,6 +2998,9 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
             <property name="enabled">
              <bool>true</bool>
             </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of choosing the second image, select a folder to an image set.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; If the folder contains only one image it will be considered as (1 to 1).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
@@ -2991,6 +3014,9 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
           </item>
           <item row="2" column="1" colspan="2">
            <widget class="QComboBox" name="bddImageNames">
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the image which is similar to the First image&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; this will be used to calculate Rank-k.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
@@ -3019,6 +3045,9 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
           </item>
           <item row="2" column="0">
            <widget class="QCheckBox" name="imageExistsInBdd">
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
             <property name="text">
              <string>First image exists in Bdd</string>
             </property>
@@ -3081,7 +3110,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
              <set>Qt::AlignCenter</set>
             </property>
             <property name="text" stdset="0">
-             <string/>
+             <string>0</string>
             </property>
             <property name="accelerated">
              <bool>true</bool>
@@ -3133,6 +3162,9 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
       </item>
       <item row="0" column="1">
        <widget class="QPushButton" name="pushButton">
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
         <property name="text">
          <string>Run</string>
         </property>
@@ -3670,7 +3702,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="typeOfMatchButtonGroup"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[])
 {
-	bool isConsole = (argc > 1);
+    bool isConsole = (argc>1);
 
 	QApplication app(argc, argv);
 	MainWindow mainWindow;
@@ -26,4 +26,5 @@ int main(int argc, char *argv[])
 		mainWindow.show();
 		return app.exec();
 	}
+
 }

@@ -32,8 +32,7 @@
 #include <opencv2/nonfree/nonfree.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/highgui/highgui.hpp>
-/*#include <CL/cl.hpp>
-//#include <GL/GL.h>
+/*#include <CL/cl.h>
 #include <opencv2/ocl/ocl.hpp>
 #include <opencv2/gpu/gpu.hpp>
 #include <opencv2/nonfree/ocl.hpp>
