@@ -1028,16 +1028,23 @@ void MainWindow::on_actionAdd_Command_triggered()
 
 void MainWindow::on_actionDelete_All_Commands_triggered()
 {
+	int rowsCount = 0;
 	excelRecover = new ExcelManager(true, inputFile, 11);
 
 	for (int j = 1; j <= 5; j++)
 	{	
 		excelRecover->GetIntRows(j);
-		for (int i = 2; i <= excelRecover->getSheetCount(); i++) excelRecover->DeleteRow();
+		for (int i = 2; i <= excelRecover->getSheetCount(); i++)
+		{
+			excelRecover->DeleteRow();
+			if (j < 5) rowsCount++;
+			else if ((i > 2) && (i%2 == 0)) rowsCount++;
+		}
 	}
 
 	excelRecover->~ExcelManager();
-	QMessageBox::information(this, "Delete All Commands", "All commands have been deleted with success from Excel input file !");
+	if (rowsCount > 0) QMessageBox::information(this, "Delete All Commands", "All commands (" + QString::number(rowsCount) +" commands) have been deleted with success from input file !");
+	else QMessageBox::warning(this, "Delete All Commands", "There is no commands in the input file (Probably you haven't add a new command or you have just deleted them all) !");
 }
 
 void MainWindow::on_actionAbout_Qt_triggered()
