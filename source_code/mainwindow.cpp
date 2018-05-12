@@ -81,13 +81,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	//qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white;}");
     ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
 	
-	QPixmap pixmap1(":/start-img.png");
-	QIcon ButtonIcon1(pixmap1);
-	ui->pushButton->setIcon(ButtonIcon1);
-
-	QPixmap pixmap2(":/refresh-img.png");
-	QIcon ButtonIcon2(pixmap2);
-	ui->refreshBddImageNames->setIcon(ButtonIcon2);
+	QPixmap pixmap(":/MainWindow/refresh-img");
+	QIcon ButtonIcon(pixmap);
+	ui->refreshBddImageNames->setIcon(ButtonIcon);
 
 	if (ui->oneToN->isChecked()) on_refreshBddImageNames_pressed();
 
