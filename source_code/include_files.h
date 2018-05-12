@@ -24,6 +24,7 @@
 #include <QMainWindow>
 #include <QtWidgets>
 #include <QFile>
+#include <QtUiTools/quiloader>
 
 // Include Opencv
 #include <opencv2/core/core.hpp>

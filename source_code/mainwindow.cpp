@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 
 // Images Declaration
 	cv::Mat firstImg, secondImg;
@@ -57,87 +56,129 @@
 	std::vector<float> sumDistancesSet;
 	std::vector<float> scoreSet;
 	int bestScoreIndex = -1;
-	std::string currentTest_folderPath;
 	bool oneToN;
 	int bestMatchesCount;
 	double minKeypoints;
 	int cpt;
+	std::string tests_folderPath = (QDir::toNativeSeparators(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)) + "\\Tests").toStdString();
+	std::string currentTest_folderPath;
+	std::string  settings_filePath = (QDir::toNativeSeparators(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)) + "\\Tests\\settings.txt").toStdString();
 	QString exportFile = QDir::toNativeSeparators(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)) + "\\Tests\\palmprint_registration_log_file.xlsx";
 	QString inputFile = QDir::toNativeSeparators(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)) + "\\Tests\\excel_input.xlsx";
 	int prev_cursor_position;
+	std::string language, theme;
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+	QMainWindow(parent),
+	ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
-	
-	QFile File("stylesheet.qss");
-	File.open(QFile::ReadOnly);
-	QString StyleSheet = QLatin1String(File.readAll());
+	// create Tests if not existes
+	std::wstring stemp = std::wstring(tests_folderPath.begin(), tests_folderPath.end());
+	if (CreateDirectory(stemp.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()){
+		ui->setupUi(this);
+		QFile File("stylesheet.qss");
 
-	qApp->setStyleSheet(StyleSheet);
-	// cusomizing ToolTips :
-	//qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white;}");
-    ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
-	
-	QPixmap pixmap(":/MainWindow/refresh-img");
-	QIcon ButtonIcon(pixmap);
-	ui->refreshBddImageNames->setIcon(ButtonIcon);
-
-	if (ui->oneToN->isChecked()) on_refreshBddImageNames_pressed();
-
-	// Control check boxes
-	connect(ui->oneToN, &QCheckBox::toggled, [=](bool checked) {
-		if (checked){
-			if (ui->matcher1toNtype1->isChecked()) {
-				ui->eliminationLoweRatio->setEnabled(false);
-				ui->eliminationLoweRatioText->setEnabled(false);
-				ui->eliminationInversMatches->setEnabled(false);
-				ui->eliminationNoTest->setChecked(true);
+		// read settings from settings_file
+		std::ifstream settings_file(settings_filePath);
+		if (settings_file.is_open()){
+			settings_file >> cpt;
+			settings_file >> language;
+			settings_file >> theme;
+			settings_file.close();
+		}
+		else {
+			// new file
+			cpt = 0;
+			language = "English";
+			theme = "Dark";
+			// write settings
+			std::ofstream settings_file(settings_filePath);
+			if (settings_file.is_open()){
+				settings_file << cpt << +"\n";
+				settings_file << language << +"\n";
+				settings_file << theme << +"\n";
+				settings_file.close();
 			}
-			if (ui->imageExistsInBdd->isChecked()){
-				ui->bddImageNames->setEnabled(true);
-				ui->refreshBddImageNames->setEnabled(true);
+			/*std::wstring stemp = std::wstring(settings_filePath.begin(), settings_filePath.end());
+			int attr = GetFileAttributes(stemp.c_str());
+			if ((attr & FILE_ATTRIBUTE_HIDDEN) == 0) {
+				SetFileAttributes(stemp.c_str(), attr | FILE_ATTRIBUTE_HIDDEN);
+			}*/
+		}
+		if (theme != "Light"){
+			File.open(QFile::ReadOnly);
+			QString StyleSheet = QLatin1String(File.readAll());
+
+			qApp->setStyleSheet(StyleSheet);
+		}
+		// cusomizing ToolTips :
+		//qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white;}");
+		ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
+
+		QPixmap pixmap(":/MainWindow/refresh-img");
+		QIcon ButtonIcon(pixmap);
+		ui->refreshBddImageNames->setIcon(ButtonIcon);
+
+		if (ui->oneToN->isChecked()) on_refreshBddImageNames_pressed();
+
+		// Control check boxes
+		connect(ui->oneToN, &QCheckBox::toggled, [=](bool checked) {
+			if (checked){
+				if (ui->matcher1toNtype1->isChecked()) {
+					ui->eliminationLoweRatio->setEnabled(false);
+					ui->eliminationLoweRatioText->setEnabled(false);
+					ui->eliminationInversMatches->setEnabled(false);
+					ui->eliminationNoTest->setChecked(true);
+				}
+				if (ui->imageExistsInBdd->isChecked()){
+					ui->bddImageNames->setEnabled(true);
+					ui->refreshBddImageNames->setEnabled(true);
+				}
+				else {
+					ui->bddImageNames->setEnabled(false);
+					ui->refreshBddImageNames->setEnabled(false);
+				}
 			}
 			else {
-				ui->bddImageNames->setEnabled(false);
-				ui->refreshBddImageNames->setEnabled(false);
+				ui->eliminationLoweRatio->setEnabled(true);
+				ui->eliminationLoweRatioText->setEnabled(true);
+				ui->eliminationInversMatches->setEnabled(true);
 			}
-		}
-		else {
-			ui->eliminationLoweRatio->setEnabled(true);
-			ui->eliminationLoweRatioText->setEnabled(true);
-			ui->eliminationInversMatches->setEnabled(true);
-		}
-		if (!ui->eliminationLoweRatio->isChecked()){
-			ui->matcherBruteForceCrossCheckLabel->setDisabled(ui->eliminationLoweRatio->isChecked() || (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()));
-			ui->matcherBruteForceCrossCheckText->setDisabled(ui->eliminationLoweRatio->isChecked() || (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()));
-		}
-	});
-	connect(ui->eliminationLoweRatio, &QCheckBox::toggled, [=](bool checked) {
-		if (checked){
-			ui->matcherBruteForceCrossCheckLabel->setEnabled(false);
-			ui->matcherBruteForceCrossCheckText->setEnabled(false);
-		}
-		else {
-			ui->matcherBruteForceCrossCheckLabel->setEnabled(true);
-			ui->matcherBruteForceCrossCheckText->setEnabled(true);
-		}
-	});
-	connect(ui->matcher1toNtype1, &QCheckBox::toggled, [=](bool checked) {
-		ui->eliminationNoTest->setChecked(true);
-		if (checked){
-			ui->matcherBruteForceCrossCheckLabel->setEnabled(false);
-			ui->matcherBruteForceCrossCheckText->setEnabled(false);
-		}
-		else {
-			ui->matcherBruteForceCrossCheckLabel->setEnabled(true);
-			ui->matcherBruteForceCrossCheckText->setEnabled(true);
-		}
-	});
+			if (!ui->eliminationLoweRatio->isChecked()){
+				ui->matcherBruteForceCrossCheckLabel->setDisabled(ui->eliminationLoweRatio->isChecked() || (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()));
+				ui->matcherBruteForceCrossCheckText->setDisabled(ui->eliminationLoweRatio->isChecked() || (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()));
+			}
+		});
+		connect(ui->eliminationLoweRatio, &QCheckBox::toggled, [=](bool checked) {
+			if (checked){
+				ui->matcherBruteForceCrossCheckLabel->setEnabled(false);
+				ui->matcherBruteForceCrossCheckText->setEnabled(false);
+			}
+			else {
+				ui->matcherBruteForceCrossCheckLabel->setEnabled(true);
+				ui->matcherBruteForceCrossCheckText->setEnabled(true);
+			}
+		});
+		connect(ui->matcher1toNtype1, &QCheckBox::toggled, [=](bool checked) {
+			ui->eliminationNoTest->setChecked(true);
+			if (checked){
+				ui->matcherBruteForceCrossCheckLabel->setEnabled(false);
+				ui->matcherBruteForceCrossCheckText->setEnabled(false);
+			}
+			else {
+				ui->matcherBruteForceCrossCheckLabel->setEnabled(true);
+				ui->matcherBruteForceCrossCheckText->setEnabled(true);
+			}
+		});
 
-	this->setWindowState(Qt::WindowMaximized);
+		this->setWindowState(Qt::WindowMaximized);
+	}
+	else
+	{
+		// Failed to create the root.
+		ui->logPlainText->appendHtml("<b style='color:red'>Failed to create directory for all tests!</b>");
+		return;
+	}
 }
 
 MainWindow::~MainWindow()
@@ -946,7 +987,7 @@ void MainWindow::runCustom(int testType)
 void MainWindow::launchInCMD(char filePath[]){
 	ui->tabWidget_2->setCurrentIndex(2);
 	//ui->inputPath->setText(filePath);
-	on_pushButton_pressed();
+	on_actionRun_triggered();
 }
 
 void MainWindow::on_firstImgBtn_pressed()
@@ -981,30 +1022,32 @@ void MainWindow::on_refreshBddImageNames_pressed()
 	}
 }
 
-void MainWindow::on_pushButton_pressed()
+void MainWindow::on_actionSettings_triggered()
 {
-	switch (ui->tabWidget_2->currentIndex())
-	{
-		case 0:
+	QUiLoader loader;
+	QFile file(":/MainWindow/settings-dialog");
+	file.open(QFile::ReadOnly);
+	QDialog *settingsDialog = qobject_cast<QDialog*>(loader.load(&file, this));
+	file.close();
+
+	try{
+		settingsDialog->findChild<QComboBox*>("languageComboBox")->setCurrentText(QString::fromStdString(language));
+		settingsDialog->findChild<QComboBox*>("themeComboBox")->setCurrentText(QString::fromStdString(theme));
+	}
+	catch (...){}
+
+	if (settingsDialog->exec() == QDialog::Accepted){
+		language = settingsDialog->findChild<QComboBox*>("languageComboBox")->currentText().toStdString();
+		theme = settingsDialog->findChild<QComboBox*>("themeComboBox")->currentText().toStdString();
+		/*...then open it in the appropriate way*/
+		std::ofstream settings_file(settings_filePath);
+		if (settings_file.is_open())
 		{
-			if (takeTest(0)) exportSuccess(0);
-			break;
+			settings_file << cpt << +"\n";
+			settings_file << language << +"\n";
+			settings_file << theme << +"\n";
+			settings_file.close();
 		}
-		case 1:
-		{
-			importExcelFile(0);
-			break;
-		}
-		case 2:
-		default:
-		{
-			/*if (!readInputFile()) {
-				ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the excel file!</b>");
-				return;
-			}*/
-			importExcelFile(2);
-		}
-		break;
 	}
 }
 
@@ -1015,7 +1058,30 @@ void MainWindow::on_actionDestroy_All_Windows_triggered()
 
 void MainWindow::on_actionRun_triggered()
 {
-	on_pushButton_pressed();
+
+	switch (ui->tabWidget_2->currentIndex())
+	{
+	case 0:
+	{
+		if (takeTest(0)) exportSuccess(0);
+		break;
+	}
+	case 1:
+	{
+		importExcelFile(0);
+		break;
+	}
+	case 2:
+	default:
+	{
+		/*if (!readInputFile()) {
+		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the excel file!</b>");
+		return;
+		}*/
+		importExcelFile(2);
+	}
+	break;
+	}
 }
 
 void MainWindow::on_actionClear_Log_triggered()
@@ -1381,76 +1447,40 @@ bool MainWindow::readSetOfImages(){
 
 bool MainWindow::createTestFolder(){
 	// create a new folder test
-	wchar_t tests_folderPath[100];
-	HRESULT hr = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, tests_folderPath);
-	wcscat(tests_folderPath, L"\\Tests");
-	if (CreateDirectory(tests_folderPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError()){
-		std::ifstream if_next_file;
-		FILE *next_file;
-		/*first check if the file exists...*/
-		char next_filepath[50];
-		wchar_t next_filePath[100];
-		wsprintfW(next_filePath, L"%ls\\next.txt", tests_folderPath);
-		std::wcstombs(next_filepath, next_filePath, 50);
-		if_next_file.open(next_filePath);
-		/*...then open it in the appropriate way*/
-		if (if_next_file.is_open()) {
-			// existing file
-			while (if_next_file.eof() == false)if_next_file >> cpt;
-			if_next_file.close();
-			next_file = fopen(next_filepath, "r+b");
-		}
-		else{
-			// new file
-			next_file = fopen(next_filepath, "w+b");
-			cpt = 0;
-			int attr = GetFileAttributes(next_filePath);
-			if ((attr & FILE_ATTRIBUTE_HIDDEN) == 0) {
-				SetFileAttributes(next_filePath, attr | FILE_ATTRIBUTE_HIDDEN);
+	currentTest_folderPath = tests_folderPath + "\\"+ std::to_string(cpt+1);
+	std::wstring stemp = std::wstring(currentTest_folderPath.begin(), currentTest_folderPath.end());
+	if (CreateDirectory(stemp.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()){
+		// created with succes
+		// Rest parameters :
+		resetParams();
+		currentTest_folderPath += "\\";
+		if (oneToN && setImgs.size() > 1){
+			// Create a sub directory for all output matches
+			std::string temp = currentTest_folderPath + "all matches";
+			std::wstring stemp = std::wstring(temp.begin(), temp.end());
+			if (CreateDirectory(stemp.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()){
+				// success
+			}
+			else {
+				showError("Creating directory", "Cannot create a directory to store matches", "Make sure that " + currentTest_folderPath + " existes");
 			}
 		}
 
-		if (next_file != NULL)
-		{
-			fprintf(next_file, std::to_string(cpt + 1).c_str());
-			fclose(next_file);
+		// update the next file
+		cpt++;
+		std::ofstream settings_file(settings_filePath);
+		if (settings_file.is_open()) {
+			settings_file << cpt << "\n";
+			settings_file << language << +"\n";
+			settings_file << theme << +"\n";
+			settings_file.close();
 		}
-
-		wchar_t _currentTest_folderPath[100];
-		wsprintfW(_currentTest_folderPath, L"%ls\\%d", tests_folderPath, cpt);
-		if (CreateDirectory(_currentTest_folderPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
-		{
-			// created with succes
-			// Rest parameters :
-			resetParams();
-			std::wstring ws(_currentTest_folderPath);
-			currentTest_folderPath = std::string(ws.begin(), ws.end());
-			currentTest_folderPath += "\\";
-			if (oneToN && setImgs.size() > 1){
-				// Create a sub directory for all output matches
-				wchar_t matches_folderPath[100];
-				wsprintfW(matches_folderPath, L"%ls\\all matches", _currentTest_folderPath);
-				if (CreateDirectory(matches_folderPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
-				{
-					// success
-				}
-				else {
-					showError("Creating directory", "Cannot create a directory to store matches", "Make sure that " + currentTest_folderPath + " existes");
-				}
-			}
-			return true;
-		}
-		else
-		{
-			// Failed to create directory.
-			ui->logPlainText->appendHtml("<b style='color:red'>Failed to create directory for the current test!</b>");
-			return false;
-		}
+		return true;
 	}
 	else
 	{
-		// Failed to create the root.
-		ui->logPlainText->appendHtml("<b style='color:red'>Failed to create directory for all tests!</b>");
+		// Failed to create directory.
+		showError("Creating directory", "Failed to create directory for the current test", "Make sure that " + tests_folderPath + " existes");
 		return false;
 	}
 }
@@ -1781,7 +1811,7 @@ void MainWindow::displayMatches(int imgIndex){
 	QGraphicsScene *matchingScene = new QGraphicsScene();
 
 	cv::Mat drawImg;
-	if (oneToN) drawImg = cv::imread(currentTest_folderPath + "/all matches/" + std::to_string(imgIndex) + ".jpg");
+	if (oneToN) drawImg = cv::imread(currentTest_folderPath + "all matches\\" + std::to_string(imgIndex) + ".jpg");
 	else drawImg = cv::imread(currentTest_folderPath + "output.jpg");
 	QImage img = matToQImage(drawImg);
 	matchingScene->addPixmap(QPixmap::fromImage(img));
@@ -1860,7 +1890,7 @@ void MainWindow::writeMatches(int imgIndex){
 			cv::drawMatches(firstImg, firstImgKeypoints, std::get<1>(setImgs[i]), setImgsKeypoints[i],
 				goodMatchesSet[i], drawImg, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 255), std::vector<char>(), cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
 
-			std::string filename = currentTest_folderPath + "/all matches/" + std::to_string(i) + ".jpg";
+			std::string filename = currentTest_folderPath + "all matches\\" + std::to_string(i) + ".jpg";
 			if (!cv::imwrite(filename, drawImg))
 				ui->logPlainText->appendHtml("<b style='color:orange'>Image " + QString::fromStdString(filename) + "  can not be saved (may be because directory " + QString::fromStdString(currentTest_folderPath) + "  does not exist) !</b>");
 				
