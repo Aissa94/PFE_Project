@@ -15,7 +15,7 @@ public:
 	Ui::MainWindow *ui;
     explicit MainWindow(QWidget *parent = 0);
 	~MainWindow(); 
-	void launchInCMD(char filePath[]);
+	void launchInCMD();
 
 protected:
 	virtual void wheelEvent(QWheelEvent* event);

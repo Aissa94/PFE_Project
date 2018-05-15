@@ -3,24 +3,23 @@
 
 int main(int argc, char *argv[])
 {
-	bool isConsole = (argc > 1);
-
 	QApplication app(argc, argv);
 	MainWindow mainWindow;
+
+	InitializeDualMode(true);
+
+	bool isConsole = false;
+	isConsole = (argc > 1 && !strcmp(argv[1], "-c"));
+	if (!isConsole){
+		std::cout << "Do you want to start the application with console mode?" << std::endl;
+		std::cout << "[y/n] " << std::endl;
+		char c = std::getchar();
+		isConsole = (c == 'y' || c == 'Y');
+	}
 	if (isConsole) {
-		InitializeDualMode(true);
 		std::cout << "Starting console app ..." << std::endl;
-		std::ifstream excelFile(argv[1]);
-		if (!excelFile) {
-			std::cout << "Error while trying to open: '" << argv[1] << "'" << std::endl;
-			exit(-1);
-		}
-		else {
-			std::cout << "File opened successfully" << std::endl;
-			mainWindow.launchInCMD(argv[1]);
-			std::cout << "Finished..." << std::endl;
-			exit(0);
-		}
+		mainWindow.launchInCMD();
+		std::cout << "Finished..." << std::endl;
 	}
 	else {
 		mainWindow.show();

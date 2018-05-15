@@ -947,7 +947,7 @@ void MainWindow::runCustom(int testType)
 	}
 }
 
-void MainWindow::launchInCMD(char filePath[]){
+void MainWindow::launchInCMD(){
 	ui->tabWidget_2->setCurrentIndex(2);
 	//ui->inputPath->setText(filePath);
 	on_pushButton_pressed();
