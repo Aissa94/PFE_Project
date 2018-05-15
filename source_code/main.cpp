@@ -4,10 +4,13 @@
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
+	QTranslator trs;
 	MainWindow mainWindow;
 
-	InitializeDualMode(true);
+	if (true)trs.load(":/MainWindow/palmprintregistration_fr");
+	app.installTranslator(&trs);
 
+	InitializeDualMode(true);
 	bool isConsole = false;
 	isConsole = (argc > 1 && !strcmp(argv[1], "-c"));
 	if (!isConsole){

@@ -19,12 +19,12 @@ ExcelManager::ExcelManager(bool closeExcelOnExit, const QString& fileName, int n
 
 	if (numSheet < 6)
 	{
-		system("taskkill /fi \"WINDOWTITLE eq palmprint_registration_log_file.xlsx - Excel\" /f");
+		system("taskkill /fi \"WINDOWTITLE eq palmprint_registration_output.xlsx - Excel\" /f");
 		testType = 0;
 	}
 	else
 	{
-		system("taskkill /fi \"WINDOWTITLE eq excel_input.xlsx - Excel\" /f");
+		system("taskkill /fi \"WINDOWTITLE eq palmprint_registration_input.xlsx - Excel\" /f");
 		testType = 2;
 	}
 	

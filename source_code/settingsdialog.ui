@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SettingsDialog</class>
- <widget class="QDialog" name="SettingsDialog">
+ <class>Settings</class>
+ <widget class="QDialog" name="Settings">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>SettingsDialog</string>
+   <string>Settings</string>
   </property>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
@@ -84,7 +84,7 @@
          <cursorShape>PointingHandCursor</cursorShape>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <item>
          <property name="text">
@@ -93,7 +93,12 @@
         </item>
         <item>
          <property name="text">
-          <string>Dark</string>
+          <string>Dark Blue</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Dark Orange</string>
          </property>
         </item>
        </widget>
@@ -124,7 +129,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>SettingsDialog</receiver>
+   <receiver>Settings</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -140,7 +145,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>SettingsDialog</receiver>
+   <receiver>Settings</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

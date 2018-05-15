@@ -60,11 +60,11 @@
 	int bestMatchesCount;
 	double minKeypoints;
 	int cpt;
-	std::string tests_folderPath = (QDir::toNativeSeparators(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)) + "\\Tests").toStdString();
+	std::string tests_folderPath = (QDir::toNativeSeparators(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)) + "\\Palmprint Registration").toStdString();
 	std::string currentTest_folderPath;
-	std::string  settings_filePath = (QDir::toNativeSeparators(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)) + "\\Tests\\settings.txt").toStdString();
-	QString exportFile = QDir::toNativeSeparators(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)) + "\\Tests\\palmprint_registration_log_file.xlsx";
-	QString inputFile = QDir::toNativeSeparators(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)) + "\\Tests\\excel_input.xlsx";
+	std::string  settings_filePath = (QDir::toNativeSeparators(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)) + "\\Palmprint Registration\\settings").toStdString();
+	QString exportFile = QDir::toNativeSeparators(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)) + "\\Palmprint Registration\\palmprint_registration_output.xlsx";
+	QString inputFile = QDir::toNativeSeparators(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)) + "\\Palmprint Registration\\palmprint_registration_input.xlsx";
 	int prev_cursor_position;
 	std::string language, theme;
 
@@ -76,21 +76,22 @@ MainWindow::MainWindow(QWidget *parent) :
 	std::wstring stemp = std::wstring(tests_folderPath.begin(), tests_folderPath.end());
 	if (CreateDirectory(stemp.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()){
 		ui->setupUi(this);
-		QFile File("stylesheet.qss");
+		QFile *File;
 
 		// read settings from settings_file
 		std::ifstream settings_file(settings_filePath);
 		if (settings_file.is_open()){
 			settings_file >> cpt;
 			settings_file >> language;
-			settings_file >> theme;
+			std::getline(settings_file, theme);
+			std::getline(settings_file, theme);
 			settings_file.close();
 		}
 		else {
 			// new file
 			cpt = 0;
 			language = "English";
-			theme = "Dark";
+			theme = "Dark Blue";
 			// write settings
 			std::ofstream settings_file(settings_filePath);
 			if (settings_file.is_open()){
@@ -106,15 +107,18 @@ MainWindow::MainWindow(QWidget *parent) :
 			}*/
 		}
 		if (theme != "Light"){
-			File.open(QFile::ReadOnly);
-			QString StyleSheet = QLatin1String(File.readAll());
+			if (theme == "Dark Orange"){
+				File = new QFile(":/themes/dark_orange");
+			}
+			else File = new QFile(":/themes/dark_blue");
+			File->open(QFile::ReadOnly);
+			QString StyleSheet = QLatin1String(File->readAll());
 
 			qApp->setStyleSheet(StyleSheet);
 		}
 		// cusomizing ToolTips :
 		//qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white;}");
 		ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
-
 		QPixmap pixmap(":/MainWindow/refresh-img");
 		QIcon ButtonIcon(pixmap);
 		ui->refreshBddImageNames->setIcon(ButtonIcon);
@@ -1051,11 +1055,6 @@ void MainWindow::on_actionSettings_triggered()
 	}
 }
 
-void MainWindow::on_actionDestroy_All_Windows_triggered()
-{
-    cv::destroyAllWindows();
-}
-
 void MainWindow::on_actionRun_triggered()
 {
 
@@ -1130,6 +1129,11 @@ void MainWindow::on_actionAbout_Me_triggered()
                        "<br><br>Thanks"
                        "<br><br>GHOUILA Nabil & BELKAID Aïssa"
 					   "<br><br><a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>");
+}
+
+void MainWindow::showEvent(QShowEvent* event) {
+	QWidget::showEvent(event);
+	if (language == "French" || language == "Français") ui->retranslateUi(this);
 }
 
 void MainWindow::on_refreshRankkGraph_pressed(){
@@ -2947,7 +2951,7 @@ void MainWindow::importExcelFile(int type)
 
 					if (type == 0)
 					{
-						image = cv::imread((QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Tests/" + ui->spinBox->text() + "/keypoints1.bmp").toStdString(), CV_LOAD_IMAGE_COLOR);
+						image = cv::imread((QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Palmprint Registration/" + ui->spinBox->text() + "/keypoints1.bmp").toStdString(), CV_LOAD_IMAGE_COLOR);
 						displayFeature(image, 1);
 					}
 
@@ -2955,10 +2959,10 @@ void MainWindow::importExcelFile(int type)
 
 					if (type == 0)
 					{
-						image = cv::imread((QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Tests/" + ui->spinBox->text() + "/keypoints2.bmp").toStdString(), CV_LOAD_IMAGE_COLOR);
+						image = cv::imread((QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Palmprint Registration/" + ui->spinBox->text() + "/keypoints2.bmp").toStdString(), CV_LOAD_IMAGE_COLOR);
 						displayFeature(image, 2);
 
-						image = cv::imread((QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Tests/" + ui->spinBox->text() + "/output.jpg").toStdString(), CV_LOAD_IMAGE_COLOR);
+						image = cv::imread((QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Palmprint Registration/" + ui->spinBox->text() + "/output.jpg").toStdString(), CV_LOAD_IMAGE_COLOR);
 						displayFeature(image, 3);
 					}
 
@@ -3442,7 +3446,7 @@ QString MainWindow::GetTableValue(QAxObject* sheet, int rowIndex, int columnInde
 }
 
 void MainWindow::exportTable(int rowsCount) {
-	const QString tableName = QStandardPaths::DocumentsLocation + "\\Tests\\" + QString::number(cpt) + "\\table.xlsx";
+	const QString tableName = QStandardPaths::DocumentsLocation + "\\Palmprint Registration\\" + QString::number(cpt) + "\\table.xlsx";
 	system("taskkill /fi \"WINDOWTITLE eq table.xlsx - Excel\" /f");
 	QAxObject *excelApplication = new QAxObject("Excel.Application", 0);
 	if (excelApplication == nullptr) throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
@@ -3472,7 +3476,7 @@ void MainWindow::exportTable(int rowsCount) {
 
 void MainWindow::importTable(int identifierNumber) {
 	system("taskkill /fi \"WINDOWTITLE eq table.xlsx - Excel\" /f");
-	const QString tableName = QStandardPaths::DocumentsLocation + "\\Tests\\" + QString::number(identifierNumber) + "\\table.xlsx";
+	const QString tableName = QStandardPaths::DocumentsLocation + "\\Palmprint Registration\\" + QString::number(identifierNumber) + "\\table.xlsx";
 	QAxObject *excelApplication = new QAxObject("Excel.Application", 0);
 	if (excelApplication == nullptr) throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
 	excelApplication->dynamicCall("SetVisible(bool)", false); // display excel

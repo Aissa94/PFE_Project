@@ -13,6 +13,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
 	~MainWindow(); 
 	void launchInCMD();
+	void showEvent(QShowEvent* event);
 
 protected:
 	virtual void wheelEvent(QWheelEvent* event);
@@ -27,8 +28,6 @@ private slots:
 	void on_refreshBddImageNames_pressed();
 
 	void on_actionSettings_triggered();
-
-    void on_actionDestroy_All_Windows_triggered();
 
     void on_actionRun_triggered();
 
