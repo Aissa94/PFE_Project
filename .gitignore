@@ -31,16 +31,6 @@
 *.out
 *.app
 
-# images
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.bmp
-*.svg
-*.ico
-*.psd
-
 # Others
 *.opensdf
 *.autosave

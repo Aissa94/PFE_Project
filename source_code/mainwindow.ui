@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1243</width>
-    <height>721</height>
+    <width>1221</width>
+    <height>750</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <item row="0" column="1" rowspan="5">
      <widget class="QTabWidget" name="viewTabs">
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab_7">
        <attribute name="title">
@@ -127,7 +127,11 @@
            </widget>
           </item>
           <item row="0" column="2" colspan="2">
-           <widget class="QComboBox" name="viewMatchesImageNameText"/>
+           <widget class="QComboBox" name="viewMatchesImageNameText">
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+           </widget>
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="viewMatchesGoodMatchesLab">
@@ -220,7 +224,11 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QComboBox" name="viewTableImageNameText"/>
+           <widget class="QComboBox" name="viewTableImageNameText">
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -341,17 +349,13 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="siftEdgeThreshText">
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_8">
                 <property name="text">
-                 <string>10</string>
+                 <string>Sigma :</string>
                 </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="siftContThreshText">
-                <property name="text">
-                 <string>0.04</string>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
@@ -365,20 +369,31 @@
                 </property>
                </widget>
               </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_5">
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="siftContThreshText">
                 <property name="text">
-                 <string>Number of Features :</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 <string>0.04</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="1">
-               <widget class="QLineEdit" name="siftNumFeatText">
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="siftEdgeThreshText">
                 <property name="text">
-                 <string>0</string>
+                 <string>10</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QLineEdit" name="siftSigmaText">
+                <property name="text">
+                 <string>1.6</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLineEdit" name="siftNumOctText">
+                <property name="text">
+                 <string>3</string>
                 </property>
                </widget>
               </item>
@@ -392,24 +407,17 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="1">
-               <widget class="QLineEdit" name="siftNumOctText">
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="siftNumFeatText">
                 <property name="text">
-                 <string>3</string>
+                 <string>0</string>
                 </property>
                </widget>
               </item>
-              <item row="4" column="1">
-               <widget class="QLineEdit" name="siftSigmaText">
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_5">
                 <property name="text">
-                 <string>1.6</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0">
-               <widget class="QLabel" name="label_8">
-                <property name="text">
-                 <string>Sigma :</string>
+                 <string>Number of Features :</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -561,6 +569,9 @@
             </item>
             <item row="1" column="1">
              <widget class="QCheckBox" name="surfBruteForceCheck">
+              <property name="cursor">
+               <cursorShape>PointingHandCursor</cursorShape>
+              </property>
               <property name="text">
                <string>Use Brute Force Matching</string>
               </property>
@@ -1086,53 +1097,6 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
                 </item>
                </layout>
               </widget>
-              <widget class="QWidget" name="tabSegmentationGuoHall">
-               <attribute name="title">
-                <string>Guo-Hall</string>
-               </attribute>
-               <layout class="QGridLayout" name="gridLayout_13">
-                <item row="0" column="0">
-                 <spacer name="horizontalSpacer_44">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="0" column="1">
-                 <layout class="QGridLayout" name="segmentationGuoHallParams">
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="segmentationGuoHallParam3Label">
-                    <property name="text">
-                     <string>No parameters to load</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="0" column="2">
-                 <spacer name="horizontalSpacer_45">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </widget>
              </widget>
             </item>
             <item row="1" column="0">
@@ -1566,6 +1530,9 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
                    <widget class="QComboBox" name="detectorFastTypeText">
                     <property name="enabled">
                      <bool>false</bool>
+                    </property>
+                    <property name="cursor">
+                     <cursorShape>PointingHandCursor</cursorShape>
                     </property>
                     <property name="currentText">
                      <string>5_8</string>
@@ -2451,6 +2418,9 @@ So a 100x100 image, with an initImgBound of 10, would create keypoints in the ce
               </item>
               <item row="0" column="3">
                <widget class="QCheckBox" name="withClusteringChecker">
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>Cluster before matching :</string>
                 </property>
@@ -2537,6 +2507,9 @@ So a 100x100 image, with an initImgBound of 10, would create keypoints in the ce
                   </item>
                   <item row="0" column="2">
                    <widget class="QComboBox" name="matcherBruteForceNormTypeText">
+                    <property name="cursor">
+                     <cursorShape>PointingHandCursor</cursorShape>
+                    </property>
                     <property name="currentText">
                      <string>NORM_L2</string>
                     </property>
@@ -2801,7 +2774,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
             </item>
             <item row="1" column="1">
              <layout class="QGridLayout" name="eliminationLayout">
-              <item row="1" column="1">
+              <item row="0" column="0">
                <widget class="QRadioButton" name="eliminationNoTest">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Be content with one best match&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -2817,7 +2790,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
                 </attribute>
                </widget>
               </item>
-              <item row="2" column="1">
+              <item row="1" column="0">
                <widget class="QRadioButton" name="eliminationInversMatches">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Keep only matches found in both direct and reverse matching.&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; In case of 1 to N images this can take more time.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -2833,7 +2806,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
                 </attribute>
                </widget>
               </item>
-              <item row="3" column="1">
+              <item row="2" column="0">
                <widget class="QRadioButton" name="eliminationLoweRatio">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Performs Lowe's test (default ratio is 0.7)&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; Two sets of matches will be found.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -2849,7 +2822,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
                 </attribute>
                </widget>
               </item>
-              <item row="3" column="2">
+              <item row="2" column="1">
                <widget class="QLineEdit" name="eliminationLoweRatioText">
                 <property name="enabled">
                  <bool>false</bool>
@@ -2862,7 +2835,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
                 </property>
                </widget>
               </item>
-              <item row="4" column="1">
+              <item row="3" column="0">
                <widget class="QCheckBox" name="eliminationLimitDistance">
                 <property name="enabled">
                  <bool>true</bool>
@@ -2881,7 +2854,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
                 </property>
                </widget>
               </item>
-              <item row="4" column="2">
+              <item row="3" column="1">
                <widget class="QLineEdit" name="eliminationLimitDistanceText">
                 <property name="enabled">
                  <bool>true</bool>
@@ -2943,27 +2916,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
           <string>Take a test</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_9">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>First Image :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Second Image(s) :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1" colspan="2">
+          <item row="2" column="1">
            <widget class="QLineEdit" name="secondImgText">
             <property name="text">
              <string>Resources</string>
@@ -2973,10 +2926,20 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
             </property>
            </widget>
           </item>
-          <item row="1" column="4">
+          <item row="2" column="3">
+           <widget class="QPushButton" name="secondImgBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="4">
            <widget class="QCheckBox" name="oneToN">
             <property name="enabled">
              <bool>true</bool>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of choosing the second image, select a folder to an image set.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; If the folder contains only one image it will be considered as (1 to 1).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -2989,10 +2952,23 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
             </property>
            </widget>
           </item>
-          <item row="2" column="1" colspan="2">
-           <widget class="QComboBox" name="bddImageNames">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the image which is similar to the First image&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; this will be used to calculate Rank-k.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>First Image :</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Second Image(s) :</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -3010,24 +2986,24 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
             </property>
            </widget>
           </item>
-          <item row="1" column="3">
-           <widget class="QPushButton" name="secondImgBtn">
-            <property name="text">
-             <string>Browse</string>
+          <item row="0" column="5" rowspan="5">
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="imageExistsInBdd">
-            <property name="text">
-             <string>First image exists in Bdd</string>
+          <item row="2" column="6">
+           <widget class="QComboBox" name="bddImageNames">
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
             </property>
-            <property name="checked">
-             <bool>true</bool>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the image which is similar to the First image&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; this will be used to calculate Rank-k.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="3">
+          <item row="2" column="7">
            <widget class="QPushButton" name="refreshBddImageNames">
             <property name="cursor">
              <cursorShape>PointingHandCursor</cursorShape>
@@ -3040,6 +3016,19 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
             </property>
             <property name="text">
              <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="6" colspan="2">
+           <widget class="QCheckBox" name="imageExistsInBdd">
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="text">
+             <string>First image exists in Bdd</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -3081,7 +3070,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
              <set>Qt::AlignCenter</set>
             </property>
             <property name="text" stdset="0">
-             <string/>
+             <string>0</string>
             </property>
             <property name="accelerated">
              <bool>true</bool>
@@ -3131,13 +3120,6 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
         </widget>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="pushButton">
-        <property name="text">
-         <string>Run</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item row="4" column="0">
@@ -3165,82 +3147,150 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1243</width>
+     <width>1221</width>
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuWindows">
-    <property name="title">
-     <string>Windows</string>
-    </property>
-    <addaction name="actionDestroy_All_Windows"/>
-   </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
     <addaction name="actionRun"/>
-    <addaction name="separator"/>
     <addaction name="actionClear_Log"/>
     <addaction name="separator"/>
     <addaction name="actionAdd_Command"/>
     <addaction name="actionDelete_All_Commands"/>
+    <addaction name="actionSettings"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionAbout_Qt"/>
     <addaction name="actionAbout_Me"/>
+    <addaction name="actionAbout_Qt"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuWindows"/>
    <addaction name="menuHelp"/>
   </widget>
-  <action name="actionDestroy_All_Windows">
-   <property name="text">
-    <string>Destroy All Windows</string>
+  <widget class="QToolBar" name="toolBar">
+   <property name="cursor">
+    <cursorShape>PointingHandCursor</cursorShape>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+Backspace</string>
+   <property name="windowTitle">
+    <string>toolBar</string>
    </property>
-  </action>
+   <property name="allowedAreas">
+    <set>Qt::AllToolBarAreas</set>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>17</width>
+     <height>17</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextBesideIcon</enum>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionAdd_Command"/>
+   <addaction name="actionClear_Log"/>
+   <addaction name="actionSettings"/>
+   <addaction name="separator"/>
+   <addaction name="actionRun"/>
+  </widget>
   <action name="actionRun">
+   <property name="icon">
+    <iconset resource="PalmprintRegistration.qrc">
+     <normaloff>:/MainWindow/start-img</normaloff>:/MainWindow/start-img</iconset>
+   </property>
    <property name="text">
     <string>Run</string>
+   </property>
+   <property name="toolTip">
+    <string>Start the current configuration</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
    </property>
   </action>
   <action name="actionClear_Log">
+   <property name="icon">
+    <iconset resource="PalmprintRegistration.qrc">
+     <normaloff>:/MainWindow/clear-log-img</normaloff>:/MainWindow/clear-log-img</iconset>
+   </property>
    <property name="text">
     <string>Clear Log</string>
    </property>
-  </action>
-  <action name="actionSave_Log_File_As">
-   <property name="text">
-    <string>Save Log File As ...</string>
+   <property name="shortcut">
+    <string>Ctrl+Backspace</string>
    </property>
   </action>
   <action name="actionAbout_Qt">
+   <property name="icon">
+    <iconset resource="PalmprintRegistration.qrc">
+     <normaloff>:/MainWindow/qt-img</normaloff>:/MainWindow/qt-img</iconset>
+   </property>
    <property name="text">
     <string>About Qt</string>
    </property>
   </action>
   <action name="actionAbout_Me">
+   <property name="icon">
+    <iconset resource="PalmprintRegistration.qrc">
+     <normaloff>:/MainWindow/about-us-img</normaloff>:/MainWindow/about-us-img</iconset>
+   </property>
    <property name="text">
     <string>About Us</string>
    </property>
   </action>
   <action name="actionAdd_Command">
+   <property name="icon">
+    <iconset resource="PalmprintRegistration.qrc">
+     <normaloff>:/MainWindow/add-input</normaloff>:/MainWindow/add-input</iconset>
+   </property>
    <property name="text">
     <string>Add Command</string>
    </property>
+   <property name="toolTip">
+    <string>Add the current configuration to the input file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
   </action>
   <action name="actionDelete_All_Commands">
+   <property name="icon">
+    <iconset resource="PalmprintRegistration.qrc">
+     <normaloff>:/MainWindow/clear-input-img</normaloff>:/MainWindow/clear-input-img</iconset>
+   </property>
    <property name="text">
     <string>Delete All Commands</string>
+   </property>
+   <property name="toolTip">
+    <string>Clear all configurations from the input file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Backspace</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="icon">
+    <iconset resource="PalmprintRegistration.qrc">
+     <normaloff>:/MainWindow/settings-img</normaloff>:/MainWindow/settings-img</iconset>
+   </property>
+   <property name="text">
+    <string>Settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Settings</string>
    </property>
   </action>
  </widget>
@@ -3256,12 +3306,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
  <tabstops>
   <tabstop>tabWidget_2</tabstop>
   <tabstop>firstImgText</tabstop>
-  <tabstop>secondImgText</tabstop>
   <tabstop>firstImgBtn</tabstop>
-  <tabstop>secondImgBtn</tabstop>
-  <tabstop>oneToN</tabstop>
-  <tabstop>bddImageNames</tabstop>
-  <tabstop>pushButton</tabstop>
   <tabstop>logPlainText</tabstop>
   <tabstop>allMethodsTabs</tabstop>
   <tabstop>siftEdgeThreshText</tabstop>
@@ -3346,7 +3391,9 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
   <tabstop>viewTableImageNameText</tabstop>
   <tabstop>viewTable</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="PalmprintRegistration.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>oneToN</sender>

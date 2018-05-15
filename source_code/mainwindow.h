@@ -2,10 +2,7 @@
 #define MAINWINDOW_H
 
 #include "include_files.h"
-
-namespace Ui {
-class MainWindow;
-}
+#include "ui_mainwindow.h"
 
 class MainWindow : public QMainWindow
 {
@@ -29,7 +26,7 @@ private slots:
 
 	void on_refreshBddImageNames_pressed();
 
-	void on_pushButton_pressed();
+	void on_actionSettings_triggered();
 
     void on_actionDestroy_All_Windows_triggered();
 
