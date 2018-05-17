@@ -1147,7 +1147,7 @@ void Image_processing::Draw_minutiae_Features(bool col, cv::Mat &img, std::vecto
 	}
 }
 
-void Minutiae_Validation(cv::Mat img, std::vector<Minutiae> &minutiae, cv::Mat msk){
+void Minutiae_Validation(cv::Mat img, std::vector<Minutiae> &minutiae, cv::Mat msk, double distanceThreshBetweenMinutiaes){
 
 	//+++++++++++ elimination of bordary minutie +++++++++++++++++
 	//  ofstream myfile;
@@ -1155,9 +1155,9 @@ void Minutiae_Validation(cv::Mat img, std::vector<Minutiae> &minutiae, cv::Mat m
 
 	//  myfile << "minutia size before " << minutiae.size() << "\n";
 
-	cv::Mat _struct_elt_7(9, 9, CV_64FC1, cv::Scalar::all(1));
-	cv::erode(msk, msk, _struct_elt_7, cv::Point(-1, -1), 1, cv::BORDER_CONSTANT, 1);
-	cv::erode(msk, msk, _struct_elt_7, cv::Point(-1, -1), 1, cv::BORDER_CONSTANT, 1);
+	cv::Mat _struct_elt(9, 9, CV_64FC1, cv::Scalar::all(1));
+	cv::erode(msk, msk, _struct_elt, cv::Point(-1, -1), 1, cv::BORDER_CONSTANT, 1);
+	cv::erode(msk, msk, _struct_elt, cv::Point(-1, -1), 1, cv::BORDER_CONSTANT, 1);
 
 
 	std::vector<Minutiae>::iterator it = minutiae.begin();
@@ -1187,12 +1187,13 @@ void Minutiae_Validation(cv::Mat img, std::vector<Minutiae> &minutiae, cv::Mat m
 		Minutiae _m = minutiae[i];
 		for (int j = i + 1; j< minutiae.size(); j++){
 			Minutiae _n = minutiae[j];
-			if ((_m.euclideanDistance(_n)< 7) && (_m.getType() == _n.getType())){
+			if ((_m.euclideanDistance(_n)< distanceThreshBetweenMinutiaes) && (_m.getType() == _n.getType())){
 				if (std::find(inf_dist.begin(), inf_dist.end(), i) == inf_dist.end())
-				{
+				{// not contain
 					inf_dist.push_back(i);
 				}
-				if (std::find(inf_dist.begin(), inf_dist.end(), j) == inf_dist.end()){
+				if (std::find(inf_dist.begin(), inf_dist.end(), j) == inf_dist.end())
+				{// not contain
 					inf_dist.push_back(j);
 				}
 			}
@@ -1217,7 +1218,7 @@ void Minutiae_Validation(cv::Mat img, std::vector<Minutiae> &minutiae, cv::Mat m
 
 }
 
-std::vector<Minutiae> Image_processing::Final_Minutiae_Set_Extraction(cv::Mat img){
+std::vector<Minutiae> Image_processing::Final_Minutiae_Set_Extraction(cv::Mat img, double distanceThreshBetweenMinutiaes){
 
 	//cv::namedWindow("image Originale");
 	//cv::imshow("image Originale",img);
@@ -1265,7 +1266,7 @@ std::vector<Minutiae> Image_processing::Final_Minutiae_Set_Extraction(cv::Mat im
 	//    cv::imwrite("C:/Users/Nabil/Desktop/Mme/Test/3.bmp", _imgt2);
 
 	msk = 1 - msk;
-	Minutiae_Validation(img, minutiae, msk);
+	Minutiae_Validation(img, minutiae, msk, distanceThreshBetweenMinutiaes);
 
 	//    cv::Mat _imgt3=_imgt.clone();
 	//    Draw_minutiae_Features(1,_imgt3,minutiae);
@@ -1356,12 +1357,12 @@ cv::Mat Image_processing::thinning(cv::Mat input, cv::Mat &enhancedImage, cv::Ma
 	return thinnedImage;
 }
 
-std::vector<Minutiae> Image_processing::extracting(cv::Mat input, cv::Mat enhancedImage, cv::Mat &segmentedImage, cv::Mat thinnedImage){
+std::vector<Minutiae> Image_processing::extracting(cv::Mat input, cv::Mat enhancedImage, cv::Mat &segmentedImage, cv::Mat thinnedImage, double distanceThreshBetweenMinutiaes){
 	// ++++++++++++++++++Minutiae Extraction++++++++
 	cv::Mat oimg = Gradient_Orientation_Image(enhancedImage, 16);
 	std::vector<Minutiae> minutiae = Minutia_Extraction(thinnedImage, oimg, 16);
 	segmentedImage = 1 - segmentedImage;
-	Minutiae_Validation(input, minutiae, segmentedImage);
+	Minutiae_Validation(input, minutiae, segmentedImage, distanceThreshBetweenMinutiaes);
 
 	return minutiae;
 }

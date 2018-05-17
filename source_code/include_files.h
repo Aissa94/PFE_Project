@@ -16,8 +16,6 @@
 #include <ctime>
 #include <functional>
 #include <map>
-#include <windows.h>
-#include <shlobj.h>
 #include <wchar.h>
 
 // Include Qt
@@ -43,7 +41,6 @@
 // http://www.codelooker.com/id/217/1100103.html
 #include "binarisation\AdaptiveLocalThreshold.h"
 #include "extraction\CrossingNumber.h"
-#include "extraction\Filter.h"
 #include "extraction\Minutiae.h"
 #include "gap-optimisation\GapOptimisation.h"
 #include "optimisation\Ideka.h"

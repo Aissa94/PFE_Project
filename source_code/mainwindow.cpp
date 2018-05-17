@@ -2127,17 +2127,18 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 	case 0:{
 		// Minutiae-detection using Crossing Number By Dr. Faiçal
 		std::vector<Minutiae> firstMinutiae, secondMinutiae;
+		double distanceThreshBetweenMinutiaes = ui->detectorMinutiaeLimitDistanceText->text().toFloat();
 		detectionTime = (double)cv::getTickCount();
 		// change this to firstImage and originalInput !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		firstMinutiae = Image_processing::extracting(firstImg, firstEnhancedImage, firstSegmentedImage, firstImg);
+		firstMinutiae = Image_processing::extracting(firstImg, firstEnhancedImage, firstSegmentedImage, firstImg, distanceThreshBetweenMinutiaes);
 		if (oneToN)
 		{
 			setMinutiaes = std::vector<std::vector<Minutiae>>(setImgs.size(), std::vector<Minutiae>());
 			for (int i = 0; i < setImgs.size(); i++){
-				setMinutiaes[i] = Image_processing::extracting(std::get<1>(setImgs[i]), setEnhancedImages[i], setSegmentedImages[i], std::get<1>(setImgs[i]));
+				setMinutiaes[i] = Image_processing::extracting(std::get<1>(setImgs[i]), setEnhancedImages[i], setSegmentedImages[i], std::get<1>(setImgs[i]), distanceThreshBetweenMinutiaes);
 			}
 		}
-		else secondMinutiae = Image_processing::extracting(secondImg, secondEnhancedImage, secondSegmentedImage, secondImg);
+		else secondMinutiae = Image_processing::extracting(secondImg, secondEnhancedImage, secondSegmentedImage, secondImg, distanceThreshBetweenMinutiaes);
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
 		writeKeyPoints(firstImg, firstMinutiae, 1, "keypoints1");
@@ -2180,23 +2181,23 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		// Minutiae-detection using Crossing Number
 		// http://www.codelooker.com/id/217/1100103.html
 		std::vector<Minutiae> firstMinutiae, secondMinutiae;
-
+		double distanceThreshBetweenMinutiaes = ui->detectorCrossingNumberLimitDistanceText->text().toFloat();
 		detectionTime = (double)cv::getTickCount();
-		firstMinutiae = crossingNumber::getMinutiae(firstImg, ui->detectorCrossingNumberBorderText->text().toInt());
+		firstMinutiae = CrossingNumber::getMinutiae(firstImg, ui->detectorCrossingNumberBorderText->text().toInt());
 		//Minutiae-filtering
 		// slow with the second segmentation
-		Filter::filterMinutiae(firstMinutiae);
+		CrossingNumber::filterMinutiae(firstMinutiae, distanceThreshBetweenMinutiaes);
 		if (oneToN)
 		{
 			setMinutiaes = std::vector<std::vector<Minutiae>>(setImgs.size(), std::vector<Minutiae>());
 			for (int i = 0; i < setImgs.size(); i++){
-				setMinutiaes[i] = crossingNumber::getMinutiae(std::get<1>(setImgs[i]), ui->detectorCrossingNumberBorderText->text().toInt());
-				Filter::filterMinutiae(setMinutiaes[i]);
+				setMinutiaes[i] = CrossingNumber::getMinutiae(std::get<1>(setImgs[i]), ui->detectorCrossingNumberBorderText->text().toInt());
+				CrossingNumber::filterMinutiae(setMinutiaes[i], distanceThreshBetweenMinutiaes);
 			}
 		}
 		else {
-			secondMinutiae = crossingNumber::getMinutiae(secondImg, ui->detectorCrossingNumberBorderText->text().toInt());
-			Filter::filterMinutiae(secondMinutiae);
+			secondMinutiae = CrossingNumber::getMinutiae(secondImg, ui->detectorCrossingNumberBorderText->text().toInt());
+			CrossingNumber::filterMinutiae(secondMinutiae, distanceThreshBetweenMinutiaes);
 		}
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 

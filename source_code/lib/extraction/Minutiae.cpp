@@ -15,7 +15,7 @@ Minutiae::Minutiae(int x, int y, double or, double dir, Type type)
 {
 	pt.x = x;
 	pt.y = y;
-    Minutiae::markedForErasing = false;
+	Minutiae::eliminated = false;
 }
 
 double Minutiae::getOr()
@@ -32,14 +32,14 @@ Minutiae::Type Minutiae::getType()
     return type;
 }
 
-void Minutiae::setMarkTrue()
+void Minutiae::setEliminated()
 {
-    Minutiae::markedForErasing = true;
+	Minutiae::eliminated = true;
 }
 
-bool Minutiae::getMark()
+bool Minutiae::isEliminated()
 {
-    return Minutiae::markedForErasing;
+	return Minutiae::eliminated;
 }
 
 double Minutiae::euclideanDistance(Minutiae minutiae){

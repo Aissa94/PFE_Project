@@ -12,14 +12,14 @@ class Image_processing
 public:
 	Image_processing();
 	//    void Real_Mat_size(cv::Mat mt,int &real_cols, int &real_rows);
-	std::vector<Minutiae> Final_Minutiae_Set_Extraction(cv::Mat img);
+	std::vector<Minutiae> Final_Minutiae_Set_Extraction(cv::Mat img, double distanceThreshBetweenMinutiaes);
 	cv::Mat Image_Transform(cv::Mat img, double tx, double ty, double d_or, double scale);
 	void Draw_minutiae_Features(bool col, cv::Mat &img, std::vector<Minutiae> minutiae);
 
 	//cv::Mat  Gradient_Orientation_Image(cv::Mat img, int bloc_size);
 	// cv::Mat Image_Enhancement(cv::Mat img, int bloc_size, double sigma_x, double sigma_y, int gabor_filter_size);
 	cv::Mat static thinning(cv::Mat input, cv::Mat &enhancedImage, cv::Mat &segmentedImage);
-	std::vector<Minutiae> static extracting(cv::Mat input, cv::Mat enhancedImage, cv::Mat &segmentedImage, cv::Mat thinnedImage);
+	std::vector<Minutiae> static extracting(cv::Mat input, cv::Mat enhancedImage, cv::Mat &segmentedImage, cv::Mat thinnedImage, double distanceThreshBetweenMinutiaes = 7.0);
 
 };
 

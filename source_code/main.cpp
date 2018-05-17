@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 	isConsole = (argc > 1 && !strcmp(argv[1], "-c"));
 	if (!isConsole){
 		std::cout << "Do you want to start the application with console mode?" << std::endl;
-		std::cout << "[y/n] " << std::endl;
+		std::cout << "[y/n] ";
 		char c = std::getchar();
 		isConsole = (c == 'y' || c == 'Y');
 	}

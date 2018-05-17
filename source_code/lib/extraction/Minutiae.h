@@ -15,14 +15,14 @@ public:
 		double getOr();
 		double getDir();
         Type getType();
-        void setMarkTrue();
-        bool getMark();
+		void setEliminated();
+		bool isEliminated();
 		double euclideanDistance(Minutiae minutiae);
 private:
 		double or;
 		double dir;
         Type type;
-        bool markedForErasing;
+		bool eliminated = false;
 };
 
 #endif // MINUTIAE_H

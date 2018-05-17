@@ -1351,9 +1351,9 @@
             <class Id="243d680c-28bb-43ae-98f1-2d57c2a17fbf" name="MserDetection" isAbstract="false" isLeaf="false" isActiveClass="false">
               <elementDefinition Id="3fe50e55-957f-481b-b7f4-4af2ee6ac0fa" />
               <suppliersInternal>
-                <interfaceRealization Id="58b296ae-5776-47be-87ec-3c99976f9e91">
+                <interfaceRealization Id="dc377e6b-b037-4a03-a62a-d621031b8f39">
                   <interfaceMoniker Id="d2fb36c8-19ff-4ea2-b048-e824f3b434c3" LastKnownName="DetectionCommand" />
-                  <elementDefinition Id="5141236b-8151-4a2f-9676-559cd399a09c" />
+                  <elementDefinition Id="3f941343-1fdc-4760-a9b8-0abe89559251" />
                 </interfaceRealization>
               </suppliersInternal>
               <ownedAttributesInternal>
@@ -1588,7 +1588,7 @@
             </class>
           </packageHasNamedElement>
           <packageHasNamedElement>
-            <class Id="a16fbfeb-a5e6-4132-b8c8-5aac94535c36" name="CrossingNumberDetection" isAbstract="false" isLeaf="false" isActiveClass="false">
+            <class Id="a16fbfeb-a5e6-4132-b8c8-5aac94535c36" name="DenseDetection" isAbstract="false" isLeaf="false" isActiveClass="false">
               <elementDefinition Id="3e6a020b-7098-4393-ba28-ab4dd7159914" />
               <suppliersInternal>
                 <interfaceRealization Id="b28ec2f2-28c7-4186-b651-4f0f1176fbd9">
@@ -2057,6 +2057,38 @@
               </ownedOperationsInternal>
             </class>
           </packageHasNamedElement>
+          <packageHasNamedElement>
+            <class Id="6939ab7a-4f41-4282-87db-bf1344293862" name="CrossingNumberDetection" isAbstract="false" isLeaf="false" isActiveClass="false">
+              <elementDefinition Id="b15e9754-b86b-482b-9c12-1579c3c8fc91" />
+              <suppliersInternal>
+                <interfaceRealization Id="8c22a699-509d-4562-967c-5d8a4cfa312a">
+                  <interfaceMoniker Id="d2fb36c8-19ff-4ea2-b048-e824f3b434c3" LastKnownName="DetectionCommand" />
+                  <elementDefinition Id="092797f2-1574-4958-8d3c-f91378b63d3a" />
+                </interfaceRealization>
+              </suppliersInternal>
+              <ownedOperationsInternal>
+                <operation Id="43f27510-df55-425a-9004-26d5f691d2c5" name="execute" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
+                  <elementDefinition Id="d344978f-ef9b-4685-97c1-04c5897c3495" />
+                </operation>
+              </ownedOperationsInternal>
+            </class>
+          </packageHasNamedElement>
+          <packageHasNamedElement>
+            <class Id="626dda5a-29a8-4329-acd0-5ee91b98c68e" name="HarrisCornerDetection" isAbstract="false" isLeaf="false" isActiveClass="false">
+              <elementDefinition Id="44e0cb29-0175-4026-a204-159ba4afbc0a" />
+              <suppliersInternal>
+                <interfaceRealization Id="5df14216-6379-4e80-bf03-7ff084203f18">
+                  <interfaceMoniker Id="d2fb36c8-19ff-4ea2-b048-e824f3b434c3" LastKnownName="DetectionCommand" />
+                  <elementDefinition Id="7b7e6f7a-434d-4611-9b43-67463942ab7a" />
+                </interfaceRealization>
+              </suppliersInternal>
+              <ownedOperationsInternal>
+                <operation Id="0c18994a-5ab4-46da-937a-54524f69ccdc" name="execute" isLeaf="false" isStatic="false" isAbstract="false" concurrency="Sequential" isQuery="false">
+                  <elementDefinition Id="d3cdd1d7-6229-40aa-b45c-a7f168d02660" />
+                </operation>
+              </ownedOperationsInternal>
+            </class>
+          </packageHasNamedElement>
         </packagedElements>
       </package>
     </logicalClassDesignerModelHasPackages>
@@ -2303,6 +2335,17 @@
                 <generalization Id="07906dfd-6cfd-4685-9dee-11aff53776e9" isSubstitutable="false">
                   <classMoniker Id="0773685e-8522-48cd-8980-0340f049214f" LastKnownName="FeatureMatcher" />
                   <elementDefinition Id="5054e5b8-0c60-4dde-b502-1062b0e5098a" />
+                </generalization>
+              </generalsInternal>
+            </class>
+          </packageHasNamedElement>
+          <packageHasNamedElement>
+            <class Id="f4400376-191a-4448-8c8d-69ea76cc4ba6" name="DenseDetector" isAbstract="false" isLeaf="false" isActiveClass="false">
+              <elementDefinition Id="b2085319-5507-4757-b5ab-f726cd829b0b" />
+              <generalsInternal>
+                <generalization Id="45cfce4d-0a13-4542-a197-81173019842b" isSubstitutable="false">
+                  <classMoniker Id="7a0058fc-691a-403c-a552-4d8d8e740d8f" LastKnownName="FeatureDetector" />
+                  <elementDefinition Id="94ebc349-c07b-48be-a26f-a9ac6e692b66" />
                 </generalization>
               </generalsInternal>
             </class>
