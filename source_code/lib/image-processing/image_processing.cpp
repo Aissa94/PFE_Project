@@ -1185,7 +1185,7 @@ void Minutiae_Validation(cv::Mat img, std::vector<Minutiae> &minutiae, cv::Mat m
 	std::vector<int> inf_dist;
 	for (int i = 0; i< minutiae.size(); i++)   {
 		Minutiae _m = minutiae[i];
-		for (int j = i + 1; j< minutiae.size(); j++){
+		for (int j = 0; j< minutiae.size(); j++){
 			Minutiae _n = minutiae[j];
 			if ((_m.euclideanDistance(_n)< distanceThreshBetweenMinutiaes) && (_m.getType() == _n.getType())){
 				if (std::find(inf_dist.begin(), inf_dist.end(), i) == inf_dist.end())
