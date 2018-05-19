@@ -894,7 +894,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
         <item row="0" column="0">
          <widget class="QTabWidget" name="customTabs">
           <property name="currentIndex">
-           <number>3</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tabSegmentation">
            <attribute name="title">
@@ -2936,7 +2936,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
           <item row="2" column="1">
            <widget class="QLineEdit" name="secondImgText">
             <property name="text">
-             <string>Resources</string>
+             <string>Resources/images/1.jpg</string>
             </property>
             <property name="buddy" stdset="0">
              <cstring>label_4</cstring>
@@ -2992,7 +2992,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
           <item row="0" column="1" colspan="2">
            <widget class="QLineEdit" name="firstImgText">
             <property name="text">
-             <string>Resources/images/box1.png</string>
+             <string>Resources/2.jpg</string>
             </property>
            </widget>
           </item>

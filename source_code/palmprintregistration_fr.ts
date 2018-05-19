@@ -91,47 +91,47 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="324"/>
-        <location filename="mainwindow.ui" line="1576"/>
-        <location filename="mainwindow.ui" line="2217"/>
+        <location filename="mainwindow.ui" line="1600"/>
+        <location filename="mainwindow.ui" line="2241"/>
         <source>SIFT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="345"/>
         <location filename="mainwindow.ui" line="678"/>
-        <location filename="mainwindow.ui" line="1605"/>
+        <location filename="mainwindow.ui" line="1629"/>
         <source>Edge Threshold :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="355"/>
-        <location filename="mainwindow.ui" line="1695"/>
+        <location filename="mainwindow.ui" line="1719"/>
         <source>Sigma :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="365"/>
-        <location filename="mainwindow.ui" line="1633"/>
+        <location filename="mainwindow.ui" line="1657"/>
         <source>Contrast Threshold :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="375"/>
-        <location filename="mainwindow.ui" line="1622"/>
+        <location filename="mainwindow.ui" line="1646"/>
         <source>0.04</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="382"/>
-        <location filename="mainwindow.ui" line="1389"/>
-        <location filename="mainwindow.ui" line="1505"/>
-        <location filename="mainwindow.ui" line="1615"/>
+        <location filename="mainwindow.ui" line="1413"/>
+        <location filename="mainwindow.ui" line="1529"/>
+        <location filename="mainwindow.ui" line="1639"/>
         <source>10</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="389"/>
-        <location filename="mainwindow.ui" line="1684"/>
+        <location filename="mainwindow.ui" line="1708"/>
         <source>1.6</source>
         <translation type="unfinished"></translation>
     </message>
@@ -139,33 +139,33 @@
         <location filename="mainwindow.ui" line="396"/>
         <location filename="mainwindow.ui" line="524"/>
         <location filename="mainwindow.ui" line="838"/>
-        <location filename="mainwindow.ui" line="1677"/>
-        <location filename="mainwindow.ui" line="1789"/>
-        <location filename="mainwindow.ui" line="2372"/>
+        <location filename="mainwindow.ui" line="1701"/>
+        <location filename="mainwindow.ui" line="1813"/>
+        <location filename="mainwindow.ui" line="2396"/>
         <source>3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="403"/>
         <location filename="mainwindow.ui" line="514"/>
-        <location filename="mainwindow.ui" line="1667"/>
-        <location filename="mainwindow.ui" line="1779"/>
+        <location filename="mainwindow.ui" line="1691"/>
+        <location filename="mainwindow.ui" line="1803"/>
         <source>Number of Octave Layers :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="413"/>
         <location filename="mainwindow.ui" line="715"/>
-        <location filename="mainwindow.ui" line="1656"/>
-        <location filename="mainwindow.ui" line="1959"/>
-        <location filename="mainwindow.ui" line="3073"/>
+        <location filename="mainwindow.ui" line="1680"/>
+        <location filename="mainwindow.ui" line="1983"/>
+        <location filename="mainwindow.ui" line="3090"/>
         <source>0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="420"/>
         <location filename="mainwindow.ui" line="648"/>
-        <location filename="mainwindow.ui" line="1646"/>
+        <location filename="mainwindow.ui" line="1670"/>
         <source>Number of Features :</source>
         <translation type="unfinished"></translation>
     </message>
@@ -177,35 +177,35 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="459"/>
-        <location filename="mainwindow.ui" line="1721"/>
-        <location filename="mainwindow.ui" line="2274"/>
+        <location filename="mainwindow.ui" line="1745"/>
+        <location filename="mainwindow.ui" line="2298"/>
         <source>SURF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="480"/>
-        <location filename="mainwindow.ui" line="1769"/>
+        <location filename="mainwindow.ui" line="1793"/>
         <source>Hessian Threshold :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="490"/>
-        <location filename="mainwindow.ui" line="1762"/>
+        <location filename="mainwindow.ui" line="1786"/>
         <source>100</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="497"/>
-        <location filename="mainwindow.ui" line="1755"/>
-        <location filename="mainwindow.ui" line="2009"/>
+        <location filename="mainwindow.ui" line="1779"/>
+        <location filename="mainwindow.ui" line="2033"/>
         <source>4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="504"/>
         <location filename="mainwindow.ui" line="811"/>
-        <location filename="mainwindow.ui" line="1745"/>
-        <location filename="mainwindow.ui" line="2039"/>
+        <location filename="mainwindow.ui" line="1769"/>
+        <location filename="mainwindow.ui" line="2063"/>
         <source>Number of Octaves :</source>
         <translation type="unfinished"></translation>
     </message>
@@ -216,7 +216,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="551"/>
-        <location filename="mainwindow.ui" line="1796"/>
+        <location filename="mainwindow.ui" line="1820"/>
         <source>Features Orientation :</source>
         <translation type="unfinished"></translation>
     </message>
@@ -242,7 +242,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="658"/>
-        <location filename="mainwindow.ui" line="2144"/>
+        <location filename="mainwindow.ui" line="2168"/>
         <source>Patch Size :</source>
         <translation type="unfinished"></translation>
     </message>
@@ -263,7 +263,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="708"/>
-        <location filename="mainwindow.ui" line="1426"/>
+        <location filename="mainwindow.ui" line="1450"/>
         <source>FAST</source>
         <translation type="unfinished"></translation>
     </message>
@@ -275,7 +275,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="729"/>
-        <location filename="mainwindow.ui" line="1396"/>
+        <location filename="mainwindow.ui" line="1420"/>
         <source>8</source>
         <translation type="unfinished"></translation>
     </message>
@@ -301,26 +301,26 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="801"/>
-        <location filename="mainwindow.ui" line="2099"/>
+        <location filename="mainwindow.ui" line="2123"/>
         <source>Pattern Scale :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="821"/>
-        <location filename="mainwindow.ui" line="1453"/>
+        <location filename="mainwindow.ui" line="1477"/>
         <source>Threshold :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="831"/>
-        <location filename="mainwindow.ui" line="1875"/>
+        <location filename="mainwindow.ui" line="1899"/>
         <source>1.0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="845"/>
-        <location filename="mainwindow.ui" line="1211"/>
-        <location filename="mainwindow.ui" line="1382"/>
+        <location filename="mainwindow.ui" line="1218"/>
+        <location filename="mainwindow.ui" line="1406"/>
         <source>30</source>
         <translation type="unfinished"></translation>
     </message>
@@ -357,7 +357,6 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
         <location filename="mainwindow.ui" line="992"/>
         <location filename="mainwindow.ui" line="1029"/>
         <location filename="mainwindow.ui" line="1076"/>
-        <location filename="mainwindow.ui" line="1161"/>
         <source>No parameters to load</source>
         <translation type="unfinished"></translation>
     </message>
@@ -403,188 +402,206 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
     </message>
     <message>
         <location filename="mainwindow.ui" line="1140"/>
-        <location filename="mainwindow.ui" line="1190"/>
+        <location filename="mainwindow.ui" line="1197"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Crossing number methods is a really simple way to detect ridge endings and ridge bifurcations.&lt;/p&gt;&lt;p&gt;First, we need thinned (skeleton) image. Then the crossing number algorithm will look at 3x3 pixel blocks:&lt;/p&gt;&lt;p&gt;if middle pixel is black (represents ridge):&lt;/p&gt;&lt;p&gt;- if pixel on boundary are crossed with the ridge once, then we&apos;ve found ridge ending.&lt;/p&gt;&lt;p&gt;- if pixel on boundary are crossed with the ridge three times, then we&apos;ve found ridge bifurcation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1187"/>
+        <location filename="mainwindow.ui" line="1161"/>
+        <location filename="mainwindow.ui" line="1238"/>
+        <source>The minimum distance between two minutiaes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="1164"/>
+        <location filename="mainwindow.ui" line="1241"/>
+        <source>Limit Distance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="1171"/>
+        <location filename="mainwindow.ui" line="1248"/>
+        <source>7.0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="1194"/>
         <source>Crossing-Number</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1218"/>
+        <location filename="mainwindow.ui" line="1225"/>
         <source>Choose an Integer greater than 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1221"/>
+        <location filename="mainwindow.ui" line="1228"/>
         <source>Border :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1247"/>
+        <location filename="mainwindow.ui" line="1271"/>
         <source>Harris-Corners</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1268"/>
+        <location filename="mainwindow.ui" line="1292"/>
         <source>Harris Threshold :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1278"/>
+        <location filename="mainwindow.ui" line="1302"/>
         <source>125.0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1301"/>
+        <location filename="mainwindow.ui" line="1325"/>
         <source>STAR</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1304"/>
+        <location filename="mainwindow.ui" line="1328"/>
         <source>The keypoint detector introduced by [Agrawal08], synonym of StarDetector</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1325"/>
+        <location filename="mainwindow.ui" line="1349"/>
         <source>Max Size :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1335"/>
+        <location filename="mainwindow.ui" line="1359"/>
         <source>Response Threshold :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1345"/>
+        <location filename="mainwindow.ui" line="1369"/>
         <source>Line Threshold Projected  :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1355"/>
+        <location filename="mainwindow.ui" line="1379"/>
         <source>Line Threshold Binarized :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1365"/>
+        <location filename="mainwindow.ui" line="1389"/>
         <source>Non-maximum Suppression Size :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1375"/>
+        <location filename="mainwindow.ui" line="1399"/>
         <source>45</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1403"/>
+        <location filename="mainwindow.ui" line="1427"/>
         <source>5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1429"/>
+        <location filename="mainwindow.ui" line="1453"/>
         <source>Detects corners using the FAST algorithm by [Rosten06].</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1450"/>
+        <location filename="mainwindow.ui" line="1474"/>
         <source>Threshold on difference between intensity of the central pixel and pixels of a circle around this pixel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1463"/>
+        <location filename="mainwindow.ui" line="1487"/>
         <source>If true, non-maximum suppression is applied to detected corners (keypoints).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1466"/>
+        <location filename="mainwindow.ui" line="1490"/>
         <source>Non-maximum Suppression :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1476"/>
+        <location filename="mainwindow.ui" line="1500"/>
         <source>With variant types</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1479"/>
+        <location filename="mainwindow.ui" line="1503"/>
         <source>Use FASTX detector :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1492"/>
+        <location filename="mainwindow.ui" line="1516"/>
         <source>One of the three neighborhoods as defined in the paper</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1495"/>
+        <location filename="mainwindow.ui" line="1519"/>
         <source>Type :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1538"/>
-        <location filename="mainwindow.ui" line="1542"/>
+        <location filename="mainwindow.ui" line="1562"/>
+        <location filename="mainwindow.ui" line="1566"/>
         <source>5_8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1547"/>
+        <location filename="mainwindow.ui" line="1571"/>
         <source>7_12</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1552"/>
+        <location filename="mainwindow.ui" line="1576"/>
         <source>9_16</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1579"/>
+        <location filename="mainwindow.ui" line="1603"/>
         <source>Extracting keypoints using the Scale Invariant Feature Transform (SIFT) algorithm by D. Lowe [Lowe04].</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1600"/>
+        <location filename="mainwindow.ui" line="1624"/>
         <source>The threshold used to filter out edge-like features.
 Note that the its meaning is different from the contrastThreshold,
 i.e. the larger the edgeThreshold, the less features are filtered out (more features are retained).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1629"/>
+        <location filename="mainwindow.ui" line="1653"/>
         <source>The contrast threshold used to filter out weak features in semi-uniform (low-contrast) regions.
 The larger the threshold, the less features are produced by the detector.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1643"/>
+        <location filename="mainwindow.ui" line="1667"/>
         <source>The number of best features to retain. The features are ranked by their scores (measured in SIFT algorithm as the local contrast)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1663"/>
+        <location filename="mainwindow.ui" line="1687"/>
         <source>The number of layers in each octave. 3 is the value used in D. Lowe paper.
 The number of octaves is computed automatically from the image resolution.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1691"/>
+        <location filename="mainwindow.ui" line="1715"/>
         <source>The sigma of the Gaussian applied to the input image at the octave #0.
 If your image is captured with a weak camera with soft lenses, you might want to reduce the number.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1724"/>
+        <location filename="mainwindow.ui" line="1748"/>
         <source>Extracting Speeded Up Robust Features from an image [Bay06].</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1832"/>
+        <location filename="mainwindow.ui" line="1856"/>
         <source>Dense</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1835"/>
+        <location filename="mainwindow.ui" line="1859"/>
         <source>Generation of image features which are distributed densely and regularly over the image.
 The detector generates several levels (in the amount of featureScaleLevels) of features.
 Features of each level are located in the nodes of a regular grid over the image (excluding the image boundary of given size).
@@ -595,32 +612,32 @@ The level parameters (a feature scale, a node size, a size of boundary) are mult
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1862"/>
+        <location filename="mainwindow.ui" line="1886"/>
         <source>Set the initial KeyPoint feature radius in pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1865"/>
+        <location filename="mainwindow.ui" line="1889"/>
         <source>Initial feature radius in pixels :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1882"/>
+        <location filename="mainwindow.ui" line="1906"/>
         <source>1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1889"/>
+        <location filename="mainwindow.ui" line="1913"/>
         <source>Number of scales overwhich we wish to make keypoints</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1892"/>
+        <location filename="mainwindow.ui" line="1916"/>
         <source>Feature Scale Levels :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1902"/>
+        <location filename="mainwindow.ui" line="1926"/>
         <source>Scale adjustment for initFeatureScale over featureScaleLevels,
 this scale adjustment can also be applied to the border (initImgBound) and the step size (initxystep).
 So when we set featureScaleLevels&gt;1 then this multiplier will be applied to successive scales,
@@ -628,543 +645,555 @@ to adjust feature scale, step and the boundary around the image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1908"/>
+        <location filename="mainwindow.ui" line="1932"/>
         <source>Feature Scale Multiplier :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1918"/>
+        <location filename="mainwindow.ui" line="1942"/>
         <source>0.1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1925"/>
+        <location filename="mainwindow.ui" line="1949"/>
         <source>Moving column and row step in pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1928"/>
+        <location filename="mainwindow.ui" line="1952"/>
         <source>X,Y Step in pixels :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1938"/>
+        <location filename="mainwindow.ui" line="1962"/>
         <source>6</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1945"/>
+        <location filename="mainwindow.ui" line="1969"/>
         <source>row/col bounding region to ignore around the image (pixels),
 So a 100x100 image, with an initImgBound of 10, would create keypoints in the central 80x80 portion of the image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1949"/>
+        <location filename="mainwindow.ui" line="1973"/>
         <source>Bounding region to ignore in pixels :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1986"/>
+        <location filename="mainwindow.ui" line="2010"/>
         <source>Descriptor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1996"/>
+        <location filename="mainwindow.ui" line="2020"/>
         <source>FREAK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2002"/>
+        <location filename="mainwindow.ui" line="2026"/>
         <source>22.0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2029"/>
+        <location filename="mainwindow.ui" line="2053"/>
         <source>Selected Pairs (optional) :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2079"/>
+        <location filename="mainwindow.ui" line="2103"/>
         <source>Scale Normalized :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2089"/>
+        <location filename="mainwindow.ui" line="2113"/>
         <source>Orientation Normalized :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2123"/>
+        <location filename="mainwindow.ui" line="2147"/>
         <source>BRIEF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2154"/>
+        <location filename="mainwindow.ui" line="2178"/>
         <source>Kernel Size :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2164"/>
-        <location filename="mainwindow.ui" line="2248"/>
-        <location filename="mainwindow.ui" line="2295"/>
+        <location filename="mainwindow.ui" line="2188"/>
+        <location filename="mainwindow.ui" line="2272"/>
+        <location filename="mainwindow.ui" line="2319"/>
         <source>Descriptor Length in Bytes :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2177"/>
+        <location filename="mainwindow.ui" line="2201"/>
         <source>48</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2187"/>
+        <location filename="mainwindow.ui" line="2211"/>
         <source>9</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2194"/>
-        <location filename="mainwindow.ui" line="2664"/>
+        <location filename="mainwindow.ui" line="2218"/>
+        <location filename="mainwindow.ui" line="2681"/>
         <source>32</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2241"/>
-        <location filename="mainwindow.ui" line="2325"/>
+        <location filename="mainwindow.ui" line="2265"/>
+        <location filename="mainwindow.ui" line="2349"/>
         <source>128</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2305"/>
+        <location filename="mainwindow.ui" line="2329"/>
         <source>64</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2355"/>
+        <location filename="mainwindow.ui" line="2379"/>
         <source>Matcher</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2382"/>
+        <location filename="mainwindow.ui" line="2406"/>
         <source>number of attempts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2389"/>
+        <location filename="mainwindow.ui" line="2413"/>
         <source>1 to N Matching type :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2399"/>
-        <source>Type 1</source>
+        <location filename="mainwindow.ui" line="2423"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;In this type, query descriptors are matched against all train descriptors.&lt;/p&gt;&lt;p&gt;query descriptors &lt;span style=&quot; font-weight:600;&quot;&gt;vs&lt;/span&gt; ( first train descriptors + second train descriptors + ... + last train descriptors)&lt;/p&gt;&lt;p&gt;Each descriptor from the qury image will be affected to only one descriptor from all train images. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2415"/>
+        <location filename="mainwindow.ui" line="2426"/>
+        <source>Match all images as one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="2459"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;In this type, query descriptors are matched against train descriptors separately:&lt;/p&gt;&lt;p&gt;query descriptors &lt;span style=&quot; font-weight:600;&quot;&gt;vs&lt;/span&gt; first train descriptors&lt;/p&gt;&lt;p&gt;query descriptors &lt;span style=&quot; font-weight:600;&quot;&gt;vs&lt;/span&gt; second train descriptors&lt;/p&gt;&lt;p&gt;...&lt;/p&gt;&lt;p&gt;query descriptors &lt;span style=&quot; font-weight:600;&quot;&gt;vs&lt;/span&gt; last train descriptors&lt;/p&gt;&lt;p&gt;Each descriptor from the query image will be affected to one descriptor of each train image. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="2462"/>
+        <source>Match each image alone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="2442"/>
         <source>number of clusters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2425"/>
+        <location filename="mainwindow.ui" line="2452"/>
         <source>Cluster before matching :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2432"/>
-        <source>Type 2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="2448"/>
+        <location filename="mainwindow.ui" line="2478"/>
         <source>40</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2474"/>
+        <location filename="mainwindow.ui" line="2491"/>
         <source>Brute-Force</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2482"/>
+        <location filename="mainwindow.ui" line="2499"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;L1 and L2 norms are preferable choices for SIFT and SURF descriptors,&lt;/p&gt;&lt;p&gt;NORM_HAMMING should be used with ORB, BRISK and BRIEF,&lt;/p&gt;&lt;p&gt;NORM_HAMMING2 should be used with ORB when WTA_K==3 or 4.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2485"/>
+        <location filename="mainwindow.ui" line="2502"/>
         <source>Norm Type :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2498"/>
+        <location filename="mainwindow.ui" line="2515"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If true, then keep only matches (i,j) such that for i-th query descriptor the j-th descriptor in the matcher’s collection is the &lt;span style=&quot; font-weight:600;&quot;&gt;nearest&lt;/span&gt; and vice versa.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2501"/>
+        <location filename="mainwindow.ui" line="2518"/>
         <source>Cross Check :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2514"/>
-        <location filename="mainwindow.ui" line="2526"/>
+        <location filename="mainwindow.ui" line="2531"/>
+        <location filename="mainwindow.ui" line="2543"/>
         <source>NORM_L2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2521"/>
+        <location filename="mainwindow.ui" line="2538"/>
         <source>NORM_L1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2531"/>
+        <location filename="mainwindow.ui" line="2548"/>
         <source>NORM_HAMMING</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2536"/>
+        <location filename="mainwindow.ui" line="2553"/>
         <source>NORM_HAMMING2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2586"/>
+        <location filename="mainwindow.ui" line="2603"/>
         <source>Flann-Based</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2589"/>
+        <location filename="mainwindow.ui" line="2606"/>
         <source>FLANN stands for Fast Library for Approximate Nearest Neighbors.
 It contains a collection of algorithms optimized for fast nearest neighbor search in large datasets and for high dimensional features.
 It works more faster than BFMatcher for large datasets. More information about FLANN can be found in [Muja2009].</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2612"/>
+        <location filename="mainwindow.ui" line="2629"/>
         <source>The nearest neighbor search index type.
 For algorithms like &apos;SIFT&apos;, &apos;SURF&apos; etc. you can use &apos;KD Tree Index&apos;,
 for ORB use LSH Index.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2617"/>
+        <location filename="mainwindow.ui" line="2634"/>
         <source>Index Parameters Type :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2627"/>
+        <location filename="mainwindow.ui" line="2644"/>
         <source>The index will perform a linear, brute-force search.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2630"/>
+        <location filename="mainwindow.ui" line="2647"/>
         <source>Linear Index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2637"/>
+        <location filename="mainwindow.ui" line="2654"/>
         <source>The index constructed will be a hierarchical k-means tree.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2640"/>
+        <location filename="mainwindow.ui" line="2657"/>
         <source>K-Means Index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2650"/>
+        <location filename="mainwindow.ui" line="2667"/>
         <source>It specifies the number of times the trees in the index should be recursively traversed.
 Higher values gives better precision, but also takes more time.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2654"/>
+        <location filename="mainwindow.ui" line="2671"/>
         <source>Search Checks :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2671"/>
+        <location filename="mainwindow.ui" line="2688"/>
         <source>The index constructed will consist of a set of randomized kd-trees which will be searched in parallel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2674"/>
+        <location filename="mainwindow.ui" line="2691"/>
         <source>KD Tree Index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2684"/>
+        <location filename="mainwindow.ui" line="2701"/>
         <source>The index created is automatically tuned to offer the best performance,
 by choosing the optimal index type (randomized kd-trees, hierarchical kmeans, linear) and parameters for the dataset provided.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2688"/>
+        <location filename="mainwindow.ui" line="2705"/>
         <source>Auto tuned Index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2698"/>
+        <location filename="mainwindow.ui" line="2715"/>
         <source>The index created uses multi-probe LSH (by Multi-Probe LSH: Efficient Indexing for High-Dimensional Similarity Search
 by Qin Lv, William Josephson, Zhe Wang, Moses Charikar, Kai Li.,
 Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB). Vienna, Austria. September 2007)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2703"/>
+        <location filename="mainwindow.ui" line="2720"/>
         <source>LSH Index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2713"/>
+        <location filename="mainwindow.ui" line="2730"/>
         <source>The index created combines the randomized kd-trees and the hierarchical k-means tree.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2716"/>
+        <location filename="mainwindow.ui" line="2733"/>
         <source>Composite Index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2746"/>
+        <location filename="mainwindow.ui" line="2763"/>
         <source>Outliers Elimination</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2780"/>
+        <location filename="mainwindow.ui" line="2797"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Be content with one best match&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2783"/>
+        <location filename="mainwindow.ui" line="2800"/>
         <source>Without test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2796"/>
+        <location filename="mainwindow.ui" line="2813"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Keep only matches found in both direct and reverse matching.&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; In case of 1 to N images this can take more time.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2799"/>
+        <location filename="mainwindow.ui" line="2816"/>
         <source>In reverse matching test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2812"/>
+        <location filename="mainwindow.ui" line="2829"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Performs Lowe&apos;s test (default ratio is 0.7)&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; Two sets of matches will be found.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2815"/>
+        <location filename="mainwindow.ui" line="2832"/>
         <source>Lowe&apos;s ratio test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2831"/>
+        <location filename="mainwindow.ui" line="2848"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Lowe&apos;s Ratio.&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; must be in [0..1]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2834"/>
+        <location filename="mainwindow.ui" line="2851"/>
         <source>0.7</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2847"/>
+        <location filename="mainwindow.ui" line="2864"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Eliminate matches with distance &amp;gt; Limite&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2850"/>
+        <location filename="mainwindow.ui" line="2867"/>
         <source>Limit distance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2863"/>
+        <location filename="mainwindow.ui" line="2880"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Limit distance.&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note: &lt;/span&gt;must be &amp;gt; 0&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2866"/>
+        <location filename="mainwindow.ui" line="2883"/>
         <source>0.4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2885"/>
+        <location filename="mainwindow.ui" line="2902"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Threshold for which the score is accepted.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; Image is accepted only if &lt;span style=&quot; font-style:italic;&quot;&gt;Score &amp;gt;= Threshold&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2888"/>
+        <location filename="mainwindow.ui" line="2905"/>
         <source>Decision Threshold :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2898"/>
+        <location filename="mainwindow.ui" line="2915"/>
         <source>250</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2916"/>
+        <location filename="mainwindow.ui" line="2933"/>
         <source>Take a test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2922"/>
-        <source>Resources</source>
+        <location filename="mainwindow.ui" line="2939"/>
+        <source>Resources/images/1.jpg</source>
+        <oldsource>Resources</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2932"/>
-        <location filename="mainwindow.ui" line="2985"/>
+        <location filename="mainwindow.ui" line="2949"/>
+        <location filename="mainwindow.ui" line="3002"/>
         <source>Browse</source>
         <translation>Explorer</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2945"/>
+        <location filename="mainwindow.ui" line="2962"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of choosing the second image, select a folder to an image set.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; If the folder contains only one image it will be considered as (1 to 1).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2948"/>
+        <location filename="mainwindow.ui" line="2965"/>
         <source>1 to N</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2958"/>
+        <location filename="mainwindow.ui" line="2975"/>
         <source>First Image :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2968"/>
+        <location filename="mainwindow.ui" line="2985"/>
         <source>Second Image(s) :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2978"/>
-        <source>Resources/images/box1.png</source>
+        <location filename="mainwindow.ui" line="2995"/>
+        <source>Resources/2.jpg</source>
+        <oldsource>Resources/images/box1.png</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3002"/>
+        <location filename="mainwindow.ui" line="3019"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the image which is similar to the First image&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; this will be used to calculate Rank-k.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3012"/>
+        <location filename="mainwindow.ui" line="3029"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Refresh the list of images&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3028"/>
+        <location filename="mainwindow.ui" line="3045"/>
         <source>First image exists in Bdd</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3039"/>
+        <location filename="mainwindow.ui" line="3056"/>
         <source>Import a test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3054"/>
+        <location filename="mainwindow.ui" line="3071"/>
         <source>Please indicate the identifier of the test to be imported</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3087"/>
+        <location filename="mainwindow.ui" line="3104"/>
         <source>Execute Commands</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3107"/>
+        <location filename="mainwindow.ui" line="3124"/>
         <source>Be sure because this task may take several hours !</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3130"/>
+        <location filename="mainwindow.ui" line="3147"/>
         <source>Log :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3156"/>
+        <location filename="mainwindow.ui" line="3173"/>
         <source>File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3167"/>
+        <location filename="mainwindow.ui" line="3184"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3180"/>
+        <location filename="mainwindow.ui" line="3197"/>
         <source>toolBar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3215"/>
+        <location filename="mainwindow.ui" line="3232"/>
         <source>Run</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3218"/>
+        <location filename="mainwindow.ui" line="3235"/>
         <source>Start the current configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3221"/>
+        <location filename="mainwindow.ui" line="3238"/>
         <source>Ctrl+R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3230"/>
+        <location filename="mainwindow.ui" line="3247"/>
         <source>Clear Log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3233"/>
+        <location filename="mainwindow.ui" line="3250"/>
         <source>Ctrl+Backspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3242"/>
+        <location filename="mainwindow.ui" line="3259"/>
         <source>About Qt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3251"/>
+        <location filename="mainwindow.ui" line="3268"/>
         <source>About Us</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3260"/>
+        <location filename="mainwindow.ui" line="3277"/>
         <source>Add Command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3263"/>
+        <location filename="mainwindow.ui" line="3280"/>
         <source>Add the current configuration to the input file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3266"/>
+        <location filename="mainwindow.ui" line="3283"/>
         <source>Ctrl+S</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3275"/>
+        <location filename="mainwindow.ui" line="3292"/>
         <source>Delete All Commands</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3278"/>
+        <location filename="mainwindow.ui" line="3295"/>
         <source>Clear all configurations from the input file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3281"/>
+        <location filename="mainwindow.ui" line="3298"/>
         <source>Ctrl+Shift+Backspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3290"/>
-        <location filename="mainwindow.ui" line="3293"/>
+        <location filename="mainwindow.ui" line="3307"/>
+        <location filename="mainwindow.ui" line="3310"/>
         <source>Settings</source>
         <translation type="unfinished">Options</translation>
     </message>
