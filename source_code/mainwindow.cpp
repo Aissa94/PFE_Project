@@ -975,10 +975,7 @@ void MainWindow::on_refreshBddImageNames_pressed()
 {
 	// Reload image names ...
 	if (!ui->secondImgText->text().trimmed().isEmpty()){
-		try{ readSetOfImages(); }
-		catch (std::exception e){
-			ui->logPlainText->appendPlainText("This folder is empty!");
-		}
+		readSetOfImages();
 	}
 }
 
