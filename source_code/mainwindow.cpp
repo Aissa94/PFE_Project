@@ -371,7 +371,6 @@ void MainWindow::runDefault(int testType)
 	if (testType == 0)
 	{
 		std::string methodName = ui->defaultTabs->tabText(ui->defaultTabs->currentIndex()).toStdString();
-
 		ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + methodName + ") based identification</b> "));
 	}
 
@@ -1021,8 +1020,11 @@ void MainWindow::on_secondImgBtn_pressed()
 void MainWindow::on_refreshBddImageNames_pressed()
 {
 	// Reload image names ...
-	if (ui->oneToN->isChecked()){
-		readSetOfImages();
+	if (!ui->secondImgText->text().trimmed().isEmpty()){
+		try{ readSetOfImages(); }
+		catch (std::exception e){
+			ui->logPlainText->appendPlainText("This folder is empty!");
+		}
 	}
 }
 
@@ -1991,7 +1993,12 @@ bool MainWindow::takeTest(int testType) {
 	}
 	if (testType == 0)
 	{
-		if (showDecision()) return true;
+		bool returnedFromShow = showDecision();
+		ui->logPlainText->appendHtml("--------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+		firstImg.release(); secondImg.release(); setImgs.clear();
+		if (returnedFromShow) {
+			return true;
+		}
 	}
 	else QMessageBox::information(this, "Add Command", "This test has been added with success to Excel input file !");
 
@@ -3307,6 +3314,7 @@ void MainWindow::importExcelFile(int type)
 						ui->viewMatchesScoreMatchesText->setText("<b>" + QString::number(bestImageScore) + "</b>");
 						if (!excelRecover->GetCellValue(j, column - 12).toString().isEmpty()) importTable(ui->spinBox->text().toInt());
 						exist = true;
+						ui->logPlainText->appendHtml("--------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 						QMessageBox::information(this, "Import Excel Success!", "The test N°: " + QString(ui->spinBox->text()) + " has been imported with success !");
 						break;
 					}
@@ -3447,76 +3455,76 @@ QString MainWindow::GetTableValue(QAxObject* sheet, int rowIndex, int columnInde
 }
 
 void MainWindow::exportTable(int rowsCount) {
-	const QString tableName = QStandardPaths::DocumentsLocation + "\\Palmprint Registration\\" + QString::number(cpt) + "\\table.xlsx";
-	system("taskkill /fi \"WINDOWTITLE eq table.xlsx - Excel\" /f");
-	QAxObject *excelApplication = new QAxObject("Excel.Application", 0);
-	if (excelApplication == nullptr) throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
-	excelApplication->dynamicCall("SetVisible(bool)", false); // display excel
-	excelApplication->setProperty("DisplayAlerts", 0); // disable alerts
-	QAxObject *workbooks = excelApplication->querySubObject("Workbooks");
-	QAxObject *workbook = workbooks->querySubObject("Add");
-	QAxObject *sheets = workbook->querySubObject("Worksheets");
-	QAxObject *sheet = sheets->querySubObject("Item(int)", 1);
-	setTableValue(sheet, 1, 1, "Coordinate X1");
-	setTableValue(sheet, 1, 2, "Coordinate Y1");
-	setTableValue(sheet, 1, 3, "Coordinate X2");
-	setTableValue(sheet, 1, 4, "Coordinate Y2");
-	setTableValue(sheet, 1, 5, "Distance");
-	setTableValue(sheet, 1, 6, "Accepted/Rejected");
-	for (int i = 0; i < rowsCount; i++)
-	{
-		for (int j = 0; j < 6; j++)
-		{
-			setTableValue(sheet, i + 2, j + 1, ui->viewTable->model()->data(model->index(i, j, QModelIndex())).toString());
-		}
-	}
-	workbook->dynamicCall("SaveAs (const QString&)", tableName);
-	workbook->dynamicCall("Close (Boolean)", true);
-	excelApplication->dynamicCall("Quit (void)");
+	//const QString tableName = QStandardPaths::DocumentsLocation + "\\Palmprint Registration\\" + QString::number(cpt) + "\\table.xlsx";
+	//system("taskkill /fi \"WINDOWTITLE eq table.xlsx - Excel\" /f");
+	//QAxObject *excelApplication = new QAxObject("Excel.Application", 0);
+	//if (excelApplication == nullptr) throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
+	//excelApplication->dynamicCall("SetVisible(bool)", false); // display excel
+	//excelApplication->setProperty("DisplayAlerts", 0); // disable alerts
+	//QAxObject *workbooks = excelApplication->querySubObject("Workbooks");
+	//QAxObject *workbook = workbooks->querySubObject("Add");
+	//QAxObject *sheets = workbook->querySubObject("Worksheets");
+	//QAxObject *sheet = sheets->querySubObject("Item(int)", 1);
+	//setTableValue(sheet, 1, 1, "Coordinate X1");
+	//setTableValue(sheet, 1, 2, "Coordinate Y1");
+	//setTableValue(sheet, 1, 3, "Coordinate X2");
+	//setTableValue(sheet, 1, 4, "Coordinate Y2");
+	//setTableValue(sheet, 1, 5, "Distance");
+	//setTableValue(sheet, 1, 6, "Accepted/Rejected");
+	//for (int i = 0; i < rowsCount; i++)
+	//{
+	//	for (int j = 0; j < 6; j++)
+	//	{
+	//		setTableValue(sheet, i + 2, j + 1, ui->viewTable->model()->data(model->index(i, j, QModelIndex())).toString());
+	//	}
+	//}
+	//workbook->dynamicCall("SaveAs (const QString&)", tableName);
+	//workbook->dynamicCall("Close (Boolean)", true);
+	//excelApplication->dynamicCall("Quit (void)");
 }
 
 void MainWindow::importTable(int identifierNumber) {
-	system("taskkill /fi \"WINDOWTITLE eq table.xlsx - Excel\" /f");
-	const QString tableName = QStandardPaths::DocumentsLocation + "\\Palmprint Registration\\" + QString::number(identifierNumber) + "\\table.xlsx";
-	QAxObject *excelApplication = new QAxObject("Excel.Application", 0);
-	if (excelApplication == nullptr) throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
-	excelApplication->dynamicCall("SetVisible(bool)", false); // display excel
-	excelApplication->setProperty("DisplayAlerts", 0); // disable alerts
-	QAxObject *workbooks = excelApplication->querySubObject("Workbooks");
-	QAxObject *workbook = workbooks->querySubObject("Open(const QString&)", tableName);
-	QAxObject *sheets = workbook->querySubObject("Worksheets");
-	QAxObject *sheet = sheets->querySubObject("Item(int)", 1);
-	QAxObject *usedrange = sheet->querySubObject("UsedRange");
-	QAxObject *rows = usedrange->querySubObject("Rows");
-	int rowsCount = rows->property("Count").toInt();
+	//system("taskkill /fi \"WINDOWTITLE eq table.xlsx - Excel\" /f");
+	//const QString tableName = QStandardPaths::DocumentsLocation + "\\Palmprint Registration\\" + QString::number(identifierNumber) + "\\table.xlsx";
+	//QAxObject *excelApplication = new QAxObject("Excel.Application", 0);
+	//if (excelApplication == nullptr) throw std::invalid_argument("Failed to initialize interop with Excel (probably Excel is not installed)");
+	//excelApplication->dynamicCall("SetVisible(bool)", false); // display excel
+	//excelApplication->setProperty("DisplayAlerts", 0); // disable alerts
+	//QAxObject *workbooks = excelApplication->querySubObject("Workbooks");
+	//QAxObject *workbook = workbooks->querySubObject("Open(const QString&)", tableName);
+	//QAxObject *sheets = workbook->querySubObject("Worksheets");
+	//QAxObject *sheet = sheets->querySubObject("Item(int)", 1);
+	//QAxObject *usedrange = sheet->querySubObject("UsedRange");
+	//QAxObject *rows = usedrange->querySubObject("Rows");
+	//int rowsCount = rows->property("Count").toInt();
 
-	initializeTable();
-	QStandardItem *value;
+	//initializeTable();
+	//QStandardItem *value;
 
-	for (int i = 2; i <= rowsCount; i++)
-	{
-		for (int j = 1; j <= 6; j++)
-		{
-			value = new QStandardItem(QString(GetTableValue(sheet, i, j)));
-			model->setItem(i - 2, j - 1, value);
-			if (j == 6)
-			{
-				if (GetTableValue(sheet, i, 6) == "Accepted")
-				{
-					value->setData(QColor(Qt::black), Qt::TextColorRole);
-					value->setData(QColor(Qt::green), Qt::BackgroundRole);
-				}
-				else
-				{
-					value->setData(QColor(Qt::black), Qt::TextColorRole);
-					value->setData(QColor(Qt::red), Qt::BackgroundRole);
-				}
-			}
-		}
-	}
-	workbook->dynamicCall("Close (Boolean)", true);
-	excelApplication->dynamicCall("Quit (void)");
-	ui->viewTable->setModel(model);
+	//for (int i = 2; i <= rowsCount; i++)
+	//{
+	//	for (int j = 1; j <= 6; j++)
+	//	{
+	//		value = new QStandardItem(QString(GetTableValue(sheet, i, j)));
+	//		model->setItem(i - 2, j - 1, value);
+	//		if (j == 6)
+	//		{
+	//			if (GetTableValue(sheet, i, 6) == "Accepted")
+	//			{
+	//				value->setData(QColor(Qt::black), Qt::TextColorRole);
+	//				value->setData(QColor(Qt::green), Qt::BackgroundRole);
+	//			}
+	//			else
+	//			{
+	//				value->setData(QColor(Qt::black), Qt::TextColorRole);
+	//				value->setData(QColor(Qt::red), Qt::BackgroundRole);
+	//			}
+	//		}
+	//	}
+	//}
+	//workbook->dynamicCall("Close (Boolean)", true);
+	//excelApplication->dynamicCall("Quit (void)");
+	//ui->viewTable->setModel(model);
 }
 
 void MainWindow::exportSuccess(int showMethod)

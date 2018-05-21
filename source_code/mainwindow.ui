@@ -307,7 +307,7 @@
        <bool>false</bool>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabDefault">
        <attribute name="title">
@@ -894,7 +894,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
         <item row="0" column="0">
          <widget class="QTabWidget" name="customTabs">
           <property name="currentIndex">
-           <number>3</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tabSegmentation">
            <attribute name="title">
@@ -1215,7 +1215,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
                   <item row="1" column="1">
                    <widget class="QLineEdit" name="detectorCrossingNumberBorderText">
                     <property name="text">
-                     <string>30</string>
+                     <string>10</string>
                     </property>
                    </widget>
                   </item>
@@ -2215,7 +2215,7 @@ So a 100x100 image, with an initImgBound of 10, would create keypoints in the ce
                   <item row="2" column="1">
                    <widget class="QLineEdit" name="descriptorBriefLengthText">
                     <property name="text">
-                     <string>32</string>
+                     <string>64</string>
                     </property>
                    </widget>
                   </item>
@@ -2329,7 +2329,7 @@ So a 100x100 image, with an initImgBound of 10, would create keypoints in the ce
                      <string>64</string>
                     </property>
                     <property name="checked">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
@@ -2349,7 +2349,7 @@ So a 100x100 image, with an initImgBound of 10, would create keypoints in the ce
                      <string>128</string>
                     </property>
                     <property name="checked">
-                     <bool>true</bool>
+                     <bool>false</bool>
                     </property>
                    </widget>
                   </item>
@@ -2393,7 +2393,7 @@ So a 100x100 image, with an initImgBound of 10, would create keypoints in the ce
                  </size>
                 </property>
                 <property name="text">
-                 <string>3</string>
+                 <string>2</string>
                 </property>
                </widget>
               </item>
@@ -2475,7 +2475,7 @@ So a 100x100 image, with an initImgBound of 10, would create keypoints in the ce
                  <bool>false</bool>
                 </property>
                 <property name="text">
-                 <string>40</string>
+                 <string>10</string>
                 </property>
                </widget>
               </item>
@@ -2880,7 +2880,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Limit distance.&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note: &lt;/span&gt;must be &amp;gt; 0&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
-                 <string>0.4</string>
+                 <string>0.8</string>
                 </property>
                </widget>
               </item>
@@ -2936,7 +2936,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
           <item row="2" column="1">
            <widget class="QLineEdit" name="secondImgText">
             <property name="text">
-             <string>Resources</string>
+             <string/>
             </property>
             <property name="buddy" stdset="0">
              <cstring>label_4</cstring>
@@ -2992,7 +2992,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
           <item row="0" column="1" colspan="2">
            <widget class="QLineEdit" name="firstImgText">
             <property name="text">
-             <string>Resources/images/box1.png</string>
+             <string/>
             </property>
            </widget>
           </item>
