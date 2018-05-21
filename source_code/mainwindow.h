@@ -64,7 +64,7 @@ private:
 	void runCustom(int testType);
 	bool readFirstImage();
 	bool readSecondImage();
-	bool readSetOfImages();
+	bool readSetOfImages(bool import = false);
 	//bool readInputFile();
 	bool createTestFolder();
 	bool noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints);
@@ -96,7 +96,7 @@ private:
 	void FlannBasedNameToIndex(const QString& value);
 	void exportSuccess(int showMethod);
 	void initializeTable();
-	bool takeTest(int testType);
+	bool takeTest(int testType, bool import = false);
 	void importExcelFile(int type);
 	void setTableValue(QAxObject* sheet, int lineIndex, int columnIndex, const QString& value);
 	QString GetTableValue(QAxObject* sheet, int rowIndex, int columnIndex);

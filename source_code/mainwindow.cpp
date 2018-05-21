@@ -38,6 +38,7 @@
 	
 	//Excel data
 	ExcelManager *excelReader, *excelRecover;
+	QString RequestedImage;
 	
 	QStandardItemModel *model;
 	std::vector<std::pair<int, float>> rankkData;
@@ -550,6 +551,7 @@ void MainWindow::runDefault(int testType)
 					excelReader->SetCellValue(excelColumn + 14, 0, QString::fromStdString(std::get<0>(setImgs[bestScoreIndex])));
 				}
 				if (ui->imageExistsInBdd->isChecked() && ui->imageExistsInBdd->isEnabled()) {
+					int ff = ui->bddImageNames->currentIndex();
 					if (ui->bddImageNames->currentIndex() > -1) excelReader->SetCellValue(excelColumn + 13, 0, QString::number(scoreSet[ui->bddImageNames->currentIndex()]));
 					float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
 					excelReader->SetCellValue(excelColumn + 15, 0, QString::number(computeRankK(scoreThreshold)));
@@ -655,70 +657,22 @@ void MainWindow::runCustom(int testType)
 		excelReader->SetCellValue(9 - testType, 2, ui->segmentationThresholdLabel->text());
 		excelReader->SetCellValueSecondRow(9 - testType, ui->segmentationThresholdText->text());
 
-		/*switch (segmentationIndex)
-		{
-			case 1:
-			{
-				// Skeletonization of Morphological Skeleton
-				excelReader->SetCellValue(10, 2, ui->segmentationMorphologicalSkeletonParam1Label->text());
-				excelReader->SetCellValueSecondRow(10, ui->segmentationMorphologicalSkeletonParam1Text->text());
-				excelReader->SetCellValue(11, 2, ui->segmentationMorphologicalSkeletonParam2Label->text());
-				excelReader->SetCellValueSecondRow(11, ui->segmentationMorphologicalSkeletonParam2Text->text());
-				excelReader->SetCellValue(12, 2, ui->segmentationMorphologicalSkeletonParam3Label->text());
-				excelReader->SetCellValueSecondRow(12, ui->segmentationMorphologicalSkeletonParam3Text->text());
-				break;
-			}
-			case 2:
-			{
-				// Thinning of Zhang-Suen
-				excelReader->SetCellValue(10, 2, ui->segmentationZhangSuenParam1Label->text());
-				excelReader->SetCellValueSecondRow(10, ui->segmentationZhangSuenParam1Text->text());
-				excelReader->SetCellValue(11, 2, ui->segmentationZhangSuenParam2Label->text());
-				excelReader->SetCellValueSecondRow(11, ui->segmentationZhangSuenParam2Text->text());
-				excelReader->SetCellValue(12, 2, ui->segmentationZhangSuenParam3Label->text());
-				excelReader->SetCellValueSecondRow(12, ui->segmentationZhangSuenParam3Text->text());
-				break;
-			}
-			case 3:
-			{
-				// Thinning of Lin-Hong implemented by Mrs. Faiçal
-				excelReader->SetCellValue(10, 2, ui->segmentationLinHongParam1Label->text());
-				excelReader->SetCellValueSecondRow(10, ui->segmentationLinHongParam1Text->text());
-				excelReader->SetCellValue(11, 2, ui->segmentationLinHongParam2Label->text());
-				excelReader->SetCellValueSecondRow(11, ui->segmentationLinHongParam2Text->text());
-				excelReader->SetCellValue(12, 2, ui->segmentationLinHongParam3Label->text());
-				excelReader->SetCellValueSecondRow(12, ui->segmentationLinHongParam3Text->text());
-				break;
-			}
-			case 4:
-			{
-				// Thinning of Guo-Hall
-				excelReader->SetCellValue(10, 2, ui->segmentationGuoHallParam1Label->text());
-				excelReader->SetCellValueSecondRow(10, ui->segmentationGuoHallParam1Text->text());
-				excelReader->SetCellValue(11, 2, ui->segmentationGuoHallParam2Label->text());
-				excelReader->SetCellValueSecondRow(11, ui->segmentationGuoHallParam2Text->text());
-				excelReader->SetCellValue(12, 2, ui->segmentationGuoHallParam3Label->text());
-				excelReader->SetCellValueSecondRow(12, ui->segmentationGuoHallParam3Text->text());
-				break;
-			}
-			default:
-			{
-				excelReader->mergeCellsCustom(10, 12);
-			}
-		}*/
-
 		excelReader->SetCellValue(10 - testType, 1, QString::fromStdString(detectorName));
 		switch (detectorIndex){
 			case 0:{
 				// Minutiae-detection using Crossing Number By Dr. Faiçal
-				excelReader->mergeCellsCustom(11 - testType, 15 - testType);
+				excelReader->SetCellValue(11 - testType, 2, ui->detectorMinutiaeLimitDistanceLabel->text());
+				excelReader->SetCellValueSecondRow(11 - testType, ui->detectorMinutiaeLimitDistanceText->text());
+				excelReader->mergeCellsCustom(12 - testType, 15 - testType);
 				break;
 			}
 			case 1:{
 				// Minutiae-detection using Crossing Number
-				excelReader->SetCellValue(11 - testType, 2, ui->detectorCrossingNumberBorderLabel->text());
-				excelReader->SetCellValueSecondRow(11 - testType, ui->detectorCrossingNumberBorderText->text());
-				excelReader->mergeCellsCustom(12 - testType, 15 - testType);
+				excelReader->SetCellValue(11 - testType, 2, ui->detectorCrossingNumberLimitDistanceLabel->text());
+				excelReader->SetCellValueSecondRow(11 - testType, ui->detectorCrossingNumberLimitDistanceText->text());
+				excelReader->SetCellValue(12 - testType, 2, ui->detectorCrossingNumberBorderLabel->text());
+				excelReader->SetCellValueSecondRow(12 - testType, ui->detectorCrossingNumberBorderText->text());
+				excelReader->mergeCellsCustom(13 - testType, 15 - testType);
 				break;
 			}
 			case 2:{
@@ -1389,7 +1343,7 @@ bool MainWindow::readSecondImage(){
 	return (!inputFile.isEmpty());
 }*/
 
-bool MainWindow::readSetOfImages(){
+bool MainWindow::readSetOfImages(bool import){
 	setImgs.clear();
 	int savedIndex = ui->bddImageNames->currentIndex();
 	ui->bddImageNames->clear();
@@ -1413,7 +1367,7 @@ bool MainWindow::readSetOfImages(){
 			std::string datapath_filename = datapath + "/" + filename;
 
 			cv::Mat img;
-			if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex() == 4)){
+			if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex() == 1)){
 				// Custom && OpponentColor
 				img = cv::imread(datapath_filename, CV_LOAD_IMAGE_COLOR);
 			}
@@ -1433,6 +1387,7 @@ bool MainWindow::readSetOfImages(){
 
 				// show names in the combobox
 				ui->bddImageNames->addItem(QString::fromStdString(filename));
+				if (import && (QString::fromStdString(filename) == RequestedImage)) savedIndex = setImgs.size() - 1;
 			}
 		}
 		tinydir_next(&dir);
@@ -1871,7 +1826,7 @@ void MainWindow::writeKeyPoints(cv::Mat img, std::vector<T> keyPoints, int first
 		;
 	}
 	displayFeature(outImg, first_second);  // Show our image inside the viewer.
-	if (fileName != "")cv::imwrite(currentTest_folderPath + fileName + ".bmp", outImg);
+	if (fileName != "")cv::imwrite(currentTest_folderPath + fileName + ".jpg", outImg);
 }
 
 void MainWindow::writeMatches(int imgIndex){
@@ -1947,7 +1902,7 @@ void MainWindow::writeMatches(int imgIndex){
 	connect(ui->viewTableImageNameText, SIGNAL(currentIndexChanged(int)), this, SLOT(displayMatches(int)));
 }
 
-bool MainWindow::takeTest(int testType) {
+bool MainWindow::takeTest(int testType, bool import) {
 	// Read Images ...
 	if (!readFirstImage()){
 		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 1st input file!</b>");
@@ -1955,20 +1910,20 @@ bool MainWindow::takeTest(int testType) {
 	}
 	oneToN = ui->oneToN->isChecked();
 
-	if (oneToN) {
-		readSetOfImages();
-		if (setImgs.size() == 0){
-			showError("Read Images", "There is no image in the folder: " + ui->secondImgText->text().toStdString(), "Make sure that the folder '<i>" + ui->secondImgText->text().toStdString() + "'</i>  contains one or more images with correct extension!");
-			return false;
+		if (oneToN) {
+			readSetOfImages(import);
+			if (setImgs.size() == 0){
+				showError("Read Images", "There is no image in the folder: " + ui->secondImgText->text().toStdString(), "Make sure that the folder '<i>" + ui->secondImgText->text().toStdString() + "'</i>  contains one or more images with correct extension!");
+				return false;
+			}
 		}
-	}
-	else {
-		if (!readSecondImage()) {
-			ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 2nd input file!</b>");
-			return false;
+		else {
+			if (!readSecondImage()) {
+				ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 2nd input file!</b>");
+				return false;
+			}
 		}
-	}
-
+	
 	if (testType == 0)
 	{
 		// Create a test folder ...
@@ -2039,9 +1994,9 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 		
 		//ideka::binOptimisation(firstImg);
 		//ideka::binOptimisation(secondImg);
-		/*cv::imwrite(currentTest_folderPath + "f-1_Binarization.bmp", firstImg);
-		if (oneToN) cv::imwrite(currentTest_folderPath + "l-1_Binarization.bmp", std::get<1>(setImgs[setImgs.size() - 1]));
-		else cv::imwrite(currentTest_folderPath + "s-1_Binarization.bmp", secondImg);*/
+		/*cv::imwrite(currentTest_folderPath + "f-1_Binarization.jpg", firstImg);
+		if (oneToN) cv::imwrite(currentTest_folderPath + "l-1_Binarization.jpg", std::get<1>(setImgs[setImgs.size() - 1]));
+		else cv::imwrite(currentTest_folderPath + "s-1_Binarization.jpg", secondImg);*/
 	}
 }
 
@@ -2053,41 +2008,41 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		// Skeletonization of Morphological Skeleton
 		// This will create more unique and stronger interest points
 		firstImg = skeletonization(firstImg);
-		//cv::imwrite(currentTest_folderPath + "f-2_Morphological Skeleton.bmp", firstImg);
+		//cv::imwrite(currentTest_folderPath + "f-2_Morphological Skeleton.jpg", firstImg);
 		if (oneToN)
 		{
 			for (int i = 0; i < setImgs.size();i++){
 				std::get<1>(setImgs[i]) = skeletonization(std::get<1>(setImgs[i]));
 			}
-			//cv::imwrite(currentTest_folderPath + "l-2_Morphological Skeleton.bmp", setImgs[setImgs.size() - 1].second);
+			//cv::imwrite(currentTest_folderPath + "l-2_Morphological Skeleton.jpg", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			secondImg = skeletonization(secondImg);
-			//cv::imwrite(currentTest_folderPath + "s-2_Morphological Skeleton.bmp", secondImg);
+			//cv::imwrite(currentTest_folderPath + "s-2_Morphological Skeleton.jpg", secondImg);
 		}
 		break;
 	case 2:
 		// Thinning of Zhang-Suen
 		//This is the same Thinning Algorithme used by BluePrints
 		ZhangSuen::thinning(firstImg);
-		//cv::imwrite(currentTest_folderPath + "f-2_Zhang-Suen Thinning.bmp", firstImg);
+		//cv::imwrite(currentTest_folderPath + "f-2_Zhang-Suen Thinning.jpg", firstImg);
 		if (oneToN)
 		{
 			for (int i = 0; i < setImgs.size(); i++){
 				ZhangSuen::thinning(std::get<1>(setImgs[i]));
 			}
-			//cv::imwrite(currentTest_folderPath + "l-2_Zhang-Suen Thinning.bmp", setImgs[setImgs.size() - 1].second);
+			//cv::imwrite(currentTest_folderPath + "l-2_Zhang-Suen Thinning.jpg", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			ZhangSuen::thinning(secondImg);
-			//cv::imwrite(currentTest_folderPath + "s-2_Zhang-Suen Thinning.bmp", secondImg);
+			//cv::imwrite(currentTest_folderPath + "s-2_Zhang-Suen Thinning.jpg", secondImg);
 		}
 	break;
 	case 3:{
 		// Thinning of Lin-Hong implemented by Mrs. Faiçal
 		firstImg = Image_processing::thinning(firstImg, firstEnhancedImage, firstSegmentedImage);
 		firstImg.convertTo(firstImg, CV_8UC3, 255);
-		//cv::imwrite(currentTest_folderPath + "f-2_Lin-Hong Thinning.bmp", firstImg);
+		//cv::imwrite(currentTest_folderPath + "f-2_Lin-Hong Thinning.jpg", firstImg);
 		if (oneToN)
 		{
 			setEnhancedImages = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
@@ -2096,12 +2051,12 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 				std::get<1>(setImgs[i]) = Image_processing::thinning(std::get<1>(setImgs[i]), setEnhancedImages[i], setSegmentedImages[i]);
 				std::get<1>(setImgs[i]).convertTo(std::get<1>(setImgs[i]), CV_8UC3, 255);
 			}
-			//cv::imwrite(currentTest_folderPath + "l-2_Lin-Hong Thinning.bmp", setImgs[setImgs.size() - 1].second);
+			//cv::imwrite(currentTest_folderPath + "l-2_Lin-Hong Thinning.jpg", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			secondImg = Image_processing::thinning(secondImg, secondEnhancedImage, secondSegmentedImage);
 			secondImg.convertTo(secondImg, CV_8UC3, 255);
-			//cv::imwrite(currentTest_folderPath + "s-2_Lin-Hong Thinning.bmp", secondImg);
+			//cv::imwrite(currentTest_folderPath + "s-2_Lin-Hong Thinning.jpg", secondImg);
 		}		
 		break;
 	}
@@ -2109,17 +2064,17 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		// Thinning of Guo-Hall
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Exception !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		GuoHall::thinning(firstImg);
-		//cv::imwrite(currentTest_folderPath + "f-2_Guo-Hall Thinning.bmp", firstImg);
+		//cv::imwrite(currentTest_folderPath + "f-2_Guo-Hall Thinning.jpg", firstImg);
 		if (oneToN)
 		{
 			for (int i = 0; i < setImgs.size(); i++){
 				GuoHall::thinning(std::get<1>(setImgs[i]));
 			}
-			//cv::imwrite(currentTest_folderPath + "l-2_Guo-Hall Thinning.bmp", setImgs[setImgs.size() - 1].second);
+			//cv::imwrite(currentTest_folderPath + "l-2_Guo-Hall Thinning.jpg", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			GuoHall::thinning(secondImg);
-			//cv::imwrite(currentTest_folderPath + "s-2_Guo-Hall Thinning.bmp", secondImg);
+			//cv::imwrite(currentTest_folderPath + "s-2_Guo-Hall Thinning.jpg", secondImg);
 		}
 		break;
 
@@ -2894,7 +2849,7 @@ bool MainWindow::showDecision(){
 			// View results
 			displayMatches(bestScoreIndex);
 			writeMatches(bestScoreIndex);
-			exportTable(goodMatchesSet[bestScoreIndex].size() + badMatchesSet[bestScoreIndex].size());
+			//exportTable(goodMatchesSet[bestScoreIndex].size() + badMatchesSet[bestScoreIndex].size());
 			return true;
 		}
 		else {
@@ -2916,7 +2871,7 @@ bool MainWindow::showDecision(){
 		// View results
 		displayMatches();
 		writeMatches();
-		exportTable(goodMatches.size() + badMatches.size());
+		//exportTable(goodMatches.size() + badMatches.size());
 		return true;
 	}
 }
@@ -2959,7 +2914,7 @@ void MainWindow::importExcelFile(int type)
 
 					if (type == 0)
 					{
-						image = cv::imread((QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Palmprint Registration/" + ui->spinBox->text() + "/keypoints1.bmp").toStdString(), CV_LOAD_IMAGE_COLOR);
+						image = cv::imread((QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Palmprint Registration/" + ui->spinBox->text() + "/keypoints1.jpg").toStdString(), CV_LOAD_IMAGE_COLOR);
 						displayFeature(image, 1);
 					}
 
@@ -2967,7 +2922,7 @@ void MainWindow::importExcelFile(int type)
 
 					if (type == 0)
 					{
-						image = cv::imread((QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Palmprint Registration/" + ui->spinBox->text() + "/keypoints2.bmp").toStdString(), CV_LOAD_IMAGE_COLOR);
+						image = cv::imread((QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Palmprint Registration/" + ui->spinBox->text() + "/keypoints2.jpg").toStdString(), CV_LOAD_IMAGE_COLOR);
 						displayFeature(image, 2);
 
 						image = cv::imread((QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Palmprint Registration/" + ui->spinBox->text() + "/output.jpg").toStdString(), CV_LOAD_IMAGE_COLOR);
@@ -3034,51 +2989,16 @@ void MainWindow::importExcelFile(int type)
 
 						ui->segmentationThresholdText->setText(excelRecover->GetCellValue(j + 1, 9 - type).toString());
 
-						/*switch (segmentationName)
-						{
-						case 1:
-						{
-							// Skeletonization of Morphological Skeleton
-							ui->segmentationMorphologicalSkeletonParam1Text->setText(excelRecover->GetCellValue(j + 1, 10 - type).toString());
-							ui->segmentationMorphologicalSkeletonParam2Text->setText(excelRecover->GetCellValue(j + 1, 11 - type).toString());
-							ui->segmentationMorphologicalSkeletonParam3Text->setText(excelRecover->GetCellValue(j + 1, 12 - type).toString());
-							break;
-						}
-						case 2:
-						{
-							// Thinning of Zhang-Suen
-							ui->segmentationZhangSuenParam1Text->setText(excelRecover->GetCellValue(j + 1, 10 - type).toString());
-							ui->segmentationZhangSuenParam2Text->setText(excelRecover->GetCellValue(j + 1, 11 - type).toString());
-							ui->segmentationZhangSuenParam3Text->setText(excelRecover->GetCellValue(j + 1, 12 - type).toString());
-							break;
-						}
-						case 3:
-						{
-							// Thinning of Lin-Hong implemented by Mrs. Faiçal
-							ui->segmentationLinHongParam1Text->setText(excelRecover->GetCellValue(j + 1, 10 - type).toString());
-							ui->segmentationLinHongParam2Text->setText(excelRecover->GetCellValue(j + 1, 11 - type).toString());
-							ui->segmentationLinHongParam3Text->setText(excelRecover->GetCellValue(j + 1, 12 - type).toString());
-							break;
-						}
-						case 4:
-						{
-							// Thinning of Guo-Hall
-							ui->segmentationGuoHallParam1Text->setText(excelRecover->GetCellValue(j + 1, 10 - type).toString());
-							ui->segmentationGuoHallParam2Text->setText(excelRecover->GetCellValue(j + 1, 11 - type).toString());
-							ui->segmentationGuoHallParam3Text->setText(excelRecover->GetCellValue(j + 1, 12 - type).toString());
-							break;
-						}
-
-						}*/
-
 						switch (detectorName){
 						case 0:{
 							// Minutiae-detection using Crossing Number By Dr. Faiçal
+							ui->detectorMinutiaeLimitDistanceText->setText(excelRecover->GetCellValue(j + 1, 11 - type).toString());
 							break;
 						}
 						case 1:{
 							// Minutiae-detection using Crossing Number
-							ui->detectorCrossingNumberBorderText->setText(excelRecover->GetCellValue(j + 1, 11 - type).toString());
+							ui->detectorCrossingNumberLimitDistanceText->setText(excelRecover->GetCellValue(j + 1, 11 - type).toString());
+							ui->detectorCrossingNumberBorderText->setText(excelRecover->GetCellValue(j + 1, 12 - type).toString());
 							break;
 						}
 						case 2:{
@@ -3191,7 +3111,7 @@ void MainWindow::importExcelFile(int type)
 							}
 						}
 
-						if (excelRecover->GetCellValue(j + 1, 25 - type).toString() == "Type 1") ui->matcher1toNtype1->setChecked(true);
+						if (excelRecover->GetCellValue(j + 1, 25 - type).toString() == ui->matcher1toNtype1->text()) ui->matcher1toNtype1->setChecked(true);
 						else ui->matcher1toNtype2->setChecked(true);
 
 						ui->withClusteringChecker->setChecked(excelRecover->GetCellValue(j + 1, 26 - type).toBool());
@@ -3261,7 +3181,11 @@ void MainWindow::importExcelFile(int type)
 						if (type == 0) image = cv::imread(excelRecover->GetCellValue(j, 4).toString().toStdString() + '/' + excelRecover->GetCellValue(j, column - 1).toString().toStdString(), CV_LOAD_IMAGE_COLOR);
 						ui->oneToN->setChecked(true);
 						ui->imageExistsInBdd->setChecked(excelRecover->GetCellValue(j, 6 - type).toBool());
-						if (excelRecover->GetCellValue(j, 6 - type).toBool()) ui->bddImageNames->addItem(excelRecover->GetCellValue(j, 7 - type).toString());
+						if (excelRecover->GetCellValue(j, 6 - type).toBool())
+						{
+							if (type == 0) ui->bddImageNames->addItem(excelRecover->GetCellValue(j, 7 - type).toString());
+							else RequestedImage = excelRecover->GetCellValue(j, 7 - type).toString();
+						}
 						else
 						{
 							ui->imageExistsInBdd->setEnabled(false);
@@ -3312,7 +3236,7 @@ void MainWindow::importExcelFile(int type)
 						ui->viewMatchesBadMatchesText->setText("<b style='color:red'>" + QString::number(rejectedMatches) + "</b>/" + QString::number(acceptedMatches + rejectedMatches) + " = <b style = 'color:red'>" + QString::number(badProbability) + "</b>%");
 						ui->viewMatchesAverageMatchesText->setText(QString::number(bestImageAverage));
 						ui->viewMatchesScoreMatchesText->setText("<b>" + QString::number(bestImageScore) + "</b>");
-						if (!excelRecover->GetCellValue(j, column - 12).toString().isEmpty()) importTable(ui->spinBox->text().toInt());
+						//if (!excelRecover->GetCellValue(j, column - 12).toString().isEmpty()) importTable(ui->spinBox->text().toInt());
 						exist = true;
 						ui->logPlainText->appendHtml("--------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 						QMessageBox::information(this, "Import Excel Success!", "The test N°: " + QString(ui->spinBox->text()) + " has been imported with success !");
@@ -3320,7 +3244,7 @@ void MainWindow::importExcelFile(int type)
 					}
 					else
 					{
-						if (takeTest(0)) exportSuccess(1);
+						if (takeTest(0, true)) exportSuccess(1);
 						if (methodIndex == 5) j++;
 					}
 				}
@@ -3332,8 +3256,8 @@ void MainWindow::importExcelFile(int type)
 		}
 		else
 		{
-			//QMessageBox::information(this, "Import Input file!", "The execution of all commands has been finished with success !");
-			ui->logPlainText->appendHtml("<b style='color:blue'>The execution of all commands has been finished with success !</b>");
+			QMessageBox::information(this, "Import Input file!", "The execution of all commands has been finished with success !");
+			//ui->logPlainText->appendHtml("<b style='color:blue'>The execution of all commands has been finished with success !</b>");
 		}
 		excelRecover->~ExcelManager();
 		system("taskkill /im EXCEL.EXE /f");
