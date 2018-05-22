@@ -2693,13 +2693,22 @@ float MainWindow::testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, fl
 	// and return sum of distances of goodMatches
 	double sumDistances = 0; 
 	for (int i = 0; i < twoMatches.size(); i++){
-		if ((twoMatches[i][0].distance <= limitDistance || !ui->eliminationLimitDistance->isChecked())
-		  &&(twoMatches[i][0].distance <= lowesRatio*twoMatches[i][1].distance)){
-			sumDistances += twoMatches[i][0].distance;
-			goodMatches.push_back(twoMatches[i][0]);
-		}
-		else{
-			badMatches.push_back(twoMatches[i][0]);
+		switch (twoMatches[i].size()){
+			case 1:
+				if (twoMatches[i][0].distance <= limitDistance || !ui->eliminationLimitDistance->isChecked()){
+					sumDistances += twoMatches[i][0].distance;
+					goodMatches.push_back(twoMatches[i][0]);
+				}
+				else badMatches.push_back(twoMatches[i][0]);
+			break;
+			case 2:
+				if ((twoMatches[i][0].distance <= limitDistance || !ui->eliminationLimitDistance->isChecked())
+					&& (twoMatches[i][0].distance <= lowesRatio*twoMatches[i][1].distance)){
+					sumDistances += twoMatches[i][0].distance;
+					goodMatches.push_back(twoMatches[i][0]);
+				}
+				else badMatches.push_back(twoMatches[i][0]);
+			break;
 		}
 	}
 	return sumDistances;
