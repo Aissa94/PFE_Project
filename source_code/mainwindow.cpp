@@ -493,7 +493,7 @@ void MainWindow::runDefault(int testType)
 					sumDistancesSet[i] += goodMatchesSet[i][j].distance;
 				}
 				if (goodMatchesSet[i].size() > 0){
-					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size()) * 100;
+					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size());
 					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
 					scoreSet[i] = 1.0 / average * goodProbability;
 					// update the best score index
@@ -513,7 +513,7 @@ void MainWindow::runDefault(int testType)
 			}
 			if (goodMatches.size() > 0){
 				float average = sumDistances / static_cast<float>(goodMatches.size());
-				float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size()) * 100;
+				float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size());
 				score = 1.0 / average * goodProbability;
 			}
 			else score = 0.0;
@@ -2513,7 +2513,7 @@ void MainWindow::outlierElimination(){
 				sumDistancesSet[i] = testOfLowe(twoMatchesSet[i], lowesRatio, limitDistance, goodMatchesSet[i], badMatchesSet[i]);
 				
 				if (goodMatchesSet[i].size() > 0){
-					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
+					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size());
 					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
 					scoreSet[i] = 1.0 / average * goodProbability;
 					// update the best score index
@@ -2533,7 +2533,7 @@ void MainWindow::outlierElimination(){
 				sumDistancesSet[i] = testInReverse(directMatchesSet[i], inverseMatchesSet[i], limitDistance, goodMatchesSet[i], badMatchesSet[i]);
 				
 				if (goodMatchesSet[i].size() > 0){
-					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
+					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size());
 					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
 					scoreSet[i] = 1.0 / average * goodProbability;
 					// update the best score index
@@ -2561,7 +2561,7 @@ void MainWindow::outlierElimination(){
 				}
 				for (int i = 0; i < setImgs.size(); i++){
 					if (goodMatchesSet[i].size() > 0){
-						float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
+						float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size());
 						float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
 						scoreSet[i] = 1.0 / average * goodProbability;
 						// update the best score index
@@ -2587,7 +2587,7 @@ void MainWindow::outlierElimination(){
 						}
 					}
 					if (goodMatchesSet[i].size() > 0){
-						float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size()) * 100;
+						float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size());
 						float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
 						scoreSet[i] = 1.0 / average * goodProbability;
 						// update the best score index
@@ -2636,7 +2636,7 @@ void MainWindow::outlierElimination(){
 		}*/
 		if (goodMatches.size() > 0){
 			float average = sumDistances / static_cast<float>(goodMatches.size());
-			float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size() + badMatches.size()) * 100;
+			float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size() + badMatches.size());
 			score = 1.0 / average * goodProbability;
 		}
 		else score = 0.0;
@@ -3244,7 +3244,6 @@ void MainWindow::importExcelFile(int type)
 						ui->viewMatchesScoreMatchesText->setText("<b>" + QString::number(bestImageScore) + "</b>");
 						//if (!excelRecover->GetCellValue(j, column - 12).toString().isEmpty()) importTable(ui->spinBox->text().toInt());
 						exist = true;
-						ui->logPlainText->appendHtml("--------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 						QMessageBox::information(this, "Import Excel Success!", "The test N°: " + QString(ui->spinBox->text()) + " has been imported with success !");
 						break;
 					}
@@ -3254,6 +3253,7 @@ void MainWindow::importExcelFile(int type)
 						if (methodIndex == 5) j++;
 					}
 				}
+				ui->logPlainText->appendHtml("--------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 			}
 		}
 		if (type == 0)

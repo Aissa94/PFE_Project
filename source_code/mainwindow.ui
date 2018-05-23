@@ -2912,7 +2912,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
       <item row="0" column="1">
        <widget class="QLineEdit" name="decisionStageThresholdText">
         <property name="text">
-         <string>250</string>
+         <string>25</string>
         </property>
        </widget>
       </item>
@@ -3087,7 +3087,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
              <set>Qt::AlignCenter</set>
             </property>
             <property name="text" stdset="0">
-             <string>0</string>
+             <string/>
             </property>
             <property name="accelerated">
              <bool>true</bool>
@@ -3734,7 +3734,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="typeOfMatchButtonGroup"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="typeOfMatchButtonGroup"/>
  </buttongroups>
 </ui>
