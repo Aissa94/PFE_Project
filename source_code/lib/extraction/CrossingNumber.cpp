@@ -50,11 +50,10 @@ namespace CrossingNumber {
 	}
 
 	void filterMinutiae(std::vector<Minutiae>& minutiae, double distanceThreshBetweenMinutiaes){
-		bool same = true;
 		//calculate for every minutiae the distance to all other minutiae
 		for (std::vector<Minutiae>::size_type i = 0; i<minutiae.size(); i++){
 			for (std::vector<Minutiae>::size_type j = 0; j<minutiae.size(); j++) {
-				if (minutiae[j].getType() == /*Minutiae::Type::RIDGEENDING &&*/ minutiae[i].getType()/* == Minutiae::Type::RIDGEENDING*/ &&
+				if (i!=j && minutiae[j].getType() == /*Minutiae::Type::RIDGEENDING &&*/ minutiae[i].getType()/* == Minutiae::Type::RIDGEENDING*/ &&
 					euclideanDistance(minutiae[i].pt.x, minutiae[i].pt.y, minutiae[j].pt.x, minutiae[j].pt.y) < distanceThreshBetweenMinutiaes){
 					//... then mark minutiae for erasing
 					minutiae[i].setEliminated();
