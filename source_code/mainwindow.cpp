@@ -150,6 +150,7 @@ MainWindow::MainWindow(QWidget *parent) :
 				ui->eliminationInversMatches->setEnabled(true);
 			}
 			if (!ui->eliminationLoweRatio->isChecked()){
+				ui->eliminationLoweRatioText->setEnabled(false);
 				ui->matcherBruteForceCrossCheckLabel->setDisabled(ui->eliminationLoweRatio->isChecked() || (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()));
 				ui->matcherBruteForceCrossCheckText->setDisabled(ui->eliminationLoweRatio->isChecked() || (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()));
 			}
