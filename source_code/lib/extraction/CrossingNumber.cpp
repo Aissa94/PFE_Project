@@ -33,11 +33,11 @@ namespace CrossingNumber {
 					//std::cout<<"cn = " << cn << std::endl;
 
 					if(cn == 1){
-						Minutiae minut(i, j, 0, 0, Minutiae::Type::RIDGEENDING);
+						Minutiae minut(i, j, -1, -1, Minutiae::Type::RIDGEENDING);
 						minutiae.push_back(minut);
 						//ridgeEndingCount++;
 					}else if(cn == 3){
-						Minutiae minut(i, j, 0, 0, Minutiae::Type::BIFURCATION);
+						Minutiae minut(i, j, -1, -1, Minutiae::Type::BIFURCATION);
 						minutiae.push_back(minut);
 						//bifurcationCount++;
 					}

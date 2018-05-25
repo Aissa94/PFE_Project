@@ -55,8 +55,5 @@
 // Dr :
 #include "image-processing\image_processing.h"
 
-// Our
-#include "image-processing\MinutiaeToKeyPointAdapter.h"
-
 
 #endif

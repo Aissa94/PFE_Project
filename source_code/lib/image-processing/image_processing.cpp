@@ -19,8 +19,6 @@ Image_processing::Image_processing()
 
 }
 
-
-
 void Save_Ort_Mat_File(cv::Mat mt, string file_name){
 
 	ofstream myfile;

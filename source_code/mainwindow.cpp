@@ -1059,7 +1059,7 @@ void MainWindow::on_actionDelete_All_Commands_triggered()
 		{
 			excelRecover->DeleteRow();
 			if (j < 5) rowsCount++;
-			else if ((i > 2) && (i%2 == 0)) rowsCount++;
+			else if (/*(i > 2) &&*/ (i%2 == 0)) rowsCount++;
 		}
 	}
 
@@ -2106,14 +2106,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 
 		// images must be segmented if not Minutiae will be empty
 		try{
-			// Adapt Minutiaes to KeyPoints (this will affect magnitudes and angles to minutiaes)
-			MinutiaeToKeyPointAdapter adapter;
-			// also we must add the Adapting time to detection time
-			detectionTime += adapter.adapt(firstMinutiae);
-			if (oneToN)
-				for (int i = 0; i < setImgs.size(); i++) detectionTime += adapter.adapt(setMinutiaes[i]);
-			else detectionTime += adapter.adapt(secondMinutiae);
-			for (Minutiae minutiae : firstMinutiae) firstImgKeypoints.push_back(minutiae);
+			for (Minutiae minutiae : firstMinutiae) firstImgKeypoints.push_back(minutiae);		
 			if (oneToN)
 			{
 				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
@@ -2166,13 +2159,6 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 
 		// images must be segmented if not Minutiae will be empty
 		try{
-			// Adapt Minutiaes to KeyPoints (this will affect magnitudes and angles to minutiaes)
-			MinutiaeToKeyPointAdapter adapter;
-			// also we must add the Adapting time to detection time
-			detectionTime += adapter.adapt(firstMinutiae);
-			if (oneToN)
-				for (int i = 0; i < setImgs.size(); i++) detectionTime += adapter.adapt(setMinutiaes[i]);
-			else detectionTime += adapter.adapt(secondMinutiae);
 			for (Minutiae minutiae : firstMinutiae) firstImgKeypoints.push_back(minutiae);
 			if (oneToN)
 			{
@@ -2472,7 +2458,7 @@ bool MainWindow::matching(){
 		// For example Flann-Based doesn't work with Brief desctiptor extractor
 		// And also, some descriptors must be used with specific NORM_s
 		if (ui->matcherTabs->currentIndex() == 0 && ui->matcherBruteForceCrossCheckText->isEnabled() && ui->matcherBruteForceCrossCheckText->isChecked() && ui->detectorTabs->currentIndex()<2)
-			ui->logPlainText->appendHtml("<b style='color:orange'>Set <i>Cross Check</i> in Brute Force as false while matching Minutias!.</b>");
+			ui->logPlainText->appendHtml("<b style='color:orange'>Set <i>Cross Check</i> in Brute Force as false while matching Minutiaes!.</b>");
 		if (ui->matcherTabs->currentIndex() == 0 && ui->matcherBruteForceCrossCheckText->isEnabled() && ui->matcherBruteForceCrossCheckText->isChecked())
 			ui->logPlainText->appendHtml("<b style='color:orange'>Set <i>Cross Check</i> in Brute Force as false while using clustering!.</b>");
 		else ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one.</b>");

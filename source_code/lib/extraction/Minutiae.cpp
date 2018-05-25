@@ -15,6 +15,8 @@ Minutiae::Minutiae(int x, int y, double or, double dir, Type type)
 {
 	pt.x = x;
 	pt.y = y;
+	angle = dir;
+	size = 3;
 	Minutiae::eliminated = false;
 }
 
