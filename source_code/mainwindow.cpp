@@ -120,6 +120,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		// cusomizing ToolTips :
 		//qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white;}");
 		ui->descriptorFreakSelectedPairsText->setPlaceholderText("Ex: 1 2 11 22 154 256...");
+		this->setWindowIcon(QIcon(":/MainWindow/icon"));
 		QPixmap pixmap(":/MainWindow/refresh-img");
 		QIcon ButtonIcon(pixmap);
 		ui->refreshBddImageNames->setIcon(ButtonIcon);
@@ -182,7 +183,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	else
 	{
 		// Failed to create the root.
-		ui->logPlainText->appendHtml("<b style='color:red'>Failed to create directory for all tests!</b>");
+		ui->logPlainText->appendHtml(tr("<b style='color:red'>Failed to create directory for all tests!</b>"));
 		return;
 	}
 }
@@ -457,7 +458,7 @@ void MainWindow::runDefault(int testType)
 			ui->logPlainText->textCursor().movePosition(QTextCursor::End);
 			prev_cursor_position = ui->logPlainText->textCursor().position();
 		}
-		ui->logPlainText->appendPlainText("Detection time: " + QString::number(detectionTime) + " (s)");
+		ui->logPlainText->appendHtml(tr("Detection time: %1(s)").arg(QString::number(detectionTime)));
 
 		// Computing the descriptors
 		descriptionTime = (double)cv::getTickCount();
@@ -469,7 +470,7 @@ void MainWindow::runDefault(int testType)
 		}
 		else ptrDefault->compute(secondImg, secondImgKeypoints, secondImgDescriptors);
 		descriptionTime = ((double)cv::getTickCount() - descriptionTime) / cv::getTickFrequency();
-		ui->logPlainText->appendPlainText("Description time: " + QString::number(descriptionTime) + " (s)");
+		ui->logPlainText->appendHtml(tr("Description time: %1(s)").arg(QString::number(descriptionTime)));
 
 		// Only the best direct match
 		matchingTime = (double)cv::getTickCount();
@@ -482,9 +483,9 @@ void MainWindow::runDefault(int testType)
 			ptrMatcher->match(firstImgDescriptors, secondImgDescriptors, goodMatches);
 		}
 		matchingTime = ((double)cv::getTickCount() - matchingTime) / cv::getTickFrequency();
-		ui->logPlainText->appendPlainText("Matching time: " + QString::number(matchingTime) + " (s)");
+		ui->logPlainText->appendHtml(tr("Matching time: %1(s)").arg(QString::number(matchingTime)));
 
-		ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + clusteringTime + matchingTime) + " (s)");
+		ui->logPlainText->appendHtml(tr("Total time: %1(s)").arg(QString::number(detectionTime + descriptionTime + clusteringTime + matchingTime)));
 
 		// Scores
 		float bestScore = 0;
@@ -496,7 +497,7 @@ void MainWindow::runDefault(int testType)
 				if (goodMatchesSet[i].size() > 0){
 					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size());
 					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
-					scoreSet[i] = 1.0 / average * goodProbability;
+					scoreSet[i] = 1.0 / (average + 1.0) * goodProbability;
 					// update the best score index
 					if (scoreSet[i] >= bestScore) {
 						if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
@@ -515,7 +516,7 @@ void MainWindow::runDefault(int testType)
 			if (goodMatches.size() > 0){
 				float average = sumDistances / static_cast<float>(goodMatches.size());
 				float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size());
-				score = 1.0 / average * goodProbability;
+				score = 1.0 / (average + 1.0) * goodProbability;
 			}
 			else score = 0.0;
 		}
@@ -600,11 +601,11 @@ void MainWindow::runCustom(int testType)
 			int nbClusters = ui->clusteringNbClustersText->text().toInt(),
 				nbAttempts = ui->clusteringNbAttemptsText->text().toInt();
 			if (nbClusters < 1) {
-				ui->logPlainText->appendHtml("<b style='color:red'>Invalid number of clusters: " + QString::number(nbClusters) + ", the default value is maintained!</b>");
+				ui->logPlainText->appendHtml(tr("<b style='color:red'>Invalid number of clusters: %1, the default value is maintained!</b>").arg(QString::number(nbClusters)));
 				nbClusters = 40;
 			}
 			if (nbAttempts < 1) {
-				ui->logPlainText->appendHtml("<b style='color:red'>Invalid number of attempts: " + QString::number(nbAttempts) + ", the default value is maintained!</b>");
+				ui->logPlainText->appendHtml(tr("<b style='color:red'>Invalid number of attempts: %1, the default value is maintained!</b>").arg(QString::number(nbAttempts)));
 				nbAttempts = 3;
 			}
 			clustering(nbClusters, nbAttempts);
@@ -619,7 +620,7 @@ void MainWindow::runCustom(int testType)
 		// Find the matching points
 		if (!matching()) return;
 
-		ui->logPlainText->appendPlainText("Total time: " + QString::number(detectionTime + descriptionTime + clusteringTime + matchingTime) + " (s)");
+		ui->logPlainText->appendHtml(tr("Total time: %1(s)").arg(QString::number(detectionTime + descriptionTime + clusteringTime + matchingTime)));
 
 		// Keep only best matching according to the selected test
 		outlierElimination();
@@ -914,7 +915,7 @@ void MainWindow::runCustom(int testType)
 				}
 				else
 				{
-					excelReader->mergeRowsCells(35);
+					excelReader->mergeRowsCells(34);
 					excelReader->mergeRowsCells(40);
 					excelReader->mergeRowsCells(41);
 					excelReader->mergeRowsCells(42);
@@ -1028,7 +1029,7 @@ void MainWindow::on_actionRun_triggered()
 	default:
 	{
 		/*if (!readInputFile()) {
-		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the excel file!</b>");
+		ui->logPlainText->appendHtml(tr("<b style='color:red'>Error while trying to read the excel file!</b>"));
 		return;
 		}*/
 		importExcelFile(2);
@@ -1446,11 +1447,11 @@ bool MainWindow::createTestFolder(){
 
 bool MainWindow::noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints)
 {
-	ui->logPlainText->appendPlainText("Found " + QString::number(imgKeypoints.size()) + " key points in the " + QString::fromStdString(rank) + " image!");
+	ui->logPlainText->appendHtml(tr("Found %1 key points in the %2 image!").arg(QString::number(imgKeypoints.size())).arg(QString::fromStdString(rank)));
 
 	if (imgKeypoints.size() <= 0)
 	{
-		ui->logPlainText->appendPlainText("Point matching can not be done because no key points detected in the " + QString::fromStdString(rank) + " image!");
+		ui->logPlainText->appendHtml(tr("Point matching can not be done because no key points detected in the %1 image!").arg(QString::fromStdString(rank)));
 		return true;
 	}
 	return false;
@@ -1520,7 +1521,7 @@ void MainWindow::resetParams()
 		clusterAffectation.clear();
 	}
 	catch (...){
-		ui->logPlainText->appendHtml("<b style='color:yellow'>Enable to free some structures!</b>");
+		ui->logPlainText->appendHtml(tr("<b style='color:yellow'>Enable to free some structures!</b>"));
 	}
 }
 
@@ -1622,7 +1623,7 @@ void MainWindow::clustering(int nbClusters, int nbAttempts){
 		}
 	}
 	catch (...){
-		ui->logPlainText->appendHtml("<i style='color:red'>The number of clusters is too high, try another!</i>");
+		ui->logPlainText->appendHtml(tr("<i style='color:red'>The number of clusters is too high, try another!</i>"));
 		return;
 	}
 	// Write Kmeans parameters
@@ -1631,7 +1632,7 @@ void MainWindow::clustering(int nbClusters, int nbAttempts){
 	fs << "Centers" << centers;
 	fs.release();
 	clusteringTime = ((double)cv::getTickCount() - clusteringTime) / cv::getTickFrequency();
-	ui->logPlainText->appendPlainText("Clustering time: " + QString::number(clusteringTime) + " (s)");
+	ui->logPlainText->appendHtml(tr("Clustering time: %1(s)").arg(QString::number(clusteringTime)));
 }
 
 QImage MainWindow::matToQImage(const cv::Mat& mat)
@@ -1851,11 +1852,11 @@ void MainWindow::writeMatches(int imgIndex){
 
 			std::string filename = currentTest_folderPath + "all matches\\" + std::to_string(i) + ".jpg";
 			if (!cv::imwrite(filename, drawImg))
-				ui->logPlainText->appendHtml("<b style='color:orange'>Image " + QString::fromStdString(filename) + "  can not be saved (may be because directory " + QString::fromStdString(currentTest_folderPath) + "  does not exist) !</b>");
+				ui->logPlainText->appendHtml(tr("<b style='color:orange'>Image %1  can not be saved (may be because directory %2 does not exist) !</b>").arg(QString::fromStdString(filename)).arg(QString::fromStdString(currentTest_folderPath)));
 				
 			if (i == bestScoreIndex){
 				if (!cv::imwrite(currentTest_folderPath + "output.jpg", drawImg))
-					ui->logPlainText->appendHtml("<b style='color:orange'>Image " + QString::fromStdString(currentTest_folderPath + "output.jpg") + "  can not be saved (may be because directory " + QString::fromStdString(currentTest_folderPath) + "  does not exist) !</b>");
+					ui->logPlainText->appendHtml(tr("<b style='color:orange'>Image %1output.jpg can not be saved (may be because directory %2 does not exist) !</b>").arg(QString::fromStdString(currentTest_folderPath)).arg(QString::fromStdString(currentTest_folderPath)));
 
 				// Add the image to the viewer
 				QGraphicsScene *matchingScene = new QGraphicsScene();
@@ -1878,7 +1879,7 @@ void MainWindow::writeMatches(int imgIndex){
 		cv::drawMatches(firstImg, firstImgKeypoints, secondImg, secondImgKeypoints,
 			goodMatches, drawImg, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 255), std::vector<char>(), cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
 		if (!cv::imwrite(currentTest_folderPath + "output.jpg", drawImg))
-			ui->logPlainText->appendHtml("<b style='color:orange'>Matches Image can not be saved (may be because directory " + QString::fromStdString(currentTest_folderPath) + "  does not exist) !</b>");
+			ui->logPlainText->appendHtml(tr("<b style='color:orange'>Matches Image can not be saved (may be because directory %1  does not exist) !</b>").arg(QString::fromStdString(currentTest_folderPath)));
 		
 		// Add the image to the viewer
 		QGraphicsScene *matchingScene = new QGraphicsScene();
@@ -1903,7 +1904,7 @@ void MainWindow::writeMatches(int imgIndex){
 bool MainWindow::takeTest(int testType, bool import) {
 	// Read Images ...
 	if (!readFirstImage()){
-		ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 1st input file!</b>");
+		ui->logPlainText->appendHtml(tr("<b style='color:red'>Error while trying to read the 1st input file!</b>"));
 		return false;
 	}
 	oneToN = ui->oneToN->isChecked();
@@ -1917,7 +1918,7 @@ bool MainWindow::takeTest(int testType, bool import) {
 		}
 		else {
 			if (!readSecondImage()) {
-				ui->logPlainText->appendHtml("<b style='color:red'>Error while trying to read the 2nd input file!</b>");
+				ui->logPlainText->appendHtml(tr("<b style='color:red'>Error while trying to read the 2nd input file!</b>"));
 				return false;
 			}
 		}
@@ -2124,7 +2125,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			masksAreEmpty = false;
 		}
 		catch (...){
-			ui->logPlainText->appendHtml("<i style='color:red'>Before detecting Minutiae you must select a segmentation method !</i>");
+			ui->logPlainText->appendHtml(tr("<i style='color:red'>Before detecting Minutiae you must select a segmentation method !</i>"));
 			return;
 		}
 
@@ -2177,7 +2178,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			masksAreEmpty = false;
 		}
 		catch (...){
-			ui->logPlainText->appendHtml("<i style='color:red'>Before detecting Minutiae you must select a segmentation method !</i>");
+			ui->logPlainText->appendHtml(tr("<i style='color:red'>Before detecting Minutiae you must select a segmentation method !</i>"));
 			return;
 		}
 
@@ -2262,7 +2263,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		break;
 		//....
 	default:
-		ui->logPlainText->appendHtml("<i style='color:yellow'>No detector selected.</i>");
+		ui->logPlainText->appendHtml(tr("<i style='color:yellow'>No detector selected.</i>"));
 		return;
 		break;
 	}
@@ -2280,7 +2281,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 		}
 		catch (...){
-			ui->logPlainText->appendHtml("<b style='color:red'>Please select the right " + QString::fromStdString(detectorName) + " detector parameters, or use the defaults!.</b>");
+			ui->logPlainText->appendHtml(tr("<b style='color:red'>Please select the right %1 detector parameters, or use the defaults!.</b>").arg(QString::fromStdString(detectorName)));
 			return;
 		}
 		writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
@@ -2291,7 +2292,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		ui->logPlainText->textCursor().movePosition(QTextCursor::End);
 		prev_cursor_position = ui->logPlainText->textCursor().position();
 	}
-	ui->logPlainText->appendPlainText("Detection time: " + QString::number(detectionTime) + " (s)");
+	ui->logPlainText->appendHtml(tr("Detection time: %1(s)").arg(QString::number(detectionTime)));
 }
 
 void MainWindow::customisingDescriptor(int descriptorIndex, std::string descriptorName){
@@ -2336,7 +2337,7 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 		break;
 		//....
 	default:
-		ui->logPlainText->appendHtml("<i style='color:yellow'>No descriptor selected.</i>");
+		ui->logPlainText->appendHtml(tr("<i style='color:yellow'>No descriptor selected.</i>"));
 		return;
 		break;
 	}
@@ -2358,11 +2359,11 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 		}
 		else ptrDescriptor->compute(secondImg, secondImgKeypoints, secondImgDescriptors);
 		descriptionTime = ((double)cv::getTickCount() - descriptionTime) / cv::getTickFrequency();
-		ui->logPlainText->appendPlainText("Description time: " + QString::number(descriptionTime) + " (s)");
+		ui->logPlainText->appendHtml(tr("Description time: %1(s)").arg(QString::number(descriptionTime)));
 	}
 	catch (...){
-		if (descriptorName == "FREAK")ui->logPlainText->appendHtml("<b style='color:red'>Please select the right pair indexes within the FREAK descriptor, or just leave it!.</b><br>(For more details read Section(4.2) in: <i>A. Alahi, R. Ortiz, and P. Vandergheynst. FREAK: Fast Retina Keypoint. In IEEE Conference on Computer Vision and Pattern Recognition, 2012.</i>)");
-		else ui->logPlainText->appendHtml("<b style='color:red'>Please select the right " + QString::fromStdString(descriptorName) + " descriptor parameters, or use the defaults!.</b>");
+		if (descriptorName == "FREAK")ui->logPlainText->appendHtml(tr("<b style='color:red'>Please select the right pair indexes within the FREAK descriptor, or just leave it!.</b><br>(For more details read Section(4.2) in: <i>A. Alahi, R. Ortiz, and P. Vandergheynst. FREAK: Fast Retina Keypoint. In IEEE Conference on Computer Vision and Pattern Recognition, 2012.</i>)"));
+		else ui->logPlainText->appendHtml(tr("<b style='color:red'>Please select the right %1 descriptor parameters, or use the defaults!.</b>").arg(QString::fromStdString(descriptorName)));
 		return;
 	}
 }
@@ -2389,7 +2390,7 @@ void MainWindow::customisingMatcher(int matcherIndex, std::string matcherName){
 	break;
 	// ...
 	default:
-		ui->logPlainText->appendHtml("<i style='color:yellow'>No matcher selected.</i>");
+		ui->logPlainText->appendHtml(tr("<i style='color:yellow'>No matcher selected.</i>"));
 		return;
 		break;
 	}
@@ -2458,13 +2459,13 @@ bool MainWindow::matching(){
 		// For example Flann-Based doesn't work with Brief desctiptor extractor
 		// And also, some descriptors must be used with specific NORM_s
 		if (ui->matcherTabs->currentIndex() == 0 && ui->matcherBruteForceCrossCheckText->isEnabled() && ui->matcherBruteForceCrossCheckText->isChecked() && ui->detectorTabs->currentIndex()<2)
-			ui->logPlainText->appendHtml("<b style='color:orange'>Set <i>Cross Check</i> in Brute Force as false while matching Minutiaes!.</b>");
+			ui->logPlainText->appendHtml(tr("<b style='color:orange'>Set <i>Cross Check</i> in Brute Force as false while matching Minutiaes!.</b>"));
 		if (ui->matcherTabs->currentIndex() == 0 && ui->matcherBruteForceCrossCheckText->isEnabled() && ui->matcherBruteForceCrossCheckText->isChecked())
-			ui->logPlainText->appendHtml("<b style='color:orange'>Set <i>Cross Check</i> in Brute Force as false while using clustering!.</b>");
-		else ui->logPlainText->appendHtml("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one.</b>");
+			ui->logPlainText->appendHtml(tr("<b style='color:orange'>Set <i>Cross Check</i> in Brute Force as false while using clustering!.</b>"));
+		else ui->logPlainText->appendHtml(tr("<b style='color:red'>Cannot match descriptors because of an incompatible combination!, try another one.</b>"));
 		return false;
 	}
-	ui->logPlainText->appendPlainText("Matching time: " + QString::number(matchingTime) + " (s)");
+	ui->logPlainText->appendHtml(tr("Matching time: %1(s)").arg(QString::number(matchingTime)));
 	return true;
 }
 
@@ -2472,12 +2473,12 @@ void MainWindow::outlierElimination(){
 	// Eliminate outliers, and calculate the sum of best matches distance
 	float limitDistance = ui->eliminationLimitDistanceText->text().toFloat();
 	if (ui->eliminationLimitDistance->isChecked() && limitDistance < 0) {
-		ui->logPlainText->appendHtml("<b style='color:red'>Invalid Limit Distance: " + QString::number(limitDistance) + ", the default value is maintained!</b>");
+		ui->logPlainText->appendHtml(tr("<b style='color:red'>Invalid Limit Distance: %1, the default value is maintained!</b>").arg(QString::number(limitDistance)));
 		limitDistance = 0.4f;
 	}
 	/*float confidence = ui->matcherRansacTestConfidence->text().toFloat();
 	if (ui->matcherRansacTest->isChecked() && (confidence < 0 || confidence > 1)) {
-		ui->logPlainText->appendHtml("<b style='color:red'>Invalid Confidence: " + QString::number(confidence) + ", the default value is maintained!</b>");
+		ui->logPlainText->appendHtml(tr("<b style='color:red'>Invalid Confidence: %1, the default value is maintained!</b>").arg(QString::number(confidence)));
 		confidence = 0.99f;
 	}*/
 	if (oneToN){
@@ -2492,7 +2493,7 @@ void MainWindow::outlierElimination(){
 			// Lowe's ratio test = 0.7 by default
 			float lowesRatio = ui->eliminationLoweRatioText->text().toFloat();
 			if (lowesRatio <= 0 || 1 <= lowesRatio) {
-				ui->logPlainText->appendHtml("<b style='color:red'>Invalid Lowe's Ratio: " + QString::number(lowesRatio) + ", the default value is maintained!</b>");
+				ui->logPlainText->appendHtml(tr("<b style='color:red'>Invalid Lowe's Ratio: %1, the default value is maintained!</b>").arg(QString::number(lowesRatio)));
 				lowesRatio = 0.7;
 				ui->eliminationLoweRatioText->setText("0.7");
 			}
@@ -2502,7 +2503,7 @@ void MainWindow::outlierElimination(){
 				if (goodMatchesSet[i].size() > 0){
 					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size());
 					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
-					scoreSet[i] = 1.0 / average * goodProbability;
+					scoreSet[i] = 1.0 / (average + 1.0) * goodProbability;
 					// update the best score index
 					if (scoreSet[i] >= bestScore) {
 						if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScoreIndex].size()){
@@ -2522,7 +2523,7 @@ void MainWindow::outlierElimination(){
 				if (goodMatchesSet[i].size() > 0){
 					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size());
 					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
-					scoreSet[i] = 1.0 / average * goodProbability;
+					scoreSet[i] = 1.0 / (average + 1.0) * goodProbability;
 					// update the best score index
 					if (scoreSet[i] >= bestScore) {
 						if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScoreIndex].size()){
@@ -2550,7 +2551,7 @@ void MainWindow::outlierElimination(){
 					if (goodMatchesSet[i].size() > 0){
 						float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size());
 						float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
-						scoreSet[i] = 1.0 / average * goodProbability;
+						scoreSet[i] = 1.0 / (average + 1.0) * goodProbability;
 						// update the best score index
 						if (scoreSet[i] >= bestScore) {
 								if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScoreIndex].size()){
@@ -2576,7 +2577,7 @@ void MainWindow::outlierElimination(){
 					if (goodMatchesSet[i].size() > 0){
 						float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size());
 						float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
-						scoreSet[i] = 1.0 / average * goodProbability;
+						scoreSet[i] = 1.0 / (average + 1.0) * goodProbability;
 						// update the best score index
 						if (scoreSet[i] >= bestScore) {
 								if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScoreIndex].size()){
@@ -2595,7 +2596,7 @@ void MainWindow::outlierElimination(){
 			// Lowe's ratio test = 0.7 by default
 			float lowesRatio = ui->eliminationLoweRatioText->text().toFloat();
 			if (lowesRatio <= 0 || 1 <= lowesRatio) {
-				ui->logPlainText->appendHtml("<b style='color:red'>Invalid Lowe's Ratio: " + QString::number(lowesRatio) + ", the default value is maintained!</b>");
+				ui->logPlainText->appendHtml(tr("<b style='color:red'>Invalid Lowe's Ratio: %1, the default value is maintained!</b>").arg(QString::number(lowesRatio)));
 				lowesRatio = 0.7f;
 			}
 			sumDistances = testOfLowe(twoMatches, lowesRatio, limitDistance, goodMatches, badMatches);
@@ -2624,7 +2625,7 @@ void MainWindow::outlierElimination(){
 		if (goodMatches.size() > 0){
 			float average = sumDistances / static_cast<float>(goodMatches.size());
 			float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size() + badMatches.size());
-			score = 1.0 / average * goodProbability;
+			score = 1.0 / (average + 1.0) * goodProbability;
 		}
 		else score = 0.0;
 	}
@@ -2671,7 +2672,7 @@ void MainWindow::showError(std::string title, std::string text, std::string e_ms
 	error.setWindowTitle(QString::fromStdString(title));
 	error.setText(QString::fromStdString(text));
 	error.exec();
-	if(e_msg!="")ui->logPlainText->appendHtml("<b style='color:red'>Code Error: " + QString::fromStdString(e_msg) + " </b>");
+	if(e_msg!="")ui->logPlainText->appendHtml(tr("<b style='color:red'>Code Error: %1 </b>").arg(QString::fromStdString(e_msg)));
 }
 
 float MainWindow::testOfLowe(std::vector<std::vector<cv::DMatch>> twoMatches, float lowesRatio, float limitDistance, std::vector<cv::DMatch> &goodMatches, std::vector<cv::DMatch> &badMatches){
@@ -2823,21 +2824,21 @@ bool MainWindow::showDecision(){
 			// Show infos related to best image
 			QTextCursor current_cursor = QTextCursor(ui->logPlainText->document());
 			current_cursor.setPosition(prev_cursor_position);
-			current_cursor.insertText("\nFound " + QString::number(setImgsKeypoints[bestScoreIndex].size()) + " key points in the most similar image!");
+			current_cursor.insertText(tr("\nFound %1 key points in the most similar image").arg(QString::number(setImgsKeypoints[bestScoreIndex].size())));
 			displayImage(std::get<2>(setImgs[bestScoreIndex]), 2);
 			if (setMinutiaes.size()) writeKeyPoints(std::get<1>(setImgs[bestScoreIndex]), setMinutiaes[bestScoreIndex], 2, "keypoints2");
 			else writeKeyPoints(std::get<1>(setImgs[bestScoreIndex]), setImgsKeypoints[bestScoreIndex], 2, "keypoints2");
 
 			if (scoreSet[bestScoreIndex] >= scoreThreshold)
-				ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(std::get<0>(setImgs[bestScoreIndex])) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
-			else ui->logPlainText->appendHtml("The image <b>" + QString::fromStdString(std::get<0>(setImgs[bestScoreIndex])) + "</b> has the best matching score: <b>" + QString::number(scoreSet[bestScoreIndex]) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
+				ui->logPlainText->appendHtml(tr("The image <b>%1</b> has the best matching score: <b>%2</b><b style='color:green'> &ge; </b>%3").arg(QString::fromStdString(std::get<0>(setImgs[bestScoreIndex]))).arg(QString::number(scoreSet[bestScoreIndex])).arg(QString::number(scoreThreshold)));
+			else ui->logPlainText->appendHtml(tr("The image <b>%1</b> has the best matching score: <b>%2</b><b style='color:red'> &#60; </b>%3").arg(QString::fromStdString(std::get<0>(setImgs[bestScoreIndex]))).arg(QString::number(scoreSet[bestScoreIndex])).arg(QString::number(scoreThreshold)));
 
 			if (ui->imageExistsInBdd->isEnabled() && ui->imageExistsInBdd->isChecked()){
-				ui->logPlainText->appendHtml("The first image is Rank-<b>" + QString::number(computeRankK(scoreThreshold)) + "</b> ");
-				if (ui->bddImageNames->currentIndex() > -1) if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml("There is a False Non-Match (FNM)");
+				ui->logPlainText->appendHtml(tr("The first image is Rank-<b>%1</b> ").arg(QString::number(computeRankK(scoreThreshold))));
+				if (ui->bddImageNames->currentIndex() > -1) if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml(tr("There is a False Non-Match (FNM)"));
 			}
 			else{
-				if (scoreSet[bestScoreIndex] >= scoreThreshold)ui->logPlainText->appendHtml("There is a False Match (FM)");
+				if (scoreSet[bestScoreIndex] >= scoreThreshold)ui->logPlainText->appendHtml(tr("There is a False Match (FM)"));
 			}
 			// View results
 			displayMatches(bestScoreIndex);
@@ -2847,19 +2848,19 @@ bool MainWindow::showDecision(){
 		}
 		else {
 			if (ui->imageExistsInBdd->isEnabled() && ui->imageExistsInBdd->isChecked()){
-				ui->logPlainText->appendHtml("The first image is Rank-<b>" + QString::number(computeRankK(scoreThreshold)) + "</b> ");
-				if (ui->bddImageNames->currentIndex() > -1) if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml("There is a False Non-Match (FNM)");
+				ui->logPlainText->appendHtml(tr("The first image is Rank-<b>%1</b> ").arg(QString::number(computeRankK(scoreThreshold))));
+				if (ui->bddImageNames->currentIndex() > -1) if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml(tr("There is a False Non-Match (FNM)"));
 			}
 			// View results
-			ui->logPlainText->appendHtml("<b style='color:red'>All obtained scores are null.</b>");
+			ui->logPlainText->appendHtml(tr("<b style='color:red'>All obtained scores are null.</b>"));
 			displayMatches(0);
 			writeMatches(0);
 		}
 	}
 	else {
 		if (score >= scoreThreshold)
-			ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(score) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
-		else ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(score) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
+			ui->logPlainText->appendHtml(tr("Matching score = <b>%1</b><b style='color:green'> &ge; </b>%2").arg(QString::number(score)).arg(QString::number(scoreThreshold)));
+		else ui->logPlainText->appendHtml(tr("Matching score = <b>%1</b><b style='color:red'> &#60; </b>%2").arg(QString::number(score)).arg(QString::number(scoreThreshold)));
 
 		// View results
 		displayMatches();
@@ -3145,11 +3146,11 @@ void MainWindow::importExcelFile(int type)
 					}
 					if (type == 0)
 					{
-						ui->logPlainText->appendHtml("<b style='color:green'>Starting " + excelRecover->GetSheetName() + " test (Done on: " + excelRecover->GetCellValue(j, 2).toString() + "):</b>");
+						ui->logPlainText->appendHtml(tr("<b style='color:green'>Starting %1 test (Done on: %2):</b> ").arg(excelRecover->GetSheetName()).arg(excelRecover->GetCellValue(j, 2).toString()));
 
 						ui->decisionStageThresholdText->setText(excelRecover->GetCellValue(j, column - 14).toString());
 
-						ui->logPlainText->appendHtml("Found " + excelRecover->GetCellValue(j, column - 13).toString() + " key points in the first image!");
+						ui->logPlainText->appendHtml(tr("Found %1 key points in the first image").arg(excelRecover->GetCellValue(j, column - 13).toString()));
 
 						scoreThreshold = excelRecover->GetCellValue(j, column - 14).toString().toFloat();
 						acceptedMatches = excelRecover->GetCellValue(j, column - 6).toString().toFloat();
@@ -3172,7 +3173,9 @@ void MainWindow::importExcelFile(int type)
 					if (excelRecover->GetCellValue(j, 5 - type).toBool())
 					{
 						if (type == 0) image = cv::imread(excelRecover->GetCellValue(j, 4).toString().toStdString() + '/' + excelRecover->GetCellValue(j, column - 1).toString().toStdString(), CV_LOAD_IMAGE_COLOR);
-						ui->oneToN->setChecked(true);
+						ui->oneToN->setChecked(true); 
+						ui->imageExistsInBdd->setEnabled(true);
+						ui->bddImageNames->setEnabled(true);
 						ui->imageExistsInBdd->setChecked(excelRecover->GetCellValue(j, 6 - type).toBool());
 						if (excelRecover->GetCellValue(j, 6 - type).toBool())
 						{
@@ -3181,23 +3184,22 @@ void MainWindow::importExcelFile(int type)
 						}
 						else
 						{
-							ui->imageExistsInBdd->setEnabled(false);
 							ui->bddImageNames->setEnabled(false);
 						}
 						if (type == 0)
 						{
-							ui->logPlainText->appendHtml("Found " + excelRecover->GetCellValue(j, column - 12).toString() + " key points in the most similar image!");
-							ui->logPlainText->appendHtml("Detection time : " + excelRecover->GetCellValue(j, column - 11).toString());
-							ui->logPlainText->appendHtml("Description time : " + excelRecover->GetCellValue(j, column - 10).toString());
-							if (!excelRecover->GetCellValue(j, column - 9).toString().isEmpty()) ui->logPlainText->appendHtml("Clustering time : " + excelRecover->GetCellValue(j, column - 9).toString());
-							ui->logPlainText->appendHtml("Matching time : " + excelRecover->GetCellValue(j, column - 8).toString());
-							ui->logPlainText->appendHtml("Total time : " + excelRecover->GetCellValue(j, column - 7).toString());
+							ui->logPlainText->appendHtml(tr("Found %1 key points in the most similar image").arg(excelRecover->GetCellValue(j, column - 12).toString()));
+							ui->logPlainText->appendHtml(tr("Detection time: %1(s)").arg(excelRecover->GetCellValue(j, column - 11).toString()));
+							ui->logPlainText->appendHtml(tr("Description time: %1(s)").arg(excelRecover->GetCellValue(j, column - 10).toString()));
+							if (!excelRecover->GetCellValue(j, column - 9).toString().isEmpty()) ui->logPlainText->appendHtml(tr("Clustering time: %1(s)").arg(excelRecover->GetCellValue(j, column - 9).toString()));
+							ui->logPlainText->appendHtml(tr("Matching time: %1(s)").arg(excelRecover->GetCellValue(j, column - 8).toString()));
+							ui->logPlainText->appendHtml(tr("Total time: %1(s)").arg(excelRecover->GetCellValue(j, column - 7).toString()));
 							ui->viewMatchesImageNameText->addItem(excelRecover->GetCellValue(j, column - 1).toString());
 							ui->viewTableImageNameText->addItem(excelRecover->GetCellValue(j, column - 1).toString());
 							if (bestImageScore >= scoreThreshold)
-								ui->logPlainText->appendHtml("The image <b>" + excelRecover->GetCellValue(j, column - 1).toString() + "</b> has the best matching score = <b>" + QString::number(bestImageScore) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
-							else ui->logPlainText->appendHtml("The image <b>" + excelRecover->GetCellValue(j, column - 1).toString() + "</b> has the best matching score = <b>" + QString::number(bestImageScore) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
-							if (excelRecover->GetCellValue(j, 6).toBool()) ui->logPlainText->appendHtml("The first image is Rank-<b>" + excelRecover->GetCellValue(j, column).toString() + "</b>");
+								ui->logPlainText->appendHtml(tr("The image <b>%1</b> has the best matching score = <b>%2</b><b style='color:green'> &ge; </b>%3").arg(excelRecover->GetCellValue(j, column - 1).toString()).arg(QString::number(bestImageScore)).arg(QString::number(scoreThreshold)));
+							else ui->logPlainText->appendHtml(tr("The image <b>%1</b> has the best matching score = <b>%2</b><b style='color:red'> &#60; </b>%3").arg(excelRecover->GetCellValue(j, column - 1).toString()).arg(QString::number(bestImageScore)).arg(QString::number(scoreThreshold)));
+							if (excelRecover->GetCellValue(j, 6).toBool()) ui->logPlainText->appendHtml(tr("The first image is Rank-<b>%1</b> ").arg(excelRecover->GetCellValue(j, column).toString()));
 						}
 					}
 					else
@@ -3211,15 +3213,15 @@ void MainWindow::importExcelFile(int type)
 						ui->viewTableImageNameText->setEnabled(false);
 						if (type == 0)
 						{
-							ui->logPlainText->appendHtml("Found " + excelRecover->GetCellValue(j, column - 12).toString() + " key points in the second image!");
-							ui->logPlainText->appendHtml("Detection time : " + excelRecover->GetCellValue(j, column - 11).toString());
-							ui->logPlainText->appendHtml("Description time : " + excelRecover->GetCellValue(j, column - 10).toString());
-							if (!excelRecover->GetCellValue(j, column - 9).toString().isEmpty()) ui->logPlainText->appendHtml("Clustering time : " + excelRecover->GetCellValue(j, column - 9).toString());
-							ui->logPlainText->appendHtml("Matching time : " + excelRecover->GetCellValue(j, column - 8).toString());
-							ui->logPlainText->appendHtml("Total time : " + excelRecover->GetCellValue(j, column - 7).toString());
+							ui->logPlainText->appendHtml(tr("Found %1 key points in the second image").arg(excelRecover->GetCellValue(j, column - 12).toString()));
+							ui->logPlainText->appendHtml(tr("Detection time: %1(s)").arg(excelRecover->GetCellValue(j, column - 11).toString()));
+							ui->logPlainText->appendHtml(tr("Description time: %1(s)").arg(excelRecover->GetCellValue(j, column - 10).toString()));
+							if (!excelRecover->GetCellValue(j, column - 9).toString().isEmpty()) ui->logPlainText->appendHtml(tr("Clustering time: %1(s)").arg(excelRecover->GetCellValue(j, column - 9).toString()));
+							ui->logPlainText->appendHtml(tr("Matching time: %1(s)").arg(excelRecover->GetCellValue(j, column - 8).toString()));
+							ui->logPlainText->appendHtml(tr("Total time: %1(s)").arg(excelRecover->GetCellValue(j, column - 7).toString()));
 							if (bestImageScore >= scoreThreshold)
-								ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(bestImageScore) + "</b><b style='color:green'> &ge; </b>" + QString::number(scoreThreshold));
-							else ui->logPlainText->appendHtml("Matching score = <b>" + QString::number(bestImageScore) + "</b><b style='color:red'> &#60; </b>" + QString::number(scoreThreshold));
+								ui->logPlainText->appendHtml(tr("Matching score = <b>%1</b><b style='color:green'> &ge; </b>%2").arg(QString::number(bestImageScore)).arg(QString::number(scoreThreshold)));
+							else ui->logPlainText->appendHtml(tr("Matching score = <b>%1</b><b style='color:red'> &#60; </b>%2").arg(QString::number(bestImageScore)).arg(QString::number(scoreThreshold)));
 						}
 					}
 					if (type == 0)
@@ -3231,7 +3233,7 @@ void MainWindow::importExcelFile(int type)
 						ui->viewMatchesScoreMatchesText->setText("<b>" + QString::number(bestImageScore) + "</b>");
 						//if (!excelRecover->GetCellValue(j, column - 12).toString().isEmpty()) importTable(ui->spinBox->text().toInt());
 						exist = true;
-						QMessageBox::information(this, "Import Excel Success!", "The test N°: " + QString(ui->spinBox->text()) + " has been imported with success !");
+						QMessageBox::information(this, tr("Import Excel Success!"), tr("The test N°: %1 has been imported with success !").arg(QString(ui->spinBox->text())));
 						break;
 					}
 					else
@@ -3240,7 +3242,6 @@ void MainWindow::importExcelFile(int type)
 						if (methodIndex == 5) j++;
 					}
 				}
-				ui->logPlainText->appendHtml("--------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 			}
 		}
 		if (type == 0)
@@ -3250,7 +3251,7 @@ void MainWindow::importExcelFile(int type)
 		else
 		{
 			QMessageBox::information(this, "Import Input file!", "The execution of all commands has been finished with success !");
-			//ui->logPlainText->appendHtml("<b style='color:blue'>The execution of all commands has been finished with success !</b>");
+			//ui->logPlainText->appendHtml(tr("<b style='color:blue'>The execution of all commands has been finished with success !</b>"));
 		}
 		excelRecover->~ExcelManager();
 		system("taskkill /im EXCEL.EXE /f");
@@ -3446,8 +3447,8 @@ void MainWindow::importTable(int identifierNumber) {
 
 void MainWindow::exportSuccess(int showMethod)
 {
-	if (showMethod == 1) ui->logPlainText->appendHtml("<b style='color:green'>This test has been exported with success under the identifier number: " + QString::number(cpt) + "</b>");
-	else QMessageBox::information(this, "Export Excel !", "This test has been exported with success under the identifier number: " + QString::number(cpt));
+	if (showMethod == 1) ui->logPlainText->appendHtml(tr("<b style='color:green'>This test has been exported with success under the identifier number: %1").arg(QString::number(cpt)));
+	else QMessageBox::information(this, tr("Export Excel !"), tr("This test has been exported with success under the identifier number: %1").arg(QString::number(cpt)));
 }
 QString MainWindow::getCurrentTime() {
 	auto t = std::time(nullptr);

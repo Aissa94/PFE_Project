@@ -278,7 +278,7 @@
       </widget>
       <widget class="QWidget" name="viewErrGraph">
        <attribute name="title">
-        <string>EER</string>
+        <string>ROC</string>
        </attribute>
        <layout class="QGridLayout" name="viewEerGraphGridLayoutTab">
         <item row="1" column="0">
@@ -290,7 +290,7 @@
            <cursorShape>PointingHandCursor</cursorShape>
           </property>
           <property name="text">
-           <string>Show EER Graph</string>
+           <string>Show ROC Graph</string>
           </property>
          </widget>
         </item>
@@ -878,10 +878,7 @@
            <cursorShape>PointingHandCursor</cursorShape>
           </property>
           <property name="toolTip">
-           <string>Adapting a descriptor extractor to compute descriptors in the Opponent Color Space (refer to Van de Sande et al.,
-CGIV 2008 Color Descriptors for Object Category Recognition).
-Input RGB image is transformed in the Opponent Color Space.
-Then, an unadapted descriptor extractor (set in the constructor) computes descriptors on each of three channels and concatenates them into a single color descriptor.</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adapting a descriptor extractor to compute descriptors in the Opponent Color Space (refer to Van de Sande et al., CGIV 2008 Color Descriptors for Object Category Recognition).&lt;/p&gt;&lt;p&gt;Input RGB image is transformed in the Opponent Color Space.&lt;/p&gt;&lt;p&gt;Then, an unadapted descriptor extractor (set in the constructor) computes descriptors on each of three channels and concatenates them into a single color descriptor.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Use Opponent Color</string>
@@ -894,7 +891,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
         <item row="0" column="0">
          <widget class="QTabWidget" name="customTabs">
           <property name="currentIndex">
-           <number>4</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tabSegmentation">
            <attribute name="title">
@@ -2880,7 +2877,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Limit distance.&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note: &lt;/span&gt;must be &amp;gt; 0&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
-                 <string>0.8</string>
+                 <string>0.3</string>
                 </property>
                </widget>
               </item>
@@ -2912,7 +2909,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
       <item row="0" column="1">
        <widget class="QLineEdit" name="decisionStageThresholdText">
         <property name="text">
-         <string>25</string>
+         <string>0.75</string>
         </property>
        </widget>
       </item>
@@ -2933,24 +2930,14 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
           <string>Take a test</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_9">
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="secondImgText">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="buddy" stdset="0">
-             <cstring>label_4</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="3">
+          <item row="2" column="4">
            <widget class="QPushButton" name="secondImgBtn">
             <property name="text">
              <string>Browse</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="4">
+          <item row="2" column="5">
            <widget class="QCheckBox" name="oneToN">
             <property name="enabled">
              <bool>true</bool>
@@ -2989,28 +2976,21 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
             </property>
            </widget>
           </item>
-          <item row="0" column="1" colspan="2">
-           <widget class="QLineEdit" name="firstImgText">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
+          <item row="0" column="4">
            <widget class="QPushButton" name="firstImgBtn">
             <property name="text">
              <string>Browse</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="5" rowspan="5">
+          <item row="0" column="6" rowspan="5">
            <widget class="Line" name="line">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
            </widget>
           </item>
-          <item row="2" column="6">
+          <item row="2" column="7">
            <widget class="QComboBox" name="bddImageNames">
             <property name="cursor">
              <cursorShape>PointingHandCursor</cursorShape>
@@ -3020,7 +3000,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
             </property>
            </widget>
           </item>
-          <item row="2" column="7">
+          <item row="2" column="8">
            <widget class="QPushButton" name="refreshBddImageNames">
             <property name="cursor">
              <cursorShape>PointingHandCursor</cursorShape>
@@ -3036,7 +3016,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
             </property>
            </widget>
           </item>
-          <item row="0" column="6" colspan="2">
+          <item row="0" column="7" colspan="2">
            <widget class="QCheckBox" name="imageExistsInBdd">
             <property name="cursor">
              <cursorShape>PointingHandCursor</cursorShape>
@@ -3046,6 +3026,23 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
             </property>
             <property name="checked">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="3">
+           <widget class="QLineEdit" name="secondImgText">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="buddy" stdset="0">
+             <cstring>label_4</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="3">
+           <widget class="QLineEdit" name="firstImgText">
+            <property name="text">
+             <string/>
             </property>
            </widget>
           </item>

@@ -51,6 +51,7 @@
 *.pro
 *.rc
 *.yaml
+*.qm
 
 # Folders
 GeneratedFiles/

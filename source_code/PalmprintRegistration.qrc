@@ -9,6 +9,7 @@
         <file alias="settings-img">imgs/settings.png</file>
         <file alias="start-img">imgs/start.png</file>
         <file alias="settings-dialog">settingsdialog.ui</file>
+        <file alias="icon">imgs/icon.ico</file>
         <file alias="palmprintregistration_fr">palmprintregistration_fr.qm</file>
     </qresource>
     <qresource prefix="/qss_icons">
