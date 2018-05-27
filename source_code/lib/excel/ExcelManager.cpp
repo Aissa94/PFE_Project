@@ -401,6 +401,14 @@ ExcelManager::~ExcelManager()
 		{
 			m_workbook->dynamicCall("Close (Boolean)", true);
 			m_excelApplication->dynamicCall("Quit (void)");
+			delete m_columns;
+			delete m_rows;
+			delete m_usedrange;
+			delete m_sheet;
+			delete m_sheets;
+			delete m_workbook;
+			delete m_workbooks;
+			delete m_excelApplication;
 		}
 	}
 }
