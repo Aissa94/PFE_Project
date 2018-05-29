@@ -88,130 +88,131 @@
     <message>
         <location filename="mainwindow.ui" line="324"/>
         <location filename="mainwindow.ui" line="1597"/>
-        <location filename="mainwindow.ui" line="2238"/>
+        <location filename="mainwindow.ui" line="2242"/>
         <source>SIFT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="345"/>
-        <location filename="mainwindow.ui" line="678"/>
-        <location filename="mainwindow.ui" line="1626"/>
+        <location filename="mainwindow.ui" line="365"/>
+        <location filename="mainwindow.ui" line="686"/>
+        <location filename="mainwindow.ui" line="1633"/>
         <source>Edge Threshold :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="355"/>
+        <location filename="mainwindow.ui" line="423"/>
         <location filename="mainwindow.ui" line="1716"/>
         <source>Sigma :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="365"/>
-        <location filename="mainwindow.ui" line="1654"/>
+        <location filename="mainwindow.ui" line="375"/>
+        <location filename="mainwindow.ui" line="1661"/>
         <source>Contrast Threshold :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="375"/>
-        <location filename="mainwindow.ui" line="1643"/>
+        <location filename="mainwindow.ui" line="385"/>
+        <location filename="mainwindow.ui" line="1650"/>
         <source>0.04</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="382"/>
+        <location filename="mainwindow.ui" line="392"/>
         <location filename="mainwindow.ui" line="1215"/>
-        <location filename="mainwindow.ui" line="1410"/>
+        <location filename="mainwindow.ui" line="1390"/>
         <location filename="mainwindow.ui" line="1526"/>
-        <location filename="mainwindow.ui" line="1636"/>
-        <location filename="mainwindow.ui" line="2475"/>
+        <location filename="mainwindow.ui" line="1643"/>
+        <location filename="mainwindow.ui" line="2479"/>
         <source>10</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="389"/>
+        <location filename="mainwindow.ui" line="416"/>
         <location filename="mainwindow.ui" line="1705"/>
         <source>1.6</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="396"/>
-        <location filename="mainwindow.ui" line="524"/>
+        <location filename="mainwindow.ui" line="358"/>
+        <location filename="mainwindow.ui" line="564"/>
         <location filename="mainwindow.ui" line="838"/>
-        <location filename="mainwindow.ui" line="1698"/>
+        <location filename="mainwindow.ui" line="1621"/>
         <location filename="mainwindow.ui" line="1810"/>
         <source>3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="403"/>
-        <location filename="mainwindow.ui" line="514"/>
-        <location filename="mainwindow.ui" line="1688"/>
+        <location filename="mainwindow.ui" line="433"/>
+        <location filename="mainwindow.ui" line="554"/>
+        <location filename="mainwindow.ui" line="1695"/>
         <location filename="mainwindow.ui" line="1800"/>
         <source>Number of Octave Layers :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="413"/>
-        <location filename="mainwindow.ui" line="715"/>
-        <location filename="mainwindow.ui" line="1677"/>
-        <location filename="mainwindow.ui" line="1980"/>
+        <location filename="mainwindow.ui" line="399"/>
+        <location filename="mainwindow.ui" line="696"/>
+        <location filename="mainwindow.ui" line="1684"/>
+        <location filename="mainwindow.ui" line="1993"/>
+        <location filename="mainwindow.ui" line="3091"/>
         <source>0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="420"/>
-        <location filename="mainwindow.ui" line="648"/>
-        <location filename="mainwindow.ui" line="1667"/>
+        <location filename="mainwindow.ui" line="406"/>
+        <location filename="mainwindow.ui" line="652"/>
+        <location filename="mainwindow.ui" line="1674"/>
         <source>Number of Features :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="435"/>
-        <location filename="mainwindow.ui" line="576"/>
+        <location filename="mainwindow.ui" line="348"/>
+        <location filename="mainwindow.ui" line="574"/>
         <source>Use Brute Force Matching</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="459"/>
         <location filename="mainwindow.ui" line="1742"/>
-        <location filename="mainwindow.ui" line="2295"/>
+        <location filename="mainwindow.ui" line="2299"/>
         <source>SURF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="480"/>
+        <location filename="mainwindow.ui" line="520"/>
         <location filename="mainwindow.ui" line="1790"/>
         <source>Hessian Threshold :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="490"/>
+        <location filename="mainwindow.ui" line="530"/>
         <location filename="mainwindow.ui" line="1783"/>
         <source>100</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="497"/>
+        <location filename="mainwindow.ui" line="537"/>
         <location filename="mainwindow.ui" line="1776"/>
-        <location filename="mainwindow.ui" line="2030"/>
+        <location filename="mainwindow.ui" line="2092"/>
         <source>4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="504"/>
+        <location filename="mainwindow.ui" line="544"/>
         <location filename="mainwindow.ui" line="811"/>
         <location filename="mainwindow.ui" line="1766"/>
-        <location filename="mainwindow.ui" line="2060"/>
+        <location filename="mainwindow.ui" line="2045"/>
         <source>Number of Octaves :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="531"/>
+        <location filename="mainwindow.ui" line="490"/>
         <source>Extended :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="551"/>
+        <location filename="mainwindow.ui" line="500"/>
         <location filename="mainwindow.ui" line="1817"/>
         <source>Features Orientation :</source>
         <translation type="unfinished"></translation>
@@ -222,72 +223,72 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="618"/>
+        <location filename="mainwindow.ui" line="628"/>
         <source>Scale Factor :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="628"/>
+        <location filename="mainwindow.ui" line="669"/>
         <source>Number of Levels :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="638"/>
+        <location filename="mainwindow.ui" line="754"/>
         <source>Score Type :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="658"/>
-        <location filename="mainwindow.ui" line="2165"/>
+        <location filename="mainwindow.ui" line="720"/>
+        <location filename="mainwindow.ui" line="2169"/>
         <source>Patch Size :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="668"/>
+        <location filename="mainwindow.ui" line="618"/>
         <source>WTA K :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="688"/>
+        <location filename="mainwindow.ui" line="744"/>
         <source>Harris</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="698"/>
+        <location filename="mainwindow.ui" line="703"/>
         <source>First Level :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="708"/>
+        <location filename="mainwindow.ui" line="737"/>
         <location filename="mainwindow.ui" line="1447"/>
         <source>FAST</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="722"/>
-        <location filename="mainwindow.ui" line="757"/>
+        <location filename="mainwindow.ui" line="662"/>
+        <location filename="mainwindow.ui" line="730"/>
         <source>31</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="729"/>
-        <location filename="mainwindow.ui" line="1417"/>
+        <location filename="mainwindow.ui" line="645"/>
+        <location filename="mainwindow.ui" line="1407"/>
         <source>8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="736"/>
+        <location filename="mainwindow.ui" line="638"/>
         <source>1.2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="743"/>
+        <location filename="mainwindow.ui" line="679"/>
         <source>500</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="750"/>
-        <location filename="mainwindow.ui" line="2393"/>
+        <location filename="mainwindow.ui" line="713"/>
+        <location filename="mainwindow.ui" line="2397"/>
         <source>2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -298,7 +299,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="801"/>
-        <location filename="mainwindow.ui" line="2120"/>
+        <location filename="mainwindow.ui" line="2035"/>
         <source>Pattern Scale :</source>
         <translation type="unfinished"></translation>
     </message>
@@ -310,13 +311,13 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="831"/>
-        <location filename="mainwindow.ui" line="1896"/>
+        <location filename="mainwindow.ui" line="1909"/>
         <source>1.0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="845"/>
-        <location filename="mainwindow.ui" line="1403"/>
+        <location filename="mainwindow.ui" line="1383"/>
         <source>30</source>
         <translation type="unfinished"></translation>
     </message>
@@ -477,22 +478,22 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1376"/>
+        <location filename="mainwindow.ui" line="1397"/>
         <source>Line Threshold Binarized :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1386"/>
+        <location filename="mainwindow.ui" line="1421"/>
         <source>Non-maximum Suppression Size :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1396"/>
+        <location filename="mainwindow.ui" line="1376"/>
         <source>45</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1424"/>
+        <location filename="mainwindow.ui" line="1414"/>
         <source>5</source>
         <translation type="unfinished"></translation>
     </message>
@@ -558,25 +559,25 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1621"/>
+        <location filename="mainwindow.ui" line="1628"/>
         <source>The threshold used to filter out edge-like features.
 Note that the its meaning is different from the contrastThreshold,
 i.e. the larger the edgeThreshold, the less features are filtered out (more features are retained).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1650"/>
+        <location filename="mainwindow.ui" line="1657"/>
         <source>The contrast threshold used to filter out weak features in semi-uniform (low-contrast) regions.
 The larger the threshold, the less features are produced by the detector.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1664"/>
+        <location filename="mainwindow.ui" line="1671"/>
         <source>The number of best features to retain. The features are ranked by their scores (measured in SIFT algorithm as the local contrast)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1684"/>
+        <location filename="mainwindow.ui" line="1691"/>
         <source>The number of layers in each octave. 3 is the value used in D. Lowe paper.
 The number of octaves is computed automatically from the image resolution.</source>
         <translation type="unfinished"></translation>
@@ -609,32 +610,32 @@ The level parameters (a feature scale, a node size, a size of boundary) are mult
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1883"/>
+        <location filename="mainwindow.ui" line="1896"/>
         <source>Set the initial KeyPoint feature radius in pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1886"/>
+        <location filename="mainwindow.ui" line="1899"/>
         <source>Initial feature radius in pixels :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1903"/>
+        <location filename="mainwindow.ui" line="1916"/>
         <source>1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1910"/>
+        <location filename="mainwindow.ui" line="1923"/>
         <source>Number of scales overwhich we wish to make keypoints</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1913"/>
+        <location filename="mainwindow.ui" line="1926"/>
         <source>Feature Scale Levels :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1923"/>
+        <location filename="mainwindow.ui" line="1936"/>
         <source>Scale adjustment for initFeatureScale over featureScaleLevels,
 this scale adjustment can also be applied to the border (initImgBound) and the step size (initxystep).
 So when we set featureScaleLevels&gt;1 then this multiplier will be applied to successive scales,
@@ -642,38 +643,38 @@ to adjust feature scale, step and the boundary around the image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1929"/>
+        <location filename="mainwindow.ui" line="1942"/>
         <source>Feature Scale Multiplier :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1939"/>
+        <location filename="mainwindow.ui" line="1952"/>
         <source>0.1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1946"/>
+        <location filename="mainwindow.ui" line="1980"/>
         <source>Moving column and row step in pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1949"/>
+        <location filename="mainwindow.ui" line="1983"/>
         <source>X,Y Step in pixels :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1959"/>
+        <location filename="mainwindow.ui" line="1973"/>
         <source>6</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1966"/>
+        <location filename="mainwindow.ui" line="1959"/>
         <source>row/col bounding region to ignore around the image (pixels),
 So a 100x100 image, with an initImgBound of 10, would create keypoints in the central 80x80 portion of the image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1970"/>
+        <location filename="mainwindow.ui" line="1963"/>
         <source>Bounding region to ignore in pixels :</source>
         <translation type="unfinished"></translation>
     </message>
@@ -688,111 +689,106 @@ So a 100x100 image, with an initImgBound of 10, would create keypoints in the ce
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2023"/>
+        <location filename="mainwindow.ui" line="2085"/>
         <source>22.0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2050"/>
+        <location filename="mainwindow.ui" line="2109"/>
         <source>Selected Pairs (optional) :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2100"/>
+        <location filename="mainwindow.ui" line="2055"/>
         <source>Scale Normalized :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2110"/>
+        <location filename="mainwindow.ui" line="2025"/>
         <source>Orientation Normalized :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2144"/>
+        <location filename="mainwindow.ui" line="2148"/>
         <source>BRIEF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2175"/>
+        <location filename="mainwindow.ui" line="2179"/>
         <source>Kernel Size :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2185"/>
-        <location filename="mainwindow.ui" line="2269"/>
-        <location filename="mainwindow.ui" line="2316"/>
+        <location filename="mainwindow.ui" line="2189"/>
+        <location filename="mainwindow.ui" line="2273"/>
+        <location filename="mainwindow.ui" line="2320"/>
         <source>Descriptor Length in Bytes :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2198"/>
+        <location filename="mainwindow.ui" line="2202"/>
         <source>48</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2208"/>
+        <location filename="mainwindow.ui" line="2212"/>
         <source>9</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2678"/>
+        <location filename="mainwindow.ui" line="2682"/>
         <source>32</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2912"/>
-        <source>0.75</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="2262"/>
-        <location filename="mainwindow.ui" line="2346"/>
+        <location filename="mainwindow.ui" line="2266"/>
+        <location filename="mainwindow.ui" line="2350"/>
         <source>128</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2215"/>
-        <location filename="mainwindow.ui" line="2326"/>
+        <location filename="mainwindow.ui" line="2219"/>
+        <location filename="mainwindow.ui" line="2330"/>
         <source>64</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2376"/>
+        <location filename="mainwindow.ui" line="2380"/>
         <source>Matcher</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2403"/>
+        <location filename="mainwindow.ui" line="2407"/>
         <source>number of attempts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2410"/>
+        <location filename="mainwindow.ui" line="2414"/>
         <source>1 to N Matching type :</source>
         <translation>Appariement d&apos;1 image contre N images :</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2420"/>
+        <location filename="mainwindow.ui" line="2424"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;In this type, query descriptors are matched against all train descriptors.&lt;/p&gt;&lt;p&gt;query descriptors &lt;span style=&quot; font-weight:600;&quot;&gt;vs&lt;/span&gt; ( first train descriptors + second train descriptors + ... + last train descriptors)&lt;/p&gt;&lt;p&gt;Each descriptor from the qury image will be affected to only one descriptor from all train images. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2423"/>
+        <location filename="mainwindow.ui" line="2427"/>
         <source>Match all images as one</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2456"/>
+        <location filename="mainwindow.ui" line="2460"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;In this type, query descriptors are matched against train descriptors separately:&lt;/p&gt;&lt;p&gt;query descriptors &lt;span style=&quot; font-weight:600;&quot;&gt;vs&lt;/span&gt; first train descriptors&lt;/p&gt;&lt;p&gt;query descriptors &lt;span style=&quot; font-weight:600;&quot;&gt;vs&lt;/span&gt; second train descriptors&lt;/p&gt;&lt;p&gt;...&lt;/p&gt;&lt;p&gt;query descriptors &lt;span style=&quot; font-weight:600;&quot;&gt;vs&lt;/span&gt; last train descriptors&lt;/p&gt;&lt;p&gt;Each descriptor from the query image will be affected to one descriptor of each train image. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2459"/>
+        <location filename="mainwindow.ui" line="2463"/>
         <source>Match each image alone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2439"/>
+        <location filename="mainwindow.ui" line="2443"/>
         <source>number of clusters</source>
         <translation type="unfinished"></translation>
     </message>
@@ -802,384 +798,389 @@ So a 100x100 image, with an initImgBound of 10, would create keypoints in the ce
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2449"/>
+        <location filename="mainwindow.ui" line="2453"/>
         <source>Cluster before matching :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2488"/>
+        <location filename="mainwindow.ui" line="2492"/>
         <source>Brute-Force</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2496"/>
+        <location filename="mainwindow.ui" line="2516"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;L1 and L2 norms are preferable choices for SIFT and SURF descriptors,&lt;/p&gt;&lt;p&gt;NORM_HAMMING should be used with ORB, BRISK and BRIEF,&lt;/p&gt;&lt;p&gt;NORM_HAMMING2 should be used with ORB when WTA_K==3 or 4.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2499"/>
+        <location filename="mainwindow.ui" line="2519"/>
         <source>Norm Type :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2512"/>
+        <location filename="mainwindow.ui" line="2503"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If true, then keep only matches (i,j) such that for i-th query descriptor the j-th descriptor in the matcher’s collection is the &lt;span style=&quot; font-weight:600;&quot;&gt;nearest&lt;/span&gt; and vice versa.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2515"/>
+        <location filename="mainwindow.ui" line="2506"/>
         <source>Cross Check :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2528"/>
-        <location filename="mainwindow.ui" line="2540"/>
+        <location filename="mainwindow.ui" line="2532"/>
+        <location filename="mainwindow.ui" line="2544"/>
         <source>NORM_L2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2535"/>
+        <location filename="mainwindow.ui" line="2539"/>
         <source>NORM_L1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2545"/>
+        <location filename="mainwindow.ui" line="2549"/>
         <source>NORM_HAMMING</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2550"/>
+        <location filename="mainwindow.ui" line="2554"/>
         <source>NORM_HAMMING2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2600"/>
+        <location filename="mainwindow.ui" line="2604"/>
         <source>Flann-Based</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2603"/>
+        <location filename="mainwindow.ui" line="2607"/>
         <source>FLANN stands for Fast Library for Approximate Nearest Neighbors.
 It contains a collection of algorithms optimized for fast nearest neighbor search in large datasets and for high dimensional features.
 It works more faster than BFMatcher for large datasets. More information about FLANN can be found in [Muja2009].</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2626"/>
+        <location filename="mainwindow.ui" line="2630"/>
         <source>The nearest neighbor search index type.
 For algorithms like &apos;SIFT&apos;, &apos;SURF&apos; etc. you can use &apos;KD Tree Index&apos;,
 for ORB use LSH Index.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2631"/>
+        <location filename="mainwindow.ui" line="2635"/>
         <source>Index Parameters Type :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2641"/>
+        <location filename="mainwindow.ui" line="2645"/>
         <source>The index will perform a linear, brute-force search.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2644"/>
+        <location filename="mainwindow.ui" line="2648"/>
         <source>Linear Index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2651"/>
+        <location filename="mainwindow.ui" line="2655"/>
         <source>The index constructed will be a hierarchical k-means tree.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2654"/>
+        <location filename="mainwindow.ui" line="2658"/>
         <source>K-Means Index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2664"/>
+        <location filename="mainwindow.ui" line="2668"/>
         <source>It specifies the number of times the trees in the index should be recursively traversed.
 Higher values gives better precision, but also takes more time.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2668"/>
+        <location filename="mainwindow.ui" line="2672"/>
         <source>Search Checks :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2685"/>
+        <location filename="mainwindow.ui" line="2689"/>
         <source>The index constructed will consist of a set of randomized kd-trees which will be searched in parallel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2688"/>
+        <location filename="mainwindow.ui" line="2692"/>
         <source>KD Tree Index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2698"/>
+        <location filename="mainwindow.ui" line="2702"/>
         <source>The index created is automatically tuned to offer the best performance,
 by choosing the optimal index type (randomized kd-trees, hierarchical kmeans, linear) and parameters for the dataset provided.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2702"/>
+        <location filename="mainwindow.ui" line="2706"/>
         <source>Auto tuned Index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2712"/>
+        <location filename="mainwindow.ui" line="2716"/>
         <source>The index created uses multi-probe LSH (by Multi-Probe LSH: Efficient Indexing for High-Dimensional Similarity Search
 by Qin Lv, William Josephson, Zhe Wang, Moses Charikar, Kai Li.,
 Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB). Vienna, Austria. September 2007)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2717"/>
+        <location filename="mainwindow.ui" line="2721"/>
         <source>LSH Index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2727"/>
+        <location filename="mainwindow.ui" line="2731"/>
         <source>The index created combines the randomized kd-trees and the hierarchical k-means tree.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2730"/>
+        <location filename="mainwindow.ui" line="2734"/>
         <source>Composite Index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2760"/>
+        <location filename="mainwindow.ui" line="2764"/>
         <source>Outliers Elimination</source>
         <translation>Elimination de faux appariements</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2794"/>
+        <location filename="mainwindow.ui" line="2798"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Be content with one best match&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2797"/>
+        <location filename="mainwindow.ui" line="2801"/>
         <source>Without test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2810"/>
+        <location filename="mainwindow.ui" line="2814"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Keep only matches found in both direct and reverse matching.&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; In case of 1 to N images this can take more time.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2813"/>
+        <location filename="mainwindow.ui" line="2817"/>
         <source>In reverse matching test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2826"/>
+        <location filename="mainwindow.ui" line="2830"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Performs Lowe&apos;s test (default ratio is 0.7)&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; Two sets of matches will be found.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2829"/>
+        <location filename="mainwindow.ui" line="2833"/>
         <source>Lowe&apos;s ratio test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2845"/>
+        <location filename="mainwindow.ui" line="2849"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Lowe&apos;s Ratio.&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; must be in [0..1]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2848"/>
+        <location filename="mainwindow.ui" line="2852"/>
         <source>0.7</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2861"/>
+        <location filename="mainwindow.ui" line="2865"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Eliminate matches with distance &amp;gt; Limite&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2864"/>
+        <location filename="mainwindow.ui" line="2868"/>
         <source>Limit distance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2877"/>
+        <location filename="mainwindow.ui" line="2881"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Limit distance.&lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note: &lt;/span&gt;must be &amp;gt; 0&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2880"/>
+        <location filename="mainwindow.ui" line="2884"/>
         <source>0.3</source>
         <oldsource>0.8</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2899"/>
+        <location filename="mainwindow.ui" line="2903"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Threshold for which the score is accepted.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; Image is accepted only if &lt;span style=&quot; font-style:italic;&quot;&gt;Score &amp;gt;= Threshold&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2902"/>
+        <location filename="mainwindow.ui" line="2906"/>
         <source>Decision Threshold :</source>
         <translation>Seuil d&apos;acceptation :</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2930"/>
+        <location filename="mainwindow.ui" line="2916"/>
+        <source>0.75</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="2934"/>
         <source>Take a test</source>
         <translation>Démarrer un Test</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2936"/>
-        <location filename="mainwindow.ui" line="2982"/>
+        <location filename="mainwindow.ui" line="2940"/>
+        <location filename="mainwindow.ui" line="2986"/>
         <source>Browse</source>
         <translation>Explorer</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2949"/>
+        <location filename="mainwindow.ui" line="2953"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of choosing the second image, select a folder to an image set.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; If the folder contains only one image it will be considered as (1 to 1).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2952"/>
+        <location filename="mainwindow.ui" line="2956"/>
         <source>1 to N</source>
         <translation>1 contre N</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2962"/>
+        <location filename="mainwindow.ui" line="2966"/>
         <source>First Image :</source>
         <translation>Première Image :</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2972"/>
+        <location filename="mainwindow.ui" line="2976"/>
         <source>Second Image(s) :</source>
         <translation>Deuxième Image(s) :</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2999"/>
+        <location filename="mainwindow.ui" line="3003"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the image which is similar to the First image&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; this will be used to calculate Rank-k.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3009"/>
+        <location filename="mainwindow.ui" line="3013"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Refresh the list of images&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3025"/>
+        <location filename="mainwindow.ui" line="3029"/>
         <source>First image exists in Bdd</source>
         <translation>La première image existe dans la BDD</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3053"/>
+        <location filename="mainwindow.ui" line="3057"/>
         <source>Import a test</source>
         <translation>Importer un test</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3068"/>
+        <location filename="mainwindow.ui" line="3072"/>
         <source>Please indicate the identifier of the test to be imported</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3101"/>
+        <location filename="mainwindow.ui" line="3105"/>
         <source>Execute Commands</source>
         <translation>Exécuter les Commandes</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3121"/>
+        <location filename="mainwindow.ui" line="3125"/>
         <source>Be sure because this task may take several hours !</source>
         <translation>Soyez sûr car ça peut prendre quelques heures !</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3144"/>
+        <location filename="mainwindow.ui" line="3148"/>
         <source>Log :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3170"/>
+        <location filename="mainwindow.ui" line="3174"/>
         <source>File</source>
         <translation>Fichier</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3181"/>
+        <location filename="mainwindow.ui" line="3185"/>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3194"/>
+        <location filename="mainwindow.ui" line="3198"/>
         <source>toolBar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3229"/>
+        <location filename="mainwindow.ui" line="3233"/>
         <source>Run</source>
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3232"/>
+        <location filename="mainwindow.ui" line="3236"/>
         <source>Start the current configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3235"/>
+        <location filename="mainwindow.ui" line="3239"/>
         <source>Ctrl+R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3244"/>
+        <location filename="mainwindow.ui" line="3248"/>
         <source>Clear Log</source>
         <translation>Nettoyer le Log</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3247"/>
+        <location filename="mainwindow.ui" line="3251"/>
         <source>Ctrl+Backspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3256"/>
+        <location filename="mainwindow.ui" line="3260"/>
         <source>About Qt</source>
         <translation>A propos de QT</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3265"/>
+        <location filename="mainwindow.ui" line="3269"/>
         <source>About Us</source>
         <translation>A propos de nous</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3274"/>
+        <location filename="mainwindow.ui" line="3278"/>
         <source>Add Command</source>
         <translation>Ajouter Commande</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3277"/>
+        <location filename="mainwindow.ui" line="3281"/>
         <source>Add the current configuration to the input file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3280"/>
+        <location filename="mainwindow.ui" line="3284"/>
         <source>Ctrl+S</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3289"/>
+        <location filename="mainwindow.ui" line="3293"/>
         <source>Delete All Commands</source>
         <translation>Supprimer Toutes les Commandes</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3292"/>
+        <location filename="mainwindow.ui" line="3296"/>
         <source>Clear all configurations from the input file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3295"/>
+        <location filename="mainwindow.ui" line="3299"/>
         <source>Ctrl+Shift+Backspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="3304"/>
-        <location filename="mainwindow.ui" line="3307"/>
+        <location filename="mainwindow.ui" line="3308"/>
+        <location filename="mainwindow.ui" line="3311"/>
         <source>Settings</source>
         <translation>Options</translation>
     </message>
@@ -1191,38 +1192,38 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
     <message>
         <location filename="mainwindow.cpp" line="461"/>
         <location filename="mainwindow.cpp" line="2295"/>
-        <location filename="mainwindow.cpp" line="3192"/>
-        <location filename="mainwindow.cpp" line="3217"/>
+        <location filename="mainwindow.cpp" line="3198"/>
+        <location filename="mainwindow.cpp" line="3223"/>
         <source>Detection time: %1(s)</source>
         <oldsource>Detection time: %1 (s)</oldsource>
-        <translation type="unfinished">Durée de détection : %1 (s)</translation>
+        <translation>Durée de détection : %1 (s)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="473"/>
         <location filename="mainwindow.cpp" line="2362"/>
-        <location filename="mainwindow.cpp" line="3193"/>
-        <location filename="mainwindow.cpp" line="3218"/>
+        <location filename="mainwindow.cpp" line="3199"/>
+        <location filename="mainwindow.cpp" line="3224"/>
         <source>Description time: %1(s)</source>
         <oldsource>Description time: %1 (s)</oldsource>
-        <translation type="unfinished">Durée de description : %1 (s)</translation>
+        <translation>Durée de description : %1 (s)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="486"/>
         <location filename="mainwindow.cpp" line="2468"/>
-        <location filename="mainwindow.cpp" line="3195"/>
-        <location filename="mainwindow.cpp" line="3220"/>
+        <location filename="mainwindow.cpp" line="3201"/>
+        <location filename="mainwindow.cpp" line="3226"/>
         <source>Matching time: %1(s)</source>
         <oldsource>Matching time: %1 (s)</oldsource>
-        <translation type="unfinished">Durée d&apos;appariement : %1 (s)</translation>
+        <translation>Durée d&apos;appariement : %1 (s)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="488"/>
         <location filename="mainwindow.cpp" line="623"/>
-        <location filename="mainwindow.cpp" line="3196"/>
-        <location filename="mainwindow.cpp" line="3221"/>
+        <location filename="mainwindow.cpp" line="3202"/>
+        <location filename="mainwindow.cpp" line="3227"/>
         <source>Total time: %1(s)</source>
         <oldsource>Total time: %1 (s)</oldsource>
-        <translation type="unfinished">Durée totale %1 (s)</translation>
+        <translation>Durée totale %1 (s)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="604"/>
@@ -1238,8 +1239,9 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
     </message>
     <message>
         <location filename="mainwindow.cpp" line="1450"/>
-        <source>Found %1 key points in the %2 image!</source>
-        <translation type="unfinished"></translation>
+        <source>Found %1 key points in the %2 image</source>
+        <oldsource>Found %1 key points in the %2 image!</oldsource>
+        <translation type="unfinished">%1 points-clés trouvés dans la %2 ème image</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="1454"/>
@@ -1258,11 +1260,11 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
     </message>
     <message>
         <location filename="mainwindow.cpp" line="1635"/>
-        <location filename="mainwindow.cpp" line="3194"/>
-        <location filename="mainwindow.cpp" line="3219"/>
+        <location filename="mainwindow.cpp" line="3200"/>
+        <location filename="mainwindow.cpp" line="3225"/>
         <source>Clustering time: %1(s)</source>
         <oldsource>Clustering time: %1 (s)</oldsource>
-        <translation type="unfinished">Durée de Clustering : %1 (s)</translation>
+        <translation>Durée de Clustering : %1 (s)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="1855"/>
@@ -1365,135 +1367,98 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
         <translation>&lt;b style=&apos;color:red&apos;&gt;Code d&apos;Erreur : %1 &lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2827"/>
-        <source>
-Found %1 key points in the most similar image</source>
+        <location filename="mainwindow.cpp" line="2820"/>
+        <source>&lt;i style=&apos;color:red&apos;&gt;Cannot mask some matches by clusters! (between first and %1 image)&lt;/i&gt;</source>
+        <oldsource>&lt;i style=&apos;color:red&apos;&gt;Cannot mask matches by clusters!&lt;/i&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="2833"/>
+        <source>
+Found %1 key points in the most similar image</source>
+        <translation>
+%1 points-clés trouvés dans l&apos; image la plus similaire</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="2839"/>
         <source>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score: &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;%3</source>
         <oldsource>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score: &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;</oldsource>
         <translation>L&apos;image &lt;b&gt;%1&lt;/b&gt; a obtenu le meilleur score : &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;%3</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2834"/>
+        <location filename="mainwindow.cpp" line="2840"/>
         <source>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score: &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;%3</source>
         <oldsource>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score: &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;</oldsource>
         <translation>L&apos;image &lt;b&gt;%1&lt;/b&gt; a obtenu le meilleur score : &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;%3</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2837"/>
-        <location filename="mainwindow.cpp" line="2851"/>
-        <location filename="mainwindow.cpp" line="3202"/>
+        <location filename="mainwindow.cpp" line="2843"/>
+        <location filename="mainwindow.cpp" line="2857"/>
+        <location filename="mainwindow.cpp" line="3208"/>
         <source>The first image is Rank-&lt;b&gt;%1&lt;/b&gt; </source>
         <oldsource>The first image is Rank-&lt;b&gt;%1&lt;/b&gt; %2</oldsource>
         <translation>La première image est Rank-&lt;b&gt;%1&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2838"/>
-        <location filename="mainwindow.cpp" line="2852"/>
+        <location filename="mainwindow.cpp" line="2844"/>
+        <location filename="mainwindow.cpp" line="2858"/>
         <source>There is a False Non-Match (FNM)</source>
         <translation>C&apos;est un Faux Appariement Négatif (FNM)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2841"/>
+        <location filename="mainwindow.cpp" line="2847"/>
         <source>There is a False Match (FM)</source>
         <translation>C&apos;est un Faux Appariement</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2855"/>
+        <location filename="mainwindow.cpp" line="2861"/>
         <source>&lt;b style=&apos;color:red&apos;&gt;All obtained scores are null.&lt;/b&gt;</source>
         <translation>&lt;b style=&apos;color:red&apos;&gt;Tous les scores obtenus sont nuls.&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2862"/>
-        <location filename="mainwindow.cpp" line="3223"/>
+        <location filename="mainwindow.cpp" line="2868"/>
+        <location filename="mainwindow.cpp" line="3229"/>
         <source>Matching score = &lt;b&gt;%1&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;%2</source>
         <translation>Score d&apos;appariement = &lt;b&gt;%1&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;%2</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2863"/>
-        <location filename="mainwindow.cpp" line="3224"/>
+        <location filename="mainwindow.cpp" line="2869"/>
+        <location filename="mainwindow.cpp" line="3230"/>
         <source>Matching score = &lt;b&gt;%1&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;%2</source>
         <translation>Score d&apos;appariement = &lt;b&gt;%1&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;%2</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3149"/>
+        <location filename="mainwindow.cpp" line="3155"/>
         <source>&lt;b style=&apos;color:green&apos;&gt;Starting %1 test (Done on: %2):&lt;/b&gt; </source>
         <oldsource>&lt;b style=&apos;color:green&apos;&gt;Starting %1 test (Done on: %2):&lt;/b&gt;</oldsource>
-        <translation>&lt;b style=&apos;color:green&apos;&gt;Démarrage %1 test (Done on: %2):&lt;/b&gt; </translation>
+        <translation>&lt;b style=&apos;color:green&apos;&gt;Démarrage %1 test (Fait le: %2):&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3153"/>
+        <location filename="mainwindow.cpp" line="3159"/>
         <source>Found %1 key points in the first image</source>
         <oldsource>Found %1 key points in the first image!%2</oldsource>
         <translation>%1 points-clés trouvés dans la première image</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3191"/>
+        <location filename="mainwindow.cpp" line="3197"/>
         <source>Found %1 key points in the most similar image</source>
         <oldsource>Found %1 key points in the most similar image!%2</oldsource>
         <translation>%1 points-clés trouvés dans l&apos;image la plus similaire</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="461"/>
-        <location filename="mainwindow.cpp" line="2295"/>
-        <location filename="mainwindow.cpp" line="3192"/>
-        <location filename="mainwindow.cpp" line="3217"/>
-        <source>Detection time: %1(s)</source>
-        <oldsource>Detection time : %1</oldsource>
-        <translation type="unfinished">Durée de Détection : %1</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="473"/>
-        <location filename="mainwindow.cpp" line="2362"/>
-        <location filename="mainwindow.cpp" line="3193"/>
-        <location filename="mainwindow.cpp" line="3218"/>
-        <source>Description time: %1(s)</source>
-        <oldsource>Description time : %1</oldsource>
-        <translation type="unfinished">Durée de Description : %1</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="1635"/>
-        <location filename="mainwindow.cpp" line="3194"/>
-        <location filename="mainwindow.cpp" line="3219"/>
-        <source>Clustering time: %1(s)</source>
-        <oldsource>Clustering time : %1</oldsource>
-        <translation type="unfinished">Durée de Clustering : %1</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="486"/>
-        <location filename="mainwindow.cpp" line="2468"/>
-        <location filename="mainwindow.cpp" line="3195"/>
-        <location filename="mainwindow.cpp" line="3220"/>
-        <source>Matching time: %1(s)</source>
-        <oldsource>Matching time : %1</oldsource>
-        <translation type="unfinished">Durée d&apos;Appariement : %1</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="488"/>
-        <location filename="mainwindow.cpp" line="623"/>
-        <location filename="mainwindow.cpp" line="3196"/>
-        <location filename="mainwindow.cpp" line="3221"/>
-        <source>Total time: %1(s)</source>
-        <oldsource>Total time : %1</oldsource>
-        <translation type="unfinished">Durée Totale : %1</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="3200"/>
+        <location filename="mainwindow.cpp" line="3206"/>
         <source>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score = &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;%3</source>
         <oldsource>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score = &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;</oldsource>
         <translation>L&apos;image &lt;b&gt;%1&lt;/b&gt; a obtenu le meilleur score d&apos;appariement = &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;%3</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3201"/>
+        <location filename="mainwindow.cpp" line="3207"/>
         <source>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score = &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;%3</source>
         <oldsource>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score = &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;</oldsource>
         <translation>L&apos;image &lt;b&gt;%1&lt;/b&gt; a obtenu le meilleur score d&apos;appariement = &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;%3</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3451"/>
+        <location filename="mainwindow.cpp" line="3457"/>
         <source>This test has been exported with success under the identifier number: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1502,29 +1467,29 @@ Found %1 key points in the most similar image</source>
         <translation type="obsolete">Ce test a été exporté avec succès sous l&apos;identifiant numéro : %1&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3216"/>
+        <location filename="mainwindow.cpp" line="3222"/>
         <source>Found %1 key points in the second image</source>
         <oldsource>Found %1 key points in the second image!%2</oldsource>
         <translation>%1 points-clés trouvés dans la deuxième image</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3236"/>
+        <location filename="mainwindow.cpp" line="3242"/>
         <source>Import Excel Success!</source>
         <translation>Importation Excel Réussie !</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3236"/>
+        <location filename="mainwindow.cpp" line="3242"/>
         <source>The test N°: %1 has been imported with success !</source>
         <translation>Le test N°: %1 a été importé avec succès !</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3450"/>
+        <location filename="mainwindow.cpp" line="3456"/>
         <source>&lt;b style=&apos;color:green&apos;&gt;This test has been exported with success under the identifier number: %1</source>
         <oldsource>&lt;b style=&apos;color:green&apos;&gt;This test has been exported with success under the identifier number: %1&lt;/b&gt; </oldsource>
         <translation>&lt;b style=&apos;color:green&apos;&gt;Ce test a été exporté avec succès sous l&apos;identifiant numéro : %1</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3451"/>
+        <location filename="mainwindow.cpp" line="3457"/>
         <source>Export Excel !</source>
         <translation>Exportation vers Excel !</translation>
     </message>

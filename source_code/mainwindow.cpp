@@ -1447,7 +1447,7 @@ bool MainWindow::createTestFolder(){
 
 bool MainWindow::noKeyPoints(std::string rank, std::vector<cv::KeyPoint> imgKeypoints)
 {
-	ui->logPlainText->appendHtml(tr("Found %1 key points in the %2 image!").arg(QString::number(imgKeypoints.size())).arg(QString::fromStdString(rank)));
+	ui->logPlainText->appendHtml(tr("Found %1 key points in the %2 image").arg(QString::number(imgKeypoints.size())).arg(QString::fromStdString(rank)));
 
 	if (imgKeypoints.size() <= 0)
 	{
@@ -1578,7 +1578,7 @@ void MainWindow::harrisCorners(cv::Mat thinnedImage, std::vector<cv::KeyPoint> &
 }
 
 double MainWindow::kMeans(std::vector<cv::Mat> features_vector, int k, int attempts){
-// K : The number of clusters to split the samples in rawFeatureData (retrieved from 'OpenCV 3 Blueprints' book)
+	// K : The number of clusters to split the samples in rawFeatureData (retrieved from 'OpenCV 3 Blueprints' book)
 	int nbRows = firstImgDescriptors.rows;
 	if (oneToN){
 		for (cv::Mat descriptor : setImgsDescriptors)
@@ -1627,10 +1627,10 @@ void MainWindow::clustering(int nbClusters, int nbAttempts){
 		return;
 	}
 	// Write Kmeans parameters
-	cv::FileStorage fs("params/kmeans_params.yaml", cv::FileStorage::WRITE);
+	/*cv::FileStorage fs("params/kmeans_params.yaml", cv::FileStorage::WRITE);
 	fs << "Labels" << labels;
 	fs << "Centers" << centers;
-	fs.release();
+	fs.release();*/
 	clusteringTime = ((double)cv::getTickCount() - clusteringTime) / cv::getTickFrequency();
 	ui->logPlainText->appendHtml(tr("Clustering time: %1(s)").arg(QString::number(clusteringTime)));
 }
@@ -2806,13 +2806,19 @@ void MainWindow::maskMatchesByCluster(std::vector<cv::KeyPoint> firstImgKeypoint
 void MainWindow::maskMatchesByCluster(std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints, int imgIndx){
 	// To matche only descriptors in the same cluster...
 	// Only if we have clusters
-	if (masksAreEmpty) matchingMasks[imgIndx] = cv::Mat::zeros(firstImgKeypoints.size(), secondImgKeypoints.size(), CV_8UC1);
-	for (size_t i = 0; i < firstImgKeypoints.size(); i++)
-	{
-		for (size_t j = 0; j < secondImgKeypoints.size(); j++)
+	try{
+		if (masksAreEmpty) matchingMasks[imgIndx] = cv::Mat::zeros(firstImgKeypoints.size(), secondImgKeypoints.size(), CV_8UC1);
+		for (size_t i = 0; i < firstImgKeypoints.size(); i++)
 		{
-			if (labels.at<int>(i) == clusterAffectation[imgIndx][j]) matchingMasks[imgIndx].at<uchar>(i, j) = 1;
+			for (size_t j = 0; j < secondImgKeypoints.size(); j++)
+			{
+				if (labels.at<int>(i) == clusterAffectation[imgIndx][j]) matchingMasks[imgIndx].at<uchar>(i, j) = 1;
+			}
 		}
+	}
+	catch (cv::Exception e){
+		ui->logPlainText->appendHtml(tr("<i style='color:red'>Cannot mask some matches by clusters! (between first and %1 image)</i>").arg(imgIndx));
+		return;
 	}
 }
 
