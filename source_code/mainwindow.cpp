@@ -130,6 +130,8 @@ MainWindow::MainWindow(QWidget *parent) :
 		// Control check boxes
 		connect(ui->oneToN, &QCheckBox::toggled, [=](bool checked) {
 			if (checked){
+				ui->decisionStageThresholdLabel->setEnabled(false);
+				ui->decisionStageThresholdText->setEnabled(false);
 				if (ui->matcher1toNtype1->isChecked()) {
 					ui->eliminationLoweRatio->setEnabled(false);
 					ui->eliminationLoweRatioText->setEnabled(false);
@@ -146,6 +148,8 @@ MainWindow::MainWindow(QWidget *parent) :
 				}
 			}
 			else {
+				ui->decisionStageThresholdLabel->setEnabled(true);
+				ui->decisionStageThresholdText->setEnabled(true);
 				ui->eliminationLoweRatio->setEnabled(true);
 				ui->eliminationLoweRatioText->setEnabled(true);
 				ui->eliminationInversMatches->setEnabled(true);
@@ -602,11 +606,11 @@ void MainWindow::runCustom(int testType)
 				nbAttempts = ui->clusteringNbAttemptsText->text().toInt();
 			if (nbClusters < 1) {
 				ui->logPlainText->appendHtml(tr("<b style='color:red'>Invalid number of clusters: %1, the default value is maintained!</b>").arg(QString::number(nbClusters)));
-				nbClusters = 40;
+				nbClusters = 10;
 			}
 			if (nbAttempts < 1) {
 				ui->logPlainText->appendHtml(tr("<b style='color:red'>Invalid number of attempts: %1, the default value is maintained!</b>").arg(QString::number(nbAttempts)));
-				nbAttempts = 3;
+				nbAttempts = 2;
 			}
 			clustering(nbClusters, nbAttempts);
 			// use masks to matche descriptors from the same cluster
@@ -1128,8 +1132,8 @@ void MainWindow::on_refreshRankkGraph_pressed(){
 	maxRank = rankkDataFromExcel.size();
 	
 	if (ui->rankkGraphWidget->graphCount()){ 
-		ui->rankkGraphWidget->clearGraphs();
-		ui->rankkGraphWidget->clearItems();
+		//ui->rankkGraphWidget->clearGraphs();
+		//ui->rankkGraphWidget->clearItems();
 	}
 	if (maxRank > 0){
 		std::sort(rankkDataFromExcel.begin(), rankkDataFromExcel.end());
@@ -1167,99 +1171,102 @@ void MainWindow::on_refreshEerGraph_pressed(){
 	std::map<float, std::pair<int, int>>::iterator FNMR_itr = {};
 		
 	int column, segmentationName, detectorName, descriptorName, matcherName;
-	QString bestScore, requestedScore, scoreThreshold;
+	QString bestScore, requestedScore;
+	float scoreThreshold;
 
 	excelRecover = new ExcelManager(true, exportFile, 0);
 	if (ui->allMethodsTabs->currentIndex() == 0) excelRecover->GetIntRows(ui->defaultTabs->currentIndex() + 1);
 	else excelRecover->GetIntRows(5);
 	column = excelRecover->getColumnsCount();
 
-	for (int j = 2; j <= excelRecover->getSheetCount(); j++) {
+	for (float scoreThreshold = 0; scoreThreshold <= 1; scoreThreshold += ui->thresholdStepText->text().toFloat()) {
+		for (int j = 2; j <= excelRecover->getSheetCount(); j++) {
 
-		scoreThreshold = excelRecover->GetCellValue(j, column - 14).toString();
+			//scoreThreshold = excelRecover->GetCellValue(j, column - 14).toString();
 
-		if (excelRecover->GetCellValue(j, 5).toBool() && (!scoreThreshold.isEmpty()))
-		{
-
-			if (ui->allMethodsTabs->currentIndex() == 0)
+			if (excelRecover->GetCellValue(j, 5).toBool())
 			{
-				if (excelRecover->GetCellValue(j, 6).toBool())
-				{
-					FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold.toFloat());
-					if (FNMR_itr == FNMR_dataFromExcel.end()) FNMR_dataFromExcel.insert(std::make_pair(scoreThreshold.toFloat(), std::make_pair(0, 1)));
-					else FNMR_itr->second.second = FNMR_itr->second.second + 1;
 
-					requestedScore = excelRecover->GetCellValue(j, column - 2).toString();
-					if ((!requestedScore.isEmpty()))
-						if (requestedScore.toFloat() < scoreThreshold.toFloat())
-						{
-							FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold.toFloat());
-							FNMR_itr->second.first = FNMR_itr->second.first + 1;
-						}
-				}
-				else
-				{
-					FMR_itr = FMR_dataFromExcel.find(scoreThreshold.toFloat());
-					if (FMR_itr == FMR_dataFromExcel.end()) FMR_dataFromExcel.insert(std::make_pair(scoreThreshold.toFloat(), std::make_pair(0, 1)));
-					else FMR_itr->second.second = FMR_itr->second.second + 1;
-
-					bestScore = excelRecover->GetCellValue(j, column - 3).toString();
-					if ((!bestScore.isEmpty()))
-						if (bestScore.toFloat() >= scoreThreshold.toFloat())
-						{
-							FMR_itr = FMR_dataFromExcel.find(scoreThreshold.toFloat());
-							FMR_itr->second.first = FMR_itr->second.first + 1;
-						}
-				}
-
-			}
-			else
-			{
-				segmentationName = segmentationNameToInt(excelRecover->GetCellValue(j, 8).toString());
-				detectorName = detectorNameToInt(excelRecover->GetCellValue(j, 10).toString());
-				descriptorName = descriptorNameToInt(excelRecover->GetCellValue(j, 16).toString());
-				matcherName = matcherNameToInt(excelRecover->GetCellValue(j, 22).toString());
-
-				if ((ui->segmentationTabs->currentIndex() == segmentationName) && (ui->detectorTabs->currentIndex() == detectorName) && (ui->descriptorTabs->currentIndex() == descriptorName) && (ui->matcherTabs->currentIndex() == matcherName))
+				if (ui->allMethodsTabs->currentIndex() == 0)
 				{
 					if (excelRecover->GetCellValue(j, 6).toBool())
 					{
-						FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold.toFloat());
-						if (FNMR_itr == FNMR_dataFromExcel.end()) FNMR_dataFromExcel.insert(std::make_pair(scoreThreshold.toFloat(), std::make_pair(0, 1)));
+						FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold);
+						if (FNMR_itr == FNMR_dataFromExcel.end()) FNMR_dataFromExcel.insert(std::make_pair(scoreThreshold, std::make_pair(0, 1)));
 						else FNMR_itr->second.second = FNMR_itr->second.second + 1;
 
 						requestedScore = excelRecover->GetCellValue(j, column - 2).toString();
-						if ((!requestedScore.isEmpty()))	
-							if (requestedScore.toFloat() < scoreThreshold.toFloat())
+						if ((!requestedScore.isEmpty()))
+							if (requestedScore.toFloat() < scoreThreshold)
 							{
-								FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold.toFloat());
+								FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold);
 								FNMR_itr->second.first = FNMR_itr->second.first + 1;
 							}
 					}
 					else
 					{
-						FMR_itr = FMR_dataFromExcel.find(scoreThreshold.toFloat());
-						if (FMR_itr == FMR_dataFromExcel.end()) FMR_dataFromExcel.insert(std::make_pair(scoreThreshold.toFloat(), std::make_pair(0, 1)));
+						FMR_itr = FMR_dataFromExcel.find(scoreThreshold);
+						if (FMR_itr == FMR_dataFromExcel.end()) FMR_dataFromExcel.insert(std::make_pair(scoreThreshold, std::make_pair(0, 1)));
 						else FMR_itr->second.second = FMR_itr->second.second + 1;
 
 						bestScore = excelRecover->GetCellValue(j, column - 3).toString();
 						if ((!bestScore.isEmpty()))
-							if (bestScore.toFloat() >= scoreThreshold.toFloat())
+							if (bestScore.toFloat() >= scoreThreshold)
 							{
-								FMR_itr = FMR_dataFromExcel.find(scoreThreshold.toFloat());
+								FMR_itr = FMR_dataFromExcel.find(scoreThreshold);
 								FMR_itr->second.first = FMR_itr->second.first + 1;
 							}
 					}
+
 				}
-				j++;
+				else
+				{
+					segmentationName = segmentationNameToInt(excelRecover->GetCellValue(j, 8).toString());
+					detectorName = detectorNameToInt(excelRecover->GetCellValue(j, 10).toString());
+					descriptorName = descriptorNameToInt(excelRecover->GetCellValue(j, 16).toString());
+					matcherName = matcherNameToInt(excelRecover->GetCellValue(j, 22).toString());
+
+					if ((ui->segmentationTabs->currentIndex() == segmentationName) && (ui->detectorTabs->currentIndex() == detectorName) && (ui->descriptorTabs->currentIndex() == descriptorName) && (ui->matcherTabs->currentIndex() == matcherName))
+					{
+						if (excelRecover->GetCellValue(j, 6).toBool())
+						{
+							FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold);
+							if (FNMR_itr == FNMR_dataFromExcel.end()) FNMR_dataFromExcel.insert(std::make_pair(scoreThreshold, std::make_pair(0, 1)));
+							else FNMR_itr->second.second = FNMR_itr->second.second + 1;
+
+							requestedScore = excelRecover->GetCellValue(j, column - 2).toString();
+							if ((!requestedScore.isEmpty()))
+								if (requestedScore.toFloat() < scoreThreshold)
+								{
+									FNMR_itr = FNMR_dataFromExcel.find(scoreThreshold);
+									FNMR_itr->second.first = FNMR_itr->second.first + 1;
+								}
+						}
+						else
+						{
+							FMR_itr = FMR_dataFromExcel.find(scoreThreshold);
+							if (FMR_itr == FMR_dataFromExcel.end()) FMR_dataFromExcel.insert(std::make_pair(scoreThreshold, std::make_pair(0, 1)));
+							else FMR_itr->second.second = FMR_itr->second.second + 1;
+
+							bestScore = excelRecover->GetCellValue(j, column - 3).toString();
+							if ((!bestScore.isEmpty()))
+								if (bestScore.toFloat() >= scoreThreshold)
+								{
+									FMR_itr = FMR_dataFromExcel.find(scoreThreshold);
+									FMR_itr->second.first = FMR_itr->second.first + 1;
+								}
+						}
+					}
+					j++;
+				}
 			}
 		}
 	}
 	excelRecover->~ExcelManager();
 
 	if (ui->eerGraphWidget->graphCount()){
-		ui->eerGraphWidget->clearGraphs();
-		ui->eerGraphWidget->clearItems();
+		//ui->eerGraphWidget->clearGraphs();
+		//ui->eerGraphWidget->clearItems();
 	}
 
 	if (FMR_dataFromExcel.empty() && FNMR_dataFromExcel.empty()) QMessageBox::warning(this, "Show EER Graph", "No data to show! You can Show EER Graph after having some FM et FNM tests !");
@@ -1616,7 +1623,7 @@ void MainWindow::clustering(int nbClusters, int nbAttempts){
 			clusterAffectation = std::vector<std::vector<int>>(setImgs.size(), std::vector<int>());
 			for (int i = 0; i < setImgs.size(); i++){
 				for (int j = 0; j < setImgsKeypoints[i].size(); j++){
-					clusterAffectation[i].push_back(labels.at<int>(k, 0));
+					clusterAffectation[i].push_back(labels.at<int>(k));
 					k++;
 				}
 			}
@@ -1914,6 +1921,16 @@ bool MainWindow::takeTest(int testType, bool import) {
 			if (setImgs.size() == 0){
 				showError("Read Images", "There is no image in the folder: " + ui->secondImgText->text().toStdString(), "Make sure that the folder '<i>" + ui->secondImgText->text().toStdString() + "'</i>  contains one or more images with correct extension!");
 				return false;
+			}
+			if (ui->imageExistsInBdd->isChecked() && ui->bddImageNames->currentIndex() > -1){
+				// change index of requested Image to the first
+				std::swap(setImgs[0], setImgs[ui->bddImageNames->currentIndex()]);
+				//std::swap(ui->bddImageNames[0], ui->bddImageNames[ui->bddImageNames->currentIndex()]);
+				QString tmp = ui->bddImageNames->currentText();
+				ui->bddImageNames->setItemText(ui->bddImageNames->currentIndex(), ui->bddImageNames->itemText(0));
+				ui->bddImageNames->setItemText(0, tmp);
+				ui->bddImageNames->setCurrentIndex(0);
+				ui->bddImageNames->show();
 			}
 		}
 		else {
@@ -2549,7 +2566,12 @@ void MainWindow::outlierElimination(){
 				}
 				for (int i = 0; i < setImgs.size(); i++){
 					if (goodMatchesSet[i].size() > 0){
-						float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size());
+						float goodProbability;
+						if (ui->matcher1toNtype1->isEnabled() && ui->matcher1toNtype1->isChecked()) {
+							try { goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(directMatches.size());}
+							catch(...){goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(firstImgKeypoints.size());}
+						}
+						else goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size());
 						float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
 						scoreSet[i] = 1.0 / (average + 1.0) * goodProbability;
 						// update the best score index
@@ -2775,6 +2797,40 @@ float MainWindow::testRansac(std::vector<cv::KeyPoint> firstImgKeypoints, std::v
 	return distanceToRemove;
 }
 
+void ransacTest(const std::vector<cv::DMatch> matches, const std::vector<cv::KeyPoint>&keypoints1, const std::vector<cv::KeyPoint>& keypoints2, std::vector<cv::DMatch>& goodMatches, double distance, double confidence, double minInlierRatio)
+{
+	goodMatches.clear();
+	// Convert keypoints into Point2f
+	std::vector<cv::Point2f> points1, points2;
+	for (std::vector<cv::DMatch>::const_iterator it = matches.begin(); it != matches.end(); ++it)
+	{
+		// Get the position of left keypoints
+		float x = keypoints1[it->queryIdx].pt.x;
+		float y = keypoints1[it->queryIdx].pt.y;
+		points1.push_back(cv::Point2f(x, y));
+		// Get the position of right keypoints
+		x = keypoints2[it->trainIdx].pt.x;
+		y = keypoints2[it->trainIdx].pt.y;
+		points2.push_back(cv::Point2f(x, y));
+	}
+	// Compute F matrix using RANSAC
+	std::vector<uchar> inliers(points1.size(), 0);
+	cv::Mat fundemental = cv::findFundamentalMat(cv::Mat(points1), cv::Mat(points2), inliers, CV_FM_RANSAC, distance, confidence); // confidence probability
+	// extract the surviving (inliers) matches
+	std::vector<uchar>::const_iterator
+		itIn = inliers.begin();
+	std::vector<cv::DMatch>::const_iterator
+		itM = matches.begin();
+	// for all matches
+	for (; itIn != inliers.end(); ++itIn, ++itM)
+	{
+		if (*itIn)
+		{ // it is a valid match
+			goodMatches.push_back(*itM);
+		}
+	}
+}
+
 cv::Mat MainWindow::maskMatchesByMinutiaeNature(std::vector<Minutiae> firstImgKeypoints, std::vector<Minutiae> secondImgKeypoints){
 	// To matche bifurcation with bifurcation and ridge ending with ridge ending...
 	// Only if keypoints are minutiae
@@ -2793,12 +2849,12 @@ cv::Mat MainWindow::maskMatchesByMinutiaeNature(std::vector<Minutiae> firstImgKe
 void MainWindow::maskMatchesByCluster(std::vector<cv::KeyPoint> firstImgKeypoints, std::vector<cv::KeyPoint> secondImgKeypoints){
 	// To matche only descriptors in the same cluster...
 	// Only if we have clusters
-	if (masksAreEmpty) matchingMask = cv::Mat::zeros(firstImgKeypoints.size(), secondImgKeypoints.size(), CV_8UC1);
+	if (masksAreEmpty) matchingMask = cv::Mat::ones(firstImgKeypoints.size(), secondImgKeypoints.size(), CV_8UC1);
 	for (size_t i = 0; i < firstImgKeypoints.size(); i++)
 	{
 		for (size_t j = 0; j < secondImgKeypoints.size(); j++)
 		{
-			if (labels.at<int>(i) == labels.at<int>(firstImgKeypoints.size() + j)) matchingMask.at<uchar>(i, j) = 1;
+			if (labels.at<int>(i) != labels.at<int>(firstImgKeypoints.size() + j)) matchingMask.at<uchar>(i, j) = 0;
 		}
 	}
 }
@@ -2807,12 +2863,12 @@ void MainWindow::maskMatchesByCluster(std::vector<cv::KeyPoint> firstImgKeypoint
 	// To matche only descriptors in the same cluster...
 	// Only if we have clusters
 	try{
-		if (masksAreEmpty) matchingMasks[imgIndx] = cv::Mat::zeros(firstImgKeypoints.size(), secondImgKeypoints.size(), CV_8UC1);
+		if (masksAreEmpty) matchingMasks[imgIndx] = cv::Mat::ones(firstImgKeypoints.size(), secondImgKeypoints.size(), CV_8UC1);
 		for (size_t i = 0; i < firstImgKeypoints.size(); i++)
 		{
 			for (size_t j = 0; j < secondImgKeypoints.size(); j++)
 			{
-				if (labels.at<int>(i) == clusterAffectation[imgIndx][j]) matchingMasks[imgIndx].at<uchar>(i, j) = 1;
+				if (labels.at<int>(i) != clusterAffectation[imgIndx][j]) matchingMasks[imgIndx].at<uchar>(i, j) = 0;
 			}
 		}
 	}
@@ -3520,49 +3576,62 @@ void MainWindow::drowRankk(int maxRank){
 		if (x[i] != 0) rankkData[i].second = rankkData[i].second / static_cast<float>(maxRank)* 100;
 		y[i] = rankkData[i].second;
 
-		if (x[i] == 1 && y[i]!=0) {
-			// add the text label at the top:
-			QCPItemText *textLabel = new QCPItemText(ui->rankkGraphWidget);
-			textLabel->setPositionAlignment(Qt::AlignTop| Qt::AlignHCenter);
-			textLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-			textLabel->setText("Rank-1= "+QString::number(y[i])+"%");
-			textLabel->setFont(QFont(font().family(), 9)); // make font a bit larger
-			textLabel->setPen(QPen(Qt::black)); // show black border around text
+		//if (x[i] == 1 && y[i]!=0) {
+		//	// add the text label at the top:
+		//	QCPItemText *textLabel = new QCPItemText(ui->rankkGraphWidget);
+		//	textLabel->setPositionAlignment(Qt::AlignTop| Qt::AlignHCenter);
+		//	textLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+		//	textLabel->setText("Rank-1= "+QString::number(y[i])+"%");
+		//	textLabel->setFont(QFont(font().family(), 9)); // make font a bit larger
+		//	textLabel->setPen(QPen(Qt::black)); // show black border around text
 
-			// add the arrow:
-			QCPItemLine *arrow = new QCPItemLine(ui->rankkGraphWidget);
-			arrow->start->setParentAnchor(textLabel->top);
-			double yPos = 1 - y[i] / 100 + 0.05;
-			if (yPos > 0.9){
-				yPos -= 0.2;
-				arrow->start->setParentAnchor(textLabel->bottom);
-			}
-			textLabel->position->setCoords(0.10, yPos); // place position at center/top of axis rect
-			arrow->end->setCoords(x[i], y[i]); // point to rank-1 plot coordinates
-			arrow->setHead(QCPLineEnding::esSpikeArrow);
-		}
+		//	// add the arrow:
+		//	QCPItemLine *arrow = new QCPItemLine(ui->rankkGraphWidget);
+		//	arrow->start->setParentAnchor(textLabel->top);
+		//	double yPos = 1 - y[i] / 100 + 0.05;
+		//	if (yPos > 0.9){
+		//		yPos -= 0.2;
+		//		arrow->start->setParentAnchor(textLabel->bottom);
+		//	}
+		//	textLabel->position->setCoords(0.10, yPos); // place position at center/top of axis rect
+		//	arrow->end->setCoords(x[i], y[i]); // point to rank-1 plot coordinates
+		//	arrow->setHead(QCPLineEnding::esSpikeArrow);
+		//}
 	}
 	// create graph and assign data to it:
 	ui->rankkGraphWidget->addGraph();
-	ui->rankkGraphWidget->graph(0)->setData(x, y);
-	ui->rankkGraphWidget->graph(0)->setName("Rank-k");
+	ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setData(x, y);
 	// give the axes some labels:
 	ui->rankkGraphWidget->xAxis->setLabel("Rank");
-	ui->rankkGraphWidget->yAxis->setLabel("Percent %");
+	ui->rankkGraphWidget->yAxis->setLabel(tr("Percent %"));
 	// set axes ranges, so we see all data:
 	ui->rankkGraphWidget->xAxis->setRange(0, x[x.size()-1]);
 	QCPAxisTickerFixed *fixedTicker = new QCPAxisTickerFixed();
 	fixedTicker->setTickStep(1);
 	ui->rankkGraphWidget->xAxis->setTicker(QSharedPointer<QCPAxisTickerFixed>(fixedTicker));
-	ui->rankkGraphWidget->yAxis->setRange(0, 110);
+	ui->rankkGraphWidget->yAxis->setRange(0, 130);
 	// set legend
 	ui->rankkGraphWidget->legend->setVisible(true);
 	ui->rankkGraphWidget->legend->setFont(QFont("Helvetica", 9));
 	// set locale to english, so we get english decimal separator:
 	ui->rankkGraphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
 	// configuration:
-	ui->rankkGraphWidget->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 9));
-	ui->rankkGraphWidget->graph(0)->setPen(QPen(QColor(120, 120, 120), 2));
+	ui->rankkGraphWidget->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignHCenter | Qt::AlignTop);
+	switch (ui->rankkGraphWidget->graphCount()){
+		case 1:
+			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setName(tr("Rank-k (partial)"));
+			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1), QBrush(Qt::white), 3));
+			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setPen(QPen(QColor(120, 140, 250), 2));
+			break;
+		case 2:
+			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setName("Rank-k (rotation)");
+			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssSquare, QPen(Qt::black, 1), QBrush(Qt::white), 3));
+			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setPen(QPen(QColor(120, 250, 120), 2));
+			break;
+		default:
+			break;
+	}
+	
 	ui->rankkGraphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 	ui->rankkGraphWidget->axisRect()->setRangeDrag(Qt::Horizontal); // drag only on x
 	ui->rankkGraphWidget->axisRect()->setRangeZoom(Qt::Horizontal); // zoom only on x
@@ -3592,18 +3661,18 @@ void MainWindow::drowEer(std::map<float, std::pair<int, int>> FMR_dataFromExcel,
 
 	for (it = FMR_dataFromExcel.begin(); it != FMR_dataFromExcel.end(); ++it)
 	{
-		xFMR.push_back(it->first); // threshold
+		xFMR.push_back(it->first*100); // threshold
 		yFMR.push_back(static_cast<float>(it->second.first) / static_cast<float>(it->second.second) * 100); // nbFM / nbExists %
 	}
 	for (it = FNMR_dataFromExcel.begin(); it != FNMR_dataFromExcel.end(); ++it)
 	{
-		xFNMR.push_back(it->first); // threshold
+		xFNMR.push_back(it->first*100); // threshold
 		yFNMR.push_back(static_cast<float>(it->second.first) / static_cast<float>(it->second.second) * 100); // nbFM / nbExists %
 	}
 
 	double *xFMRmaxValue = std::max_element(xFMR.begin(), xFMR.end()), *xFNMRmaxValue = std::max_element(xFNMR.begin(), xFNMR.end());
 	double *xFMRminValue = std::min_element(xFMR.begin(), xFMR.end()), *xFNMRminValue = std::min_element(xFNMR.begin(), xFNMR.end());
-	raven::cSpline FMRspline(xFMR.toStdVector(), yFMR.toStdVector());
+	/*raven::cSpline FMRspline(xFMR.toStdVector(), yFMR.toStdVector());
 	raven::cSpline FNMRspline(xFNMR.toStdVector(), yFNMR.toStdVector());
 	QVector<double> xFMRsplined, yFMRsplined;
 	QVector<double> xFNMRsplined, yFNMRsplined;
@@ -3616,48 +3685,67 @@ void MainWindow::drowEer(std::map<float, std::pair<int, int>> FMR_dataFromExcel,
 	{
 		xFNMRsplined.push_back(i);
 		yFNMRsplined.push_back(FNMRspline.getY(i));
-	}
+	}*/
 
 	// spline graph
 	ui->eerGraphWidget->addGraph();
-	ui->eerGraphWidget->graph(0)->setData(xFMRsplined, yFMRsplined);
-	ui->eerGraphWidget->graph(0)->setName("FMR");
+	ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setData(xFMR, yFMR);
+	//ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setName("FMR");
 	ui->eerGraphWidget->addGraph();
-	ui->eerGraphWidget->graph(1)->setData(xFNMRsplined, yFNMRsplined);
-	ui->eerGraphWidget->graph(1)->setName("FNMR");
+	ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setData(xFNMR, yFNMR);
+	//ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setName("FNMR");
 	// create graph and assign data to it:
-	ui->eerGraphWidget->addGraph();
-	ui->eerGraphWidget->graph(2)->setData(xFMR, yFMR);
-	ui->eerGraphWidget->addGraph();
-	ui->eerGraphWidget->graph(3)->setData(xFNMR, yFNMR);
+	//ui->eerGraphWidget->addGraph();
+	//ui->eerGraphWidget->graph(2)->setData(xFMR, yFMR);
+	//ui->eerGraphWidget->addGraph();
+	//ui->eerGraphWidget->graph(3)->setData(xFNMR, yFNMR);
 	// give the axes some labels:
-	ui->eerGraphWidget->xAxis->setLabel("Threshold");
-	ui->eerGraphWidget->yAxis->setLabel("Percent %");
+	ui->eerGraphWidget->xAxis->setLabel(tr("Threshold (x100)"));
+	ui->eerGraphWidget->yAxis->setLabel(tr("Percent %"));
 	// set axes ranges, so we see all data:
 	ui->eerGraphWidget->xAxis->rescale();
 	ui->eerGraphWidget->xAxis->setRange(0, std::max(*xFMRmaxValue, *xFNMRmaxValue) + 10);
 	QCPAxisTickerFixed *fixedTicker = new QCPAxisTickerFixed();
 	fixedTicker->setTickStep(50);
 	ui->eerGraphWidget->xAxis->setTicker(QSharedPointer<QCPAxisTickerFixed>(fixedTicker));
-	ui->eerGraphWidget->yAxis->setRange(0, 110);
+	ui->eerGraphWidget->yAxis->setRange(0, 130);
 	// set legend
 	ui->eerGraphWidget->legend->setVisible(true);
 	ui->eerGraphWidget->legend->setFont(QFont("Helvetica", 9));
 	// set locale to english, so we get english decimal separator:
 	ui->eerGraphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
 	// configuration:
-	ui->eerGraphWidget->graph(0)->setPen(QPen(QColor(120, 140, 250), 2));
-	ui->eerGraphWidget->graph(1)->setPen(QPen(QColor(120, 250, 120), 2));
-	ui->eerGraphWidget->graph(2)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 5));
-	ui->eerGraphWidget->graph(2)->setPen(Qt::NoPen);
-	ui->eerGraphWidget->graph(2)->removeFromLegend();
-	ui->eerGraphWidget->graph(3)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 5));
-	ui->eerGraphWidget->graph(3)->setPen(Qt::NoPen);
-	ui->eerGraphWidget->graph(3)->removeFromLegend();
-	ui->eerGraphWidget->graph(0)->selectionDecorator()->setPen(QPen(QColor(120, 140, 250), 2));
-	ui->eerGraphWidget->graph(1)->selectionDecorator()->setPen(QPen(QColor(120, 250, 120), 2));
-	ui->eerGraphWidget->graph(2)->selectionDecorator()->setPen(QPen(QColor(120, 120, 120), 1));
-	ui->eerGraphWidget->graph(3)->selectionDecorator()->setPen(QPen(QColor(120, 120, 120), 1));
+	//ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setPen(QPen(QColor(120, 140, 250), 2));
+	//ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setPen(QPen(QColor(120, 250, 120), 2));
+	//ui->eerGraphWidget->graph(2)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 5));
+	//ui->eerGraphWidget->graph(2)->setPen(Qt::NoPen);
+	//ui->eerGraphWidget->graph(2)->removeFromLegend();
+	//ui->eerGraphWidget->graph(3)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 5));
+	//ui->eerGraphWidget->graph(3)->setPen(Qt::NoPen);
+	//ui->eerGraphWidget->graph(3)->removeFromLegend();
+	//ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->selectionDecorator()->setPen(QPen(QColor(120, 140, 250), 2));
+	//i->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->selectionDecorator()->setPen(QPen(QColor(120, 250, 120), 2));
+	//ui->eerGraphWidget->graph(2)->selectionDecorator()->setPen(QPen(QColor(120, 120, 120), 1));
+	//ui->eerGraphWidget->graph(3)->selectionDecorator()->setPen(QPen(QColor(120, 120, 120), 1));
+
+	// configuration:
+	ui->eerGraphWidget->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignHCenter | Qt::AlignTop);
+	switch (ui->eerGraphWidget->graphCount()){
+	case 2:
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setName(tr("FMR (partial)"));
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setName(tr("FNMR (partial)"));
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setPen(QPen(QColor(120, 140, 250), 2));
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setPen(QPen(QColor(120, 250, 120), 2));
+		break;
+	case 4:
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setName("FMR (rotation)");
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setName("FNMR (rotation)");
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setPen(QPen(QColor(120, 140, 250), 2, Qt::DashLine));
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setPen(QPen(QColor(120, 250, 120), 2, Qt::DashLine));
+		break;
+	default:
+		break;
+	}
 	ui->eerGraphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 	ui->eerGraphWidget->axisRect()->setRangeDrag(Qt::Horizontal); // drag only on x
 	ui->eerGraphWidget->axisRect()->setRangeZoom(Qt::Horizontal); // zoom only on x

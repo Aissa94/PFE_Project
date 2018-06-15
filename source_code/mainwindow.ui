@@ -281,10 +281,24 @@
         <string>ROC</string>
        </attribute>
        <layout class="QGridLayout" name="viewEerGraphGridLayoutTab">
-        <item row="1" column="0">
-         <widget class="QCustomPlot" name="eerGraphWidget" native="true"/>
+        <item row="0" column="2">
+         <widget class="QLineEdit" name="thresholdStepText">
+          <property name="text">
+           <string>0.01</string>
+          </property>
+         </widget>
         </item>
-        <item row="0" column="0">
+        <item row="0" column="1">
+         <widget class="QLabel" name="thresholdStepLabel">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Value by which the threshold is increased.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; for a high precision choose a small step.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Step</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" colspan="2">
          <widget class="QPushButton" name="refreshEerGraph">
           <property name="cursor">
            <cursorShape>PointingHandCursor</cursorShape>
@@ -293,6 +307,9 @@
            <string>Show ROC Graph</string>
           </property>
          </widget>
+        </item>
+        <item row="2" column="1" colspan="2">
+         <widget class="QCustomPlot" name="eerGraphWidget" native="true"/>
         </item>
        </layout>
       </widget>
@@ -2899,6 +2916,9 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
      <layout class="QGridLayout" name="segmentationThresholdParams">
       <item row="0" column="0">
        <widget class="QLabel" name="decisionStageThresholdLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Threshold for which the score is accepted.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; Image is accepted only if &lt;span style=&quot; font-style:italic;&quot;&gt;Score &amp;gt;= Threshold&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -2912,8 +2932,11 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
       </item>
       <item row="0" column="1">
        <widget class="QLineEdit" name="decisionStageThresholdText">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
-         <string>0.75</string>
+         <string>0.0</string>
         </property>
        </widget>
       </item>
