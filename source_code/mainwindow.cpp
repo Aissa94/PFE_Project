@@ -501,7 +501,8 @@ void MainWindow::runDefault(int testType)
 				if (goodMatchesSet[i].size() > 0){
 					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size());
 					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
-					scoreSet[i] = 1.0 / (average + 1.0) * goodProbability;
+					scoreSet[i] = ui->normalizationOffsetText->text().toFloat() / (average + 1.0) * goodProbability;
+					if (scoreSet[i] > 1.0) scoreSet[i] = 1.0;
 					// update the best score index
 					if (scoreSet[i] >= bestScore) {
 						if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScore].size()){
@@ -520,7 +521,8 @@ void MainWindow::runDefault(int testType)
 			if (goodMatches.size() > 0){
 				float average = sumDistances / static_cast<float>(goodMatches.size());
 				float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size());
-				score = 1.0 / (average + 1.0) * goodProbability;
+				score = ui->normalizationOffsetText->text().toFloat() / (average + 1.0) * goodProbability;
+				if (score > 1.0) score = 1.0;
 			}
 			else score = 0.0;
 		}
@@ -863,13 +865,13 @@ void MainWindow::runCustom(int testType)
 			excelReader->SetCellValue(28 - testType, 2, ui->clusteringNbAttemptsLabel->text());
 			excelReader->SetCellValueSecondRow(28 - testType, ui->clusteringNbAttemptsText->text());
 
-			if (testType == 0) excelReader->SetCellValue(37, 1, QString::number(clusteringTime) + " (s)");
+			if (testType == 0) excelReader->SetCellValue(38, 1, QString::number(clusteringTime) + " (s)");
 		}
 		else
 		{
 			excelReader->mergeRowsCells(27 - testType);
 			excelReader->mergeRowsCells(28 - testType);
-			if (testType == 0) excelReader->mergeRowsCells(37 - testType);
+			if (testType == 0) excelReader->mergeRowsCells(38 - testType);
 		}
 		
 		excelReader->SetCellValue(29 - testType, 2, ui->customTabs->tabText(4));
@@ -886,56 +888,58 @@ void MainWindow::runCustom(int testType)
 		QString opponentColor = ui->opponentColor->isChecked() ? "TRUE" : "FALSE";
 		excelReader->SetCellValue(31 - testType, 1, opponentColor);
 		
-		excelReader->SetCellValue(32 - testType, 1, ui->decisionStageThresholdText->text());
+		excelReader->SetCellValue(32 - testType, 1, ui->normalizationOffsetText->text());
+
+		excelReader->SetCellValue(33 - testType, 1, ui->decisionStageThresholdText->text());
 
 		if (testType == 0)
 		{
-			excelReader->SetCellValue(33, 1, QString::number(firstImgKeypoints.size()));
+			excelReader->SetCellValue(34, 1, QString::number(firstImgKeypoints.size()));
 
-			excelReader->SetCellValue(35, 1, QString::number(detectionTime) + " (s)");
-			excelReader->SetCellValue(36, 1, QString::number(descriptionTime) + " (s)");
-			excelReader->SetCellValue(38, 1, QString::number(matchingTime) + " (s)");
-			excelReader->SetCellValue(39, 1, QString::number(detectionTime + descriptionTime + clusteringTime + matchingTime) + " (s)");
+			excelReader->SetCellValue(36, 1, QString::number(detectionTime) + " (s)");
+			excelReader->SetCellValue(37, 1, QString::number(descriptionTime) + " (s)");
+			excelReader->SetCellValue(39, 1, QString::number(matchingTime) + " (s)");
+			excelReader->SetCellValue(40, 1, QString::number(detectionTime + descriptionTime + clusteringTime + matchingTime) + " (s)");
 
 			if (!ui->oneToN->isChecked()) {
-				excelReader->SetCellValue(34, 1, QString::number(secondImgKeypoints.size()));
-				excelReader->SetCellValue(40, 1, QString::number(goodMatches.size()));
-				excelReader->SetCellValue(41, 1, QString::number(badMatches.size()));
-				excelReader->SetCellValue(42, 1, QString::number(sumDistances / static_cast<float>(goodMatches.size())));
-				excelReader->SetCellValue(43, 1, QString::number(score));
-				excelReader->mergeRowsCells(44);
+				excelReader->SetCellValue(35, 1, QString::number(secondImgKeypoints.size()));
+				excelReader->SetCellValue(41, 1, QString::number(goodMatches.size()));
+				excelReader->SetCellValue(42, 1, QString::number(badMatches.size()));
+				excelReader->SetCellValue(43, 1, QString::number(sumDistances / static_cast<float>(goodMatches.size())));
+				excelReader->SetCellValue(44, 1, QString::number(score));
 				excelReader->mergeRowsCells(45);
 				excelReader->mergeRowsCells(46);
+				excelReader->mergeRowsCells(47);
 			}
 			else {
 				if (bestScoreIndex > -1)
 				{
-					excelReader->SetCellValue(34, 1, QString::number(setImgsKeypoints[bestScoreIndex].size()));
-					excelReader->SetCellValue(40, 1, QString::number(goodMatchesSet[bestScoreIndex].size()));
-					excelReader->SetCellValue(41, 1, QString::number(badMatchesSet[bestScoreIndex].size()));
-					excelReader->SetCellValue(42, 1, QString::number(sumDistancesSet[bestScoreIndex] / static_cast<float>(goodMatchesSet[bestScoreIndex].size())));
-					excelReader->SetCellValue(43, 1, QString::number(scoreSet[bestScoreIndex]));
-					excelReader->SetCellValue(45, 1, QString::fromStdString(std::get<0>(setImgs[bestScoreIndex])));
+					excelReader->SetCellValue(35, 1, QString::number(setImgsKeypoints[bestScoreIndex].size()));
+					excelReader->SetCellValue(41, 1, QString::number(goodMatchesSet[bestScoreIndex].size()));
+					excelReader->SetCellValue(42, 1, QString::number(badMatchesSet[bestScoreIndex].size()));
+					excelReader->SetCellValue(43, 1, QString::number(sumDistancesSet[bestScoreIndex] / static_cast<float>(goodMatchesSet[bestScoreIndex].size())));
+					excelReader->SetCellValue(44, 1, QString::number(scoreSet[bestScoreIndex]));
+					excelReader->SetCellValue(46, 1, QString::fromStdString(std::get<0>(setImgs[bestScoreIndex])));
 				}
 				else
 				{
-					excelReader->mergeRowsCells(34);
-					excelReader->mergeRowsCells(40);
+					excelReader->mergeRowsCells(35);
 					excelReader->mergeRowsCells(41);
 					excelReader->mergeRowsCells(42);
 					excelReader->mergeRowsCells(43);
-					excelReader->mergeRowsCells(45);
+					excelReader->mergeRowsCells(44);
+					excelReader->mergeRowsCells(46);
 				}
 				if (ui->imageExistsInBdd->isChecked() && ui->imageExistsInBdd->isEnabled()) {
-					if (ui->bddImageNames->currentIndex() > -1) excelReader->SetCellValue(44, 1, QString::number(scoreSet[ui->bddImageNames->currentIndex()]));
-					else excelReader->mergeRowsCells(44);
+					if (ui->bddImageNames->currentIndex() > -1) excelReader->SetCellValue(45, 1, QString::number(scoreSet[ui->bddImageNames->currentIndex()]));
+					else excelReader->mergeRowsCells(45);
 					float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
-					excelReader->SetCellValue(46, 1, QString::number(computeRankK(scoreThreshold)));
+					excelReader->SetCellValue(47, 1, QString::number(computeRankK(scoreThreshold)));
 				}
 				else
 				{
-					excelReader->mergeRowsCells(44);
-					excelReader->mergeRowsCells(46);
+					excelReader->mergeRowsCells(45);
+					excelReader->mergeRowsCells(47);
 				}
 			}
 		}
@@ -2520,7 +2524,8 @@ void MainWindow::outlierElimination(){
 				if (goodMatchesSet[i].size() > 0){
 					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size());
 					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
-					scoreSet[i] = 1.0 / (average + 1.0) * goodProbability;
+					scoreSet[i] = ui->normalizationOffsetText->text().toFloat() / (average + 1.0) * goodProbability;
+					if (scoreSet[i] > 1.0) scoreSet[i] = 1.0;
 					// update the best score index
 					if (scoreSet[i] >= bestScore) {
 						if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScoreIndex].size()){
@@ -2540,7 +2545,8 @@ void MainWindow::outlierElimination(){
 				if (goodMatchesSet[i].size() > 0){
 					float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size());
 					float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
-					scoreSet[i] = 1.0 / (average + 1.0) * goodProbability;
+					scoreSet[i] = ui->normalizationOffsetText->text().toFloat() / (average + 1.0) * goodProbability;
+					if (scoreSet[i] > 1.0) scoreSet[i] = 1.0;
 					// update the best score index
 					if (scoreSet[i] >= bestScore) {
 						if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScoreIndex].size()){
@@ -2573,7 +2579,8 @@ void MainWindow::outlierElimination(){
 						}
 						else goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size());
 						float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
-						scoreSet[i] = 1.0 / (average + 1.0) * goodProbability;
+						scoreSet[i] = ui->normalizationOffsetText->text().toFloat() / (average + 1.0) * goodProbability;
+						if (scoreSet[i] > 1.0) scoreSet[i] = 1.0;
 						// update the best score index
 						if (scoreSet[i] >= bestScore) {
 								if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScoreIndex].size()){
@@ -2599,7 +2606,8 @@ void MainWindow::outlierElimination(){
 					if (goodMatchesSet[i].size() > 0){
 						float goodProbability = static_cast<float>(goodMatchesSet[i].size()) / static_cast<float>(goodMatchesSet[i].size() + badMatchesSet[i].size());
 						float average = sumDistancesSet[i] / static_cast<float>(goodMatchesSet[i].size());
-						scoreSet[i] = 1.0 / (average + 1.0) * goodProbability;
+						scoreSet[i] = ui->normalizationOffsetText->text().toFloat() / (average + 1.0) * goodProbability;
+						if (scoreSet[i] > 1.0) scoreSet[i] = 1.0;
 						// update the best score index
 						if (scoreSet[i] >= bestScore) {
 								if (scoreSet[i] > bestScore || goodMatchesSet[i].size() > goodMatchesSet[bestScoreIndex].size()){
@@ -2647,7 +2655,8 @@ void MainWindow::outlierElimination(){
 		if (goodMatches.size() > 0){
 			float average = sumDistances / static_cast<float>(goodMatches.size());
 			float goodProbability = static_cast<float>(goodMatches.size()) / static_cast<float>(goodMatches.size() + badMatches.size());
-			score = 1.0 / (average + 1.0) * goodProbability;
+			score = ui->normalizationOffsetText->text().toFloat() / (average + 1.0) * goodProbability;
+			if (score > 1.0) score = 1.0;
 		}
 		else score = 0.0;
 	}
@@ -3201,6 +3210,8 @@ void MainWindow::importExcelFile(int type)
 						}
 
 						ui->opponentColor->setChecked(excelRecover->GetCellValue(j, 31 - type).toBool());
+
+						ui->normalizationOffsetText->setText(excelRecover->GetCellValue(j, 32 - type).toString());
 
 						break;
 					}

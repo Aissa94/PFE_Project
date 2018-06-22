@@ -56,7 +56,8 @@ ExcelManager::ExcelManager(bool closeExcelOnExit, const QString& fileName, int n
 		SetNewCellValue(m_sheet_custom, 22 - testType, 1, "Matcher");
 		SetNewCellValue(m_sheet_custom, 23 - testType, 8, "Parameters of Matcher");
 		SetNewCellValue(m_sheet_custom, 31 - testType, 1, "Opponent Color");
-		SetNewCellValueLast(m_sheet_custom, 32 - testType, testType);
+		SetNewCellValue(m_sheet_custom, 32 - testType, 1, "Normalization Offset");
+		SetNewCellValueLast(m_sheet_custom, 33 - testType, testType);
 
 		m_sheet_brisk = AddNewSheet("BRISK");
 

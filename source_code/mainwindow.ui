@@ -1175,7 +1175,7 @@
                      <string>The minimum distance between two minutiaes</string>
                     </property>
                     <property name="text">
-                     <string>Limit Distance</string>
+                     <string>Limit distance between miutiaes</string>
                     </property>
                    </widget>
                   </item>
@@ -1252,7 +1252,7 @@
                      <string>The minimum distance between two minutiaes</string>
                     </property>
                     <property name="text">
-                     <string>Limit Distance</string>
+                     <string>Limit distance between miutiaes</string>
                     </property>
                    </widget>
                   </item>
@@ -2879,10 +2879,10 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
                  <cursorShape>PointingHandCursor</cursorShape>
                 </property>
                 <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Eliminate matches with distance &amp;gt; Limite&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Eliminate matches with distance &amp;gt; Limite&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note: &lt;/span&gt;this distance may change from descriptor to another.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
-                 <string>Limit distance</string>
+                 <string>Limit distance between descriptors</string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
@@ -2914,7 +2914,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
     </item>
     <item row="2" column="0">
      <layout class="QGridLayout" name="segmentationThresholdParams">
-      <item row="0" column="0">
+      <item row="0" column="2">
        <widget class="QLabel" name="decisionStageThresholdLabel">
         <property name="enabled">
          <bool>false</bool>
@@ -2930,13 +2930,30 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="0" column="3">
        <widget class="QLineEdit" name="decisionStageThresholdText">
         <property name="enabled">
          <bool>false</bool>
         </property>
         <property name="text">
          <string>0.0</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="normalizationOffsetText">
+        <property name="text">
+         <string>1.0</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="normalizationOffsetLabel">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the offset to score formula, &lt;/p&gt;&lt;p&gt;while &lt;span style=&quot; font-style:italic;&quot;&gt;Score = offset x % of accepted Matches / average of distances&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note: &lt;/span&gt;this offset may change from descriptor to another, e.g.:&lt;/p&gt;&lt;p&gt;SIFT  --&amp;gt; 130&lt;/p&gt;&lt;p&gt;SURF --&amp;gt; 1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Score Normalization Offset</string>
         </property>
        </widget>
       </item>
@@ -3741,7 +3758,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="typeOfMatchButtonGroup"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="typeOfMatchButtonGroup"/>
  </buttongroups>
 </ui>
