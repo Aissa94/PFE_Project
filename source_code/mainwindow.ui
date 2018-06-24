@@ -406,7 +406,7 @@
               <item row="1" column="1">
                <widget class="QLineEdit" name="siftEdgeThreshText">
                 <property name="text">
-                 <string>10</string>
+                 <string>10.0</string>
                 </property>
                </widget>
               </item>
@@ -1657,7 +1657,7 @@ i.e. the larger the edgeThreshold, the less features are filtered out (more feat
                   <item row="1" column="1">
                    <widget class="QLineEdit" name="detectorSiftEdgeThresholdText">
                     <property name="text">
-                     <string>10</string>
+                     <string>10.0</string>
                     </property>
                    </widget>
                   </item>
@@ -3758,7 +3758,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="typeOfMatchButtonGroup"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

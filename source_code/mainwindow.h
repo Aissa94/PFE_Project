@@ -17,8 +17,10 @@ public:
 
 protected:
 	virtual void wheelEvent(QWheelEvent* event);
-    
+
 private slots:
+	void displayThreadProgress(int value);
+	
 	void on_firstImgBtn_pressed();
 
     void on_secondImgBtn_pressed();
@@ -53,7 +55,9 @@ private slots:
 
 
 private:
-    QString outputImagesPath;
+	QString outputImagesPath;
+	TaskThread* taskThread = nullptr;
+	QProgressDialog* taskProgressDialog = nullptr;
 
 	void resetParams();
 	void runSIFT(int &excelColumn, int testType);

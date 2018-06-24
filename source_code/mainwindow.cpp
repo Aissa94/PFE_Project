@@ -194,7 +194,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+	delete ui;
+	delete taskThread;
+	delete taskProgressDialog;
+}
+
+void MainWindow::displayThreadProgress(int value)
+{
+	if (taskProgressDialog->isVisible())
+	{
+		taskProgressDialog->setValue(value);
+	}
 }
 
 void MainWindow::runSIFT(int &excelColumn, int testType)
@@ -1020,29 +1030,39 @@ void MainWindow::on_actionSettings_triggered()
 
 void MainWindow::on_actionRun_triggered()
 {
-
 	switch (ui->tabWidget_2->currentIndex())
 	{
-	case 0:
-	{
-		if (takeTest(0)) exportSuccess(0);
+		case 0:
+		{
+			if (takeTest(0)) exportSuccess(0);
+			break;
+		}
+		case 1:
+		{
+			importExcelFile(0);
+			break;
+		}
+		case 2:
+		default:
+		{
+			/*if (!readInputFile()) {
+			ui->logPlainText->appendHtml(tr("<b style='color:red'>Error while trying to read the excel file!</b>"));
+			return;
+			}*/
+			//importExcelFile(2);
+			taskThread = new TaskThread(1000);
+			taskThread->start();
+		}
 		break;
 	}
-	case 1:
-	{
-		importExcelFile(0);
-		break;
-	}
-	case 2:
-	default:
-	{
-		/*if (!readInputFile()) {
-		ui->logPlainText->appendHtml(tr("<b style='color:red'>Error while trying to read the excel file!</b>"));
-		return;
-		}*/
-		importExcelFile(2);
-	}
-	break;
+
+	if (taskThread != nullptr){
+		taskProgressDialog = new QProgressDialog("Processing...", "Cancel", 0, 100, this);
+		taskProgressDialog->setWindowModality(Qt::WindowModal);
+		taskProgressDialog->show();
+
+		connect(taskThread, SIGNAL(taskPercentageComplete(int)), this, SLOT(displayThreadProgress(int)));
+		connect(taskProgressDialog, SIGNAL(canceled()), taskThread, SLOT(terminateThread()));
 	}
 }
 
@@ -2353,8 +2373,8 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 		break;
 	case 3:
 		//SURF
-		// we just need the Extended and Upright params because others are related to the SURF detector
-		ptrDescriptor = new cv::SurfDescriptorExtractor(100, 4, 3, ui->descriptorSurfExtended->isChecked(), !ui->detectorSurfUprightText->isChecked());
+		// we just need the Extended param because others are related to the SURF detector
+		ptrDescriptor = new cv::SurfDescriptorExtractor(100.0, 4, 3, ui->descriptorSurfExtended->isChecked(), false);
 		break;
 		//....
 	default:
@@ -3629,13 +3649,18 @@ void MainWindow::drowRankk(int maxRank){
 	// configuration:
 	ui->rankkGraphWidget->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignHCenter | Qt::AlignTop);
 	switch (ui->rankkGraphWidget->graphCount()){
-		case 1:
-			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setName(tr("Rank-k (partial)"));
+		case 3:
+			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount() - 1)->setName("Sans Test");
+			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount() - 1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross, QPen(Qt::white, 1), QBrush(Qt::white), 3));
+			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount() - 1)->setPen(QPen(Qt::GlobalColor::black, 2));
+		break;
+		case 2:
+			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setName(tr("Test Inverse"));
 			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1), QBrush(Qt::white), 3));
 			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setPen(QPen(QColor(120, 140, 250), 2));
 			break;
-		case 2:
-			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setName("Rank-k (rotation)");
+		case 1:
+			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setName("Test Ratio");
 			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssSquare, QPen(Qt::black, 1), QBrush(Qt::white), 3));
 			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setPen(QPen(QColor(120, 250, 120), 2));
 			break;
@@ -3721,10 +3746,10 @@ void MainWindow::drowEer(std::map<float, std::pair<int, int>> FMR_dataFromExcel,
 	ui->eerGraphWidget->xAxis->setTicker(QSharedPointer<QCPAxisTickerFixed>(fixedTicker));
 	ui->eerGraphWidget->yAxis->setRange(0, 130);
 	// set legend
-	ui->eerGraphWidget->legend->setVisible(true);
-	ui->eerGraphWidget->legend->setFont(QFont("Helvetica", 9));
+	//ui->eerGraphWidget->legend->setVisible(true);
+	//ui->eerGraphWidget->legend->setFont(QFont("Helvetica", 9));
 	// set locale to english, so we get english decimal separator:
-	ui->eerGraphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
+	//ui->eerGraphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
 	// configuration:
 	//ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setPen(QPen(QColor(120, 140, 250), 2));
 	//ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setPen(QPen(QColor(120, 250, 120), 2));
@@ -3743,15 +3768,21 @@ void MainWindow::drowEer(std::map<float, std::pair<int, int>> FMR_dataFromExcel,
 	ui->eerGraphWidget->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignHCenter | Qt::AlignTop);
 	switch (ui->eerGraphWidget->graphCount()){
 	case 2:
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setName(tr("FMR (partial)"));
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setName(tr("FNMR (partial)"));
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setPen(QPen(QColor(120, 140, 250), 2));
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setPen(QPen(QColor(120, 250, 120), 2));
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setName(tr("Sans Test (FMR)"));
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setName(tr("          (FNMR)"));
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setPen(QPen(Qt::GlobalColor::black, 2));
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setPen(QPen(Qt::GlobalColor::black, 2, Qt::DashLine));
 		break;
 	case 4:
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setName("FMR (rotation)");
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setName("FNMR (rotation)");
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setPen(QPen(QColor(120, 140, 250), 2, Qt::DashLine));
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setName("Test Inverse (FMR)");
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setName("            (FNMR)");
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setPen(QPen(QColor(120, 140, 250), 2));
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setPen(QPen(QColor(120, 140, 250), 2, Qt::DashLine));
+		break;
+	case 6:
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setName("Test Ratio (FMR)");
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setName("          (FNMR)");
+		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setPen(QPen(QColor(120, 250, 120), 2));
 		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setPen(QPen(QColor(120, 250, 120), 2, Qt::DashLine));
 		break;
 	default:
