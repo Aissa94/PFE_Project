@@ -2971,7 +2971,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
         </property>
         <widget class="QWidget" name="tab_0">
          <attribute name="title">
-          <string>Take a test</string>
+          <string>New test</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_9">
           <item row="2" column="4">
@@ -3094,7 +3094,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
         </widget>
         <widget class="QWidget" name="tab">
          <attribute name="title">
-          <string>Import a test</string>
+          <string>Import Test</string>
          </attribute>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
@@ -3128,7 +3128,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
              <set>Qt::AlignCenter</set>
             </property>
             <property name="text" stdset="0">
-             <string>0</string>
+             <string/>
             </property>
             <property name="accelerated">
              <bool>true</bool>

@@ -19,7 +19,9 @@ protected:
 	virtual void wheelEvent(QWheelEvent* event);
 
 private slots:
-	void displayThreadProgress(int value);
+	bool takeTest();
+
+	void importExcelFile();
 	
 	void on_firstImgBtn_pressed();
 
@@ -53,10 +55,12 @@ private slots:
 
 	void showEerToolTip(QMouseEvent *event);
 
+signals:
+	void taskPercentageComplete(int);
 
 private:
 	QString outputImagesPath;
-	TaskThread* taskThread = nullptr;
+	bool taskIsCanceled = false;
 	QProgressDialog* taskProgressDialog = nullptr;
 
 	void resetParams();
@@ -98,10 +102,7 @@ private:
 	int matcherNameToInt(const QString& value);
 	void OutliersEliminationToInt(const QString& value);
 	void FlannBasedNameToIndex(const QString& value);
-	void exportSuccess(int showMethod);
 	void initializeTable();
-	bool takeTest(int testType, bool import = false);
-	void importExcelFile(int type);
 	void setTableValue(QAxObject* sheet, int lineIndex, int columnIndex, const QString& value);
 	QString GetTableValue(QAxObject* sheet, int rowIndex, int columnIndex);
 	void exportTable(int rowsCount);

@@ -51,7 +51,6 @@
 #include "excel\ExcelManager.h"
 #include "graph\qcustomplot.h"
 #include "graph\cSpline.h"
-#include "TaskThread.h"
 
 // Dr :
 #include "image-processing\image_processing.h"
