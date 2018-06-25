@@ -334,7 +334,7 @@ void MainWindow::runORB(int &excelColumn, int testType)
 	}
 	catch (const std::exception& e)
 	{
-		QMessageBox::critical(this, "Error - ORB", e.what());
+		QMessageBox::critical(this, tr("Error - ORB"), e.what());
 	}
 }
 
@@ -366,7 +366,7 @@ void MainWindow::runBRISK(int &excelColumn, int testType)
 	}
 	catch (const std::exception& e)
 	{
-		QMessageBox::critical(this, "Error - BRISK", e.what());
+		QMessageBox::critical(this, tr("Error - BRISK"), e.what());
 	}
 }
 
@@ -378,7 +378,7 @@ void MainWindow::runDefault(int testType)
 	if (testType == 0)
 	{
 		std::string methodName = ui->defaultTabs->tabText(ui->defaultTabs->currentIndex()).toStdString();
-		ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + methodName + ") based identification</b> "));
+		ui->logPlainText->appendHtml(tr("<b>Starting (") + QString::fromStdString(methodName) + tr(") based identification</b> "));
 	}
 
 	if (oneToN) {
@@ -418,7 +418,7 @@ void MainWindow::runDefault(int testType)
 	}
 	catch (const std::exception& e)
 	{
-		QMessageBox::critical(this, "Error - Excel", e.what());
+		QMessageBox::critical(this, tr("Error - Excel"), e.what());
 	}
 	switch (methodIndex) {
 		case 0:
@@ -570,7 +570,7 @@ void MainWindow::runDefault(int testType)
 	}
 	catch (const std::exception& e)
 	{
-		QMessageBox::critical(this, "Error - Excel", e.what());
+		QMessageBox::critical(this, tr("Error - Excel"), e.what());
 	}
 }
 
@@ -589,10 +589,10 @@ void MainWindow::runCustom(int testType)
 	
 	if (testType == 0)
 	{
-		ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + segmentationName + ", " + detectorName + ", " + descriptorName + ", " + matcherName + ") based identification</b> "));
+		ui->logPlainText->appendHtml(tr("<b>Starting (") + QString::fromStdString(segmentationName + ", " + detectorName + ", " + descriptorName + ", " + matcherName) + tr(") based identification</b> "));
 
 		// Binarization
-		taskProgressDialog->setLabelText("Segmentation ...");
+		taskProgressDialog->setLabelText(tr("Segmentation ..."));
 		emit taskPercentageComplete(5);
 		customisingBinarization(segmentationIndex);
 
@@ -601,18 +601,18 @@ void MainWindow::runCustom(int testType)
 		customisingSegmentor(segmentationIndex);
 
 		// Customising Detector...	
-		taskProgressDialog->setLabelText("Detection ...");
+		taskProgressDialog->setLabelText(tr("Detection ..."));
 		emit taskPercentageComplete(20);
 		customisingDetector(detectorIndex, detectorName);
 
 		// Customising Descriptor...
-		taskProgressDialog->setLabelText("Description ...");
+		taskProgressDialog->setLabelText(tr("Description ..."));
 		emit taskPercentageComplete(40);
 		customisingDescriptor(descriptorIndex, descriptorName);
 
 		// Clustering Descriptors...
 		if (ui->withClusteringChecker->isChecked()){
-			taskProgressDialog->setLabelText("Clustering ...");
+			taskProgressDialog->setLabelText(tr("Clustering ..."));
 			emit taskPercentageComplete(60);
 			int nbClusters = ui->clusteringNbClustersText->text().toInt(),
 				nbAttempts = ui->clusteringNbAttemptsText->text().toInt();
@@ -632,7 +632,7 @@ void MainWindow::runCustom(int testType)
 		}
 
 		// Customising Matcher...
-		taskProgressDialog->setLabelText("Matching ...");
+		taskProgressDialog->setLabelText(tr("Matching ..."));
 		emit taskPercentageComplete(70);
 		customisingMatcher(matcherIndex, matcherName);
 
@@ -643,13 +643,13 @@ void MainWindow::runCustom(int testType)
 		ui->logPlainText->appendHtml(tr("Total time: %1(s)").arg(QString::number(detectionTime + descriptionTime + clusteringTime + matchingTime)));
 
 		// Keep only best matching according to the selected test
-		taskProgressDialog->setLabelText("Validation ...");
+		taskProgressDialog->setLabelText(tr("Validation ..."));
 		emit taskPercentageComplete(90);
 		outlierElimination();
 	}
 	try
 	{
-		taskProgressDialog->setLabelText("Saving to Excel ...");
+		taskProgressDialog->setLabelText(tr("Saving to Excel ..."));
 		emit taskPercentageComplete(95);
 		if (testType == 0)
 		{
@@ -965,7 +965,7 @@ void MainWindow::runCustom(int testType)
 	}
 	catch (const std::exception& e)
 	{
-		QMessageBox::critical(this, "Error - Custom", e.what());
+		QMessageBox::critical(this, tr("Error - Custom"), e.what());
 	}
 }
 
@@ -978,7 +978,7 @@ void MainWindow::launchInCMD(){
 void MainWindow::on_firstImgBtn_pressed()
 {
 	// Read First Image ...
-	QString str = QFileDialog::getOpenFileName(0, ("Select the 1st Image"), QDir::currentPath());
+	QString str = QFileDialog::getOpenFileName(0, tr("Select the 1st Image"), QDir::currentPath());
 	if (!str.trimmed().isEmpty())
 		ui->firstImgText->setText(str);
 }
@@ -986,7 +986,7 @@ void MainWindow::on_firstImgBtn_pressed()
 void MainWindow::on_secondImgBtn_pressed()
 {
 	// Read Second Image(s) ...
-	QString str = (ui->oneToN->isChecked()) ? QFileDialog::getExistingDirectory(0, ("Select a Folder"), QDir::currentPath()) : QFileDialog::getOpenFileName(0, ("Select the 2nd Image"), QDir::currentPath());
+	QString str = (ui->oneToN->isChecked()) ? QFileDialog::getExistingDirectory(0, tr("Select a Folder"), QDir::currentPath()) : QFileDialog::getOpenFileName(0, tr("Select the 2nd Image"), QDir::currentPath());
 	if (!str.trimmed().isEmpty())
 		ui->secondImgText->setText(str);
 }
@@ -1045,7 +1045,7 @@ void MainWindow::on_actionRun_triggered()
 	disconnect(this, SIGNAL(taskPercentageComplete(int)), taskProgressDialog, SLOT(setValue(int)));
 
 	this->moveToThread(taskThread);
-	taskProgressDialog = new QProgressDialog("Processing ...", "Cancel", 0, 100, this);
+	taskProgressDialog = new QProgressDialog(tr("Processing ..."), "Cancel", 0, 100, this);
 	taskProgressDialog->setMinimumWidth(300);
 	taskProgressDialog->setWindowModality(Qt::WindowModal);
 	taskProgressDialog->setMinimumDuration(0);
@@ -1059,14 +1059,14 @@ void MainWindow::on_actionRun_triggered()
 		case 0:
 		{
 			takeTestType = 0;
-			taskProgressDialog->setWindowTitle("New Test");
+			taskProgressDialog->setWindowTitle(tr("New Test"));
 			connect(taskThread, SIGNAL(started()), this, SLOT(takeTest()));
 			break;
 		}
 		case 1:
 		{
 			importExcelFileType = 0;
-			taskProgressDialog->setWindowTitle("Import Test");
+			taskProgressDialog->setWindowTitle(tr("Import Test"));
 			connect(taskThread, SIGNAL(started()), this, SLOT(importExcelFile()));
 			break;
 		}
@@ -1077,7 +1077,7 @@ void MainWindow::on_actionRun_triggered()
 			return;
 			}*/
 			importExcelFileType = 2;
-			taskProgressDialog->setWindowTitle("Execute Commands");
+			taskProgressDialog->setWindowTitle(tr("Execute Commands"));
 			connect(taskThread, SIGNAL(started()), this, SLOT(importExcelFile()));
 		}
 		break;
@@ -1113,8 +1113,8 @@ void MainWindow::on_actionDelete_All_Commands_triggered()
 	}
 
 	excelRecover->~ExcelManager();
-	if (rowsCount > 0) QMessageBox::information(this, "Delete All Commands", "All commands (" + QString::number(rowsCount) +" commands) have been deleted with success from input file !");
-	else QMessageBox::warning(this, "Delete All Commands", "There is no commands in the input file (Probably you haven't add a new command or you have just deleted them all) !");
+	if (rowsCount > 0) QMessageBox::information(this, tr("Delete All Commands"), tr("All commands (") + QString::number(rowsCount) + tr(" commands) have been deleted with success from input file !"));
+	else QMessageBox::warning(this, tr("Delete All Commands"), tr("There is no commands in the input file (Probably you haven't add a new command or you have just deleted them all) !"));
 }
 
 void MainWindow::on_actionAbout_Qt_triggered()
@@ -1125,13 +1125,14 @@ void MainWindow::on_actionAbout_Qt_triggered()
 void MainWindow::on_actionAbout_Me_triggered()
 {
     QMessageBox::about(this,
-                       "About Us",
-                       "<b>OpenCV Feature Detectors Comparison</b>"
+                       tr("About Us"),
+					   tr("<b>OpenCV Feature Detectors Comparison</b>"
                        "<br><br>This program uses OpenCV and Qt, and is provided as is, for educational purposes such as benchmarking of algorithms.<br>"
-                       "<br>You may contact me for the source code of this program at <a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>"
+                       "<br>You may contact me for the source code of this program at <a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a> or <a href='mailto:da_belkaid@esi.dz'>da_belkaid@esi.dz</a>"
                        "<br><br>Thanks"
                        "<br><br>GHOUILA Nabil & BELKAID Aïssa"
-					   "<br><br><a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>");
+					   "<br><br><a href='mailto:da_belkaid@esi.dz'>da_belkaid@esi.dz</a>"
+					   "<br><br><a href='mailto:dn_ghouila@esi.dz'>dn_ghouila@esi.dz</a>"));
 }
 
 void MainWindow::showEvent(QShowEvent* event) {
@@ -1202,7 +1203,7 @@ void MainWindow::on_refreshRankkGraph_pressed(){
 		drowRankk(maxRank);
 	}
 	else {
-		QMessageBox::warning(this, "Show Rank-k Graph", "No data to show! You can Show Rank-k Graph after launching some tests!");
+		QMessageBox::warning(this, tr("Show Rank-k Graph"), tr("No data to show! You can Show Rank-k Graph after launching some tests!"));
 		//disconnect(ui->rankkGraphWidget, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(showRankkToolTip(QMouseEvent*)));
 	}
 }
@@ -1313,7 +1314,7 @@ void MainWindow::on_refreshEerGraph_pressed(){
 		//ui->eerGraphWidget->clearItems();
 	}
 
-	if (FMR_dataFromExcel.empty() && FNMR_dataFromExcel.empty()) QMessageBox::warning(this, "Show EER Graph", "No data to show! You can Show EER Graph after having some FM et FNM tests !");
+	if (FMR_dataFromExcel.empty() && FNMR_dataFromExcel.empty()) QMessageBox::warning(this, tr("Show EER Graph"), tr("No data to show! You can Show EER Graph after having some FM et FNM tests !"));
 	else try{
 		drowEer(FMR_dataFromExcel, FNMR_dataFromExcel);
 	} catch (...){}
@@ -1476,7 +1477,7 @@ bool MainWindow::createTestFolder(){
 				// success
 			}
 			else {
-				showError("Creating directory", "Cannot create a directory to store matches", "Make sure that " + currentTest_folderPath + " existes");
+				showError(tr("Creating directory").toStdString(), tr("Cannot create a directory to store matches").toStdString(), tr("Make sure that ").toStdString() + currentTest_folderPath + tr(" existes").toStdString());
 			}
 		}
 
@@ -1494,7 +1495,7 @@ bool MainWindow::createTestFolder(){
 	else
 	{
 		// Failed to create directory.
-		showError("Creating directory", "Failed to create directory for the current test", "Make sure that " + tests_folderPath + " existes");
+		showError(tr("Creating directory").toStdString(), tr("Failed to create directory for the current test").toStdString(), tr("Make sure that ").toStdString() + tests_folderPath + tr(" existes").toStdString());
 		return false;
 	}
 }
@@ -1960,7 +1961,7 @@ bool MainWindow::takeTest() {
 	bool import = (takeTestType==1);
 	if (takeTestType==0 || takeTestType==1) testType = 0;
 	// Read Images ...
-	taskProgressDialog->setLabelText("Reading images ...");
+	taskProgressDialog->setLabelText(tr("Reading images ..."));
 	emit taskPercentageComplete(1);
 	if (!readFirstImage()){
 		ui->logPlainText->appendHtml(tr("<b style='color:red'>Error while trying to read the 1st input file!</b>"));
@@ -1973,7 +1974,7 @@ bool MainWindow::takeTest() {
 		readSetOfImages(import);
 		if (setImgs.size() == 0){
 			emit taskPercentageComplete(100);
-			showError("Read Images", "There is no image in the folder: " + ui->secondImgText->text().toStdString(), "Make sure that the folder '<i>" + ui->secondImgText->text().toStdString() + "'</i>  contains one or more images with correct extension!"); 
+			showError(tr("Read Images").toStdString(), tr("There is no image in the folder: ").toStdString() + ui->secondImgText->text().toStdString(), tr("Make sure that the folder '<i>").toStdString() + ui->secondImgText->text().toStdString() + tr("'</i>  contains one or more images with correct extension!").toStdString());
 			return false;
 		}
 		if (ui->imageExistsInBdd->isChecked() && ui->bddImageNames->currentIndex() > -1){
@@ -2006,7 +2007,7 @@ bool MainWindow::takeTest() {
 
 	if (oneToN) matchingMasks = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
 	else matchingMask = cv::Mat();
-	taskProgressDialog->setLabelText("Processing ...");
+	taskProgressDialog->setLabelText(tr("Processing ..."));
 	emit taskPercentageComplete(2);
 
 	// Launch the algorithm
@@ -2024,7 +2025,7 @@ bool MainWindow::takeTest() {
 	}
 	if (testType == 0)
 	{
-		taskProgressDialog->setLabelText("Displaying results ...");
+		taskProgressDialog->setLabelText(tr("Displaying results ..."));
 		bool returnedFromShow = showDecision();
 		firstImg.release(); secondImg.release(); setImgs.clear();
 		emit taskPercentageComplete(100);
@@ -2037,7 +2038,7 @@ bool MainWindow::takeTest() {
 	}
 	else {
 		emit taskPercentageComplete(100);
-		QMessageBox::information(this, "Add Command", "This test has been added with success to Excel input file !");
+		QMessageBox::information(this, tr("Add Command"), tr("This test has been added with success to Excel input file !"));
 	}
 	return false;
 }
@@ -2058,7 +2059,7 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 			for (int i = 0; i < setImgs.size(); i++){
 				try{ localThreshold::binarisation(std::get<1>(setImgs[i]), 41, 56); }
 				catch (cv::Exception e){
-					showError("Binarization", "Error in the image '" + std::get<0>(setImgs[i]) + "'", e.msg);
+					showError(tr("Binarization").toStdString(), tr("Error in the image '").toStdString() + std::get<0>(setImgs[i]) + "'", e.msg);
 				}
 			}
 		}
@@ -2072,7 +2073,7 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 			for (int i = 0; i < setImgs.size(); i++){
 				try{ cv::threshold(std::get<1>(setImgs[i]), std::get<1>(setImgs[i]), threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU); }
 				catch (cv::Exception e){
-					showError("Thresholding", "Error in the image '" + std::get<0>(setImgs[i]) + "'", e.msg);
+					showError(tr("Thresholding").toStdString(), tr("Error in the image '").toStdString() + std::get<0>(setImgs[i]) + "'", e.msg);
 				}
 			}
 		else cv::threshold(secondImg, secondImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
@@ -3426,7 +3427,7 @@ void MainWindow::importExcelFile()
 						takeTestType = 1;
 						disconnect(this, SIGNAL(taskPercentageComplete(int)), taskProgressDialog, SLOT(setValue(int)));
 						takeTest();
-						taskProgressDialog->setLabelText("Processing ... (" + QString::number(progressPercentage/2)+"/"+QString::number(nbTasks/2)+")");
+						taskProgressDialog->setLabelText(tr("Processing ...")+" (" + QString::number(progressPercentage/2)+"/"+QString::number(nbTasks/2)+")");
 						connect(this, SIGNAL(taskPercentageComplete(int)), taskProgressDialog, SLOT(setValue(int)));
 						if (methodIndex == 5) progressPercentage++;
 					}
@@ -3437,10 +3438,10 @@ void MainWindow::importExcelFile()
 		}
 		if (importExcelFileType == 0)
 		{
-			if (!exist) QMessageBox::warning(this, "Import Excel Error!", "Please check the number that has been entered because no ID matches this number !");
+			if (!exist) QMessageBox::warning(this, tr("Import Excel Error!"), tr("Please check the number that has been entered because no ID matches this number !"));
 		}
 		else if (!taskIsCanceled){
-			QMessageBox::information(this, "Import Input file!", "The execution of all commands has been finished with success !");
+			QMessageBox::information(this, tr("Import Input file!"), tr("The execution of all commands has been finished with success !"));
 			//ui->logPlainText->appendHtml(tr("<b style='color:blue'>The execution of all commands has been finished with success !</b>"));
 		}
 		excelRecover->~ExcelManager();
@@ -3448,7 +3449,7 @@ void MainWindow::importExcelFile()
 	}
 	catch (const std::exception& e)
 	{
-		QMessageBox::critical(this, "Error lors de l'importation du fichier excel !", e.what());
+		QMessageBox::critical(this, tr("Error lors de l'importation du fichier excel !"), e.what());
 	}
 }
 
