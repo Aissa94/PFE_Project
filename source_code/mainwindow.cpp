@@ -130,8 +130,8 @@ MainWindow::MainWindow(QWidget *parent) :
 		// Control check boxes
 		connect(ui->oneToN, &QCheckBox::toggled, [=](bool checked) {
 			if (checked){
-				ui->decisionStageThresholdLabel->setEnabled(false);
-				ui->decisionStageThresholdText->setEnabled(false);
+				//ui->decisionStageThresholdLabel->setEnabled(false);
+				//ui->decisionStageThresholdText->setEnabled(false);
 				if (ui->matcher1toNtype1->isChecked()) {
 					ui->eliminationLoweRatio->setEnabled(false);
 					ui->eliminationLoweRatioText->setEnabled(false);
@@ -148,8 +148,8 @@ MainWindow::MainWindow(QWidget *parent) :
 				}
 			}
 			else {
-				ui->decisionStageThresholdLabel->setEnabled(true);
-				ui->decisionStageThresholdText->setEnabled(true);
+				//ui->decisionStageThresholdLabel->setEnabled(true);
+				//ui->decisionStageThresholdText->setEnabled(true);
 				ui->eliminationLoweRatio->setEnabled(true);
 				ui->eliminationLoweRatioText->setEnabled(true);
 				ui->eliminationInversMatches->setEnabled(true);
@@ -1051,6 +1051,9 @@ void MainWindow::on_actionRun_triggered()
 	taskProgressDialog->setMinimumDuration(0);
 	taskProgressDialog->setValue(0);
 
+	connect(this, SIGNAL(taskPercentageComplete(int)), taskProgressDialog, SLOT(setValue(int)));
+	connect(taskThread, SIGNAL(finished()), taskProgressDialog, SLOT(deletLater()));
+
 	switch (ui->tabWidget_2->currentIndex())
 	{
 		case 0:
@@ -1079,8 +1082,6 @@ void MainWindow::on_actionRun_triggered()
 		}
 		break;
 	}
-	connect(taskThread, SIGNAL(finished()), taskProgressDialog, SLOT(deletLater()));
-	connect(this, SIGNAL(taskPercentageComplete(int)), taskProgressDialog, SLOT(setValue(int)));
 	taskThread->start();
 }
 
@@ -1402,47 +1403,50 @@ bool MainWindow::readSetOfImages(bool import){
 	tinydir_dir dir;
 	tinydir_open(&dir, (const TCHAR*)wdatapath.c_str());
 
-	while (dir.has_next)
-	{
-		tinydir_file file;
-		tinydir_readfile(&dir, &file);
+	if (!ui->secondImgText->text().trimmed().isEmpty()) /* nothing but whitespace */{
+		while (dir.has_next)
+		{
+			tinydir_file file;
+			tinydir_readfile(&dir, &file);
 
-		if (!file.is_dir)
-		{   // this is a file
-			// get its name
-			std::wstring wfilename = file.name;
-			std::string datapath(wdatapath.begin(), wdatapath.end());
-			std::string filename(wfilename.begin(), wfilename.end());
-			std::string datapath_filename = datapath + "/" + filename;
+			if (!file.is_dir)
+			{   // this is a file
+				// get its name
+				std::wstring wfilename = file.name;
+				std::string datapath(wdatapath.begin(), wdatapath.end());
+				std::string filename(wfilename.begin(), wfilename.end());
+				std::string datapath_filename = datapath + "/" + filename;
 
-			cv::Mat img;
-			if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex() == 1)){
-				// Custom && OpponentColor
-				img = cv::imread(datapath_filename, CV_LOAD_IMAGE_COLOR);
-			}
-			else{
-				img = cv::imread(datapath_filename, cv::IMREAD_GRAYSCALE); //or CV_LOAD_IMAGE_GRAYSCALE
-			}
-
-			// Check if the Images are loaded correctly ...
-			if (!img.empty())
-			{
-				if ((img.cols < 100) && (img.rows < 100))
-				{
-					cv::resize(img, img, cv::Size(), 200 / img.rows, 200 / img.cols);
+				cv::Mat img;
+				if (ui->opponentColor->isChecked() && (ui->allMethodsTabs->currentIndex() == 1)){
+					// Custom && OpponentColor
+					img = cv::imread(datapath_filename, CV_LOAD_IMAGE_COLOR);
 				}
-				// store the name and the image
-				setImgs.push_back(std::make_tuple(filename, img, img));
+				else{
+					img = cv::imread(datapath_filename, cv::IMREAD_GRAYSCALE); //or CV_LOAD_IMAGE_GRAYSCALE
+				}
 
-				// show names in the combobox
-				ui->bddImageNames->addItem(QString::fromStdString(filename));
-				if (import && (QString::fromStdString(filename) == RequestedImage)) savedIndex = setImgs.size() - 1;
+				// Check if the Images are loaded correctly ...
+				if (!img.empty())
+				{
+					if ((img.cols < 100) && (img.rows < 100))
+					{
+						cv::resize(img, img, cv::Size(), 200 / img.rows, 200 / img.cols);
+					}
+					// store the name and the image
+					setImgs.push_back(std::make_tuple(filename, img, img));
+
+					// show names in the combobox
+					ui->bddImageNames->addItem(QString::fromStdString(filename));
+					if (import && (QString::fromStdString(filename) == RequestedImage)) savedIndex = setImgs.size() - 1;
+				}
 			}
+			try{ tinydir_next(&dir); }
+			catch (...){}
 		}
-		tinydir_next(&dir);
+		try{ tinydir_close(&dir); }
+		catch (...){}
 	}
-	tinydir_close(&dir);
-
 	if (setImgs.size() == 0) {
 		return false;
 	}
@@ -1956,44 +1960,54 @@ bool MainWindow::takeTest() {
 	bool import = (takeTestType==1);
 	if (takeTestType==0 || takeTestType==1) testType = 0;
 	// Read Images ...
+	taskProgressDialog->setLabelText("Reading images ...");
+	emit taskPercentageComplete(1);
 	if (!readFirstImage()){
 		ui->logPlainText->appendHtml(tr("<b style='color:red'>Error while trying to read the 1st input file!</b>"));
+		emit taskPercentageComplete(100);
 		return false;
 	}
 	oneToN = ui->oneToN->isChecked();
 
-		if (oneToN) {
-			readSetOfImages(import);
-			if (setImgs.size() == 0){
-				showError("Read Images", "There is no image in the folder: " + ui->secondImgText->text().toStdString(), "Make sure that the folder '<i>" + ui->secondImgText->text().toStdString() + "'</i>  contains one or more images with correct extension!");
-				return false;
-			}
-			if (ui->imageExistsInBdd->isChecked() && ui->bddImageNames->currentIndex() > -1){
-				// change index of requested Image to the first
-				std::swap(setImgs[0], setImgs[ui->bddImageNames->currentIndex()]);
-				//std::swap(ui->bddImageNames[0], ui->bddImageNames[ui->bddImageNames->currentIndex()]);
-				QString tmp = ui->bddImageNames->currentText();
-				ui->bddImageNames->setItemText(ui->bddImageNames->currentIndex(), ui->bddImageNames->itemText(0));
-				ui->bddImageNames->setItemText(0, tmp);
-				ui->bddImageNames->setCurrentIndex(0);
-				ui->bddImageNames->show();
-			}
+	if (oneToN) {
+		readSetOfImages(import);
+		if (setImgs.size() == 0){
+			emit taskPercentageComplete(100);
+			showError("Read Images", "There is no image in the folder: " + ui->secondImgText->text().toStdString(), "Make sure that the folder '<i>" + ui->secondImgText->text().toStdString() + "'</i>  contains one or more images with correct extension!"); 
+			return false;
 		}
-		else {
-			if (!readSecondImage()) {
-				ui->logPlainText->appendHtml(tr("<b style='color:red'>Error while trying to read the 2nd input file!</b>"));
-				return false;
-			}
+		if (ui->imageExistsInBdd->isChecked() && ui->bddImageNames->currentIndex() > -1){
+			// change index of requested Image to the first
+			std::swap(setImgs[0], setImgs[ui->bddImageNames->currentIndex()]);
+			//std::swap(ui->bddImageNames[0], ui->bddImageNames[ui->bddImageNames->currentIndex()]);
+			QString tmp = ui->bddImageNames->currentText();
+			ui->bddImageNames->setItemText(ui->bddImageNames->currentIndex(), ui->bddImageNames->itemText(0));
+			ui->bddImageNames->setItemText(0, tmp);
+			ui->bddImageNames->setCurrentIndex(0);
+			ui->bddImageNames->show();
 		}
+	}
+	else {
+		if (!readSecondImage()) {
+			ui->logPlainText->appendHtml(tr("<b style='color:red'>Error while trying to read the 2nd input file!</b>"));
+			emit taskPercentageComplete(100);
+			return false;
+		}
+	}
 	
 	if (testType == 0)
 	{
 		// Create a test folder ...
-		if (!createTestFolder()) return false;
+		if (!createTestFolder()) {
+			emit taskPercentageComplete(100);
+			return false;
+		}
 	}
 
 	if (oneToN) matchingMasks = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
 	else matchingMask = cv::Mat();
+	taskProgressDialog->setLabelText("Processing ...");
+	emit taskPercentageComplete(2);
 
 	// Launch the algorithm
 	switch (ui->allMethodsTabs->currentIndex())
@@ -2038,6 +2052,7 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 
 		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Error !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!		
 		localThreshold::binarisation(firstImg, 41, 56);
+		emit taskPercentageComplete(6);
 		if (oneToN)
 		{
 			for (int i = 0; i < setImgs.size(); i++){
@@ -2048,9 +2063,11 @@ void MainWindow::customisingBinarization(int segmentationIndex){
 			}
 		}
 		else localThreshold::binarisation(secondImg, 41, 56);
-
+		emit taskPercentageComplete(7);
 		double threshold = ui->segmentationThresholdText->text().toFloat();
+		emit taskPercentageComplete(8);
 		cv::threshold(firstImg, firstImg, threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
+		emit taskPercentageComplete(9);
 		if (oneToN)
 			for (int i = 0; i < setImgs.size(); i++){
 				try{ cv::threshold(std::get<1>(setImgs[i]), std::get<1>(setImgs[i]), threshold, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU); }
@@ -2076,6 +2093,7 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		// Skeletonization of Morphological Skeleton
 		// This will create more unique and stronger interest points
 		firstImg = skeletonization(firstImg);
+		emit taskPercentageComplete(14);
 		//cv::imwrite(currentTest_folderPath + "f-2_Morphological Skeleton.jpg", firstImg);
 		if (oneToN)
 		{
@@ -2088,11 +2106,13 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 			secondImg = skeletonization(secondImg);
 			//cv::imwrite(currentTest_folderPath + "s-2_Morphological Skeleton.jpg", secondImg);
 		}
+		emit taskPercentageComplete(19);
 		break;
 	case 2:
 		// Thinning of Zhang-Suen
 		//This is the same Thinning Algorithme used by BluePrints
 		ZhangSuen::thinning(firstImg);
+		emit taskPercentageComplete(14);
 		//cv::imwrite(currentTest_folderPath + "f-2_Zhang-Suen Thinning.jpg", firstImg);
 		if (oneToN)
 		{
@@ -2105,25 +2125,32 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 			ZhangSuen::thinning(secondImg);
 			//cv::imwrite(currentTest_folderPath + "s-2_Zhang-Suen Thinning.jpg", secondImg);
 		}
-	break;
+		emit taskPercentageComplete(19);
+		break;
 	case 3:{
 		// Thinning of Lin-Hong implemented by Mrs. Faiçal
 		firstImg = Image_processing::thinning(firstImg, firstEnhancedImage, firstSegmentedImage);
+		emit taskPercentageComplete(14);
 		firstImg.convertTo(firstImg, CV_8UC3, 255);
+		emit taskPercentageComplete(15);
 		//cv::imwrite(currentTest_folderPath + "f-2_Lin-Hong Thinning.jpg", firstImg);
 		if (oneToN)
 		{
 			setEnhancedImages = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
 			setSegmentedImages = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
+			emit taskPercentageComplete(16);
 			for (int i = 0; i < setImgs.size(); i++){
 				std::get<1>(setImgs[i]) = Image_processing::thinning(std::get<1>(setImgs[i]), setEnhancedImages[i], setSegmentedImages[i]);
 				std::get<1>(setImgs[i]).convertTo(std::get<1>(setImgs[i]), CV_8UC3, 255);
 			}
+			emit taskPercentageComplete(19);
 			//cv::imwrite(currentTest_folderPath + "l-2_Lin-Hong Thinning.jpg", setImgs[setImgs.size() - 1].second);
 		}
 		else {
 			secondImg = Image_processing::thinning(secondImg, secondEnhancedImage, secondSegmentedImage);
+			emit taskPercentageComplete(17);
 			secondImg.convertTo(secondImg, CV_8UC3, 255);
+			emit taskPercentageComplete(19);
 			//cv::imwrite(currentTest_folderPath + "s-2_Lin-Hong Thinning.jpg", secondImg);
 		}		
 		break;
@@ -2132,6 +2159,7 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 		// Thinning of Guo-Hall
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  Exception !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		GuoHall::thinning(firstImg);
+		emit taskPercentageComplete(14);
 		//cv::imwrite(currentTest_folderPath + "f-2_Guo-Hall Thinning.jpg", firstImg);
 		if (oneToN)
 		{
@@ -2144,6 +2172,7 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 			GuoHall::thinning(secondImg);
 			//cv::imwrite(currentTest_folderPath + "s-2_Guo-Hall Thinning.jpg", secondImg);
 		}
+		emit taskPercentageComplete(19);
 		break;
 
 		//....
@@ -2161,6 +2190,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		detectionTime = (double)cv::getTickCount();
 		// change this to firstImage and originalInput !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		firstMinutiae = Image_processing::extracting(firstImg, firstEnhancedImage, firstSegmentedImage, firstImg, distanceThreshBetweenMinutiaes);
+		emit taskPercentageComplete(23);
 		if (oneToN)
 		{
 			setMinutiaes = std::vector<std::vector<Minutiae>>(setImgs.size(), std::vector<Minutiae>());
@@ -2170,27 +2200,31 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		}
 		else secondMinutiae = Image_processing::extracting(secondImg, secondEnhancedImage, secondSegmentedImage, secondImg, distanceThreshBetweenMinutiaes);
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
-
+		emit taskPercentageComplete(30);
 		writeKeyPoints(firstImg, firstMinutiae, 1, "keypoints1");
 		if (!oneToN) writeKeyPoints(secondImg, secondMinutiae, 2, "keypoints2");
-
+		emit taskPercentageComplete(32);
 		// images must be segmented if not Minutiae will be empty
 		try{
-			for (Minutiae minutiae : firstMinutiae) firstImgKeypoints.push_back(minutiae);		
+			for (Minutiae minutiae : firstMinutiae) firstImgKeypoints.push_back(minutiae);
+			emit taskPercentageComplete(34);
 			if (oneToN)
 			{
 				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
 				for (int i = 0; i < setImgs.size(); i++){
 					for (Minutiae minutiae : setMinutiaes[i]) setImgsKeypoints[i].push_back(minutiae);
+					emit taskPercentageComplete(37);
 					// use masks to matche minutiae of the same type
 					matchingMasks[i] = maskMatchesByMinutiaeNature(firstMinutiae, setMinutiaes[i]);
 				}
 			}
 			else {
 				for (Minutiae minutiae : secondMinutiae) secondImgKeypoints.push_back(minutiae);
+				emit taskPercentageComplete(37);
 				// use masks to matche minutiae of the same type
 				matchingMask = maskMatchesByMinutiaeNature(firstMinutiae, secondMinutiae);
 			}
+			emit taskPercentageComplete(39);
 			masksAreEmpty = false;
 		}
 		catch (...){
@@ -2207,9 +2241,11 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		double distanceThreshBetweenMinutiaes = ui->detectorCrossingNumberLimitDistanceText->text().toFloat();
 		detectionTime = (double)cv::getTickCount();
 		firstMinutiae = CrossingNumber::getMinutiae(firstImg, ui->detectorCrossingNumberBorderText->text().toInt());
+		emit taskPercentageComplete(23);
 		//Minutiae-filtering
 		// slow with the second segmentation
 		CrossingNumber::filterMinutiae(firstMinutiae, distanceThreshBetweenMinutiaes);
+		emit taskPercentageComplete(25);
 		if (oneToN)
 		{
 			setMinutiaes = std::vector<std::vector<Minutiae>>(setImgs.size(), std::vector<Minutiae>());
@@ -2217,19 +2253,23 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 				setMinutiaes[i] = CrossingNumber::getMinutiae(std::get<1>(setImgs[i]), ui->detectorCrossingNumberBorderText->text().toInt());
 				CrossingNumber::filterMinutiae(setMinutiaes[i], distanceThreshBetweenMinutiaes);
 			}
+			emit taskPercentageComplete(30);
 		}
 		else {
 			secondMinutiae = CrossingNumber::getMinutiae(secondImg, ui->detectorCrossingNumberBorderText->text().toInt());
+			emit taskPercentageComplete(28);
 			CrossingNumber::filterMinutiae(secondMinutiae, distanceThreshBetweenMinutiaes);
+			emit taskPercentageComplete(30);
 		}
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 
 		writeKeyPoints(firstImg, firstMinutiae, 1, "keypoints1");
 		if (!oneToN) writeKeyPoints(secondImg, secondMinutiae, 2, "keypoints2");
-
+		emit taskPercentageComplete(32);
 		// images must be segmented if not Minutiae will be empty
 		try{
 			for (Minutiae minutiae : firstMinutiae) firstImgKeypoints.push_back(minutiae);
+			emit taskPercentageComplete(34);
 			if (oneToN)
 			{
 				setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
@@ -2241,9 +2281,11 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			}
 			else {
 				for (Minutiae minutiae : secondMinutiae) secondImgKeypoints.push_back(minutiae);
+				emit taskPercentageComplete(37);
 				// use masks to matche minutiae of the same type
 				matchingMask = maskMatchesByMinutiaeNature(firstMinutiae, secondMinutiae);
 			}
+			emit taskPercentageComplete(39);
 			masksAreEmpty = false;
 		}
 		catch (...){
@@ -2257,6 +2299,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		// Harris-Corners
 		detectionTime = (double)cv::getTickCount();
 		harrisCorners(firstImg, firstImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
+		emit taskPercentageComplete(25);
 		if (oneToN)
 		{
 			for (int i = 0; i < setImgs.size(); i++){
@@ -2265,9 +2308,10 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		}
 		else harrisCorners(secondImg, secondImgKeypoints, ui->detectorHarrisThresholdText->text().toFloat());
 		detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
-
+		emit taskPercentageComplete(34);
 		writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
 		if (!oneToN) writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
+		emit taskPercentageComplete(39);
 	}
 		   break;
 	case 3:{
@@ -2278,6 +2322,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			ui->detectorStarThresholdBinarizedText->text().toInt(),
 			ui->detectorStarSuppressNonmaxSizeText->text().toInt());
 	}
+		   emit taskPercentageComplete(23);
 		   break;
 	case 4:
 		// FAST
@@ -2302,6 +2347,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 				ui->detectorFastTypeText->currentIndex());
 			detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
 		}
+		emit taskPercentageComplete(23);
 		break;
 	case 5:
 		// SIFT
@@ -2310,6 +2356,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			ui->detectorSiftContrastThresholdText->text().toDouble(),
 			ui->detectorSiftEdgeThresholdText->text().toDouble(),
 			ui->detectorSiftSigmaText->text().toDouble());
+		emit taskPercentageComplete(23);
 		break;
 	case 6:
 		//SURF
@@ -2319,6 +2366,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			ui->detectorSurfNLayersText->text().toInt(),
 			true,
 			false);
+		emit taskPercentageComplete(23);
 		break;
 	case 7:
 		//Dense
@@ -2329,6 +2377,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			ui->detectorDenseInitImgBoundText->text().toInt(),
 			ui->detectorDenseInitXyStepText->text().toInt()>0,
 			ui->detectorDenseInitImgBoundText->text().toInt()>0);
+		emit taskPercentageComplete(23);
 		break;
 		//....
 	default:
@@ -2342,12 +2391,14 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 			// Detecting Keypoints ...
 			detectionTime = (double)cv::getTickCount();
 			ptrDetector->detect(firstImg, firstImgKeypoints);
+			emit taskPercentageComplete(28);
 			if (oneToN){
 				for (int i = 0; i < setImgs.size(); i++){
 					ptrDetector->detect(std::get<1>(setImgs[i]), setImgsKeypoints[i]);
 				}
 			}else ptrDetector->detect(secondImg, secondImgKeypoints);
 			detectionTime = ((double)cv::getTickCount() - detectionTime) / cv::getTickFrequency();
+			emit taskPercentageComplete(36);
 		}
 		catch (...){
 			ui->logPlainText->appendHtml(tr("<b style='color:red'>Please select the right %1 detector parameters, or use the defaults!.</b>").arg(QString::fromStdString(detectorName)));
@@ -2355,6 +2406,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		}
 		writeKeyPoints(firstImg, firstImgKeypoints, 1, "keypoints1");
 		if (!oneToN) writeKeyPoints(secondImg, secondImgKeypoints, 2, "keypoints2");
+		emit taskPercentageComplete(39);
 	}
 	if (noKeyPoints("first", firstImgKeypoints) || (!oneToN && noKeyPoints("second", secondImgKeypoints))) return;
 	if (oneToN) {
@@ -2410,7 +2462,7 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 		return;
 		break;
 	}
-
+	emit taskPercentageComplete(44);
 	if (ui->opponentColor->isChecked()){
 		//OpponentColor
 		ptrDescriptor = new cv::OpponentColorDescriptorExtractor(ptrDescriptor);
@@ -2419,6 +2471,7 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 	try{
 		descriptionTime = (double)cv::getTickCount();
 		ptrDescriptor->compute(firstImg, firstImgKeypoints, firstImgDescriptors);
+		emit taskPercentageComplete(49);
 		if (oneToN)
 		{
 			setImgsDescriptors = std::vector<cv::Mat>(setImgs.size(), cv::Mat());
@@ -2428,6 +2481,7 @@ void MainWindow::customisingDescriptor(int descriptorIndex, std::string descript
 		}
 		else ptrDescriptor->compute(secondImg, secondImgKeypoints, secondImgDescriptors);
 		descriptionTime = ((double)cv::getTickCount() - descriptionTime) / cv::getTickFrequency();
+		emit taskPercentageComplete(59);
 		ui->logPlainText->appendHtml(tr("Description time: %1(s)").arg(QString::number(descriptionTime)));
 	}
 	catch (...){
@@ -2968,7 +3022,8 @@ bool MainWindow::showDecision(){
 		else {
 			if (ui->imageExistsInBdd->isEnabled() && ui->imageExistsInBdd->isChecked()){
 				ui->logPlainText->appendHtml(tr("The first image is Rank-<b>%1</b> ").arg(QString::number(computeRankK(scoreThreshold))));
-				if (ui->bddImageNames->currentIndex() > -1) if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml(tr("There is a False Non-Match (FNM)"));
+				if (ui->bddImageNames->currentIndex() > -1 && scoreSet.size()>0)
+					if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml(tr("There is a False Non-Match (FNM)"));
 			}
 			// View results
 			ui->logPlainText->appendHtml(tr("<b style='color:red'>All obtained scores are null.</b>"));
@@ -2993,7 +3048,7 @@ void MainWindow::importExcelFile()
 {
 	try
 	{
-		bool exist = false, canceled = false;
+		bool exist = false, taskIsCanceled = false;
 		int column;
 		float scoreThreshold, acceptedMatches, rejectedMatches, bestImageAverage, bestImageScore, goodProbability, badProbability;
 		if (importExcelFileType == 0) excelRecover = new ExcelManager(true, exportFile, 0);
@@ -3006,7 +3061,7 @@ void MainWindow::importExcelFile()
 			int progressPercentage = 2;
 			while (!taskIsCanceled && progressPercentage <= nbTasks) {
 				if (taskProgressDialog->wasCanceled()){
-					canceled = true;
+					taskIsCanceled = true;
 					break;
 				}
 				if ((importExcelFileType == 2) || ((ui->tabWidget_2->currentIndex() == 1) && (excelRecover->GetCellValue(progressPercentage, 1) == ui->spinBox->text()))) {
@@ -3384,7 +3439,7 @@ void MainWindow::importExcelFile()
 		{
 			if (!exist) QMessageBox::warning(this, "Import Excel Error!", "Please check the number that has been entered because no ID matches this number !");
 		}
-		else if (!canceled){
+		else if (!taskIsCanceled){
 			QMessageBox::information(this, "Import Input file!", "The execution of all commands has been finished with success !");
 			//ui->logPlainText->appendHtml(tr("<b style='color:blue'>The execution of all commands has been finished with success !</b>"));
 		}

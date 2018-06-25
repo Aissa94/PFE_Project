@@ -2917,10 +2917,10 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
       <item row="0" column="2">
        <widget class="QLabel" name="decisionStageThresholdLabel">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Threshold for which the score is accepted.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; Image is accepted only if &lt;span style=&quot; font-style:italic;&quot;&gt;Score &amp;gt;= Threshold&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Threshold for which the score is accepted (in [0..1]).&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; Image is accepted only if &lt;span style=&quot; font-style:italic;&quot;&gt;Score &amp;gt;= Threshold&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>Decision Threshold :</string>
@@ -2933,7 +2933,7 @@ Proceedings of the 33rd International Conference on Very Large Data Bases (VLDB)
       <item row="0" column="3">
        <widget class="QLineEdit" name="decisionStageThresholdText">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>0.0</string>

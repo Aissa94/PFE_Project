@@ -60,7 +60,6 @@ signals:
 
 private:
 	QString outputImagesPath;
-	bool taskIsCanceled = false;
 	QProgressDialog* taskProgressDialog = nullptr;
 
 	void resetParams();
