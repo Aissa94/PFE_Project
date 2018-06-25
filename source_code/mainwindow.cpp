@@ -576,6 +576,7 @@ void MainWindow::runDefault(int testType)
 
 void MainWindow::runCustom(int testType)
 {
+	emit taskPercentageComplete(4);
 	// Get choices
 	int segmentationIndex = ui->segmentationTabs->currentIndex();
 	int detectorIndex = ui->detectorTabs->currentIndex();
@@ -585,25 +586,34 @@ void MainWindow::runCustom(int testType)
 	std::string detectorName = ui->detectorTabs->tabText(ui->detectorTabs->currentIndex()).toStdString();
 	std::string descriptorName = ui->descriptorTabs->tabText(ui->descriptorTabs->currentIndex()).toStdString();
 	std::string matcherName = ui->matcherTabs->tabText(ui->matcherTabs->currentIndex()).toStdString();
-
+	
 	if (testType == 0)
 	{
 		ui->logPlainText->appendHtml(QString::fromStdString("<b>Starting (" + segmentationName + ", " + detectorName + ", " + descriptorName + ", " + matcherName + ") based identification</b> "));
 
 		// Binarization
+		taskProgressDialog->setLabelText("Segmentation ...");
+		emit taskPercentageComplete(5);
 		customisingBinarization(segmentationIndex);
 
 		// Customising Segmentor...
+		emit taskPercentageComplete(10);
 		customisingSegmentor(segmentationIndex);
 
 		// Customising Detector...	
+		taskProgressDialog->setLabelText("Detection ...");
+		emit taskPercentageComplete(20);
 		customisingDetector(detectorIndex, detectorName);
 
 		// Customising Descriptor...
+		taskProgressDialog->setLabelText("Description ...");
+		emit taskPercentageComplete(40);
 		customisingDescriptor(descriptorIndex, descriptorName);
 
 		// Clustering Descriptors...
 		if (ui->withClusteringChecker->isChecked()){
+			taskProgressDialog->setLabelText("Clustering ...");
+			emit taskPercentageComplete(60);
 			int nbClusters = ui->clusteringNbClustersText->text().toInt(),
 				nbAttempts = ui->clusteringNbAttemptsText->text().toInt();
 			if (nbClusters < 1) {
@@ -614,6 +624,7 @@ void MainWindow::runCustom(int testType)
 				ui->logPlainText->appendHtml(tr("<b style='color:red'>Invalid number of attempts: %1, the default value is maintained!</b>").arg(QString::number(nbAttempts)));
 				nbAttempts = 2;
 			}
+			emit taskPercentageComplete(65);
 			clustering(nbClusters, nbAttempts);
 			// use masks to matche descriptors from the same cluster
 			if (oneToN)for (int i = 0; i < setImgs.size(); i++) maskMatchesByCluster(firstImgKeypoints, setImgsKeypoints[i], i);
@@ -621,19 +632,25 @@ void MainWindow::runCustom(int testType)
 		}
 
 		// Customising Matcher...
+		taskProgressDialog->setLabelText("Matching ...");
+		emit taskPercentageComplete(70);
 		customisingMatcher(matcherIndex, matcherName);
 
 		// Find the matching points
+		emit taskPercentageComplete(75);
 		if (!matching()) return;
 
 		ui->logPlainText->appendHtml(tr("Total time: %1(s)").arg(QString::number(detectionTime + descriptionTime + clusteringTime + matchingTime)));
 
 		// Keep only best matching according to the selected test
+		taskProgressDialog->setLabelText("Validation ...");
+		emit taskPercentageComplete(90);
 		outlierElimination();
 	}
 	try
 	{
-
+		taskProgressDialog->setLabelText("Saving to Excel ...");
+		emit taskPercentageComplete(95);
 		if (testType == 0)
 		{
 			excelReader = new ExcelManager(true, exportFile, 5);
@@ -944,6 +961,7 @@ void MainWindow::runCustom(int testType)
 			}
 		}
 		excelReader->~ExcelManager();
+		emit taskPercentageComplete(97);
 	}
 	catch (const std::exception& e)
 	{
@@ -1027,11 +1045,11 @@ void MainWindow::on_actionRun_triggered()
 	disconnect(this, SIGNAL(taskPercentageComplete(int)), taskProgressDialog, SLOT(setValue(int)));
 
 	this->moveToThread(taskThread);
-	taskProgressDialog = new QProgressDialog("Processing...", "Cancel", 0, 100, this);
+	taskProgressDialog = new QProgressDialog("Processing ...", "Cancel", 0, 100, this);
 	taskProgressDialog->setMinimumWidth(300);
 	taskProgressDialog->setWindowModality(Qt::WindowModal);
 	taskProgressDialog->setMinimumDuration(0);
-	taskProgressDialog->setValue(1);
+	taskProgressDialog->setValue(0);
 
 	switch (ui->tabWidget_2->currentIndex())
 	{
@@ -1992,8 +2010,10 @@ bool MainWindow::takeTest() {
 	}
 	if (testType == 0)
 	{
+		taskProgressDialog->setLabelText("Displaying results ...");
 		bool returnedFromShow = showDecision();
 		firstImg.release(); secondImg.release(); setImgs.clear();
+		emit taskPercentageComplete(100);
 		if (returnedFromShow) {
 			ui->logPlainText->appendHtml(tr("<b style='color:green'>This test has been exported with success under the identifier number: %1").arg(QString::number(cpt)));
 			ui->logPlainText->appendHtml("--------------------------------------------------------------------------------------------------------------------------------------------------------------------");
@@ -2001,8 +2021,10 @@ bool MainWindow::takeTest() {
 			return true;
 		}
 	}
-	else QMessageBox::information(this, "Add Command", "This test has been added with success to Excel input file !");
-
+	else {
+		emit taskPercentageComplete(100);
+		QMessageBox::information(this, "Add Command", "This test has been added with success to Excel input file !");
+	}
 	return false;
 }
 
@@ -2976,7 +2998,7 @@ void MainWindow::importExcelFile()
 		float scoreThreshold, acceptedMatches, rejectedMatches, bestImageAverage, bestImageScore, goodProbability, badProbability;
 		if (importExcelFileType == 0) excelRecover = new ExcelManager(true, exportFile, 0);
 		else excelRecover = new ExcelManager(true, inputFile, 11);
-
+		emit taskPercentageComplete(1);
 		for (int methodIndex = 1; methodIndex <= 5; methodIndex++) {
 			excelRecover->GetIntRows(methodIndex);
 			column = excelRecover->getColumnsCount();
@@ -3347,7 +3369,10 @@ void MainWindow::importExcelFile()
 					else
 					{
 						takeTestType = 1;
+						disconnect(this, SIGNAL(taskPercentageComplete(int)), taskProgressDialog, SLOT(setValue(int)));
 						takeTest();
+						taskProgressDialog->setLabelText("Processing ... (" + QString::number(progressPercentage/2)+"/"+QString::number(nbTasks/2)+")");
+						connect(this, SIGNAL(taskPercentageComplete(int)), taskProgressDialog, SLOT(setValue(int)));
 						if (methodIndex == 5) progressPercentage++;
 					}
 				}
