@@ -1092,6 +1092,13 @@ void MainWindow::on_actionClear_Log_triggered()
 
 void MainWindow::on_actionAdd_Command_triggered()
 {
+	disconnect(this, SIGNAL(taskPercentageComplete(int)), taskProgressDialog, SLOT(setValue(int)));
+	taskProgressDialog = new QProgressDialog(tr("Processing ..."), "Cancel", 0, 100, this);
+	taskProgressDialog->setMinimumWidth(300);
+	taskProgressDialog->setWindowModality(Qt::WindowModal);
+	taskProgressDialog->setMinimumDuration(0);
+	taskProgressDialog->setValue(0);
+	connect(this, SIGNAL(taskPercentageComplete(int)), taskProgressDialog, SLOT(setValue(int)));
 	takeTestType = 2;
 	takeTest();
 }
@@ -1177,8 +1184,8 @@ void MainWindow::on_refreshRankkGraph_pressed(){
 	maxRank = rankkDataFromExcel.size();
 	
 	if (ui->rankkGraphWidget->graphCount()){ 
-		//ui->rankkGraphWidget->clearGraphs();
-		//ui->rankkGraphWidget->clearItems();
+		ui->rankkGraphWidget->clearGraphs();
+		ui->rankkGraphWidget->clearItems();
 	}
 	if (maxRank > 0){
 		std::sort(rankkDataFromExcel.begin(), rankkDataFromExcel.end());
@@ -1310,8 +1317,8 @@ void MainWindow::on_refreshEerGraph_pressed(){
 	excelRecover->~ExcelManager();
 
 	if (ui->eerGraphWidget->graphCount()){
-		//ui->eerGraphWidget->clearGraphs();
-		//ui->eerGraphWidget->clearItems();
+		ui->eerGraphWidget->clearGraphs();
+		ui->eerGraphWidget->clearItems();
 	}
 
 	if (FMR_dataFromExcel.empty() && FNMR_dataFromExcel.empty()) QMessageBox::warning(this, tr("Show EER Graph"), tr("No data to show! You can Show EER Graph after having some FM and FNM tests !"));
@@ -2037,7 +2044,9 @@ bool MainWindow::takeTest() {
 		}
 	}
 	else {
-		emit taskPercentageComplete(100);
+		try{ 
+			emit taskPercentageComplete(100);
+		} catch (...){}
 		QMessageBox::information(this, tr("Add Command"), tr("This test has been added with success to Excel input file !"));
 	}
 	return false;
@@ -2180,7 +2189,7 @@ void MainWindow::customisingSegmentor(int segmentationIndex){
 	}
 }
 
-void MainWindow::customisingDetector(int detectorIndex, std::string detectorName){
+void MainWindow::customisingDetector(int detectorIndex, std::string detectorName)throw(){
 	// Creating Detector...	
 	setImgsKeypoints = std::vector<std::vector<cv::KeyPoint>>(setImgs.size(), std::vector<cv::KeyPoint>());
 	switch (detectorIndex){
@@ -2190,6 +2199,8 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		double distanceThreshBetweenMinutiaes = ui->detectorMinutiaeLimitDistanceText->text().toFloat();
 		detectionTime = (double)cv::getTickCount();
 		// change this to firstImage and originalInput !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+		try{
 		firstMinutiae = Image_processing::extracting(firstImg, firstEnhancedImage, firstSegmentedImage, firstImg, distanceThreshBetweenMinutiaes);
 		emit taskPercentageComplete(23);
 		if (oneToN)
@@ -2206,7 +2217,6 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 		if (!oneToN) writeKeyPoints(secondImg, secondMinutiae, 2, "keypoints2");
 		emit taskPercentageComplete(32);
 		// images must be segmented if not Minutiae will be empty
-		try{
 			for (Minutiae minutiae : firstMinutiae) firstImgKeypoints.push_back(minutiae);
 			emit taskPercentageComplete(34);
 			if (oneToN)
@@ -2417,7 +2427,7 @@ void MainWindow::customisingDetector(int detectorIndex, std::string detectorName
 	ui->logPlainText->appendHtml(tr("Detection time: %1(s)").arg(QString::number(detectionTime)));
 }
 
-void MainWindow::customisingDescriptor(int descriptorIndex, std::string descriptorName){
+void MainWindow::customisingDescriptor(int descriptorIndex, std::string descriptorName)throw(){
 	// Creating Descriptor...
 	switch (descriptorIndex)
 	{
@@ -2520,7 +2530,7 @@ void MainWindow::customisingMatcher(int matcherIndex, std::string matcherName){
 	}
 }
 
-bool MainWindow::matching(){
+bool MainWindow::matching()throw(){
 	// Start matching ...
 	try{
 		if (ui->eliminationNoTest->isChecked() || ui->eliminationInversMatches->isChecked()){
@@ -3045,8 +3055,7 @@ bool MainWindow::showDecision(){
 	}
 }
 
-void MainWindow::importExcelFile()
-{
+void MainWindow::importExcelFile() throw() {
 	try
 	{
 		bool exist = false, taskIsCanceled = false;
@@ -3055,7 +3064,7 @@ void MainWindow::importExcelFile()
 		if (importExcelFileType == 0) excelRecover = new ExcelManager(true, exportFile, 0);
 		else excelRecover = new ExcelManager(true, inputFile, 11);
 		emit taskPercentageComplete(1);
-		for (int methodIndex = 1; methodIndex <= 5; methodIndex++) {
+		for (int methodIndex = 5; methodIndex <= 5; methodIndex++) {
 			excelRecover->GetIntRows(methodIndex);
 			column = excelRecover->getColumnsCount();
 			int nbTasks = excelRecover->getSheetCount();
@@ -3430,7 +3439,8 @@ void MainWindow::importExcelFile()
 						takeTestType = 1;
 						disconnect(this, SIGNAL(taskPercentageComplete(int)), taskProgressDialog, SLOT(setValue(int)));
 						takeTest();
-						taskProgressDialog->setLabelText(tr("Processing ...")+" (" + QString::number(progressPercentage/2)+"/"+QString::number(nbTasks/2)+")");
+						if(methodIndex==5)taskProgressDialog->setLabelText(tr("Processing ...")+" (" + QString::number(progressPercentage/2)+"/"+QString::number(nbTasks/2)+")");
+						else taskProgressDialog->setLabelText(tr("Processing ...") + " (" + QString::number(progressPercentage-1) + "/" + QString::number(nbTasks-1) + ")");
 						connect(this, SIGNAL(taskPercentageComplete(int)), taskProgressDialog, SLOT(setValue(int)));
 						if (methodIndex == 5) progressPercentage++;
 					}
@@ -3452,6 +3462,7 @@ void MainWindow::importExcelFile()
 	}
 	catch (const std::exception& e)
 	{
+		emit taskPercentageComplete(100);
 		QMessageBox::critical(this, tr("Error while importing from Excel file!"), e.what());
 	}
 }
@@ -3822,7 +3833,7 @@ void MainWindow::drowEer(std::map<float, std::pair<int, int>> FMR_dataFromExcel,
 	QCPAxisTickerFixed *fixedTicker = new QCPAxisTickerFixed();
 	fixedTicker->setTickStep(50);
 	ui->eerGraphWidget->xAxis->setTicker(QSharedPointer<QCPAxisTickerFixed>(fixedTicker));
-	ui->eerGraphWidget->yAxis->setRange(0, 110);
+	ui->eerGraphWidget->yAxis->setRange(0, 120);
 	// set legend
 	ui->eerGraphWidget->legend->setVisible(true);
 	ui->eerGraphWidget->legend->setFont(QFont("Helvetica", 9));

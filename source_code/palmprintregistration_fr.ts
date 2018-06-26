@@ -71,7 +71,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="273"/>
-        <location filename="mainwindow.cpp" line="1206"/>
+        <location filename="mainwindow.cpp" line="1213"/>
         <source>Show Rank-k Graph</source>
         <translation>Afficher le graph Rank-k</translation>
     </message>
@@ -429,7 +429,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
         <location filename="mainwindow.ui" line="1255"/>
         <source>Limit distance between miutiaes</source>
         <oldsource>Limit Distance</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Distance limte entre les minuties</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="1185"/>
@@ -450,7 +450,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
     <message>
         <location filename="mainwindow.ui" line="1242"/>
         <source>Border :</source>
-        <translation type="unfinished"></translation>
+        <translation>Bordure :</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="1285"/>
@@ -460,7 +460,7 @@ Then, an unadapted descriptor extractor (set in the constructor) computes descri
     <message>
         <location filename="mainwindow.ui" line="1306"/>
         <source>Harris Threshold :</source>
-        <translation type="unfinished"></translation>
+        <translation>Seuil de Harris :</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="1316"/>
@@ -758,7 +758,7 @@ Donc, une image 100x100, avec un initImgBound de 10, créerait des points-clés 
         <location filename="mainwindow.ui" line="2290"/>
         <location filename="mainwindow.ui" line="2337"/>
         <source>Descriptor Length in Bytes :</source>
-        <translation type="unfinished"></translation>
+        <translation>Longueur de descripteur en Bytes :</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="2219"/>
@@ -835,7 +835,7 @@ Donc, une image 100x100, avec un initImgBound de 10, créerait des points-clés 
     <message>
         <location filename="mainwindow.ui" line="2470"/>
         <source>Cluster before matching :</source>
-        <translation type="unfinished"></translation>
+        <translation>Cluster avant l&apos;appariement :</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="2509"/>
@@ -850,7 +850,7 @@ Donc, une image 100x100, avec un initImgBound de 10, créerait des points-clés 
     <message>
         <location filename="mainwindow.ui" line="2536"/>
         <source>Norm Type :</source>
-        <translation type="unfinished"></translation>
+        <translation>Norme :</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="2520"/>
@@ -866,7 +866,7 @@ Donc, une image 100x100, avec un initImgBound de 10, créerait des points-clés 
     <message>
         <location filename="mainwindow.ui" line="2523"/>
         <source>Cross Check :</source>
-        <translation type="unfinished"></translation>
+        <translation>Vérification Croisée :</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="2549"/>
@@ -1207,13 +1207,13 @@ Actes de la 33ème Conférence internationale sur les bases de données très vo
     </message>
     <message>
         <location filename="mainwindow.ui" line="3309"/>
-        <location filename="mainwindow.cpp" line="1128"/>
+        <location filename="mainwindow.cpp" line="1135"/>
         <source>About Us</source>
         <translation>A propos de nous</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="3318"/>
-        <location filename="mainwindow.cpp" line="2041"/>
+        <location filename="mainwindow.cpp" line="2050"/>
         <source>Add Command</source>
         <translation>Ajouter Commande</translation>
     </message>
@@ -1229,8 +1229,8 @@ Actes de la 33ème Conférence internationale sur les bases de données très vo
     </message>
     <message>
         <location filename="mainwindow.ui" line="3333"/>
-        <location filename="mainwindow.cpp" line="1116"/>
-        <location filename="mainwindow.cpp" line="1117"/>
+        <location filename="mainwindow.cpp" line="1123"/>
+        <location filename="mainwindow.cpp" line="1124"/>
         <source>Delete All Commands</source>
         <translation>Supprimer Toutes les Commandes</translation>
     </message>
@@ -1285,27 +1285,27 @@ Actes de la 33ème Conférence internationale sur les bases de données très vo
     </message>
     <message>
         <location filename="mainwindow.cpp" line="465"/>
-        <location filename="mainwindow.cpp" line="2417"/>
-        <location filename="mainwindow.cpp" line="3378"/>
-        <location filename="mainwindow.cpp" line="3403"/>
+        <location filename="mainwindow.cpp" line="2427"/>
+        <location filename="mainwindow.cpp" line="3387"/>
+        <location filename="mainwindow.cpp" line="3412"/>
         <source>Detection time: %1(s)</source>
         <oldsource>Detection time: %1 (s)</oldsource>
         <translation>Durée de détection : %1 (s)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="477"/>
-        <location filename="mainwindow.cpp" line="2486"/>
-        <location filename="mainwindow.cpp" line="3379"/>
-        <location filename="mainwindow.cpp" line="3404"/>
+        <location filename="mainwindow.cpp" line="2496"/>
+        <location filename="mainwindow.cpp" line="3388"/>
+        <location filename="mainwindow.cpp" line="3413"/>
         <source>Description time: %1(s)</source>
         <oldsource>Description time: %1 (s)</oldsource>
         <translation>Durée de description : %1 (s)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="490"/>
-        <location filename="mainwindow.cpp" line="2592"/>
-        <location filename="mainwindow.cpp" line="3381"/>
-        <location filename="mainwindow.cpp" line="3406"/>
+        <location filename="mainwindow.cpp" line="2602"/>
+        <location filename="mainwindow.cpp" line="3390"/>
+        <location filename="mainwindow.cpp" line="3415"/>
         <source>Matching time: %1(s)</source>
         <oldsource>Matching time: %1 (s)</oldsource>
         <translation>Durée d&apos;appariement : %1 (s)</translation>
@@ -1313,8 +1313,8 @@ Actes de la 33ème Conférence internationale sur les bases de données très vo
     <message>
         <location filename="mainwindow.cpp" line="492"/>
         <location filename="mainwindow.cpp" line="643"/>
-        <location filename="mainwindow.cpp" line="3382"/>
-        <location filename="mainwindow.cpp" line="3407"/>
+        <location filename="mainwindow.cpp" line="3391"/>
+        <location filename="mainwindow.cpp" line="3416"/>
         <source>Total time: %1(s)</source>
         <oldsource>Total time: %1 (s)</oldsource>
         <translation>Durée totale %1 (s)</translation>
@@ -1388,8 +1388,10 @@ Actes de la 33ème Conférence internationale sur les bases de données très vo
     </message>
     <message>
         <location filename="mainwindow.cpp" line="1048"/>
-        <location filename="mainwindow.cpp" line="2010"/>
-        <location filename="mainwindow.cpp" line="3433"/>
+        <location filename="mainwindow.cpp" line="1096"/>
+        <location filename="mainwindow.cpp" line="2017"/>
+        <location filename="mainwindow.cpp" line="3442"/>
+        <location filename="mainwindow.cpp" line="3443"/>
         <source>Processing ...</source>
         <translation>Traitement en cours ...</translation>
     </message>
@@ -1399,32 +1401,32 @@ Actes de la 33ème Conférence internationale sur les bases de données très vo
         <translation>Nouveau Test</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1116"/>
+        <location filename="mainwindow.cpp" line="1123"/>
         <source>All commands (</source>
         <translation>Toutes les Commandes</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1116"/>
+        <location filename="mainwindow.cpp" line="1123"/>
         <source> commands) have been deleted with success from input file !</source>
         <translation> commandes) ont été supprimées avec succès depuis le fichier input !</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1117"/>
+        <location filename="mainwindow.cpp" line="1124"/>
         <source>There is no commands in the input file (Probably you haven&apos;t add a new command or you have just deleted them all) !</source>
         <translation>Aucune commande n&apos;est trouvée dans le fichier input (Peut être vous n&apos;avez pas ajouté une nouvelle commande ou vous venez de les supprimer toutes) !</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1129"/>
+        <location filename="mainwindow.cpp" line="1136"/>
         <source>&lt;b&gt;OpenCV Feature Detectors Comparison&lt;/b&gt;&lt;br&gt;&lt;br&gt;This program uses OpenCV and Qt, and is provided as is, for educational purposes such as benchmarking of algorithms.&lt;br&gt;&lt;br&gt;You may contact me for the source code of this program at &lt;a href=&apos;mailto:dn_ghouila@esi.dz&apos;&gt;dn_ghouila@esi.dz&lt;/a&gt; or &lt;a href=&apos;mailto:da_belkaid@esi.dz&apos;&gt;da_belkaid@esi.dz&lt;/a&gt;&lt;br&gt;&lt;br&gt;Thanks&lt;br&gt;&lt;br&gt;GHOUILA Nabil &amp; BELKAID Aïssa&lt;br&gt;&lt;br&gt;&lt;a href=&apos;mailto:da_belkaid@esi.dz&apos;&gt;da_belkaid@esi.dz&lt;/a&gt;&lt;br&gt;&lt;br&gt;&lt;a href=&apos;mailto:dn_ghouila@esi.dz&apos;&gt;dn_ghouila@esi.dz&lt;/a&gt;</source>
         <translation>&lt;b&gt;Comparison des détecteurs/descripteurs de points d&apos;intérêt avec OpenCV&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ce programme utilise OpenCV et Qt, et est offèrt pour des fins éducatif comme le benchmark des algorithmes.&lt;br&gt;&lt;br&gt;Vous devez contacter nous pour le code source de ce programe via &lt;a href=&apos;mailto:dn_ghouila@esi.dz&apos;&gt;dn_ghouila@esi.dz&lt;/a&gt; ou &lt;a href=&apos;mailto:da_belkaid@esi.dz&apos;&gt;da_belkaid@esi.dz&lt;/a&gt;&lt;br&gt;&lt;br&gt;Merci&lt;br&gt;&lt;br&gt;GHOUILA Nabil et BELKAID Aïssa&lt;br&gt;&lt;br&gt;&lt;a href=&apos;mailto:da_belkaid@esi.dz&apos;&gt;da_belkaid@esi.dz&lt;/a&gt;&lt;br&gt;&lt;br&gt;&lt;a href=&apos;mailto:dn_ghouila@esi.dz&apos;&gt;dn_ghouila@esi.dz&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1206"/>
+        <location filename="mainwindow.cpp" line="1213"/>
         <source>No data to show! You can Show Rank-k Graph after launching some tests!</source>
         <translation>Aucune donnée à afficher ! Vous pouvez afficher le graphe Rank-k après avoir éffectué quelques tests !</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1317"/>
+        <location filename="mainwindow.cpp" line="1324"/>
         <source>Show EER Graph</source>
         <translation>Afficher le graphe EER</translation>
     </message>
@@ -1433,41 +1435,41 @@ Actes de la 33ème Conférence internationale sur les bases de données très vo
         <translation type="vanished">Aucune donnée à afficher ! Vous pouvez afficher le graphe EER après avoir éffectué quelques tests de FM et FNM !</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1480"/>
-        <location filename="mainwindow.cpp" line="1498"/>
+        <location filename="mainwindow.cpp" line="1487"/>
+        <location filename="mainwindow.cpp" line="1505"/>
         <source>Creating directory</source>
         <translation>Création des dossiers</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1480"/>
+        <location filename="mainwindow.cpp" line="1487"/>
         <source>Cannot create a directory to store matches</source>
         <translation>Impossible de créer le dossier pour stocker les appariements</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1480"/>
-        <location filename="mainwindow.cpp" line="1498"/>
+        <location filename="mainwindow.cpp" line="1487"/>
+        <location filename="mainwindow.cpp" line="1505"/>
         <source>Make sure that </source>
         <translation>Vérifiez que </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1480"/>
-        <location filename="mainwindow.cpp" line="1498"/>
+        <location filename="mainwindow.cpp" line="1487"/>
+        <location filename="mainwindow.cpp" line="1505"/>
         <source> existes</source>
         <translation> existe</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1498"/>
+        <location filename="mainwindow.cpp" line="1505"/>
         <source>Failed to create directory for the current test</source>
         <translation>Echec de création de dossier pour le test courant</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1505"/>
+        <location filename="mainwindow.cpp" line="1512"/>
         <source>Found %1 key points in the %2 image</source>
         <oldsource>Found %1 key points in the %2 image!</oldsource>
         <translation>%1 points-clés trouvés dans la %2 ème image</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1509"/>
+        <location filename="mainwindow.cpp" line="1516"/>
         <source>Point matching can not be done because no key points detected in the %1 image!</source>
         <translation>L&apos;appariement des points ne peut pas être effectué car aucun point clé n&apos;a été détecté dans la %1 image !</translation>
     </message>
@@ -1476,303 +1478,303 @@ Actes de la 33ème Conférence internationale sur les bases de données très vo
         <translation type="vanished">&lt;b style=&apos;color:yellow&apos;&gt;Impossible de vider certaines structures !&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1681"/>
+        <location filename="mainwindow.cpp" line="1688"/>
         <source>&lt;i style=&apos;color:red&apos;&gt;The number of clusters is too high, try another!&lt;/i&gt;</source>
         <translation>&lt;i style=&apos;color:red&apos;&gt;Le nombre de clusters est très grand, réessayez avec un autre !&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1690"/>
-        <location filename="mainwindow.cpp" line="3380"/>
-        <location filename="mainwindow.cpp" line="3405"/>
+        <location filename="mainwindow.cpp" line="1697"/>
+        <location filename="mainwindow.cpp" line="3389"/>
+        <location filename="mainwindow.cpp" line="3414"/>
         <source>Clustering time: %1(s)</source>
         <oldsource>Clustering time: %1 (s)</oldsource>
         <translation>Durée de Clustering : %1 (s)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1910"/>
+        <location filename="mainwindow.cpp" line="1917"/>
         <source>&lt;b style=&apos;color:orange&apos;&gt;Image %1  can not be saved (may be because directory %2 does not exist) !&lt;/b&gt;</source>
         <oldsource>&lt;b style=&apos;color:orange&apos;&gt;Image %1  can not be saved (may be because directory %2</oldsource>
         <translation>&lt;b style=&apos;color:orange&apos;&gt;L&apos;image %1  ne peut pas être sauvegardée (probablement parceque le dossier %2 n&apos;existe pas) !&lt;b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1914"/>
+        <location filename="mainwindow.cpp" line="1921"/>
         <source>&lt;b style=&apos;color:orange&apos;&gt;Image %1output.jpg can not be saved (may be because directory %2 does not exist) !&lt;/b&gt;</source>
         <oldsource>&lt;b style=&apos;color:orange&apos;&gt;Image %1output.jpg can not be saved (may be because directory %2 does not exist) !&lt; / b&gt;</oldsource>
         <translation>&lt;b style=&apos;color:orange&apos;&gt;L&apos;image %1output.jpg  ne peut pas être sauvegardée (probablement parceque le dossier %2 n&apos;existe pas) !&lt;b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1937"/>
+        <location filename="mainwindow.cpp" line="1944"/>
         <source>&lt;b style=&apos;color:orange&apos;&gt;Matches Image can not be saved (may be because directory %1  does not exist) !&lt;/b&gt;</source>
         <oldsource>&lt;b style=&apos;color:orange&apos;&gt;Matches Image can not be saved (may be because directory %1  does not exist) !&lt;/b&gt;%2</oldsource>
         <translation>&lt;b style=&apos;color:orange&apos;&gt;L&apos;image d&apos; appariement  ne peut pas être sauvegardée (probablement parceque le dossier %1 n&apos;existe pas) !&lt;b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1964"/>
+        <location filename="mainwindow.cpp" line="1971"/>
         <source>Reading images ...</source>
         <translation>Chargement des images ...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1967"/>
+        <location filename="mainwindow.cpp" line="1974"/>
         <source>&lt;b style=&apos;color:red&apos;&gt;Error while trying to read the 1st input file!&lt;/b&gt;</source>
         <translation>&lt;b style=&apos;color:red&apos;&gt;Erreur lors de la lecture du premier fichier !&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1977"/>
+        <location filename="mainwindow.cpp" line="1984"/>
         <source>Read Images</source>
         <translation>Charger les Images</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1977"/>
+        <location filename="mainwindow.cpp" line="1984"/>
         <source>There is no image in the folder: </source>
         <translation>Aucune image n&apos;est trouvée dans le dossier :</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1977"/>
+        <location filename="mainwindow.cpp" line="1984"/>
         <source>Make sure that the folder &apos;&lt;i&gt;</source>
         <translation>Vérifiez que le dossier &apos;&lt;i&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1977"/>
+        <location filename="mainwindow.cpp" line="1984"/>
         <source>&apos;&lt;/i&gt;  contains one or more images with correct extension!</source>
         <translation>&apos;&lt;/i&gt;  contient une ou plusieurs images avec une extension correcte !</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1993"/>
+        <location filename="mainwindow.cpp" line="2000"/>
         <source>&lt;b style=&apos;color:red&apos;&gt;Error while trying to read the 2nd input file!&lt;/b&gt;</source>
         <translation>&lt;b style=&apos;color:red&apos;&gt;Erreur lors de la lecture du deuxième fichier !&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2028"/>
+        <location filename="mainwindow.cpp" line="2035"/>
         <source>Displaying results ...</source>
         <translation>Affichage des résultast ...</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2041"/>
+        <location filename="mainwindow.cpp" line="2050"/>
         <source>This test has been added with success to Excel input file !</source>
         <translation>Ce test a été ajouté avec succès au fichier input Excel !</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2062"/>
-        <source>Binarization</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="2062"/>
-        <location filename="mainwindow.cpp" line="2076"/>
+        <location filename="mainwindow.cpp" line="2071"/>
+        <location filename="mainwindow.cpp" line="2085"/>
         <source>Error in the image &apos;</source>
         <translation>Erreur - dans l&apos;image &apos;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2076"/>
+        <location filename="mainwindow.cpp" line="2071"/>
+        <source>Binarization</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="2085"/>
         <source>Thresholding</source>
         <translation>Seuillage</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2232"/>
-        <location filename="mainwindow.cpp" line="2293"/>
+        <location filename="mainwindow.cpp" line="2242"/>
+        <location filename="mainwindow.cpp" line="2303"/>
         <source>&lt;i style=&apos;color:red&apos;&gt;Before detecting Minutiae you must select a segmentation method !&lt;/i&gt;</source>
         <translation>&lt;i style=&apos;color:red&apos;&gt;Avant de détecter les minuties vous devez sélectionner une méthode de segmentation !&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2385"/>
+        <location filename="mainwindow.cpp" line="2395"/>
         <source>&lt;i style=&apos;color:yellow&apos;&gt;No detector selected.&lt;/i&gt;</source>
         <translation>&lt;i style=&apos;color:yellow&apos;&gt;Aucun détecteur n&apos;est sélectionné.&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2405"/>
+        <location filename="mainwindow.cpp" line="2415"/>
         <source>&lt;b style=&apos;color:red&apos;&gt;Please select the right %1 detector parameters, or use the defaults!.&lt;/b&gt;</source>
         <oldsource>&lt;b style=&apos;color:red&apos;&gt;Please select the right %1 detector parameters, or use the defaults!.&lt;/b&gt;%2</oldsource>
         <translation>&lt;b style=&apos;color:red&apos;&gt;Veuillez séléctionner une valeur correcte pour le %1 paramètre du détecteur, ou utilisez la valeur par défaut !.&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2462"/>
+        <location filename="mainwindow.cpp" line="2472"/>
         <source>&lt;i style=&apos;color:yellow&apos;&gt;No descriptor selected.&lt;/i&gt;</source>
         <translation>&lt;i style=&apos;color:yellow&apos;&gt;Aucun descripteur n&apos;est sélectionné.&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2489"/>
+        <location filename="mainwindow.cpp" line="2499"/>
         <source>&lt;b style=&apos;color:red&apos;&gt;Please select the right pair indexes within the FREAK descriptor, or just leave it!.&lt;/b&gt;&lt;br&gt;(For more details read Section(4.2) in: &lt;i&gt;A. Alahi, R. Ortiz, and P. Vandergheynst. FREAK: Fast Retina Keypoint. In IEEE Conference on Computer Vision and Pattern Recognition, 2012.&lt;/i&gt;)</source>
         <translation>&lt;b style=&apos;color:red&apos;&gt;Veuillez séléctionner une valeur correcte pour le  pair indexes dans le descripteur FREAK, ou laissez la case vide !.&lt;/b&gt;&lt;br&gt;(Pour plus de détaille voir Section(4.2) dans: &lt;i&gt;A. Alahi, R. Ortiz, and P. Vandergheynst. FREAK: Fast Retina Keypoint. In IEEE Conference on Computer Vision and Pattern Recognition, 2012.&lt;/i&gt;)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2490"/>
+        <location filename="mainwindow.cpp" line="2500"/>
         <source>&lt;b style=&apos;color:red&apos;&gt;Please select the right %1 descriptor parameters, or use the defaults!.&lt;/b&gt;</source>
         <oldsource>&lt;b style=&apos;color:red&apos;&gt;Please select the right %1 descriptor parameters, or use the defaults!.&lt;/b&gt;%2</oldsource>
         <translation>&lt;b style=&apos;color:red&apos;&gt;Veuillez séléctionner une valeur correcte pour le %1 paramètre du descripteur, ou utilisez la valeur par défaut !.&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2517"/>
+        <location filename="mainwindow.cpp" line="2527"/>
         <source>&lt;i style=&apos;color:yellow&apos;&gt;No matcher selected.&lt;/i&gt;</source>
         <translation>&lt;i style=&apos;color:yellow&apos;&gt;Aucune méthode d&apos;appariement n&apos;est sélectionnée.&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2586"/>
+        <location filename="mainwindow.cpp" line="2596"/>
         <source>&lt;b style=&apos;color:orange&apos;&gt;Set &lt;i&gt;Cross Check&lt;/i&gt; in Brute Force as false while matching Minutiaes!.&lt;/b&gt;</source>
         <translation>&lt;b style=&apos;color:orange&apos;&gt;Metez &lt;i&gt;Cross Check&lt;/i&gt; dans Brute Force à faux lors de l&apos;appariement des Minuties !.&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2588"/>
+        <location filename="mainwindow.cpp" line="2598"/>
         <source>&lt;b style=&apos;color:orange&apos;&gt;Set &lt;i&gt;Cross Check&lt;/i&gt; in Brute Force as false while using clustering!.&lt;/b&gt;</source>
         <translation>&lt;b style=&apos;color:orange&apos;&gt;Metez &lt;i&gt;Cross Check&lt;/i&gt; dans Brute Force à faux lors de l&apos;utilisation de clustering !.&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2589"/>
+        <location filename="mainwindow.cpp" line="2599"/>
         <source>&lt;b style=&apos;color:red&apos;&gt;Cannot match descriptors because of an incompatible combination!, try another one.&lt;/b&gt;</source>
         <translation>&lt;b style=&apos;color:red&apos;&gt;Impossible d&apos;apparier les descripteurs à cause d&apos;une mauvaise combinaison !, essayez une autre.&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2600"/>
+        <location filename="mainwindow.cpp" line="2610"/>
         <source>&lt;b style=&apos;color:red&apos;&gt;Invalid Limit Distance: %1, the default value is maintained!&lt;/b&gt;</source>
         <oldsource>&lt;b style=&apos;color:red&apos;&gt;Invalid Limit Distance: %1, the default value is maintained!&lt;/b&gt;%2</oldsource>
         <translation>&lt;b style=&apos;color:red&apos;&gt;Limite distance invalide : %1, la valeur par défaut est maintenue !&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2620"/>
-        <location filename="mainwindow.cpp" line="2732"/>
+        <location filename="mainwindow.cpp" line="2630"/>
+        <location filename="mainwindow.cpp" line="2742"/>
         <source>&lt;b style=&apos;color:red&apos;&gt;Invalid Lowe&apos;s Ratio: %1, the default value is maintained!&lt;/b&gt;</source>
         <oldsource>&lt;b style=&apos;color:red&apos;&gt;Invalid Lowe&apos;s Ratio: %1, the default value is maintained!&lt;/b&gt;%2</oldsource>
         <translation>&lt;b style=&apos;color:red&apos;&gt;Lowe Raio invalide : %1, la valeur par défaut est maintenue !&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2809"/>
+        <location filename="mainwindow.cpp" line="2819"/>
         <source>&lt;b style=&apos;color:red&apos;&gt;Code Error: %1 &lt;/b&gt;</source>
         <oldsource>&lt;b style=&apos;color:red&apos;&gt;Code Error: %1 &lt;/b&gt;%2</oldsource>
         <translation>&lt;b style=&apos;color:red&apos;&gt;Code d&apos;Erreur : %1 &lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2988"/>
+        <location filename="mainwindow.cpp" line="2998"/>
         <source>&lt;i style=&apos;color:red&apos;&gt;Cannot mask some matches by clusters! (between first and %1 image)&lt;/i&gt;</source>
         <oldsource>&lt;i style=&apos;color:red&apos;&gt;Cannot mask matches by clusters!&lt;/i&gt;</oldsource>
         <translation>&lt;i style=&apos;color:red&apos;&gt;Impossible de masker cerains appariements par clusters ! (entre la première et la %1 ème image)&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3001"/>
+        <location filename="mainwindow.cpp" line="3011"/>
         <source>
 Found %1 key points in the most similar image</source>
         <translation>
 %1 points-clés trouvés dans l&apos; image la plus similaire</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3007"/>
+        <location filename="mainwindow.cpp" line="3017"/>
         <source>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score: &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;%3</source>
         <oldsource>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score: &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;</oldsource>
         <translation>L&apos;image &lt;b&gt;%1&lt;/b&gt; a obtenu le meilleur score : &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;%3</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3008"/>
+        <location filename="mainwindow.cpp" line="3018"/>
         <source>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score: &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;%3</source>
         <oldsource>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score: &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;</oldsource>
         <translation>L&apos;image &lt;b&gt;%1&lt;/b&gt; a obtenu le meilleur score : &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;%3</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3011"/>
-        <location filename="mainwindow.cpp" line="3025"/>
-        <location filename="mainwindow.cpp" line="3388"/>
+        <location filename="mainwindow.cpp" line="3021"/>
+        <location filename="mainwindow.cpp" line="3035"/>
+        <location filename="mainwindow.cpp" line="3397"/>
         <source>The first image is Rank-&lt;b&gt;%1&lt;/b&gt; </source>
         <oldsource>The first image is Rank-&lt;b&gt;%1&lt;/b&gt; %2</oldsource>
         <translation>La première image est Rank-&lt;b&gt;%1&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3012"/>
-        <location filename="mainwindow.cpp" line="3027"/>
+        <location filename="mainwindow.cpp" line="3022"/>
+        <location filename="mainwindow.cpp" line="3037"/>
         <source>There is a False Non-Match (FNM)</source>
         <translation>C&apos;est un Faux Appariement Négatif (FNM)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3015"/>
+        <location filename="mainwindow.cpp" line="3025"/>
         <source>There is a False Match (FM)</source>
         <translation>C&apos;est un Faux Appariement</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3030"/>
+        <location filename="mainwindow.cpp" line="3040"/>
         <source>&lt;b style=&apos;color:red&apos;&gt;All obtained scores are null.&lt;/b&gt;</source>
         <translation>&lt;b style=&apos;color:red&apos;&gt;Tous les scores obtenus sont nuls.&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3037"/>
-        <location filename="mainwindow.cpp" line="3409"/>
+        <location filename="mainwindow.cpp" line="3047"/>
+        <location filename="mainwindow.cpp" line="3418"/>
         <source>Matching score = &lt;b&gt;%1&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;%2</source>
         <translation>Score d&apos;appariement = &lt;b&gt;%1&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;%2</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3038"/>
-        <location filename="mainwindow.cpp" line="3410"/>
+        <location filename="mainwindow.cpp" line="3048"/>
+        <location filename="mainwindow.cpp" line="3419"/>
         <source>Matching score = &lt;b&gt;%1&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;%2</source>
         <translation>Score d&apos;appariement = &lt;b&gt;%1&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;%2</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3330"/>
+        <location filename="mainwindow.cpp" line="3339"/>
         <source>&lt;b style=&apos;color:green&apos;&gt;Starting %1 test (Done on: %2):&lt;/b&gt; </source>
         <oldsource>&lt;b style=&apos;color:green&apos;&gt;Starting %1 test (Done on: %2):&lt;/b&gt;</oldsource>
         <translation>&lt;b style=&apos;color:green&apos;&gt;Démarrage %1 test (Fait le: %2):&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3335"/>
+        <location filename="mainwindow.cpp" line="3344"/>
         <source>Found %1 key points in the first image</source>
         <oldsource>Found %1 key points in the first image!%2</oldsource>
         <translation>%1 points-clés trouvés dans la première image</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3377"/>
+        <location filename="mainwindow.cpp" line="3386"/>
         <source>Found %1 key points in the most similar image</source>
         <oldsource>Found %1 key points in the most similar image!%2</oldsource>
         <translation>%1 points-clés trouvés dans l&apos;image la plus similaire</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3386"/>
+        <location filename="mainwindow.cpp" line="3395"/>
         <source>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score = &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;%3</source>
         <oldsource>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score = &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;</oldsource>
         <translation>L&apos;image &lt;b&gt;%1&lt;/b&gt; a obtenu le meilleur score d&apos;appariement = &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:green&apos;&gt; &amp;ge; &lt;/b&gt;%3</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3387"/>
+        <location filename="mainwindow.cpp" line="3396"/>
         <source>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score = &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;%3</source>
         <oldsource>The image &lt;b&gt;%1&lt;/b&gt; has the best matching score = &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;</oldsource>
         <translation>L&apos;image &lt;b&gt;%1&lt;/b&gt; a obtenu le meilleur score d&apos;appariement = &lt;b&gt;%2&lt;/b&gt;&lt;b style=&apos;color:red&apos;&gt; &amp;#60; &lt;/b&gt;%3</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2035"/>
+        <location filename="mainwindow.cpp" line="2042"/>
         <source>This test has been exported with success under the identifier number: %1</source>
         <translation>Ce test a été exporté avec succès sous l&apos;identifiant numéro : %1</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1317"/>
+        <location filename="mainwindow.cpp" line="1324"/>
         <source>No data to show! You can Show EER Graph after having some FM and FNM tests !</source>
         <translation>Aucune donnée à afficher ! Vous pouvez afficher le graphe EER après avoir éffectué quelques tests de FM et FNM !</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1579"/>
+        <location filename="mainwindow.cpp" line="1586"/>
         <source>&lt;b style=&apos;color:yellow&apos;&gt;Unable to free some structures!&lt;/b&gt;</source>
         <translation>&lt;b style=&apos;color:yellow&apos;&gt;Impossible de vider certaines structures !&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3444"/>
+        <location filename="mainwindow.cpp" line="3454"/>
         <source>Import Excel Error!</source>
         <translation>Erreur d&apos;Importation Excel !</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3444"/>
+        <location filename="mainwindow.cpp" line="3454"/>
         <source>Please check the number that has been entered because no ID matches this number !</source>
         <translation>Veuillez vérifier le nombre introduit car aucun numéro ne correspond à ce numéro!</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3447"/>
+        <location filename="mainwindow.cpp" line="3457"/>
         <source>Import Input file!</source>
         <translation>Importation de fichier input !</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3447"/>
+        <location filename="mainwindow.cpp" line="3457"/>
         <source>The execution of all commands has been finished with success !</source>
         <translation>L&apos;exécution de toutes les commandes a été terminée avec succès !</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3455"/>
+        <location filename="mainwindow.cpp" line="3466"/>
         <source>Error while importing from Excel file!</source>
         <oldsource>Error lors de l&apos;importation du fichier excel !</oldsource>
         <translation>Error lors de l&apos;importation du fichier excel !</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3818"/>
+        <location filename="mainwindow.cpp" line="3829"/>
         <source>Percent %</source>
         <translation>Pourcentage %</translation>
     </message>
@@ -1782,7 +1784,7 @@ Found %1 key points in the most similar image</source>
         <translation type="vanished">Rank-k (partielle)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3817"/>
+        <location filename="mainwindow.cpp" line="3828"/>
         <source>Threshold (x100)</source>
         <oldsource>Threshold</oldsource>
         <translation>Seuil (x100)</translation>
@@ -1797,29 +1799,29 @@ Found %1 key points in the most similar image</source>
         <translation type="obsolete">Ce test a été exporté avec succès sous l&apos;identifiant numéro : %1&lt;/b&gt; </translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3402"/>
+        <location filename="mainwindow.cpp" line="3411"/>
         <source>Found %1 key points in the second image</source>
         <oldsource>Found %1 key points in the second image!%2</oldsource>
         <translation>%1 points-clés trouvés dans la deuxième image</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3424"/>
+        <location filename="mainwindow.cpp" line="3433"/>
         <source>Import Excel Success!</source>
         <translation>Importation Excel Réussie !</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="3424"/>
+        <location filename="mainwindow.cpp" line="3433"/>
         <source>The test N°: %1 has been imported with success !</source>
         <translation>Le test N°: %1 a été importé avec succès !</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2033"/>
+        <location filename="mainwindow.cpp" line="2040"/>
         <source>&lt;b style=&apos;color:green&apos;&gt;This test has been exported with success under the identifier number: %1</source>
         <oldsource>&lt;b style=&apos;color:green&apos;&gt;This test has been exported with success under the identifier number: %1&lt;/b&gt; </oldsource>
         <translation>&lt;b style=&apos;color:green&apos;&gt;Ce test a été exporté avec succès sous l&apos;identifiant numéro : %1</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="2035"/>
+        <location filename="mainwindow.cpp" line="2042"/>
         <source>Export Excel !</source>
         <translation>Exportation vers Excel !</translation>
     </message>
