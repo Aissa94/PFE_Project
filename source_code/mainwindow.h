@@ -14,6 +14,7 @@ public:
 	~MainWindow(); 
 	void launchInCMD();
 	void showEvent(QShowEvent* event);
+	QTranslator trs;
 
 protected:
 	virtual void wheelEvent(QWheelEvent* event);

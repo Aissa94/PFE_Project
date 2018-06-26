@@ -1150,7 +1150,8 @@ void MainWindow::on_actionAbout_Me_triggered()
 
 void MainWindow::showEvent(QShowEvent* event) {
 	QWidget::showEvent(event);
-	if (language == "French" || language == "Français") ui->retranslateUi(this);
+	if (language == "English" || language == "Anglais") qApp->removeTranslator(&trs);
+	ui->retranslateUi(this);
 }
 
 void MainWindow::on_refreshRankkGraph_pressed(){
