@@ -529,40 +529,40 @@ void MainWindow::runDefault(int testType)
 	}
 
 	try{
-		excelReader->SetCellValue(excelColumn + 1, 0, ui->decisionStageThresholdText->text());
+		excelReader->SetCellValue(excelColumn + 1, 0, ui->normalizationOffsetText->text());
+		excelReader->SetCellValue(excelColumn + 2, 0, ui->decisionStageThresholdText->text());
 
 		if (testType == 0)
 		{
-			excelReader->SetCellValue(excelColumn + 2, 0, QString::number(firstImgKeypoints.size()));
-
-			excelReader->SetCellValue(excelColumn + 4, 0, QString::number(detectionTime) + " (s)");
-			excelReader->SetCellValue(excelColumn + 5, 0, QString::number(descriptionTime) + " (s)");
-			excelReader->SetCellValue(excelColumn + 6, 0, QString::number(clusteringTime) + " (s)");
-			excelReader->SetCellValue(excelColumn + 7, 0, QString::number(matchingTime) + " (s)");
-			excelReader->SetCellValue(excelColumn + 8, 0, QString::number(detectionTime + descriptionTime + matchingTime) + " (s)");
+			excelReader->SetCellValue(excelColumn + 3, 0, QString::number(firstImgKeypoints.size()));
+			excelReader->SetCellValue(excelColumn + 5, 0, QString::number(detectionTime) + " (s)");
+			excelReader->SetCellValue(excelColumn + 6, 0, QString::number(descriptionTime) + " (s)");
+			excelReader->SetCellValue(excelColumn + 7, 0, QString::number(clusteringTime) + " (s)");
+			excelReader->SetCellValue(excelColumn + 8, 0, QString::number(matchingTime) + " (s)");
+			excelReader->SetCellValue(excelColumn + 9, 0, QString::number(detectionTime + descriptionTime + matchingTime) + " (s)");
 
 			if (!ui->oneToN->isChecked()) {
-				excelReader->SetCellValue(excelColumn + 3, 0, QString::number(secondImgKeypoints.size()));
-				excelReader->SetCellValue(excelColumn + 9, 0, QString::number(goodMatches.size()));
-				excelReader->SetCellValue(excelColumn + 10, 0, QString::number(badMatches.size()));
-				excelReader->SetCellValue(excelColumn + 11, 0, QString::number(sumDistances / static_cast<float>(goodMatches.size())));
-				excelReader->SetCellValue(excelColumn + 12, 0, QString::number(score));
+				excelReader->SetCellValue(excelColumn + 4, 0, QString::number(secondImgKeypoints.size()));
+				excelReader->SetCellValue(excelColumn + 10, 0, QString::number(goodMatches.size()));
+				excelReader->SetCellValue(excelColumn + 11, 0, QString::number(badMatches.size()));
+				excelReader->SetCellValue(excelColumn + 12, 0, QString::number(sumDistances / static_cast<float>(goodMatches.size())));
+				excelReader->SetCellValue(excelColumn + 13, 0, QString::number(score));
 			}
 			else {
 				if (bestScoreIndex > -1)
 				{
-					excelReader->SetCellValue(excelColumn + 3, 0, QString::number(setImgsKeypoints[bestScoreIndex].size()));
-					excelReader->SetCellValue(excelColumn + 9, 0, QString::number(goodMatchesSet[bestScoreIndex].size()));
-					excelReader->SetCellValue(excelColumn + 10, 0, QString::number(badMatchesSet[bestScoreIndex].size()));
-					excelReader->SetCellValue(excelColumn + 11, 0, QString::number(sumDistancesSet[bestScoreIndex] / static_cast<float>(goodMatchesSet[bestScoreIndex].size())));
-					excelReader->SetCellValue(excelColumn + 12, 0, QString::number(scoreSet[bestScoreIndex]));
-					excelReader->SetCellValue(excelColumn + 14, 0, QString::fromStdString(std::get<0>(setImgs[bestScoreIndex])));
+					excelReader->SetCellValue(excelColumn + 4, 0, QString::number(setImgsKeypoints[bestScoreIndex].size()));
+					excelReader->SetCellValue(excelColumn + 10, 0, QString::number(goodMatchesSet[bestScoreIndex].size()));
+					excelReader->SetCellValue(excelColumn + 11, 0, QString::number(badMatchesSet[bestScoreIndex].size()));
+					excelReader->SetCellValue(excelColumn + 12, 0, QString::number(sumDistancesSet[bestScoreIndex] / static_cast<float>(goodMatchesSet[bestScoreIndex].size())));
+					excelReader->SetCellValue(excelColumn + 13, 0, QString::number(scoreSet[bestScoreIndex]));
+					excelReader->SetCellValue(excelColumn + 15, 0, QString::fromStdString(std::get<0>(setImgs[bestScoreIndex])));
 				}
 				if (ui->imageExistsInBdd->isChecked() && ui->imageExistsInBdd->isEnabled()) {
 					int ff = ui->bddImageNames->currentIndex();
-					if (ui->bddImageNames->currentIndex() > -1) excelReader->SetCellValue(excelColumn + 13, 0, QString::number(scoreSet[ui->bddImageNames->currentIndex()]));
+					if (ui->bddImageNames->currentIndex() > -1) excelReader->SetCellValue(excelColumn + 14, 0, QString::number(scoreSet[ui->bddImageNames->currentIndex()]));
 					float scoreThreshold = ui->decisionStageThresholdText->text().toFloat();
-					excelReader->SetCellValue(excelColumn + 15, 0, QString::number(computeRankK(scoreThreshold)));
+					excelReader->SetCellValue(excelColumn + 16, 0, QString::number(computeRankK(scoreThreshold)));
 				}
 			}
 		}
@@ -1314,7 +1314,7 @@ void MainWindow::on_refreshEerGraph_pressed(){
 		//ui->eerGraphWidget->clearItems();
 	}
 
-	if (FMR_dataFromExcel.empty() && FNMR_dataFromExcel.empty()) QMessageBox::warning(this, tr("Show EER Graph"), tr("No data to show! You can Show EER Graph after having some FM et FNM tests !"));
+	if (FMR_dataFromExcel.empty() && FNMR_dataFromExcel.empty()) QMessageBox::warning(this, tr("Show EER Graph"), tr("No data to show! You can Show EER Graph after having some FM and FNM tests !"));
 	else try{
 		drowEer(FMR_dataFromExcel, FNMR_dataFromExcel);
 	} catch (...){}
@@ -1576,7 +1576,7 @@ void MainWindow::resetParams()
 		clusterAffectation.clear();
 	}
 	catch (...){
-		ui->logPlainText->appendHtml(tr("<b style='color:yellow'>Enable to free some structures!</b>"));
+		ui->logPlainText->appendHtml(tr("<b style='color:yellow'>Unable to free some structures!</b>"));
 	}
 }
 
@@ -3321,8 +3321,6 @@ void MainWindow::importExcelFile()
 
 						ui->opponentColor->setChecked(excelRecover->GetCellValue(progressPercentage, 31 - importExcelFileType).toBool());
 
-						ui->normalizationOffsetText->setText(excelRecover->GetCellValue(progressPercentage, 32 - importExcelFileType).toString());
-
 						break;
 					}
 
@@ -3331,6 +3329,7 @@ void MainWindow::importExcelFile()
 					{
 						ui->logPlainText->appendHtml(tr("<b style='color:green'>Starting %1 test (Done on: %2):</b> ").arg(excelRecover->GetSheetName()).arg(excelRecover->GetCellValue(progressPercentage, 2).toString()));
 
+						ui->normalizationOffsetText->setText(excelRecover->GetCellValue(progressPercentage, column - 15).toString());
 						ui->decisionStageThresholdText->setText(excelRecover->GetCellValue(progressPercentage, column - 14).toString());
 
 						ui->logPlainText->appendHtml(tr("Found %1 key points in the first image").arg(excelRecover->GetCellValue(progressPercentage, column - 13).toString()));
@@ -3344,7 +3343,11 @@ void MainWindow::importExcelFile()
 						goodProbability = acceptedMatches / (acceptedMatches + rejectedMatches) * 100;
 						badProbability = rejectedMatches / (acceptedMatches + rejectedMatches) * 100;
 					}
-					else ui->decisionStageThresholdText->setText(excelRecover->GetCellValue(progressPercentage, column).toString());
+					else
+					{
+						ui->normalizationOffsetText->setText(excelRecover->GetCellValue(progressPercentage, column - 1).toString()); 
+						ui->decisionStageThresholdText->setText(excelRecover->GetCellValue(progressPercentage, column).toString());
+					}
 
 					//ui->refreshBddImageNames->setEnabled(false);
 					ui->bddImageNames->clear();
@@ -3449,7 +3452,7 @@ void MainWindow::importExcelFile()
 	}
 	catch (const std::exception& e)
 	{
-		QMessageBox::critical(this, tr("Error lors de l'importation du fichier excel !"), e.what());
+		QMessageBox::critical(this, tr("Error while importing from Excel file!"), e.what());
 	}
 }
 
@@ -3700,71 +3703,53 @@ void MainWindow::drowRankk(int maxRank){
 		if (x[i] != 0) rankkData[i].second = rankkData[i].second / static_cast<float>(maxRank)* 100;
 		y[i] = rankkData[i].second;
 
-		//if (x[i] == 1 && y[i]!=0) {
-		//	// add the text label at the top:
-		//	QCPItemText *textLabel = new QCPItemText(ui->rankkGraphWidget);
-		//	textLabel->setPositionAlignment(Qt::AlignTop| Qt::AlignHCenter);
-		//	textLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-		//	textLabel->setText("Rank-1= "+QString::number(y[i])+"%");
-		//	textLabel->setFont(QFont(font().family(), 9)); // make font a bit larger
-		//	textLabel->setPen(QPen(Qt::black)); // show black border around text
+		if (x[i] == 1 && y[i] != 0) {
+			// add the text label at the top:
+			QCPItemText *textLabel = new QCPItemText(ui->rankkGraphWidget);
+			textLabel->setPositionAlignment(Qt::AlignTop | Qt::AlignHCenter);
+			textLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
+			textLabel->setText("Rank-1= " + QString::number(y[i]) + "%");
+			textLabel->setFont(QFont(font().family(), 9)); // make font a bit larger
+			textLabel->setPen(QPen(Qt::black)); // show black border around text
 
-		//	// add the arrow:
-		//	QCPItemLine *arrow = new QCPItemLine(ui->rankkGraphWidget);
-		//	arrow->start->setParentAnchor(textLabel->top);
-		//	double yPos = 1 - y[i] / 100 + 0.05;
-		//	if (yPos > 0.9){
-		//		yPos -= 0.2;
-		//		arrow->start->setParentAnchor(textLabel->bottom);
-		//	}
-		//	textLabel->position->setCoords(0.10, yPos); // place position at center/top of axis rect
-		//	arrow->end->setCoords(x[i], y[i]); // point to rank-1 plot coordinates
-		//	arrow->setHead(QCPLineEnding::esSpikeArrow);
-		//}
+			// add the arrow:
+			QCPItemLine *arrow = new QCPItemLine(ui->rankkGraphWidget);
+			arrow->start->setParentAnchor(textLabel->top);
+			double yPos = 1 - y[i] / 100 + 0.05;
+			if (yPos > 0.9){
+				yPos -= 0.2;
+				arrow->start->setParentAnchor(textLabel->bottom);
+			}
+			textLabel->position->setCoords(0.10, yPos); // place position at center/top of axis rect
+			arrow->end->setCoords(x[i], y[i]); // point to rank-1 plot coordinates
+			arrow->setHead(QCPLineEnding::esSpikeArrow);
+		}
 	}
 	// create graph and assign data to it:
 	ui->rankkGraphWidget->addGraph();
-	ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setData(x, y);
+	ui->rankkGraphWidget->graph(0)->setData(x, y);
+	ui->rankkGraphWidget->graph(0)->setName("Rank-k");
 	// give the axes some labels:
 	ui->rankkGraphWidget->xAxis->setLabel("Rank");
-	ui->rankkGraphWidget->yAxis->setLabel(tr("Percent %"));
+	ui->rankkGraphWidget->yAxis->setLabel("Percent %");
 	// set axes ranges, so we see all data:
-	ui->rankkGraphWidget->xAxis->setRange(0, x[x.size()-1]);
+	ui->rankkGraphWidget->xAxis->setRange(0, x[x.size() - 1]);
 	QCPAxisTickerFixed *fixedTicker = new QCPAxisTickerFixed();
 	fixedTicker->setTickStep(1);
 	ui->rankkGraphWidget->xAxis->setTicker(QSharedPointer<QCPAxisTickerFixed>(fixedTicker));
-	ui->rankkGraphWidget->yAxis->setRange(0, 130);
+	ui->rankkGraphWidget->yAxis->setRange(0, 110);
 	// set legend
 	ui->rankkGraphWidget->legend->setVisible(true);
 	ui->rankkGraphWidget->legend->setFont(QFont("Helvetica", 9));
 	// set locale to english, so we get english decimal separator:
 	ui->rankkGraphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
 	// configuration:
-	ui->rankkGraphWidget->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignHCenter | Qt::AlignTop);
-	switch (ui->rankkGraphWidget->graphCount()){
-		case 3:
-			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount() - 1)->setName("Sans Test");
-			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount() - 1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross, QPen(Qt::white, 1), QBrush(Qt::white), 3));
-			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount() - 1)->setPen(QPen(Qt::GlobalColor::black, 2));
-		break;
-		case 2:
-			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setName(tr("Test Inverse"));
-			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1), QBrush(Qt::white), 3));
-			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setPen(QPen(QColor(120, 140, 250), 2));
-			break;
-		case 1:
-			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setName("Test Ratio");
-			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssSquare, QPen(Qt::black, 1), QBrush(Qt::white), 3));
-			ui->rankkGraphWidget->graph(ui->rankkGraphWidget->graphCount()-1)->setPen(QPen(QColor(120, 250, 120), 2));
-			break;
-		default:
-			break;
-	}
-	
+	ui->rankkGraphWidget->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 9));
+	ui->rankkGraphWidget->graph(0)->setPen(QPen(QColor(120, 120, 120), 2));
 	ui->rankkGraphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 	ui->rankkGraphWidget->axisRect()->setRangeDrag(Qt::Horizontal); // drag only on x
 	ui->rankkGraphWidget->axisRect()->setRangeZoom(Qt::Horizontal); // zoom only on x
-	
+
 	// drow
 	ui->rankkGraphWidget->replot();
 }
@@ -3818,11 +3803,11 @@ void MainWindow::drowEer(std::map<float, std::pair<int, int>> FMR_dataFromExcel,
 
 	// spline graph
 	ui->eerGraphWidget->addGraph();
-	ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setData(xFMR, yFMR);
-	//ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setName("FMR");
+	ui->eerGraphWidget->graph(0)->setData(xFMR, yFMR);
+	ui->eerGraphWidget->graph(0)->setName("FMR");
 	ui->eerGraphWidget->addGraph();
-	ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setData(xFNMR, yFNMR);
-	//ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setName("FNMR");
+	ui->eerGraphWidget->graph(1)->setData(xFNMR, yFNMR);
+	ui->eerGraphWidget->graph(1)->setName("FNMR");
 	// create graph and assign data to it:
 	//ui->eerGraphWidget->addGraph();
 	//ui->eerGraphWidget->graph(2)->setData(xFMR, yFMR);
@@ -3837,50 +3822,17 @@ void MainWindow::drowEer(std::map<float, std::pair<int, int>> FMR_dataFromExcel,
 	QCPAxisTickerFixed *fixedTicker = new QCPAxisTickerFixed();
 	fixedTicker->setTickStep(50);
 	ui->eerGraphWidget->xAxis->setTicker(QSharedPointer<QCPAxisTickerFixed>(fixedTicker));
-	ui->eerGraphWidget->yAxis->setRange(0, 130);
+	ui->eerGraphWidget->yAxis->setRange(0, 110);
 	// set legend
-	//ui->eerGraphWidget->legend->setVisible(true);
-	//ui->eerGraphWidget->legend->setFont(QFont("Helvetica", 9));
+	ui->eerGraphWidget->legend->setVisible(true);
+	ui->eerGraphWidget->legend->setFont(QFont("Helvetica", 9));
 	// set locale to english, so we get english decimal separator:
-	//ui->eerGraphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
+	ui->eerGraphWidget->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
 	// configuration:
-	//ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setPen(QPen(QColor(120, 140, 250), 2));
-	//ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setPen(QPen(QColor(120, 250, 120), 2));
-	//ui->eerGraphWidget->graph(2)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 5));
-	//ui->eerGraphWidget->graph(2)->setPen(Qt::NoPen);
-	//ui->eerGraphWidget->graph(2)->removeFromLegend();
-	//ui->eerGraphWidget->graph(3)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 5));
-	//ui->eerGraphWidget->graph(3)->setPen(Qt::NoPen);
-	//ui->eerGraphWidget->graph(3)->removeFromLegend();
-	//ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->selectionDecorator()->setPen(QPen(QColor(120, 140, 250), 2));
-	//i->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->selectionDecorator()->setPen(QPen(QColor(120, 250, 120), 2));
-	//ui->eerGraphWidget->graph(2)->selectionDecorator()->setPen(QPen(QColor(120, 120, 120), 1));
-	//ui->eerGraphWidget->graph(3)->selectionDecorator()->setPen(QPen(QColor(120, 120, 120), 1));
-
-	// configuration:
-	ui->eerGraphWidget->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignHCenter | Qt::AlignTop);
-	switch (ui->eerGraphWidget->graphCount()){
-	case 2:
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setName(tr("Sans Test (FMR)"));
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setName(tr("          (FNMR)"));
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setPen(QPen(Qt::GlobalColor::black, 2));
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setPen(QPen(Qt::GlobalColor::black, 2, Qt::DashLine));
-		break;
-	case 4:
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setName("Test Inverse (FMR)");
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setName("            (FNMR)");
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setPen(QPen(QColor(120, 140, 250), 2));
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setPen(QPen(QColor(120, 140, 250), 2, Qt::DashLine));
-		break;
-	case 6:
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setName("Test Ratio (FMR)");
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setName("          (FNMR)");
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 2)->setPen(QPen(QColor(120, 250, 120), 2));
-		ui->eerGraphWidget->graph(ui->eerGraphWidget->graphCount() - 1)->setPen(QPen(QColor(120, 250, 120), 2, Qt::DashLine));
-		break;
-	default:
-		break;
-	}
+	ui->eerGraphWidget->graph(0)->setPen(QPen(QColor(120, 140, 250), 2));
+	ui->eerGraphWidget->graph(1)->setPen(QPen(QColor(120, 250, 120), 2));
+	ui->eerGraphWidget->graph(0)->selectionDecorator()->setPen(QPen(QColor(120, 140, 250), 2));
+	ui->eerGraphWidget->graph(1)->selectionDecorator()->setPen(QPen(QColor(120, 250, 120), 2));
 	ui->eerGraphWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 	ui->eerGraphWidget->axisRect()->setRangeDrag(Qt::Horizontal); // drag only on x
 	ui->eerGraphWidget->axisRect()->setRangeZoom(Qt::Horizontal); // zoom only on x

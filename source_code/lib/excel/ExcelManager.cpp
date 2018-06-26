@@ -56,8 +56,7 @@ ExcelManager::ExcelManager(bool closeExcelOnExit, const QString& fileName, int n
 		SetNewCellValue(m_sheet_custom, 22 - testType, 1, "Matcher");
 		SetNewCellValue(m_sheet_custom, 23 - testType, 8, "Parameters of Matcher");
 		SetNewCellValue(m_sheet_custom, 31 - testType, 1, "Opponent Color");
-		SetNewCellValue(m_sheet_custom, 32 - testType, 1, "Normalization Offset");
-		SetNewCellValueLast(m_sheet_custom, 33 - testType, testType);
+		SetNewCellValueLast(m_sheet_custom, 32 - testType, testType);
 
 		m_sheet_brisk = AddNewSheet("BRISK");
 
@@ -305,23 +304,24 @@ void ExcelManager::SetNewCellValueFirst(QAxObject* sheet, int type)
 }
 void ExcelManager::SetNewCellValueLast(QAxObject* sheet, int startColumnIndex, int type)
 {
-	SetNewCellValue(sheet, startColumnIndex, 1, "Threshold Score");
+	SetNewCellValue(sheet, startColumnIndex, 1, "Normalization Offset");
+	SetNewCellValue(sheet, startColumnIndex + 1, 1, "Threshold Score");
 	if (type == 0)
 	{
-		SetNewCellValue(sheet, startColumnIndex + 1, 1, "key Points 1");
-		SetNewCellValue(sheet, startColumnIndex + 2, 1, "key Points 2");
-		SetNewCellValue(sheet, startColumnIndex + 3, 1, "Detection Time");
-		SetNewCellValue(sheet, startColumnIndex + 4, 1, "Description Time");
-		SetNewCellValue(sheet, startColumnIndex + 5, 1, "Clustering Time");
-		SetNewCellValue(sheet, startColumnIndex + 6, 1, "Matching Time");
-		SetNewCellValue(sheet, startColumnIndex + 7, 1, "Total Time");
-		SetNewCellValue(sheet, startColumnIndex + 8, 1, "Accepted Matches");
-		SetNewCellValue(sheet, startColumnIndex + 9, 1, "Rejected Matches");
-		SetNewCellValue(sheet, startColumnIndex + 10, 1, "Best Image Average");
-		SetNewCellValue(sheet, startColumnIndex + 11, 1, "Best Image Score");
-		SetNewCellValue(sheet, startColumnIndex + 12, 1, "Requested Image Score");
-		SetNewCellValue(sheet, startColumnIndex + 13, 1, "Best Image");
-		SetNewCellValue(sheet, startColumnIndex + 14, 1, "Rank");
+		SetNewCellValue(sheet, startColumnIndex + 2, 1, "key Points 1");
+		SetNewCellValue(sheet, startColumnIndex + 3, 1, "key Points 2");
+		SetNewCellValue(sheet, startColumnIndex + 4, 1, "Detection Time");
+		SetNewCellValue(sheet, startColumnIndex + 5, 1, "Description Time");
+		SetNewCellValue(sheet, startColumnIndex + 6, 1, "Clustering Time");
+		SetNewCellValue(sheet, startColumnIndex + 7, 1, "Matching Time");
+		SetNewCellValue(sheet, startColumnIndex + 8, 1, "Total Time");
+		SetNewCellValue(sheet, startColumnIndex + 9, 1, "Accepted Matches");
+		SetNewCellValue(sheet, startColumnIndex + 10, 1, "Rejected Matches");
+		SetNewCellValue(sheet, startColumnIndex + 11, 1, "Best Image Average");
+		SetNewCellValue(sheet, startColumnIndex + 12, 1, "Best Image Score");
+		SetNewCellValue(sheet, startColumnIndex + 13, 1, "Requested Image Score");
+		SetNewCellValue(sheet, startColumnIndex + 14, 1, "Best Image");
+		SetNewCellValue(sheet, startColumnIndex + 15, 1, "Rank");
 	}
 }
 
