@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 	QTranslator trs;
 	MainWindow mainWindow;
 
-	if (true)trs.load(":/MainWindow/palmprintregistration_fr");
+	trs.load(":/MainWindow/palmprintregistration_fr");
 	app.installTranslator(&trs);
 
 	InitializeDualMode(true);
