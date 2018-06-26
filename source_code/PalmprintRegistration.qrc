@@ -10,7 +10,7 @@
         <file alias="start-img">imgs/start.png</file>
         <file alias="settings-dialog">settingsdialog.ui</file>
         <file alias="icon">imgs/icon.ico</file>
-        <file alias="palmprintregistration_fr">palmprintregistration_fr.qm</file>
+        <file alias="palmprintregistration_fr.qm">palmprintregistration_fr.qm</file>
     </qresource>
     <qresource prefix="/qss_icons">
         <file>themes/rc/branch_closed.png</file>

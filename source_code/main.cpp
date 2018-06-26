@@ -13,12 +13,12 @@ int main(int argc, char *argv[])
 	InitializeDualMode(true);
 	bool isConsole = false;
 	isConsole = (argc > 1 && !strcmp(argv[1], "-c"));
-	if (!isConsole){
+	/*if (!isConsole){
 		std::cout << "Do you want to start the application with console mode?" << std::endl;
 		std::cout << "[y/n] ";
 		char c = std::getchar();
 		isConsole = (c == 'y' || c == 'Y');
-	}
+	*/
 	if (isConsole) {
 		std::cout << "Starting console app ..." << std::endl;
 		mainWindow.launchInCMD();

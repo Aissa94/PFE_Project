@@ -57,7 +57,7 @@
 	std::vector<float> sumDistancesSet;
 	std::vector<float> scoreSet;
 	int bestScoreIndex = -1;
-	bool oneToN;
+	bool oneToN, cmdMode = false;
 	int bestMatchesCount;
 	double minKeypoints;
 	int takeTestType = -1, importExcelFileType = -1, cpt;
@@ -970,9 +970,11 @@ void MainWindow::runCustom(int testType)
 }
 
 void MainWindow::launchInCMD(){
+	cmdMode = true;
 	ui->tabWidget_2->setCurrentIndex(2);
 	//ui->inputPath->setText(filePath);
 	on_actionRun_triggered();
+	cmdMode = false;
 }
 
 void MainWindow::on_firstImgBtn_pressed()
@@ -1050,9 +1052,10 @@ void MainWindow::on_actionRun_triggered()
 	taskProgressDialog->setWindowModality(Qt::WindowModal);
 	taskProgressDialog->setMinimumDuration(0);
 	taskProgressDialog->setValue(0);
-
-	connect(this, SIGNAL(taskPercentageComplete(int)), taskProgressDialog, SLOT(setValue(int)));
-	connect(taskThread, SIGNAL(finished()), taskProgressDialog, SLOT(deletLater()));
+	if (!cmdMode) {
+		connect(this, SIGNAL(taskPercentageComplete(int)), taskProgressDialog, SLOT(setValue(int)));
+		connect(taskThread, SIGNAL(finished()), taskProgressDialog, SLOT(deletLater()));
+	}
 
 	switch (ui->tabWidget_2->currentIndex())
 	{
@@ -1072,17 +1075,20 @@ void MainWindow::on_actionRun_triggered()
 		}
 		case 2:
 		{
-			/*if (!readInputFile()) {
-			ui->logPlainText->appendHtml(tr("<b style='color:red'>Error while trying to read the excel file!</b>"));
-			return;
-			}*/
 			importExcelFileType = 2;
-			taskProgressDialog->setWindowTitle(tr("Execute Commands"));
-			connect(taskThread, SIGNAL(started()), this, SLOT(importExcelFile()));
+			if (cmdMode) {
+				importExcelFile();
+			}
+			else{
+				taskProgressDialog->setWindowTitle(tr("Execute Commands"));
+				connect(taskThread, SIGNAL(started()), this, SLOT(importExcelFile()));
+			}
 		}
 		break;
 	}
-	taskThread->start();
+	if (!cmdMode) {
+		taskThread->start();
+	}
 }
 
 void MainWindow::on_actionClear_Log_triggered()
@@ -3064,7 +3070,7 @@ void MainWindow::importExcelFile() throw() {
 		if (importExcelFileType == 0) excelRecover = new ExcelManager(true, exportFile, 0);
 		else excelRecover = new ExcelManager(true, inputFile, 11);
 		emit taskPercentageComplete(1);
-		for (int methodIndex = 5; methodIndex <= 5; methodIndex++) {
+		for (int methodIndex = 1; methodIndex <= 5; methodIndex++) {
 			excelRecover->GetIntRows(methodIndex);
 			column = excelRecover->getColumnsCount();
 			int nbTasks = excelRecover->getSheetCount();
@@ -3454,7 +3460,8 @@ void MainWindow::importExcelFile() throw() {
 			if (!exist) QMessageBox::warning(this, tr("Import Excel Error!"), tr("Please check the number that has been entered because no ID matches this number !"));
 		}
 		else if (!taskIsCanceled){
-			QMessageBox::information(this, tr("Import Input file!"), tr("The execution of all commands has been finished with success !"));
+			emit taskPercentageComplete(100);
+			if(!cmdMode) QMessageBox::information(this, tr("Import Input file!"), tr("The execution of all commands has been finished with success !"));
 			//ui->logPlainText->appendHtml(tr("<b style='color:blue'>The execution of all commands has been finished with success !</b>"));
 		}
 		excelRecover->~ExcelManager();
