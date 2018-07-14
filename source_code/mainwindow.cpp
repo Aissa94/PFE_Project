@@ -1779,62 +1779,62 @@ void MainWindow::displayMatches(int imgIndex){
 		sumDistances = sumDistancesSet[imgIndex];
 		score = scoreSet[imgIndex];
 	}
-	//int i = 0;
-	//for (cv::DMatch match : goodMatches){
-	//	// Add information to the table
-	//	QStandardItem *x1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.x));
-	//	model->setItem(i, 0, x1);
-	//	QStandardItem *y1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.y));
-	//	model->setItem(i, 1, y1);
-	//	if (oneToN){
-	//		QStandardItem *x2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.x));
-	//		model->setItem(i, 2, x2);
-	//		QStandardItem *y2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.y));
-	//		model->setItem(i, 3, y2);
-	//	}
-	//	else{
-	//		QStandardItem *x2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.x));
-	//		model->setItem(i, 2, x2);
-	//		QStandardItem *y2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.y));
-	//		model->setItem(i, 3, y2);
-	//	}
-	//	QStandardItem *dist = new QStandardItem(QString::number(match.distance));
-	//	model->setItem(i, 4, dist);
+	int i = 0;
+	for (cv::DMatch match : goodMatches){
+		// Add information to the table
+		QStandardItem *x1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.x));
+		model->setItem(i, 0, x1);
+		QStandardItem *y1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.y));
+		model->setItem(i, 1, y1);
+		if (oneToN){
+			QStandardItem *x2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.x));
+			model->setItem(i, 2, x2);
+			QStandardItem *y2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.y));
+			model->setItem(i, 3, y2);
+		}
+		else{
+			QStandardItem *x2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.x));
+			model->setItem(i, 2, x2);
+			QStandardItem *y2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.y));
+			model->setItem(i, 3, y2);
+		}
+		QStandardItem *dist = new QStandardItem(QString::number(match.distance));
+		model->setItem(i, 4, dist);
 
-	//	QStandardItem *accepted = new QStandardItem("Accepted");
-	//	accepted->setData(QColor(Qt::black), Qt::TextColorRole);
-	//	accepted->setData(QColor(Qt::green), Qt::BackgroundRole);
-	//	model->setItem(i, 5, accepted);
-	//	i++;
-	//}
-	//for (cv::DMatch match : badMatches){
-	//	// Add information to the table
-	//	QStandardItem *x1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.x));
-	//	model->setItem(i, 0, x1);
-	//	QStandardItem *y1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.y));
-	//	model->setItem(i, 1, y1);
-	//	if (oneToN){
-	//		QStandardItem *x2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.x));
-	//		model->setItem(i, 2, x2);
-	//		QStandardItem *y2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.y));
-	//		model->setItem(i, 3, y2);
-	//	}
-	//	else{
-	//		QStandardItem *x2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.x));
-	//		model->setItem(i, 2, x2);
-	//		QStandardItem *y2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.y));
-	//		model->setItem(i, 3, y2);
-	//	}
-	//	QStandardItem *dist = new QStandardItem(QString::number(match.distance));
-	//	model->setItem(i, 4, dist);
+		QStandardItem *accepted = new QStandardItem("Accepted");
+		accepted->setData(QColor(Qt::black), Qt::TextColorRole);
+		accepted->setData(QColor(Qt::green), Qt::BackgroundRole);
+		model->setItem(i, 5, accepted);
+		i++;
+	}
+	for (cv::DMatch match : badMatches){
+		// Add information to the table
+		QStandardItem *x1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.x));
+		model->setItem(i, 0, x1);
+		QStandardItem *y1 = new QStandardItem(QString::number(firstImgKeypoints[match.queryIdx].pt.y));
+		model->setItem(i, 1, y1);
+		if (oneToN){
+			QStandardItem *x2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.x));
+			model->setItem(i, 2, x2);
+			QStandardItem *y2 = new QStandardItem(QString::number(setImgsKeypoints[imgIndex][match.trainIdx].pt.y));
+			model->setItem(i, 3, y2);
+		}
+		else{
+			QStandardItem *x2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.x));
+			model->setItem(i, 2, x2);
+			QStandardItem *y2 = new QStandardItem(QString::number(secondImgKeypoints[match.trainIdx].pt.y));
+			model->setItem(i, 3, y2);
+		}
+		QStandardItem *dist = new QStandardItem(QString::number(match.distance));
+		model->setItem(i, 4, dist);
 
-	//	QStandardItem *rejected = new QStandardItem("Rejected");
-	//	rejected->setData(QColor(Qt::black), Qt::TextColorRole);
-	//	rejected->setData(QColor(Qt::red), Qt::BackgroundRole);
-	//	model->setItem(i, 5, rejected);
-	//	i++;
-	//}
-	//ui->viewTable->setModel(model);
+		QStandardItem *rejected = new QStandardItem("Rejected");
+		rejected->setData(QColor(Qt::black), Qt::TextColorRole);
+		rejected->setData(QColor(Qt::red), Qt::BackgroundRole);
+		model->setItem(i, 5, rejected);
+		i++;
+	}
+	ui->viewTable->setModel(model);
 
 	// Add the image to the viewer
 	QGraphicsScene *matchingScene = new QGraphicsScene();
@@ -3026,10 +3026,10 @@ bool MainWindow::showDecision(){
 
 			if (ui->imageExistsInBdd->isEnabled() && ui->imageExistsInBdd->isChecked()){
 				ui->logPlainText->appendHtml(tr("The first image is Rank-<b>%1</b> ").arg(QString::number(computeRankK(scoreThreshold))));
-				if (ui->bddImageNames->currentIndex() > -1) if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml(tr("There is a False Non-Match (FNM)"));
+				if (ui->bddImageNames->currentIndex() > -1) if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml(tr("<b style='color:red'>There is a False Non-Match (FNM)</b>"));
 			}
 			else{
-				if (scoreSet[bestScoreIndex] >= scoreThreshold)ui->logPlainText->appendHtml(tr("There is a False Match (FM)"));
+				if (scoreSet[bestScoreIndex] >= scoreThreshold)ui->logPlainText->appendHtml(tr("<b style='color:red'>There is a False Match (FM)</b>"));
 			}
 			// View results
 			displayMatches(bestScoreIndex);
@@ -3041,7 +3041,7 @@ bool MainWindow::showDecision(){
 			if (ui->imageExistsInBdd->isEnabled() && ui->imageExistsInBdd->isChecked()){
 				ui->logPlainText->appendHtml(tr("The first image is Rank-<b>%1</b> ").arg(QString::number(computeRankK(scoreThreshold))));
 				if (ui->bddImageNames->currentIndex() > -1 && scoreSet.size()>0)
-					if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml(tr("There is a False Non-Match (FNM)"));
+					if (scoreSet[ui->bddImageNames->currentIndex()] < scoreThreshold) ui->logPlainText->appendHtml(tr("<b style='color:red'>There is a False Non-Match (FNM)</b>"));
 			}
 			// View results
 			ui->logPlainText->appendHtml(tr("<b style='color:red'>All obtained scores are null.</b>"));
