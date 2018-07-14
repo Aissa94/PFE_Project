@@ -1677,13 +1677,15 @@ Found %1 key points in the most similar image</source>
     <message>
         <location filename="mainwindow.cpp" line="3029"/>
         <location filename="mainwindow.cpp" line="3044"/>
-        <source>There is a False Non-Match (FNM)</source>
-        <translation>C&apos;est un Faux Appariement Négatif (FNM)</translation>
+        <source>&lt;b style=&apos;color:red&apos;&gt;There is a False Non-Match (FNM)&lt;/b&gt;</source>
+        <oldsource>There is a False Non-Match (FNM)</oldsource>
+        <translation type="unfinished">C&apos;est un Faux Appariement Négatif (FNM)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="3032"/>
-        <source>There is a False Match (FM)</source>
-        <translation>C&apos;est un Faux Appariement</translation>
+        <source>&lt;b style=&apos;color:red&apos;&gt;There is a False Match (FM)&lt;/b&gt;</source>
+        <oldsource>There is a False Match (FM)</oldsource>
+        <translation type="unfinished">C&apos;est un Faux Appariement</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="3047"/>
